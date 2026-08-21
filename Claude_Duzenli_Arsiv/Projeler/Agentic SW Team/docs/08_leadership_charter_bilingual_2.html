@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARDICTECH — Leadership & Team Ramp-Up Charter</title>
+<style>
+:root{
+  --bg:#0D1117;--bg2:#161B22;--bg3:#21262D;--border:#30363D;--border2:#444C56;
+  --text:#E6EDF3;--text2:#8B949E;--text3:#6E7681;
+  --cto:#BC8CFF;--pl:#58A6FF;--green:#3FB950;--amber:#E3B341;--red:#F85149;
+  --mono:ui-monospace,'JetBrains Mono','SFMono-Regular',Menlo,monospace;
+  --sans:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);line-height:1.55;-webkit-font-smoothing:antialiased;padding:0 0 70px}
+.hdr{background:linear-gradient(135deg,var(--bg2),#1C2333);border-bottom:1px solid var(--border);padding:18px 30px;position:sticky;top:0;z-index:50}
+.hdr-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.hdr h1{font-size:18px;font-weight:700;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.vb{font-family:var(--mono);font-size:9px;font-weight:700;background:rgba(188,140,255,.14);color:var(--cto);border:1px solid var(--cto);border-radius:20px;padding:2px 9px;letter-spacing:.06em}
+.hdr .sub{font-size:11.5px;color:var(--text2);font-family:var(--mono);margin-top:4px}
+.lang{display:flex;gap:4px;background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:3px;flex-shrink:0}
+.lang button{font-family:var(--mono);font-size:11px;font-weight:700;border:none;background:none;color:var(--text3);cursor:pointer;padding:3px 12px;border-radius:16px}
+.lang button.on{background:var(--cto);color:#0D1117}
+.main{max-width:980px;margin:0 auto;padding:26px 30px}
+.sect{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin:34px 0 14px;padding-bottom:7px;border-bottom:1px solid var(--border)}
+.sect:first-child{margin-top:0}
+.sect.cto{color:var(--cto);border-color:rgba(188,140,255,.4)}
+.sect.pl{color:var(--pl);border-color:rgba(88,166,255,.4)}
+.lede{font-size:13.5px;color:var(--text2);line-height:1.7;margin-bottom:16px;max-width:760px}
+p.body{font-size:13.5px;color:var(--text);line-height:1.7;margin-bottom:12px;max-width:760px}
+p.body b{font-weight:600}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:8px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px 18px}
+.card.c{border-top:3px solid var(--cto)}.card.p{border-top:3px solid var(--pl)}
+.card h3{font-size:15px;font-weight:600;margin-bottom:7px}.card.c h3{color:var(--cto)}.card.p h3{color:var(--pl)}
+.card p{font-size:12.5px;color:var(--text2);line-height:1.65}
+.item{background:var(--bg2);border:1px solid var(--border);border-radius:9px;padding:13px 16px;margin-bottom:9px}
+.item h4{font-size:13.5px;font-weight:600;color:var(--text);margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.item p{font-size:12.5px;color:var(--text2);line-height:1.6}
+.num{font-family:var(--mono);font-size:10px;font-weight:700;background:var(--bg3);border:1px solid var(--border2);color:var(--text2);border-radius:5px;padding:1px 7px;flex-shrink:0}
+table{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:8px}
+th{text-align:left;font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--text3);padding:9px 11px;border-bottom:1px solid var(--border2)}
+td{padding:10px 11px;border-bottom:1px solid var(--border);vertical-align:top}
+.sev{font-family:var(--mono);font-size:10px;font-weight:700;border-radius:10px;padding:1px 8px;white-space:nowrap}
+.s-hi{background:rgba(248,81,73,.14);color:var(--red);border:1px solid var(--red)}
+.s-md{background:rgba(227,179,65,.14);color:var(--amber);border:1px solid var(--amber)}
+.when{font-family:var(--mono);font-size:11px;color:var(--text);white-space:nowrap;font-weight:600}
+.role{font-weight:600;color:var(--text);white-space:nowrap}
+.wt{font-family:var(--mono);font-size:11px;color:var(--text3);white-space:nowrap}
+.tl{position:relative;padding-left:22px;margin-bottom:8px}
+.tl:before{content:'';position:absolute;left:6px;top:4px;bottom:-8px;width:2px;background:var(--border2)}
+.tl:last-child:before{display:none}
+.tl .dot{position:absolute;left:1px;top:3px;width:12px;height:12px;border-radius:50%;background:var(--pl);border:2px solid var(--bg)}
+.note{border-radius:0 8px 8px 0;padding:13px 16px;font-size:13px;line-height:1.65;margin:16px 0;max-width:780px;background:var(--bg2);border:1px solid var(--border)}
+.note.red{border-left:3px solid var(--red)}.note.green{border-left:3px solid var(--green)}
+.note.cto{border-left:3px solid var(--cto)}.note.amber{border-left:3px solid var(--amber)}
+.note b{color:var(--text);font-weight:600}
+.opens{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+.open{background:var(--bg3);border:1px solid var(--border);border-left:3px solid var(--amber);border-radius:0 7px 7px 0;padding:10px 13px;font-size:12.5px}
+.open b{color:var(--amber);font-weight:600}.open p{color:var(--text2);margin-top:3px;line-height:1.5}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 6px}
+.chip{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:12px;color:var(--text)}
+@media(max-width:720px){.cards,.opens{grid-template-columns:1fr}}
+footer{max-width:980px;margin:0 auto;padding:20px 30px;font-size:11px;color:var(--text3);font-family:var(--mono);border-top:1px solid var(--border)}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div class="hdr-top">
+    <div>
+      <h1 id="title"></h1>
+      <div class="sub" id="subtitle"></div>
+    </div>
+    <div class="lang">
+      <button id="btn-en" class="on" onclick="setLang('en')">EN</button>
+      <button id="btn-tr" onclick="setLang('tr')">TR</button>
+    </div>
+  </div>
+</div>
+<div class="main" id="main"></div>
+<footer id="footer"></footer>
+<script>
+var lang='en';
+var GATES=[
+ ['No rubber-stamp review','İmza-atma incelemesi yok','Every PR gets a real human review — a minimum of 30 minutes where it matters, with adversarial challengers at the Friday review. At Antigravity\u2019s 10× output speed this is the single biggest quality risk; protect it.','Her PR gerçek bir insan incelemesi alır — önemli yerlerde en az 30 dakika, Cuma incelemesinde muhalif sorgulayıcılarla. Antigravity\u2019nin 10× üretim hızında bu en büyük tek kalite riskidir; koruyun.'],
+ ['Artifacts are not proof','Artifact kanıt değildir','A self-reported "complete" is not complete. The Verifier confirms independently against the spec; Antigravity 2.0 Artifacts never count as proof. Agents report BLOCKED rather than claim false success.','Kendi bildirdiği "tamamlandı" tamamlanmış değildir. Doğrulayıcı şartnameye karşı bağımsız onaylar; Antigravity 2.0 Artifact\u2019ları asla kanıt sayılmaz. Ajanlar yanlış başarı iddia etmek yerine BLOCKED bildirir.'],
+ ['Stage size XS/S/M/L only','Aşama boyutu yalnızca XS/S/M/L','One stage = one prompt = one PR. Anything XL must be decomposed (the generator emits a scope warning). This bounds cost and keeps review load human-sized.','Bir aşama = bir prompt = bir PR. XL olan her şey ayrıştırılmalıdır (üreteç bir kapsam uyarısı verir). Bu, maliyeti sınırlar ve inceleme yükünü insan-ölçeğinde tutar.'],
+ ['Eval coverage minimum','Asgari değerlendirme kapsamı','Before a capability is trusted: at least 5 happy-path + 3 edge-case + 2 adversarial examples per eval set. Coverage is a gate, not a nice-to-have.','Bir yetenek güvenilir sayılmadan önce: değerlendirme seti başına en az 5 mutlu-yol + 3 sınır-durumu + 2 muhalif örnek. Kapsam bir kapıdır, isteğe bağlı değil.'],
+ ['Prompts are code','Prompt\u2019lar koddur','Prompts are versioned in git and reviewed like code; the system-prompt SHA is recorded in every generation. A single author owns prompts for consistency until the team is calibrated.','Prompt\u2019lar git\u2019te sürümlenir ve kod gibi incelenir; sistem-prompt SHA\u2019sı her üretimde kaydedilir. Tutarlılık için, ekip kalibre olana dek tek bir yazar prompt\u2019ların sahibidir.'],
+ ['Secrets discipline','Sır disiplini','Vault references only — never raw secrets in commands, output, or telemetry; PII is redacted at emission. Check values with a hash, never by printing them.','Yalnızca Vault referansları — komutlarda, çıktıda veya telemetride asla ham sır yok; PII yayım anında maskelenir. Değerleri yazdırarak değil, hash ile kontrol edin.'],
+ ['Exact identifiers, never substitute','Tam tanımlayıcılar, asla ikame etme','Repo names, instance IDs, endpoints are copied verbatim. If an identifier is unclear, the work stops and asks — it does not guess.','Repo adları, örnek kimlikleri, uç noktalar birebir kopyalanır. Bir tanımlayıcı belirsizse, iş durur ve sorar — tahmin etmez.'],
+ ['Additive over destructive','Yıkıcı yerine ekleyici','Capture a clean git status before any destructive operation. Reversible by default.','Herhangi bir yıkıcı işlemden önce temiz bir git durumu yakalayın. Varsayılan olarak geri alınabilir.']];
+var ROUTING=[
+ ['Opus 4.7','Highest-stakes reasoning — architecture, security, irreversible decisions. Use only when the cost of being wrong exceeds the cost difference.','En yüksek-riskli akıl yürütme — mimari, güvenlik, geri alınamaz kararlar. Yalnızca yanılmanın maliyeti maliyet farkını aştığında kullanın.'],
+ ['Sonnet 4.6','The default. Day-to-day implementation, test generation, the bulk of throughput.','Varsayılan. Günlük uygulama, test üretimi, işin büyük kısmı.'],
+ ['Haiku 4.5','High-volume mechanical work where volume matters more than depth.','Hacmin derinlikten daha önemli olduğu yüksek-hacimli mekanik işler.'],
+ ['Gemini 3.1 Pro','Fallback when Anthropic is rate-limited, and long-context exploration (reading whole codebases).','Anthropic hız-sınırlandığında yedek ve uzun-bağlam keşfi (tüm kod tabanlarını okuma).']];
+var RISKS=[
+ ['hi','Deterministic instinct vs agentic patterns','Deterministik içgüdü vs agentic desenler','Senior engineers fight the operator model and try to type code. Addressed head-on in the Week-1 workshop; reinforced by the conductor framing.','Kıdemli mühendisler operatör modeline direnir ve kod yazmaya çalışır. Hafta-1 atölyesinde doğrudan ele alınır; orkestra-şefi çerçevesiyle pekiştirilir.'],
+ ['hi','Rubber-stamp review at 10× speed','10× hızda imza-atma incelemesi','Output arrives faster than careful review. Mitigation: Friday 15:00 adversarial review with assigned challengers; the no-rubber-stamp gate.','Çıktı dikkatli incelemeden daha hızlı gelir. Önlem: atanmış sorgulayıcılarla Cuma 15:00 muhalif inceleme; imza-atma-yok kapısı.'],
+ ['hi','Calendar-compression illusion','Takvim-sıkıştırma yanılsaması','Stakeholders push "faster" on validation windows that cannot compress. The leader holds the line: calendar-bound work is 0% compressible.','Paydaşlar sıkışamayan doğrulama pencerelerinde "daha hızlı" baskısı yapar. Lider sınırı korur: takvim-bağlı iş %0 sıkışabilir.'],
+ ['md','Antigravity 2.0 instability (~M3)','Antigravity 2.0 kararsızlığı (~M3)','AG 2.0 is trial-only and non-prod until it stabilises. CWF-critical work stays on the stable AG IDE; Mac/Linux mitigates.','AG 2.0 yalnızca deneme ve kararlı olana dek üretim-dışıdır. CWF-kritik iş kararlı AG IDE\u2019de kalır; Mac/Linux riski azaltır.'],
+ ['md','Cost runaway from unbounded stages','Sınırsız aşamalardan maliyet kaçağı','Poorly-bounded stages burn budget. Mitigation: the XS/S/M/L decomposition rule and per-agent cost attribution in the gateway.','Kötü-sınırlanmış aşamalar bütçe yakar. Önlem: XS/S/M/L ayrıştırma kuralı ve ağ geçidinde ajan-bazlı maliyet atfı.'],
+ ['md','Prompt drift across the team','Ekip genelinde prompt kayması','Six people writing prompts diverge. Mitigation: single prompt author + git versioning until the team is calibrated.','Altı kişinin prompt yazması ıraksar. Önlem: ekip kalibre olana dek tek prompt yazarı + git sürümleme.'],
+ ['md','Single point of failure on the CTO','CTO üzerinde tek hata noktası','Everything routes through one person early. Mitigation: ≥6 hrs/week minimum for the first 3 weeks, then deliberately transition prompt authoring and review leadership to the team.','Her şey erken dönemde tek kişiden geçer. Önlem: ilk 3 hafta için haftada ≥6 saat asgari, sonra prompt yazımı ve inceleme liderliğini bilinçli olarak ekibe devret.']];
+var SKILL=[
+ ['Tech lead / architect','×1 (the CTO)','Owns architecture; reviews every PRD before it becomes a stage prompt; makes the irreversible decisions; maintains the ADR registry.','Mimariyi sahiplenir; her PRD\u2019yi aşama prompt\u2019una dönüşmeden inceler; geri alınamaz kararları verir; ADR kaydını tutar.'],
+ ['Antigravity operators','×2–3','Execute stage prompts via Antigravity; read AI output critically for correctness, idiom, integration; iterate prompts when results miss.','Aşama prompt\u2019larını Antigravity ile yürütür; YZ çıktısını doğruluk, deyim, entegrasyon için eleştirel okur; sonuçlar ıskalayınca prompt\u2019ları yineler.'],
+ ['ML / evaluation engineer','×1','Owns the measurement foundation — telemetry pipeline, eval framework, shadow-mode infrastructure, quality scoring. Builds the substrate everyone depends on.','Ölçüm temelini sahiplenir — telemetri hattı, değerlendirme çerçevesi, gölge-mod altyapısı, kalite puanlama. Herkesin bağlı olduğu altyapıyı kurar.'],
+ ['Quality / SRE','×0.5–1','Production readiness, deployment automation, observability, on-call playbooks. Hardens AI-generated code for production.','Üretim hazırlığı, dağıtım otomasyonu, gözlemlenebilirlik, nöbet kılavuzları. YZ-üretimi kodu üretim için sağlamlaştırır.'],
+ ['Security','×0.25 (consultant)','Threat modelling, red-team setup, security-gate calibration. Brought in for specific reviews, not full-time.','Tehdit modelleme, kırmızı-takım kurulumu, güvenlik-kapısı kalibrasyonu. Tam zamanlı değil, belirli incelemeler için çağrılır.']];
+var KICK=[
+ ['Pre-June','CTO walks the Week-1 starter kit with Maymun and runs setup.sh to ALL CHECKS PASSED with an API key; reads the workshop facilitator guide end-to-end.','CTO, Hafta-1 başlangıç kitini Maymun ile gözden geçirir ve API anahtarıyla setup.sh\u2019ı TÜM KONTROLLER GEÇTİ durumuna getirir; atölye kolaylaştırıcı kılavuzunu baştan sona okur.'],
+ ['~May 25','Pre-reading email to all 6 engineers (Anthropic, Building Effective Agents); acknowledged receipt.','6 mühendise ön-okuma e-postası (Anthropic, Building Effective Agents); alındı onayı.'],
+ ['~May 29','15-minute pre-reading check-in — all 6 confirm they have started.','15 dakikalık ön-okuma kontrolü — 6\u2019sı da başladığını teyit eder.'],
+ ['Pre-June','GitHub repo stood up; 6 engineers have clone access; starter kit pushed.','GitHub repo kuruldu; 6 mühendisin klon erişimi var; başlangıç kiti gönderildi.'],
+ ['Jun 1, 09:00','90-minute workshop: team draws the three folds + six patterns from memory; six operating rules + execution-surface policy on the whiteboard; Week-1 deliverables assigned.','90 dakikalık atölye: ekip üç katı + altı deseni ezbere çizer; altı işletim kuralı + yürütme-yüzeyi politikası beyaz tahtada; Hafta-1 çıktıları atanır.'],
+ ['Jun 1, PM','All 6 clone the repo and see ALL CHECKS PASSED on their own machines.','6\u2019sı da repoyu klonlar ve kendi makinelerinde TÜM KONTROLLER GEÇTİ görür.'],
+ ['Week 1','Every engineer runs an API hello-world; team picks the Week 2–3 CWF subsystem (default: single-turn OEE Q&A); 1–2 volunteers trial AG 2.0 non-prod; first Friday 15:00 review.','Her mühendis bir API hello-world çalıştırır; ekip Hafta 2–3 CWF alt sistemini seçer (varsayılan: tek-turlu OEE Soru-Cevap); 1–2 gönüllü AG 2.0\u2019ı üretim-dışı dener; ilk Cuma 15:00 incelemesi.'],
+ ['Weeks 2–3','First real CWF stage request → Stage Generator → AG IDE execution → review → integration → first eval set frozen.','İlk gerçek CWF aşama isteği → Aşama Üreteci → AG IDE yürütme → inceleme → entegrasyon → ilk değerlendirme seti donduruldu.'],
+ ['Month 2','Pattern Library v0 (archive raw markdown); eval CI integration; Stage Generator eval set frozen (10–15 examples).','Desen Kütüphanesi v0 (ham markdown arşivi); değerlendirme CI entegrasyonu; Aşama Üreteci değerlendirme seti donduruldu (10–15 örnek).']];
+var OPENS=[
+ ['Week 2–3 first spike','Hafta 2–3 ilk spike','Which CWF subsystem is the first real stage? Default is single-turn OEE Q&A — confirm or change.','İlk gerçek aşama hangi CWF alt sistemi? Varsayılan tek-turlu OEE Soru-Cevap — onaylayın veya değiştirin.'],
+ ['GitHub repo + access','GitHub repo + erişim','Is the repo stood up with clone access for all 6? Suggested: maymun207/revolutionize.','Repo 6\u2019sı için klon erişimiyle kuruldu mu? Önerilen: maymun207/revolutionize.'],
+ ['Pre-reading status','Ön-okuma durumu','Has the pre-reading email gone out and been acknowledged? Enforce: no reading, no workshop.','Ön-okuma e-postası gitti ve onaylandı mı? Uygulayın: okuma yoksa atölye yok.'],
+ ['Quarterly LLM budget','Üç aylık LLM bütçesi','Unset. Shapes model routing and the per-minute rate caps in the gateway wrapper.','Belirlenmedi. Model yönlendirmeyi ve ağ geçidi sarmalayıcısındaki dakika-başına limitleri şekillendirir.'],
+ ['First product (Revolutionize)','İlk ürün (Revolutionize)','What does the system build first? The bridge suggests a CWF / EAIP component — confirm.','Sistem ilk ne inşa eder? Köprü bir CWF / EAIP bileşeni öneriyor — onaylayın.'],
+ ['Expertise gaps','Uzmanlık boşlukları','Likely formal methods (TLA+/Alloy), agent orchestration, multi-tenant security — drives the reading week and Phase-5 risk.','Muhtemelen biçimsel yöntemler (TLA+/Alloy), ajan orkestrasyonu, çok-kiracılı güvenlik — okuma haftasını ve Faz-5 riskini belirler.']];
+var C={
+en:{
+ title:'Leadership & Team Ramp-Up Charter',
+ subtitle:'one person, two hats — CTO (technical authority) + Program Leader (delivery) · ARDICTECH · June → December 2026',
+ footer:'ARDICTECH A.Ş. · Leadership & Team Ramp-Up Charter · grounded in the program bootstrap, the AI-assisted dev role model, and the program invariants · internal',
+ s_mandate:'Mandate & context',
+ mandate_lede:'This charter is for one person holding two roles at once: Chief Technology Officer (technical authority and architectural taste) and Program Leader / Tech Lead (delivery cadence, milestones, and team ramp-up). It is the operating document for the June–December 2026 program.',
+ mandate_p1:'<b>The mission has three folds that converge into one loop.</b> The team learns agentic development, builds Revolutionize v0.5 (the internal AI dev platform), and delivers CWF (Chat With Factory) to Kale Seramik — the same patterns practiced twice, once for the customer and once internally.',
+ mandate_p2:'<b>CWF delivery has absolute priority.</b> If anything has to give, v0.5 scope gives — never the reverse. The Kale cutover is December 2026; Revolutionize v0.5 completes around Month 7.',
+ mandate_team:'team + program at a glance',
+ mandate_chips:['6 senior engineers (IoT-Ignite)','+ CTO / Tech Lead','Kale Seramik — first CWF tenant','Jun 1 2026 → Dec 2026','Mac / Linux · Python 3.10+','Antigravity IDE + AG 2.0 (trial) + Claude Code'],
+ s_hats:'The two hats',
+ cto_h:'CTO — technical authority',
+ cto_p:'Owns the architecture and its taste. Holds the decision gates that keep AI-assisted output trustworthy. Makes the irreversible calls and records them. The one who recognises when something "works" but violates a principle — and redirects.',
+ pl_h:'Program Leader — delivery',
+ pl_p:'Owns the cadence, the milestone map, and the team\u2019s ramp from deterministic engineers to agentic conductors. Holds the line on what can and cannot be compressed. Manages the risks and closes the open prerequisites.',
+ s_arch:'CTO · architecture ownership & decisions',
+ arch_p1:'The CTO owns the architecture, reviews every PRD before it becomes a stage prompt, makes the irreversible decisions, and maintains the ADR registry. ADR-001 (the LiteLLM gateway) and ADR-002 (the MCP tool protocol) are the working precedent: significant, cross-cutting, hard-to-reverse decisions get an ADR; reversible, local ones are made fast and cheaply.',
+ arch_p2:'Architectural taste is the irreplaceable contribution. The AI does not have ARDICTECH-specific taste; the engineers — and above all the CTO — do. When the AI proposes something plausible that violates a principle, naming the principle and redirecting is the job.',
+ s_gates:'CTO · the non-negotiable gates',
+ gates_lede:'These hold regardless of deadline. They are what make AI-assisted delivery trustworthy rather than fast-and-wrong.',
+ s_routing:'CTO · model routing & budget',
+ routing_lede:'The working rule: default to Sonnet; reach for Opus only when the cost of being wrong exceeds the cost difference. The CTO owns this policy and the LLM budget.',
+ routing_th_model:'model',routing_th_use:'when to use',
+ routing_note:'<b>Budget is still open.</b> The quarterly LLM budget is unset; it shapes routing thresholds and the per-minute rate caps in the gateway wrapper. Close it early.',
+ s_build:'CTO · build-vs-buy & sovereignty',
+ build_p:'Hybrid (self-host + cloud) from day one, so nothing is locked to a single SaaS vendor. Self-host where the team already has expertise — ClickHouse, Redpanda, MariaDB Galera, Keycloak, MinIO. Adopt patterns, not runtime dependencies, to avoid coupling to external roadmaps. EAIP runs on sovereign infrastructure (Netaş / OSB).',
+ s_surface:'CTO · execution-surface policy',
+ surface_p:'Revolutionize\u2019s core stays tool-agnostic — Antigravity is a swappable execution surface (a thin adapter), not the foundation. The stable Antigravity IDE carries CWF-critical work; Antigravity 2.0 is trial / non-prod from Week 2 with 1–2 volunteers; Claude Code is the fallback. And Artifacts are never proof — the Verifier confirms independently.',
+ surface_chips:['Antigravity IDE — stable, CWF-critical','Antigravity 2.0 — trial, non-prod','Claude Code — fallback','core = tool-agnostic'],
+ s_cadence:'Program Leader · cadence & the unit of work',
+ cadence_p:'The unit of work is one stage = one prompt = one PR. The team ramps from 3–5 stages/week to 5–10/week. The bottleneck is not generation — it is human review. The senior engineer is a conductor who directs the surface, not a typist.',
+ calendar_note:'<b>Calendar-bound vs implementation-bound.</b> Implementation work compresses 50–80% with AI assistance. Calendar-bound work — validation windows, telemetry maturity, shadow/canary, learning curves — compresses 0%. Holding this line against "go faster" pressure is a core Program-Leader duty.',
+ s_miles:'Program Leader · milestone map',
+ miles_p:'The near-term program runs June → December 2026: Revolutionize v0.5 completes around Month 7, and the Kale CWF cutover is December 2026. The longer horizon — EAIP phases A–G and the Revolutionize 8-phase roadmap — lives in the v6 platform page. The first weeks are detailed below.',
+ s_rituals:'Program Leader · rituals',
+ rituals_p:'<b>Monday reading + Friday 15:00 adversarial review</b>, and they do not skip under deadline pressure. <b>Pre-reading is enforced</b>: anyone who arrives without having read Anthropic\u2019s "Building Effective Agents" reschedules the workshop rather than dilutes it. The Pattern Library is sacred — every successful stage archived, every failure post-mortemed.',
+ s_risks:'Program Leader · risk register',
+ risks_lede:'The known hotspots, with the mitigations the leader owns.',
+ risks_th_risk:'risk',risks_th_mit:'mitigation',
+ s_skill:'Program Leader · team ramp & skill map',
+ skill_lede:'The AI-assisted model needs fewer people but differently weighted roles. These are responsibilities to distribute across the 6 senior engineers + CTO — not six separate hires.',
+ skill_th_role:'role',skill_th_resp:'responsibility',
+ skill_p:'The senior-engineer skill profile is distinctive: spec-reading and intent extraction, prompt engineering as a craft, reading AI-generated code critically (for confident-wrong patterns and hallucinated APIs), and architecture instinct. The three folds are the learning arc — the same loop practiced on the customer product and the internal platform until it is second nature.',
+ s_kick:'The first weeks — kickoff sequence',
+ kick_lede:'The canonical sequence into June 1. Items dated before June are pre-work; if any is not yet done, it is the leader\u2019s first action (see open items).',
+ s_opens:'Open items the leader must close',
+ opens_lede:'Unresolved at last review — listed OPEN rather than assumed. The leader owns closing these.',
+ s_succ:'Succession & the single-point-of-failure',
+ succ_note:'<b>Everything routes through one person early — by design, not forever.</b> The CTO commits a minimum of 6 hours/week for the first three weeks, then deliberately transitions prompt authoring and review leadership to the team. The single-prompt-author rule is a quality measure for the calibration period, not a permanent bottleneck — rotate it, with git versioning discipline, once the team\u2019s output is calibrated.'
+},
+tr:{
+ title:'Liderlik & Ekip Hazırlık Tüzüğü',
+ subtitle:'bir kişi, iki şapka — CTO (teknik otorite) + Program Lideri (teslimat) · ARDICTECH · Haziran → Aralık 2026',
+ footer:'ARDICTECH A.Ş. · Liderlik & Ekip Hazırlık Tüzüğü · program bootstrap\u2019ına, YZ-destekli geliştirme rol modeline ve program değişmezlerine dayanır · dahili',
+ s_mandate:'Görev & bağlam',
+ mandate_lede:'Bu tüzük, aynı anda iki rol taşıyan tek bir kişi içindir: Teknoloji Direktörü (teknik otorite ve mimari beğeni) ve Program Lideri / Tech Lead (teslimat temposu, kilometre taşları ve ekip hazırlığı). Haziran–Aralık 2026 programının işletim belgesidir.',
+ mandate_p1:'<b>Görev, tek bir döngüde birleşen üç kattan oluşur.</b> Ekip agentic geliştirmeyi öğrenir, Revolutionize v0.5\u2019i (dahili YZ geliştirme platformu) inşa eder ve CWF\u2019yi (Chat With Factory) Kale Seramik\u2019e teslim eder — aynı desenler iki kez uygulanır, biri müşteri için biri dahili.',
+ mandate_p2:'<b>CWF teslimatı mutlak önceliğe sahiptir.</b> Bir şeyden ödün verilecekse, v0.5 kapsamından ödün verilir — asla tersi değil. Kale geçişi Aralık 2026\u2019dır; Revolutionize v0.5 yaklaşık 7. Ayda tamamlanır.',
+ mandate_team:'ekip + program bir bakışta',
+ mandate_chips:['6 kıdemli mühendis (IoT-Ignite)','+ CTO / Tech Lead','Kale Seramik — ilk CWF kiracısı','1 Haz 2026 → Ara 2026','Mac / Linux · Python 3.10+','Antigravity IDE + AG 2.0 (deneme) + Claude Code'],
+ s_hats:'İki şapka',
+ cto_h:'CTO — teknik otorite',
+ cto_p:'Mimariyi ve beğenisini sahiplenir. YZ-destekli çıktıyı güvenilir kılan karar kapılarını tutar. Geri alınamaz kararları verir ve kaydeder. Bir şeyin "çalıştığı" ama bir ilkeyi ihlal ettiği anı fark edip yönlendiren kişidir.',
+ pl_h:'Program Lideri — teslimat',
+ pl_p:'Tempoyu, kilometre taşı haritasını ve ekibin deterministik mühendislerden agentic orkestra şeflerine geçişini sahiplenir. Neyin sıkışıp neyin sıkışamayacağı konusunda sınırı korur. Riskleri yönetir ve açık ön koşulları kapatır.',
+ s_arch:'CTO · mimari sahipliği & kararlar',
+ arch_p1:'CTO mimariyi sahiplenir, her PRD\u2019yi aşama prompt\u2019una dönüşmeden inceler, geri alınamaz kararları verir ve ADR kaydını tutar. ADR-001 (LiteLLM ağ geçidi) ve ADR-002 (MCP araç protokolü) işleyen örnektir: önemli, kesişen, zor-geri-alınır kararlar bir ADR alır; geri alınabilir, yerel olanlar hızlı ve ucuza verilir.',
+ arch_p2:'Mimari beğeni, yeri doldurulamaz katkıdır. YZ\u2019nin ARDICTECH\u2019e özgü beğenisi yoktur; mühendislerin — ve hepsinden önce CTO\u2019nun — vardır. YZ bir ilkeyi ihlal eden makul bir şey önerdiğinde, ihlal edilen ilkeyi adlandırmak ve yönlendirmek işin ta kendisidir.',
+ s_gates:'CTO · pazarlıksız kapılar',
+ gates_lede:'Bunlar teslim tarihinden bağımsız geçerlidir. YZ-destekli teslimatı hızlı-ama-yanlış yerine güvenilir kılan şeylerdir.',
+ s_routing:'CTO · model yönlendirme & bütçe',
+ routing_lede:'İşleyen kural: varsayılan Sonnet; Opus\u2019a yalnızca yanılmanın maliyeti maliyet farkını aştığında uzanın. CTO bu politikayı ve LLM bütçesini sahiplenir.',
+ routing_th_model:'model',routing_th_use:'ne zaman kullanılır',
+ routing_note:'<b>Bütçe hâlâ açık.</b> Üç aylık LLM bütçesi belirlenmedi; yönlendirme eşiklerini ve ağ geçidi sarmalayıcısındaki dakika-başına limitleri şekillendirir. Erken kapatın.',
+ s_build:'CTO · yap-mı-al-mı & egemenlik',
+ build_p:'İlk günden hibrit (öz-barındırma + bulut), böylece hiçbir şey tek bir SaaS sağlayıcısına kilitlenmez. Ekibin zaten uzmanlığı olan yerlerde öz-barındırın — ClickHouse, Redpanda, MariaDB Galera, Keycloak, MinIO. Dış yol haritalarına bağlanmamak için çalışma-zamanı bağımlılıkları değil desenler benimseyin. EAIP egemen altyapıda (Netaş / OSB) çalışır.',
+ s_surface:'CTO · yürütme-yüzeyi politikası',
+ surface_p:'Revolutionize\u2019ın çekirdeği araç-bağımsız kalır — Antigravity değiştirilebilir bir yürütme yüzeyidir (ince bir adaptör), temel değil. Kararlı Antigravity IDE, CWF-kritik işi taşır; Antigravity 2.0, 2. Haftadan itibaren 1–2 gönüllüyle deneme / üretim-dışıdır; Claude Code yedektir. Ve Artifact\u2019lar asla kanıt değildir — Doğrulayıcı bağımsız onaylar.',
+ surface_chips:['Antigravity IDE — kararlı, CWF-kritik','Antigravity 2.0 — deneme, üretim-dışı','Claude Code — yedek','çekirdek = araç-bağımsız'],
+ s_cadence:'Program Lideri · tempo & iş birimi',
+ cadence_p:'İş birimi: bir aşama = bir prompt = bir PR. Ekip haftada 3–5 aşamadan 5–10\u2019a yükselir. Darboğaz üretim değildir — insan incelemesidir. Kıdemli mühendis, kod yazan değil, yüzeyi yönlendiren bir orkestra şefidir.',
+ calendar_note:'<b>Takvim-bağlı vs uygulama-bağlı.</b> Uygulama işi YZ desteğiyle %50–80 sıkışır. Takvim-bağlı iş — doğrulama pencereleri, telemetri olgunluğu, gölge/kanarya, öğrenme eğrileri — %0 sıkışır. "Daha hızlı" baskısına karşı bu sınırı korumak temel bir Program-Lideri görevidir.',
+ s_miles:'Program Lideri · kilometre taşı haritası',
+ miles_p:'Yakın-dönem program Haziran → Aralık 2026 boyunca işler: Revolutionize v0.5 yaklaşık 7. Ayda tamamlanır ve Kale CWF geçişi Aralık 2026\u2019dır. Daha uzun ufuk — EAIP A–G fazları ve Revolutionize 8-faz yol haritası — v6 platform sayfasında yaşar. İlk haftalar aşağıda ayrıntılıdır.',
+ s_rituals:'Program Lideri · ritüeller',
+ rituals_p:'<b>Pazartesi okuma + Cuma 15:00 muhalif inceleme</b> ve bunlar teslim tarihi baskısı altında atlanmaz. <b>Ön-okuma zorunludur</b>: Anthropic\u2019in "Building Effective Agents" yazısını okumadan gelen kişi, atölyeyi sulandırmak yerine erteler. Desen Kütüphanesi kutsaldır — her başarılı aşama arşivlenir, her başarısızlık post-mortem edilir.',
+ s_risks:'Program Lideri · risk kaydı',
+ risks_lede:'Bilinen risk noktaları ve liderin sahiplendiği önlemler.',
+ risks_th_risk:'risk',risks_th_mit:'önlem',
+ s_skill:'Program Lideri · ekip hazırlığı & beceri haritası',
+ skill_lede:'YZ-destekli model daha az kişi ama farklı ağırlıklı roller gerektirir. Bunlar 6 kıdemli mühendis + CTO arasında dağıtılacak sorumluluklardır — altı ayrı işe alım değil.',
+ skill_th_role:'rol',skill_th_resp:'sorumluluk',
+ skill_p:'Kıdemli-mühendis beceri profili ayırt edicidir: şartname okuma ve niyet çıkarımı, bir zanaat olarak prompt mühendisliği, YZ-üretimi kodu eleştirel okuma (kendinden-emin-yanlış desenler ve uydurma API\u2019ler için) ve mimari içgüdü. Üç kat öğrenme yayıdır — aynı döngü, ikinci doğa olana dek müşteri ürününde ve dahili platformda uygulanır.',
+ s_kick:'İlk haftalar — başlangıç dizisi',
+ kick_lede:'1 Haziran\u2019a giden kanonik dizi. Haziran öncesi tarihli maddeler ön-iştir; biri henüz yapılmadıysa, liderin ilk eylemidir (açık maddelere bakın).',
+ s_opens:'Liderin kapatması gereken açık maddeler',
+ opens_lede:'Son incelemede çözülmemiş — varsayılmak yerine AÇIK listelenmiştir. Bunları kapatmak liderin sorumluluğudur.',
+ s_succ:'Devir & tek hata noktası',
+ succ_note:'<b>Her şey erken dönemde tek kişiden geçer — tasarım gereği, sonsuza dek değil.</b> CTO ilk üç hafta için haftada en az 6 saat taahhüt eder, sonra prompt yazımını ve inceleme liderliğini bilinçli olarak ekibe devreder. Tek-prompt-yazarı kuralı kalibrasyon dönemi için bir kalite önlemidir, kalıcı bir darboğaz değil — ekibin çıktısı kalibre olduğunda, git sürümleme disipliniyle, dönüşümlü hale getirin.'
+}
+};
+function S(k,cls){return '<div class="sect '+(cls||'')+'">'+C[lang][k]+'</div>';}
+function L(t){return '<div class="lede">'+t+'</div>';}
+function B(t){return '<p class="body">'+t+'</p>';}
+function SUB(t){return '<div style="font-family:var(--mono);font-size:11px;color:var(--text3);margin:12px 0 6px;text-transform:uppercase;letter-spacing:.08em">'+t+'</div>';}
+function CH(arr){return '<div class="chips">'+arr.map(function(x){return '<span class="chip">'+x+'</span>';}).join('')+'</div>';}
+function IT(n,h,p){return '<div class="item"><h4><span class="num">'+n+'</span>'+h+'</h4><p>'+p+'</p></div>';}
+function NT(cls,t){return '<div class="note '+cls+'">'+t+'</div>';}
+function render(){var c=C[lang],e=(lang==='en');var h='';
+ h+=S('s_mandate')+L(c.mandate_lede)+B(c.mandate_p1)+B(c.mandate_p2)+SUB(c.mandate_team)+CH(c.mandate_chips);
+ h+=S('s_hats')+'<div class="cards"><div class="card c"><h3>'+c.cto_h+'</h3><p>'+c.cto_p+'</p></div><div class="card p"><h3>'+c.pl_h+'</h3><p>'+c.pl_p+'</p></div></div>';
+ h+=S('s_arch','cto')+B(c.arch_p1)+B(c.arch_p2);
+ h+=S('s_gates','cto')+L(c.gates_lede)+GATES.map(function(g,i){return IT(i+1,e?g[0]:g[1],e?g[2]:g[3]);}).join('');
+ h+=S('s_routing','cto')+L(c.routing_lede)+'<table><thead><tr><th>'+c.routing_th_model+'</th><th>'+c.routing_th_use+'</th></tr></thead><tbody>'+ROUTING.map(function(r){return '<tr><td class="role">'+r[0]+'</td><td>'+(e?r[1]:r[2])+'</td></tr>';}).join('')+'</tbody></table>'+NT('amber',c.routing_note);
+ h+=S('s_build','cto')+B(c.build_p);
+ h+=S('s_surface','cto')+B(c.surface_p)+CH(c.surface_chips);
+ h+=S('s_cadence','pl')+B(c.cadence_p)+NT('amber',c.calendar_note);
+ h+=S('s_miles','pl')+B(c.miles_p);
+ h+=S('s_rituals','pl')+B(c.rituals_p);
+ h+=S('s_risks','pl')+L(c.risks_lede)+'<table><thead><tr><th>'+c.risks_th_risk+'</th><th>'+c.risks_th_mit+'</th></tr></thead><tbody>'+RISKS.map(function(r){var sv=r[0]==='hi'?'<span class="sev s-hi">HIGH</span>':'<span class="sev s-md">MED</span>';return '<tr><td><div style="font-weight:600;margin-bottom:4px">'+(e?r[1]:r[2])+'</div>'+sv+'</td><td>'+(e?r[3]:r[4])+'</td></tr>';}).join('')+'</tbody></table>';
+ h+=S('s_skill','pl')+L(c.skill_lede)+'<table><thead><tr><th>'+c.skill_th_role+'</th><th></th><th>'+c.skill_th_resp+'</th></tr></thead><tbody>'+SKILL.map(function(s){return '<tr><td class="role">'+s[0]+'</td><td class="wt">'+s[1]+'</td><td>'+(e?s[2]:s[3])+'</td></tr>';}).join('')+'</tbody></table>'+B(c.skill_p);
+ h+=S('s_kick')+L(c.kick_lede)+KICK.map(function(k){return '<div class="tl"><div class="dot"></div><span class="when">'+k[0]+'</span> — '+(e?k[1]:k[2])+'</div>';}).join('');
+ h+=S('s_opens')+L(c.opens_lede)+'<div class="opens">'+OPENS.map(function(o){return '<div class="open"><b>'+(e?o[0]:o[1])+'</b><p>'+(e?o[2]:o[3])+'</p></div>';}).join('')+'</div>';
+ h+=S('s_succ')+NT('cto',c.succ_note);
+ document.getElementById('main').innerHTML=h;}
+function setLang(l){lang=l;document.getElementById('btn-en').classList.toggle('on',l==='en');document.getElementById('btn-tr').classList.toggle('on',l==='tr');document.documentElement.lang=l;
+ document.getElementById('title').textContent=C[l].title;document.getElementById('subtitle').textContent=C[l].subtitle;document.getElementById('footer').textContent=C[l].footer;render();}
+setLang('en');
+</script>
+</body>
+</html>

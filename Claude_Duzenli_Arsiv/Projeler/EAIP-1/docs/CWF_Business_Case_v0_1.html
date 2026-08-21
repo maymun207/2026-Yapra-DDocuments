@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CWF Business Case v0.1 — ARDICTECH</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ground:#0E1116;
+    --ground-2:#0B0E12;
+    --panel:#161B22;
+    --panel-2:#1C2230;
+    --line:#28303C;
+    --line-soft:#1F2630;
+    --text:#E6EAF0;
+    --muted:#9AA4B2;
+    --muted-2:#6E7886;
+    /* forge heat — the moat / manufacturing furnace */
+    --heat-1:#F2A33C;
+    --heat-2:#E8632A;
+    --heat-glow:rgba(232,99,42,.20);
+    /* steel — substrate / platform */
+    --steel-1:#7FB5CE;
+    --steel-2:#5B9DBF;
+    /* go / feasible */
+    --go:#6FBF73;
+    --go-deep:#3E8E54;
+    /* stop / trap */
+    --stop:#E5484D;
+    --stop-deep:#B5343A;
+    /* caution */
+    --caution:#E3B341;
+    --maxw:1140px;
+    --r:14px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;background:
+      radial-gradient(1200px 600px at 78% -8%, rgba(232,99,42,.10), transparent 60%),
+      radial-gradient(900px 500px at 0% 8%, rgba(91,157,191,.07), transparent 55%),
+      var(--ground);
+    color:var(--text);
+    font-family:'Inter',system-ui,sans-serif;
+    line-height:1.62;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+  h1,h2,h3,h4{font-family:'Space Grotesk',sans-serif;font-weight:600;letter-spacing:-.01em;line-height:1.15;margin:0}
+  .mono{font-family:'JetBrains Mono',monospace}
+  a{color:var(--steel-1)}
+
+  /* ---------- HERO ---------- */
+  header.hero{padding:70px 0 34px;border-bottom:1px solid var(--line-soft);position:relative;overflow:hidden}
+  .eyebrow{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--heat-1);display:flex;gap:14px;align-items:center}
+  .eyebrow::before{content:"";width:34px;height:2px;background:linear-gradient(90deg,var(--heat-2),var(--heat-1));display:inline-block}
+  h1.title{font-size:clamp(30px,5vw,52px);font-weight:700;margin:18px 0 0;line-height:1.05}
+  h1.title .heat{background:linear-gradient(92deg,var(--heat-1),var(--heat-2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .meta{margin-top:16px;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:8px 22px}
+  .spine{margin-top:26px;max-width:880px;font-size:17px;color:var(--text)}
+  .spine b{color:#fff;font-weight:600}
+  .spine .hl{color:var(--heat-1);font-weight:600}
+
+  /* ---------- SECTION ---------- */
+  section{padding:54px 0;border-bottom:1px solid var(--line-soft)}
+  .sec-head{display:flex;align-items:baseline;gap:16px;margin-bottom:8px}
+  .sec-num{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--heat-1);letter-spacing:.1em}
+  h2{font-size:clamp(22px,3vw,30px)}
+  .sec-sub{color:var(--muted);margin:10px 0 30px;max-width:820px;font-size:15.5px}
+
+  /* ---------- STRATEGY STACK (signature) ---------- */
+  .stack{display:flex;flex-direction:column;gap:0;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:var(--ground-2)}
+  .band{position:relative;padding:22px 22px 24px}
+  .band + .band{border-top:1px solid var(--line)}
+  .band-label{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+  .tag{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;padding:4px 9px;border-radius:6px;border:1px solid currentColor;font-weight:600}
+  .band-title{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:15px;color:var(--muted)}
+  .band-note{font-size:13px;color:var(--muted-2);margin-left:auto;text-align:right;max-width:46%}
+
+  .band.moat{background:
+      linear-gradient(180deg,rgba(232,99,42,.16),rgba(232,99,42,.04)),
+      radial-gradient(440px 130px at 22% 0%,var(--heat-glow),transparent 70%);}
+  .band.moat .tag{color:var(--heat-1)}
+  .band.fuel{background:linear-gradient(180deg,rgba(227,179,65,.05),transparent)}
+  .band.fuel .tag{color:var(--caution)}
+  .band.base .tag{color:var(--steel-1)}
+
+  .nodes{display:flex;flex-wrap:wrap;gap:12px}
+  .node{flex:1 1 220px;min-width:200px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:15px 16px;transition:transform .18s ease,border-color .18s ease}
+  .node:hover{transform:translateY(-3px)}
+  .node h4{font-size:15.5px;display:flex;align-items:center;gap:9px}
+  .node .role{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted-2);text-transform:uppercase;letter-spacing:.08em;margin-top:3px}
+  .node p{margin:9px 0 0;font-size:13.3px;color:var(--muted);line-height:1.5}
+  .node.flag{border-color:rgba(232,99,42,.5);background:linear-gradient(180deg,rgba(232,99,42,.08),var(--panel))}
+  .node.flag:hover{border-color:var(--heat-1)}
+  .dot{width:9px;height:9px;border-radius:50%;flex:none}
+  .dot.heat{background:var(--heat-1);box-shadow:0 0 10px var(--heat-2)}
+  .dot.steel{background:var(--steel-1)}
+  .dot.caution{background:var(--caution)}
+
+  .flow{display:flex;justify-content:center;padding:6px 0;color:var(--muted-2);font-size:12px;font-family:'JetBrains Mono',monospace;letter-spacing:.1em;background:var(--ground-2)}
+  .flow span{display:inline-flex;align-items:center;gap:8px}
+  .flow .arr{color:var(--heat-2)}
+
+  /* trap rail */
+  .traps{margin-top:18px;border:1px solid rgba(229,72,77,.4);border-radius:14px;background:linear-gradient(180deg,rgba(229,72,77,.07),transparent);padding:18px 20px}
+  .traps h3{font-size:15px;color:var(--stop);display:flex;align-items:center;gap:10px;margin-bottom:12px}
+  .traps h3 .tag{color:var(--stop)}
+  .trap-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+  .trap{font-size:13.2px;color:var(--muted);padding-left:18px;position:relative}
+  .trap::before{content:"✕";position:absolute;left:0;top:1px;color:var(--stop);font-size:12px;font-weight:700}
+  .trap b{color:#fff;font-weight:600}
+
+  /* ---------- ENTITY CARDS (pros/cons) ---------- */
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:18px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column}
+  .card-top{padding:18px 78px 14px 18px;border-bottom:1px solid var(--line);position:relative;cursor:pointer;-webkit-tap-highlight-color:transparent}
+  .card-top::after{content:"Neden ▾";position:absolute;top:17px;right:16px;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.06em;color:var(--muted-2);transition:color .2s}
+  .card-top:hover::after{color:var(--heat-1)}
+  .card.open .card-top::after{content:"Kapat ▴";color:var(--heat-1)}
+  .card-top h3{font-size:18px;display:flex;align-items:center;gap:10px}
+  .chip{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;padding:3px 8px;border-radius:5px;font-weight:600;border:1px solid currentColor}
+  .card .role-line{font-size:13px;color:var(--muted);margin-top:8px}
+  .accent-heat{border-top:3px solid var(--heat-2)}
+  .accent-steel{border-top:3px solid var(--steel-2)}
+  .accent-caution{border-top:3px solid var(--caution)}
+  .pc{padding:14px 18px 18px;display:grid;gap:13px}
+  .pc h5{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin:0 0 7px;display:flex;align-items:center;gap:7px}
+  .pc .pros h5{color:var(--go)}
+  .pc .cons h5{color:var(--stop)}
+  .pc ul{margin:0;padding:0;list-style:none;display:grid;gap:6px}
+  .pc li{font-size:13.2px;color:var(--muted);padding-left:17px;position:relative;line-height:1.45}
+  .pc .pros li::before{content:"+";position:absolute;left:0;color:var(--go);font-weight:700}
+  .pc .cons li::before{content:"–";position:absolute;left:0;color:var(--stop);font-weight:700}
+  .pc li b{color:var(--text);font-weight:600}
+  .deepdive{max-height:0;overflow:hidden;transition:max-height .45s ease}
+  .card.open .deepdive{max-height:1800px}
+  .deepdive .inner{padding:16px 18px 19px;font-size:13.4px;color:var(--muted);line-height:1.64;background:var(--ground-2);border-top:1px solid var(--line)}
+  .deepdive .inner b{color:var(--text);font-weight:600}
+  .deepdive .inner .lead{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--heat-1);letter-spacing:.12em;text-transform:uppercase;margin-bottom:9px;display:block}
+  .deepdive .inner p{margin:0 0 10px}
+  .deepdive .inner p:last-child{margin-bottom:0}
+
+  /* ---------- FEASIBILITY MATRIX ---------- */
+  .matrix-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r)}
+  table{width:100%;border-collapse:collapse;min-width:880px;font-size:13.5px}
+  thead th{background:var(--panel-2);font-family:'Space Grotesk',sans-serif;font-weight:600;text-align:left;padding:14px 16px;color:var(--text);border-bottom:1px solid var(--line);position:sticky;top:0;font-size:13px}
+  tbody td{padding:15px 16px;border-bottom:1px solid var(--line-soft);vertical-align:top;color:var(--muted);line-height:1.5}
+  tbody tr:last-child td{border-bottom:none}
+  tbody tr:hover td{background:rgba(255,255,255,.015)}
+  td .opt{font-family:'Space Grotesk',sans-serif;font-weight:600;color:var(--text);font-size:15px}
+  td .opt small{display:block;font-family:'JetBrains Mono',monospace;font-weight:400;font-size:10.5px;color:var(--muted-2);text-transform:uppercase;letter-spacing:.08em;margin-top:3px}
+  .feas{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;display:inline-flex;align-items:center;gap:7px}
+  .feas::before{content:"";width:8px;height:8px;border-radius:50%}
+  .feas.hi::before{background:var(--go)}
+  .feas.mid::before{background:var(--caution)}
+  .feas.lo::before{background:var(--stop)}
+  td ul.pre{margin:0;padding:0;list-style:none;display:grid;gap:5px}
+  td ul.pre li{padding-left:16px;position:relative;font-size:12.6px}
+  td ul.pre li::before{content:"▸";position:absolute;left:0;color:var(--heat-1);font-size:10px;top:1px}
+  .verdict{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.06em;padding:6px 10px;border-radius:6px;display:inline-block;text-align:center;white-space:nowrap}
+  .v-go{color:var(--go);background:rgba(111,191,115,.1);border:1px solid rgba(111,191,115,.4)}
+  .v-build{color:var(--steel-1);background:rgba(127,181,206,.1);border:1px solid rgba(127,181,206,.4)}
+  .v-fuel{color:var(--caution);background:rgba(227,179,65,.1);border:1px solid rgba(227,179,65,.4)}
+  .v-reframe{color:var(--heat-1);background:rgba(242,163,60,.1);border:1px solid rgba(242,163,60,.4)}
+  .v-fire{color:var(--stop);background:rgba(229,72,77,.1);border:1px solid rgba(229,72,77,.4)}
+
+  /* ---------- DECISIONS ---------- */
+  .dec-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:18px}
+  .dec{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:20px 20px 22px}
+  .dec .k{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--heat-1);letter-spacing:.12em;text-transform:uppercase}
+  .dec h3{font-size:17px;margin:9px 0 12px}
+  .dec p{margin:0 0 12px;font-size:13.6px;color:var(--muted)}
+  .branch{display:grid;gap:9px}
+  .opt2{display:flex;gap:11px;align-items:flex-start;font-size:13.2px;padding:11px 13px;border-radius:10px;border:1px solid var(--line)}
+  .opt2.good{border-color:rgba(111,191,115,.35);background:rgba(111,191,115,.05)}
+  .opt2.bad{border-color:rgba(229,72,77,.35);background:rgba(229,72,77,.05)}
+  .opt2 .lbl{font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:700;letter-spacing:.05em;padding:3px 7px;border-radius:5px;flex:none;margin-top:1px}
+  .opt2.good .lbl{color:var(--go);border:1px solid var(--go-deep)}
+  .opt2.bad .lbl{color:var(--stop);border:1px solid var(--stop-deep)}
+  .opt2 span{color:var(--muted)}
+  .opt2 b{color:var(--text)}
+
+  .gates{counter-reset:g;display:grid;gap:11px;margin-top:4px}
+  .gate{display:flex;gap:14px;align-items:flex-start;padding:13px 15px;background:var(--panel-2);border:1px solid var(--line);border-radius:11px}
+  .gate .gn{counter-increment:g;font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--heat-1);font-size:15px;flex:none;width:26px;height:26px;border-radius:50%;border:1px solid var(--heat-2);display:grid;place-items:center}
+  .gate .gn::before{content:counter(g)}
+  .gate div p{margin:0;font-size:13.3px;color:var(--muted)}
+  .gate div .gt{font-weight:600;color:var(--text);font-size:14px;font-family:'Space Grotesk',sans-serif}
+  .reframe-q{margin-top:22px;border:1px dashed rgba(242,163,60,.5);border-radius:12px;padding:18px 20px;background:rgba(242,163,60,.04)}
+  .reframe-q .old{color:var(--stop);text-decoration:line-through;text-decoration-color:rgba(229,72,77,.6)}
+  .reframe-q .new{color:var(--heat-1);font-weight:600}
+
+  /* ---------- FOOTER ---------- */
+  footer{padding:38px 0 60px;color:var(--muted-2);font-size:12.5px}
+  footer .mono{color:var(--muted)}
+  .legend{display:flex;flex-wrap:wrap;gap:8px 20px;margin:14px 0 0;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted-2)}
+  .legend span{display:inline-flex;align-items:center;gap:7px}
+  .legend i{width:9px;height:9px;border-radius:2px;display:inline-block}
+
+  .reveal{opacity:0;transform:translateY(14px);transition:opacity .6s ease,transform .6s ease}
+  .reveal.in{opacity:1;transform:none}
+  @media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}.node{transition:none}}
+  @media (max-width:640px){
+    .band-note{display:none}
+    section{padding:42px 0}
+    header.hero{padding:48px 0 28px}
+  }
+
+  /* ---- business-case additions ---- */
+  .warn-badge{display:inline-flex;align-items:center;gap:8px;margin-top:16px;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--caution);border:1px solid rgba(227,179,65,.4);background:rgba(227,179,65,.06);padding:6px 12px;border-radius:8px}
+  .lockbox{margin:26px 0 0;border:1px solid rgba(111,191,115,.4);background:linear-gradient(180deg,rgba(111,191,115,.06),transparent);border-radius:14px;padding:18px 20px}
+  .lockbox .k{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--go);letter-spacing:.12em;text-transform:uppercase;display:flex;align-items:center;gap:9px;margin-bottom:14px}
+  .lockbox .k::before{content:"\2713";color:var(--go);font-weight:700}
+  .lockbox .ls{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+  .lockbox .lk{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--muted-2);letter-spacing:.08em;text-transform:uppercase}
+  .lockbox .lv{color:var(--text);font-weight:600;font-size:15px;margin-top:4px;font-family:'Space Grotesk',sans-serif}
+  .lockbox .ln{font-size:12.6px;color:var(--muted);margin-top:5px;line-height:1.45}
+  .prose-sec p{font-size:15px;color:var(--muted);max-width:880px;margin:0 0 14px}
+  .prose-sec p:last-child{margin-bottom:0}
+  .prose-sec p b{color:var(--text);font-weight:600}
+  .prose-sec p .hl{color:var(--heat-1);font-weight:600}
+  .cbody{padding:14px 18px 18px;font-size:13.5px;color:var(--muted);line-height:1.55}
+  .cbody b{color:var(--text);font-weight:600}
+  .takeaway{margin-top:20px;border-left:3px solid var(--heat-1);background:linear-gradient(90deg,rgba(242,163,60,.08),transparent);padding:15px 18px;border-radius:0 10px 10px 0;font-size:14.3px;color:var(--muted)}
+  .takeaway b{color:#fff;font-weight:600}
+  td.num{text-align:right;font-family:'JetBrains Mono',monospace;white-space:nowrap}
+  th.num{text-align:right}
+  tbody tr.total td{background:rgba(242,163,60,.08);font-weight:600;color:var(--text);border-top:1px solid var(--heat-2)}
+  .src{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--steel-1)}
+  .twocol{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:4px}
+  @media (max-width:720px){.twocol{grid-template-columns:1fr}}
+</style>
+<style>
+  /* ---- CWF business-case additions (extends house style) ---- */
+  .flag{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--caution);background:rgba(227,179,65,.08);border:1px solid rgba(227,179,65,.34);border-radius:5px;padding:1px 6px;letter-spacing:.02em;white-space:nowrap}
+  .wedge{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:6px}
+  @media (max-width:720px){.wedge{grid-template-columns:1fr}}
+  .quad{border:1px solid var(--line);border-radius:12px;padding:16px 17px;background:var(--panel)}
+  .quad .qh{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;display:flex;align-items:center;gap:8px;margin-bottom:9px}
+  .quad p{margin:0;font-size:13.3px;color:var(--muted);line-height:1.5}
+  .quad.theirs{border-color:rgba(127,181,206,.4);background:linear-gradient(180deg,rgba(127,181,206,.05),transparent)}
+  .quad.theirs .qh{color:var(--steel-1)}
+  .quad.ours{border-color:rgba(232,99,42,.5);background:linear-gradient(180deg,rgba(232,99,42,.08),transparent)}
+  .quad.ours .qh{color:var(--heat-1)}
+  .flagbox{margin-top:8px;border:1px dashed rgba(227,179,65,.45);border-radius:10px;background:rgba(227,179,65,.04);padding:12px 15px}
+  .flagbox .fk{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--caution);letter-spacing:.1em;text-transform:uppercase;margin-bottom:7px}
+  .flagbox ul{margin:0;padding:0;list-style:none;display:grid;gap:6px}
+  .flagbox li{font-size:12.8px;color:var(--muted);padding-left:18px;position:relative;line-height:1.45}
+  .flagbox li::before{content:"\26A0";position:absolute;left:0;top:0;color:var(--caution);font-size:11px}
+  .flagbox li b{color:var(--text);font-weight:600}
+  .diff{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-top:6px}
+  @media (max-width:720px){.diff{grid-template-columns:1fr}}
+  .diff .side{padding:18px 20px}
+  .diff .side+.side{border-left:1px solid var(--line)}
+  @media (max-width:720px){.diff .side+.side{border-left:none;border-top:1px solid var(--line)}}
+  .diff .gu{background:linear-gradient(180deg,rgba(229,72,77,.05),transparent)}
+  .diff .cwf{background:linear-gradient(180deg,rgba(232,99,42,.07),transparent)}
+  .diff .dh{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+  .diff .gu .dh{color:var(--muted-2)}
+  .diff .cwf .dh{color:var(--heat-1)}
+  .diff p{margin:0 0 9px;font-size:13.4px;color:var(--muted);line-height:1.55}
+  .diff p:last-child{margin-bottom:0}
+  .diff b{color:var(--text);font-weight:600}
+  .diff .gu .struck{color:var(--muted-2)}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">CWF · BUSINESS CASE · ŞİRKET İÇİ</div>
+    <h1 class="title"><span class="heat">Chat With Factory</span> — Egemen Akıl Katmanı için İş Gerekçesi</h1>
+    <div class="meta">
+      <span>SÜRÜM v0.1</span><span>DİL: TR</span><span>DURUM: Taslak — model öncesi</span>
+      <span>TEMEL: CWF_Product_Definition_v0_1</span><span>EV-STİLİ: GU Business Case</span>
+    </div>
+    <p class="spine">
+      CWF, fabrikanın <b>kendi governed operasyonel gerçeği</b> üzerinde duran <span class="hl">egemen, on-prem-light bir AI akıl katmanıdır</span>.
+      Mimari taahhüt değişmez: <b>LLM, governed ve attributed kurumsal veri üzerinde akıl yürütme motorudur — asla gerçeğin kaynağı değil.</b>
+      CWF, GU'dan <b>ayrı bir iştir</b>: paylaşılan substrat üstünde, <span class="hl">taşınabilir governed-truth domain-modeli</span> duvarına yaslanır.
+      Varlık ekseninde <b>GU'nun altında</b> (duvar replike-edilebilir-ama-yavaş domain IP'sidir; GU'nun çapraz-tenant veri ağı taklit-edilemez),
+      firewall'lı nakdin <b>üstünde</b>. Ama bu, gerçek, recurring-nakit getiren bir <span class="hl">enterprise B2B işidir</span> —
+      ve burada lisansın kendisi iştir: GU'nun ters-ekonomisi değil.
+    </p>
+    <div class="warn-badge">⚠ Henüz kanonik CWF finansal modeli yok. Tüm sayısal yerler <span class="flag">[open:]</span> bayraklı; pazar-sizing araştırma-pass'i bekliyor. Bu doküman acımasız iç-strateji kaydıdır, cilalı yatırımcı pitch'i değil.</div>
+  </div>
+</header>
+
+<!-- ================= 00 TEZ ================= -->
+<section class="reveal prose-sec">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-num">00</span><h2>Tez — tek paragrafta</h2></div>
+    <p class="sec-sub">CWF nedir, neden ayrı bir iştir, kanıt nerede, ne satar.</p>
+    <p>
+      Olgun, bulut-kabul-eden pazarlardaki devler (Siemens Opcenter, SAP DMC, Rockwell/PTC, AVEVA, GE Proficy) MES-copilot'larını <b>kendi MES'lerine, kendi installed-base'lerine ve kendi bulut ekonomilerine</b> lehimlemiş durumda. CWF'in farkı tam tersidir: <span class="hl">MES-agnostik</span> (taşınabilir domain-modeli üzerinde adaptör/MCP ile akıl yürütür), <span class="hl">egemen</span> (self-hosted, OSS-first, no-Microsoft, self-hosted vLLM ile sıfır veri-çıkışı opsiyonu) ve <span class="hl">derin</span> (galip-usta-derinliğinde imalat akıl yürütmesi, jenerik chatbot değil).
+    </p>
+    <p>
+      Kanıt teorik değil: CWF bugün <b>Kale'de 16+ fabrikada production'da canlı</b> (mevcut ARMES MCP üzerinden). Bu iş gerekçesinin kapsadığı ürün çalışması, <b>bir kanıtlanmış kurulumdan tekrarlanabilir ürüne</b> giden yoldur: self-service onboarding (consulting-saatsiz kurulum), tacit bilgiyi yakalayan Knowledge Base katmanı ve her kurulumla kanonik domain-modelini kalınlaştıran <span class="hl">cross-customer pattern harvesting</span> — CWF'in kendi-kendini-ören moat'ı.
+    </p>
+    <p>
+      İş modeli net: görünen ürün akıl yürütme arayüzüdür; <b>duvar taşınabilir governed-truth domain-modelidir</b>; duvarı compound eden ise <b>harvested bilgisidir</b>. Bu, üçüncü tarafa veri satan bir ağ işi değildir (o GU'dur) — burada <span class="hl">recurring lisans işin kendisidir</span>.
+    </p>
+  </div>
+</section>
+
+<!-- ================= 01 PROBLEM ================= -->
+<section class="reveal prose-sec">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-num">01</span><h2>Problem &amp; Fırsat</h2></div>
+    <p class="sec-sub">Düşük-penetrasyonlu, egemenlik-hassas pazarlardaki orta-büyük üreticiler, üzerinde akıl yürütemedikleri operasyonel verinin üstünde oturuyor.</p>
+    <p>
+      Bir MES <b>kaydeder</b>; <b>açıklamaz</b>. BI dashboard'ları <b>ne</b>'yi yavaş cevaplar — ve yalnızca birinin önceden kurduğu soruları. Veriyi anlamlı kılan tacit bilgi — bir status kodunun gerçekte ne demek olduğu, hangi sensörün changeover sırasında yalan söylediği, bir vardiyanın hurda kaydının neden geç düştüğü — şemada değil, insanların kafasında yaşar. Devler <b>ne</b> sorusunu kısmen çözer ama bunu <span class="hl">kendi bulutlarına</span> (egemenlik şartını ihlal eder) ve <span class="hl">kendi MES'lerine</span> (MES-agnostik ihtiyacını ihlal eder) bağlayarak yapar.
+    </p>
+    <div class="traps">
+      <h3><span class="tag">JTBD</span> Müşterinin gerçekten ödediği işler</h3>
+      <div class="trap-grid">
+        <div class="trap"><b>"Fabrikamı bana kendi dilimde açıkla."</b> Sadece <i>ne</i> değil, <i>neden</i> — saniyeler içinde governed, attributed cevap.</div>
+        <div class="trap"><b>"Verim dışarı çıkmasın."</b> Operasyonel gerçek üzerinde, yabancı buluta göndermeden akıl yürüt — tercih değil, sert şart.</div>
+        <div class="trap"><b>"BI ekibi ya da yabancı danışman kurmama gerek kalmasın."</b> Kendi IT'siyle bağla ve yapılandır.</div>
+        <div class="trap"><b>"Cevap güvenilir olsun."</b> Kaynağa attribution, deterministik guardrail, naif okumayı düzelten tacit-bilgi katmanı.</div>
+        <div class="trap"><b>"Kullandıkça akıllansın."</b> Sistem fabrikanın kendine has kusurlarını öğrenmeli, statik kalmamalı.</div>
+      </div>
+    </div>
+    <div class="takeaway">Devler <b>iş 1</b>'i kısmen sunar; <b>iş 2–5</b>'i yapısal olarak değil. CWF tam da 2–5 üzerine first-class kuruludur. <span class="src">Kaynak: CWF_PD §4.</span></div>
+  </div>
+</section>
+
+<!-- ================= 02 ÇÖZÜM ================= -->
+<section class="reveal prose-sec">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-num">02</span><h2>Çözüm &amp; Neden Şimdi</h2></div>
+    <p class="sec-sub">Governed-truth üzerinde akıl yürütme; üç yapısal farklılaştırıcı; ve neden bu pencere şimdi açık.</p>
+    <p>
+      CWF, ham MES tablolarına değil, <b>governed-truth domain-modeline</b> (imalat kavramları: OEE/TEEP ve Altı Büyük Kayıp, downtime taksonomisi, kalite/bakım yapıları) karşı akıl yürütür. Omurga <span class="hl">hibrit akıl yürütmedir</span>: LLM sıralar/önerir, deterministik kurallar karar verir, LLM asla gerçeğin kaynağı olmaz. Her cevap governed kaynaklara attributed'dır.
+    </p>
+    <div class="nodes" style="margin-top:6px">
+      <div class="node"><h4><span class="dot heat"></span>MES-agnostik</h4><div class="role">Taşınabilir IP</div><p>Domain-modeli ARMES tarafından Kale'de populate edilir ama porte edilebilir IP'dir. Yeni bir MES = aynı kanonik kavramlara bounded mapping — yeniden inşa değil. Bağlantı: ARMES MCP (zaten hazır) + dbt Silver/Gold + adaptör portları.</p></div>
+      <div class="node"><h4><span class="dot heat"></span>Egemen</h4><div class="role">Sıfır-çıkış opsiyonu</div><p>Self-hosted, OSS-first, no-Microsoft. Sıfır-egress gereksiniminde self-hosted vLLM müşteri sınırı içinde inference çalıştırır. Data-residency yapılandırılabilir — devlerin bulut ekonomisinin yapısal olarak rekabet edemediği yer.</p></div>
+      <div class="node"><h4><span class="dot heat"></span>Derin</h4><div class="role">Usta-derinliği</div><p>Class-1 kodlanmış (LightRAG) + Class-2 tacit (KB, Kale'de canlı) + Class-3 zamana-kilitli. Jenerik "her şeyle sohbet" copilot değil; imalat gerçeğinin akıl yürütmesi.</p></div>
+    </div>
+    <p style="margin-top:18px">
+      <b>Neden şimdi:</b> üç eğri kesişiyor. (1) <b>LLM olgunluğu</b> — governed-veri üzerinde çok-adımlı akıl yürütme artık production-grade. (2) <b>Egemenlik dalgası</b> — sovereign sanayi politikaları (ABD CHIPS, Hindistan PLI) ve veri-residency mandatları sermaye akışını yönlendiriyor; harici araştırma MES pazarında <b>on-prem segmentinin 2025'te hâlâ baskın olduğunu</b> ve bunun gerekçesinin tam da veri-egemenliği, düşük-gecikme ve IP-hassasiyeti olduğunu gösteriyor. <span class="src">Kaynak: Grand View / Mordor, 2025–26.</span> (3) <b>Entegrasyon yükü</b> — aynı araştırmalar hizmet/entegrasyon kaleminin lisanstan hızlı büyüdüğünü gösteriyor; CWF'in self-service onboarding'i tam bu maliyet kalemine saldırır.
+    </p>
+  </div>
+</section>
+
+<!-- ================= 03 İŞ MODELİ ================= -->
+<section class="reveal prose-sec">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-num">03</span><h2>İş Modeli — lisans işin kendisidir</h2></div>
+    <p class="sec-sub">CWF'in ekonomisini GU'nunkiyle karıştırmak en büyük kavram hatasıdır. İkisi teknolojide yakın, ekonomide zıttır.</p>
+    <div class="diff">
+      <div class="side gu">
+        <div class="dh">◇ GU — ters ekonomi (CWF'in MODELİ DEĞİL)</div>
+        <p><span class="struck">Subscription, bir veri-edinme mekanizmasıdır;</span> asıl varlık talep-tarafına (sigortacı/kreditör/OEM) satılan <b>çapraz-tenant veri ağıdır</b>.</p>
+        <p>Gelir, yakalama akışı büyüdükçe ağ-etkisiyle compound eder. Moat = taklit-edilemez veri ağı.</p>
+      </div>
+      <div class="side cwf">
+        <div class="dh">◆ CWF — düz enterprise B2B (BU MODEL)</div>
+        <p><b>Recurring lisans işin kendisidir.</b> İkincil: kurulum/entegrasyon için <b>NRE</b>. Üçüncü tarafa satılan veri kalemi <b>yok</b>.</p>
+        <p>Harvesting moat'ı ayrı bir gelir akışı değildir — <b>onboarding maliyetini düşürür ve marjı compound eder</b>. Moat = taşınabilir domain-modeli + harvesting.</p>
+      </div>
+    </div>
+    <p style="margin-top:18px">
+      CWF'in geliri iki kalemden gelir: <b>(1) recurring lisans</b> — fabrika/site/kapsam bazlı, işin kalbi; <b>(2) NRE</b> — yeni bir müşteriyi/MES'i onboard etmenin bir-defalık mühendislik maliyeti, harvesting compound ettikçe düşmesi beklenen eğri. Bu, devlerin tanıdığı klasik enterprise yazılım ekonomisidir — ama OSS/no-Microsoft substrat amortismanıyla yapısal marj avantajıyla (§06).
+    </p>
+    <div class="lockbox">
+      <div class="k">Kanıt zemini — Kale recurring</div>
+      <div class="ls">
+        <div><div class="lk">Kanıt</div><div class="lv">16+ fabrika, production</div><div class="ln">ARMES MES + CWF Kale'de scale'de canlı. İcra riski kanıtlanmış; entegrasyonun en büyük riski (ARMES MCP) zaten çözülmüş.</div></div>
+        <div><div class="lk">Recurring çapa</div><div class="lv">~$1M/yıl <span class="flag">[open:]</span></div><div class="ln"><b>Dikkat — kaynak-belirsiz figür.</b> Bootstrap/brief bunu "proof floor" olarak veriyor; hiçbir proje dosyası bunu bağımsız doğrulamıyor ve bunun ARMES-toplam mı, ARMES+CWF mi, yoksa CWF-tek mi olduğu belirsiz. Gerçek Kale gelir-kalemi ayrımı gerekiyor.</div></div>
+        <div><div class="lk">Ne öğretir</div><div class="lv">Ödeme isteği gerçek</div><div class="ln">Bir egemen müşteri governed-truth akıl yürütmesi için recurring ödüyor — modelin temel varsayımı sahada doğrulanmış (büyüklük hariç).</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 04 PAZAR & WEDGE ================= -->
+<section class="reveal prose-sec">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-num">04</span><h2>Pazar &amp; Wedge — devlerin sınırlı bölgesi</h2></div>
+    <p class="sec-sub">Hedefleme ekseni <b>penetrasyon/egemenlik</b>, boyut değil. Devler bir bölgeyi tutar; CWF onun komplementini hedefler.</p>
+    <p>
+      Harici araştırma global MES pazarını <b>2025'te ~$17–20 milyar</b>, <b>~%10–12 CAGR</b> ile büyüyor olarak yerleştiriyor; on-prem segmenti egemenlik/IP gerekçesiyle baskın, hizmet kalemi lisanstan hızlı büyüyor, ve KOBİ'ler maliyet/karmaşıklık nedeniyle tereddütlü. <span class="src">Kaynak: Grand View, Mordor, MarketsandMarkets, Fortune BI, 2025–26.</span> Bu, CWF'in TAM bağlamıdır — ama CWF'in <b>hizmet-edilebilir dilimi</b> bütün pazar değil, aşağıdaki komplementtir.
+    </p>
+    <div class="wedge">
+      <div class="quad theirs">
+        <div class="qh">◇ Devlerin tuttuğu bölge</div>
+        <p><b>Büyük + olgun-pazar + bulut/Microsoft-kabul-eden + installed-base.</b> Siemens Industrial Copilot, Azure OpenAI / Microsoft Cloud üstüne kuruludur ve kendi platformuna (Xcelerator/TIA) bağlıdır; ağırlıkla mühendislik-kodu + makine-troubleshooting'e yaslanır. SAP Joule bulut-SAP'tir. Bu, fethedilmiş ve tahkim edilmiş bölgedir — kafa-kafaya girme. <span class="src">Kaynak: Siemens/Microsoft basın, 2024–25.</span></p>
+      </div>
+      <div class="quad ours">
+        <div class="qh">◆ CWF'in komplementi (hedef)</div>
+        <p><b>Egemenlik-hassas + düşük-penetrasyonlu + hafif-isteyen.</b> Buluta direnen büyük bir egemen üretici harika hedeftir; on-yıllık Opcenter kurulu, buluta-razı bir hesap kaçınılacak kaledir. Devlerin bulut ekonomisinin yapısal olarak rekabet edemediği coğrafyalar ve duruşlar — burada MES-agnostik + egemen + governed-truth-derinliği kazanır.</p>
+      </div>
+    </div>
+    <div class="flagbox">
+      <div class="fk">Pazar bayrakları — uydurulmadı</div>
+      <ul>
+        <li><b>SAM/SOM <span class="flag">[open:]</span></b> — egemenlik/penetrasyon komplementinin büyüklüğü ayrı bir <b>pazar-sizing araştırma-pass'i</b> gerektiriyor; TAM dışında hiçbir dilim figürü burada uydurulmadı.</li>
+        <li><b>Coğrafya önceliği <span class="flag">[open:]</span></b> — hangi egemenlik-hassas pazarların ilk wedge olduğu (TR çekirdek + hangi komşu/bölge) tanımlanmadı.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 05 BİRİM EKONOMİSİ ================= -->
+<section class="reveal prose-sec">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-num">05</span><h2>Birim Ekonomisi &amp; Senaryo</h2></div>
+    <p class="sec-sub">Ekonominin <b>şekli</b> nettir; <b>büyüklükleri</b> değil. Aşağıdaki her sayısal hücre bilerek bayraklı — kanonik CWF finansal modeli sonraki, ayrı iştir.</p>
+    <div class="matrix-scroll">
+      <table>
+        <thead>
+          <tr><th>Kalem</th><th>Yapı / yön</th><th>Değer</th><th>Not</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="opt">Recurring lisans<small>İŞİN KALBİ</small></span></td>
+            <td>Fabrika/site/kapsam bazlı yıllık; ölçekle compound eder</td>
+            <td class="num"><span class="flag">[open: ACV]</span></td>
+            <td>Tek çapa Kale recurring (kaynak-belirsiz, §03); per-müşteri ACV tanımlanmadı.</td>
+          </tr>
+          <tr>
+            <td><span class="opt">NRE — onboarding<small>BİR-DEFALIK</small></span></td>
+            <td>Yeni müşteri/MES kurulum + entegrasyon mühendisliği</td>
+            <td class="num"><span class="flag">[open: NRE]</span></td>
+            <td>SSoT'taki "moderate" jenerik; gerçek ARMES-dışı MES'te ampirik doğrulama gerekiyor. Real Kale NRE figürlerine bağımlı (ayrı proje).</td>
+          </tr>
+          <tr>
+            <td><span class="opt">Onboarding maliyet eğrisi<small>DÜŞEN</small></span></td>
+            <td>Harvesting compound ettikçe sonraki müşteri ucuzlar (asimetrik öğrenme)</td>
+            <td class="num"><span class="flag">[open: eğri]</span></td>
+            <td>Yön kesin (azalan), büyüklük yok. Self-service tezinin birim-ekonomi kanıtı budur.</td>
+          </tr>
+          <tr>
+            <td><span class="opt">Brüt marj<small>YAPISAL YÜKSEK</small></span></td>
+            <td>Substrat amortize + OSS/no-Microsoft + self-hosted vLLM</td>
+            <td class="num"><span class="flag">[open: %]</span></td>
+            <td>Yön kesin (devlerin Azure/MS lisans yükü yok); yüzde tanımlanmadı.</td>
+          </tr>
+          <tr class="total">
+            <td>Senaryo</td>
+            <td>Recurring × müşteri sayısı × (1 − düşen onboarding yükü)</td>
+            <td class="num"><span class="flag">[open: model]</span></td>
+            <td>Kanonik CWF finansal modeli (GU_Business_Model paraleli) henüz yok.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="takeaway">Sahip olduğumuz: ekonominin <b>şekli</b> — recurring lisans çekirdek, NRE düşen eğri, marj yapısal yüksek. Sahip olmadığımız: <b>tek bir doğrulanmış büyüklük</b>. Bu yüzden senaryo sayısı üretilmedi, üretilmemeli.</div>
+  </div>
+</section>
+
+<!-- ================= 06 MALİYET & SERMAYE AVANTAJI ================= -->
+<section class="reveal prose-sec">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-num">06</span><h2>Maliyet Yapısı &amp; Sermaye Avantajı</h2></div>
+    <p class="sec-sub">CWF'in marjı bir tesadüf değil, mimari bir tercihtir.</p>
+    <div class="nodes">
+      <div class="node"><h4><span class="dot steel"></span>Substrat amortismanı</h4><div class="role">Sıfır marjinal platform</div><p>Layer-1 substrat (EAIP + ARMES + IoT-Ignite + governed-truth domain-modeli) Kale ile birlikte zaten finanse edildi. CWF onun <b>tenant'ıdır</b>; marjinal inşa, platformu sıfırdan kurma değildir. <span class="flag">[dep:]</span> substrat finansman/sahiplik ayrımı portföy-tarafında çözülmeli — yoksa transfer-fiyatlama kavgası.</p></div>
+      <div class="node"><h4><span class="dot steel"></span>OSS-first / no-Microsoft</h4><div class="role">Lisans yükü yok</div><p>Stack açık kaynak; devlerin Azure/Microsoft lisans ve bulut-tüketim yükü CWF'in maliyet tabanında yok. Bu, egemenlik wedge'iyle aynı tercihin ekonomik yüzüdür.</p></div>
+      <div class="node"><h4><span class="dot heat"></span>Self-hosted vLLM</h4><div class="role">Sıfır egress</div><p>Inference müşteri sınırı içinde; hem egemenlik şartını karşılar hem de dışa-bağımlı token maliyetini ortadan kaldırır. Hassas use-case'lerde sıfır veri-çıkışı.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 07 GTM ================= -->
+<section class="reveal prose-sec">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-num">07</span><h2>Go-to-Market</h2></div>
+    <p class="sec-sub">Üç kanal, tek disiplin: kimsenin kölesi olma.</p>
+    <div class="cards">
+      <div class="card accent-heat"><div class="card-top"><h3><span class="chip" style="color:var(--heat-1)">DİREKT</span>Egemenlik wedge'i</h3><div class="role-line">Komplement bölgeye doğrudan satış</div></div><div class="cbody">Egemenlik-hassas, düşük-penetrasyonlu, hafif-isteyen hesaplara doğrudan. Mesaj: verin dışarı çıkmaz, MES'ine bağlı değiliz, usta-derinliğinde akıl yürütür. Devlerin bulut ekonomisinin giremediği yer.</div></div>
+      <div class="card accent-steel"><div class="card-top"><h3><span class="chip" style="color:var(--steel-1)">SEAM</span>GU → CWF graduation</h3><div class="role-line">En ucuz CWF acquisition kanalı</div></div><div class="cbody">Dijitalleşen GU atölyeleri CWF-sınıfı kapasiteye <b>graduate</b> eder. GU, CWF'in rakibi değil, en düşük-maliyetli müşteri-besleme kanalıdır (Layer-3 governed seam). Graduation tooling sonraki faz.</div></div>
+      <div class="card accent-caution"><div class="card-top"><h3><span class="chip" style="color:var(--caution)">KALDIRAÇ</span>Kale holding ilişkileri</h3><div class="role-line">Egemenlik-hassas gruplara erişim</div></div><div class="cbody">Egemenlik-hassas gruplarda karar, özellik kadar veri-egemenliği ve ulusal-şampiyon duruşuyla ilgilidir. Kale'nin holding-seviye ilişkileri bu erişimin gerçekleştirme kaldıracıdır.</div></div>
+    </div>
+    <div class="traps" style="margin-top:18px">
+      <h3><span class="tag">DİSİPLİN</span> Dağıtım-kanalı tuzağı — "bu bizi kimin kölesi yapar?"</h3>
+      <div class="trap-grid">
+        <div class="trap"><b>OEM = cüzdan, asla kanal.</b> Güçlü aracı (özellikle OEM) equity/gelir-payı ister ve musluğu kapatabilir; modeli bir avcının eline verme.</div>
+        <div class="trap"><b>Güçlü-emsal ya da hiç.</b> Bir kanala/ortağa girerken her zaman sor: bu bizi kimin kölesi yapar? Captive, değiştirilebilir, düşük-kaldıraçlı kanalları tercih et.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 08 KAPILAR ================= -->
+<section class="reveal">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-num">08</span><h2>Kapılar / Önkoşullar</h2></div>
+    <p class="sec-sub" style="color:var(--muted)">Tezin geçerli olması için doğrulanması gereken — sırayla.</p>
+    <div class="gates">
+      <div class="gate"><div class="gn"></div><div><div class="gt">Onboarding fidelity</div><p>Self-service mapping + domain-model-as-validator + KB elicitation döngüsü <b>gerçekten consulting-saatsiz</b> çalışmalı. Bu kapı kapanmazsa NRE düşmez, birim ekonomisi çökerken self-service tezi de düşer.</p></div></div>
+      <div class="gate"><div class="gn"></div><div><div class="gt">GTM kapasitesi</div><p>Enterprise satış motoru — uzun döngü, teknik alıcı + ekonomik alıcı ayrımı, egemenlik-pazarına özgü erişim. ARDICTECH'in bu motoru kurması/kanıtlaması gerekiyor.</p></div></div>
+      <div class="gate"><div class="gn"></div><div><div class="gt">Harvesting consent mimarisi</div><p>CWF'in G3-eşdeğeri: <b>yapısal patternler genelleşir, müşteri içeriği müşteri sınırında kalır</b>. "Sır kalır, ders gider." Hem mimaride hem sözleşmede <b>kanıtlanabilir</b> olmalı — slogan değil. Bu kapı olmadan harvesting moat'ı yasal/güven riskidir.</p></div></div>
+      <div class="gate"><div class="gn"></div><div><div class="gt">Egemenlik saati</div><p>Devler residency/edge'i bolt-on edebilir → bu birkaç-yıllık koşu, sonsuz moat değil. Wedge'i, saat kapanmadan tut ve derinleştir.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 09 RİSKLER ================= -->
+<section class="reveal">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-num">09</span><h2>Riskler &amp; Hassasiyet</h2></div>
+    <p class="sec-sub" style="color:var(--muted)">Acımasız okuma — yumuşatma yok.</p>
+    <div class="traps">
+      <h3><span class="tag">RİSK</span> Duvarı aşındıran kuvvetler</h3>
+      <div class="trap-grid">
+        <div class="trap"><b>Egemenlik saati.</b> Devler residency/edge bolt-on'larıyla wedge'i daraltabilir; runway birkaç yıl, kalıcı değil.</div>
+        <div class="trap"><b>Wedge içi yerel rakipler.</b> Aynı egemenlik mantığını kovalayan yerel oyuncular; coğrafya-önceliği ve derinlik hızla kazanılmalı.</div>
+        <div class="trap"><b>Enterprise satış motoru.</b> Uzun, ağır döngü; ARDICTECH'in henüz kanıtlamadığı motor — kapasite riski (Kapı 2).</div>
+        <div class="trap"><b>KB wiki-graveyard decay.</b> Tacit-bilgi katmanı çürüyebilir; validator-tetikli elicitation bunu hafifletir ama sıfırlamaz.</div>
+        <div class="trap"><b>Zamana-kilit asimetrisi.</b> Time-irreducibility yeni-girenlere karşı en güçlü, <b>ölçekli incumbent'lara karşı en zayıf</b> — onlar zaten parallel capture çalıştırıyor; açıkları zaman değil, <b>sovereign-vertical paketleme</b> (ürün açığı).</div>
+        <div class="trap"><b>Validator kapsamı.</b> Validator <i>imkânsızı</i> yakalar, <i>makul-ama-yanlışı</i> değil; onu KB kapatır — KB olgunlaşana dek bir boşluk.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 10 CAVEAT ================= -->
+<section class="reveal prose-sec">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-num">10</span><h2>Dürüst Caveat'lar</h2></div>
+    <p class="sec-sub">Bu doküman bunları gizlemez — gizleseydi işe yaramazdı.</p>
+    <div class="flagbox">
+      <div class="fk">Kayıt altına alınan dürüst sınırlar</div>
+      <ul>
+        <li><b>Kanonik CWF finansal modeli YOK.</b> GU_Business_Model paraleli bir model sonraki, ayrı iştir. Bu BC'de hiçbir senaryo-sayısı üretilmedi.</li>
+        <li><b>Pazar-sizing araştırma-pass'i gerekiyor.</b> TAM harici kaynaklarla zemine oturtuldu; SAM/SOM (egemenlik/penetrasyon komplementi) <span class="flag">[open:]</span>.</li>
+        <li><b>Duvar GU'nun ALTINDA.</b> CWF'in compound varlığı imalat bilgi-yapısıdır — iyi-finanse bir rakibin <b>yavaşça</b> yeniden kurabileceği bir duvar; replicable-but-slow. GU'nun çapraz-tenant veri ağı taklit-edilemez; CWF değil.</li>
+        <li><b>Kale recurring çapası kaynak-belirsiz.</b> ~$1M/yıl figürü ARMES/ARMES+CWF/CWF-tek ayrımına çözülmeli; gerçek gelir-kalemi gerekiyor.</li>
+        <li><b>NRE proxy gerçek figür bekliyor.</b> Model NRE <span class="flag">[insurance-anchored]</span> proxy'si, ayrı Kale projesinden gelecek gerçek NRE kalemleriyle değişecek.</li>
+        <li><b>~50-bileşen mutabakatı açık.</b> CWF stack'i production CWF (~50 bileşen) ve güncel SSoT sürümüne karşı uzlaştırılmadı (CWF_PD §13).</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="mono">CWF_Business_Case_v0_1.html · ARDICTECH · ŞİRKET İÇİ · model öncesi taslak</div>
+    <div style="margin-top:8px;max-width:880px">
+      Temel: <span class="mono">CWF_Product_Definition_v0_1.md</span>. Ev-stili: <span class="mono">GU_Business_Case</span> (forge-heat). Kanonik konum: <span class="mono">ARDICTECH_Strateji_Haritasi_v1_3</span> &amp; <span class="mono">GU_CWF_Bootstrap_v0_1</span>. Pazar verisi: harici araştırma (Grand View, Mordor, MarketsandMarkets, Fortune BI, Siemens/Microsoft basın), 2025–26 — düzyazıya paraphrase edildi.
+    </div>
+    <div class="legend">
+      <span><i style="background:var(--heat-1)"></i> moat / CWF</span>
+      <span><i style="background:var(--steel-1)"></i> substrat</span>
+      <span><i style="background:var(--caution)"></i> [open:] bayrak — doğrulama bekliyor</span>
+      <span><i style="background:var(--stop)"></i> risk / tuzak</span>
+    </div>
+    <div style="margin-top:14px" class="mono">Açık bayraklar: 12 × [open:] + 2 × [dep:] + 1 × [insurance-anchored] proxy · Bir sonraki iş: kanonik CWF finansal modeli (GU_Business_Model paraleli).</div>
+  </div>
+</footer>
+
+<script>
+  const obs = new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in')})},{threshold:.08});
+  document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+  document.querySelectorAll('.card-top').forEach(t=>t.addEventListener('click',()=>t.parentElement.classList.toggle('open')));
+</script>
+</body>
+</html>

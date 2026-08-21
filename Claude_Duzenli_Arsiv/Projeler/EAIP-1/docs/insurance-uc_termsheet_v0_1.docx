@@ -1,0 +1,26 @@
+**ARDICTECH × [Customer Name]**
+
+Insurance Vertical Platform Partnership
+
+*Indicative Term Sheet · Discussion Draft v0.1   **Valid for 30 days from issue*
+
+This document sets out indicative commercial terms for a partnership in which ARDICTECH provides the underlying platform and the Operator delivers a multi-tenant SaaS offering serving Turkish insurance companies. Terms below are indicative only, not legally binding, and subject to formal documentation in a Master Services Agreement, License Agreement, and Statement of Work.
+
+| **Term** | **Indicative position** |
+| --- | --- |
+| **Parties** | ARDICTECH (Platform Provider) and [Customer Name] (Operator) |
+| **Engagement structure** | Phase 1 — Single-tenant on-premise application for Operator's internal use (per existing proposal scope). Phase 2 — Multi-tenant platform extension enabling Operator to deliver a SaaS offering to third-party insurance companies in the agreed territory. |
+| **Implementation fees** | Fixed-fee, milestone-based, paid against acceptance criteria. Indicative ranges: Phase 1: USD 450,000 – 600,000.   Phase 2: USD 250,000 – 400,000. Final figures locked in Discovery (M0). Fees cover engineering delivery only; no transfer of platform IP. |
+| **Revenue share** | Tiered share of Operator's net SaaS subscription revenue from third-party tenants: 35% of first USD 500,000 ARR  •  30% of next USD 1,000,000 ARR  •  25% above USD 1,500,000 ARR. Operator's own internal use is excluded from revenue share. |
+| **Minimum annual commitment** | USD 75,000 per annum from Year 2 of commercial operation onward, creditable against revenue share earned in the same year. Ensures platform investment is protected if go-to-market is slower than planned. |
+| **Platform IP and license** | ARDICTECH retains all platform intellectual property: source code, model prompts, architectural assets, operational know-how. Operator receives a non-transferable, non-exclusive license to operate the platform for the agreed scope, contingent on continued revenue share participation. Source code escrow available for business continuity if required. |
+| **Operator exclusivity** | Exclusive right to operate the platform for the insurance vertical within Turkey for 3 years from commercial go-live. Exclusivity is subject to commercial milestones: minimum 3 paying third-party tenants by end of Year 1; minimum 7 by end of Year 2. Failure to meet milestones converts exclusivity to non-exclusive. |
+| **ARDICTECH retained rights** | All rights outside Turkey (including Middle East, Balkans, Central Asia). All rights in verticals other than insurance. Right to direct sales to specific insurance customers that Operator declines to serve or cannot serve within agreed response time. |
+| **Term and renewal** | Initial term: 5 years from production go-live of Phase 2. Renewal in 3-year increments by mutual written agreement. Revenue share survives termination only to the extent of pre-existing third-party tenant contracts. |
+| **Termination** | Standard for-cause provisions (material breach with cure period). For-convenience termination by either party with 12 months' written notice, subject to wind-down arrangements that protect tenant continuity and both parties' interests. |
+| **Governance** | Joint Product Committee with two representatives from each party. Quarterly roadmap reviews. Custom features outside the agreed roadmap are scoped and quoted separately at standard ARDICTECH rates. |
+| **Operator and tenant responsibilities** | Operator is sole party-of-record to its third-party tenants and holds all tenant-facing commercial agreements, support, and SLA commitments. ARDICTECH provides platform-level SLA to Operator under a separate support agreement included in revenue share economics. |
+
+**Next steps:  **(1) Operator review and discussion of indicative terms.  (2) Joint commercial workshop to align on partnership structure.  (3) Discovery (M0) commences upon mutual term sheet acceptance.  (4) Formal MSA and License Agreement drafted in parallel with Discovery.
+
+*Status: Non-binding indicative terms for discussion purposes. Issued in good faith by ARDICTECH to facilitate commercial dialogue. Neither party is bound to proceed until executed definitive agreements are in place.*

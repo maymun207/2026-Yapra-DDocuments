@@ -1,0 +1,419 @@
+1. Connected Project Ref
+fjbrkimwvtpwoxhziidh
+
+2. G0 · Column Discovery Output
+json
+[
+  {"table_name":"backend_tools","column_name":"id","data_type":"uuid"},
+  {"table_name":"backend_tools","column_name":"backend_id","data_type":"text"},
+  {"table_name":"backend_tools","column_name":"tool_name","data_type":"text"},
+  {"table_name":"backend_tools","column_name":"description","data_type":"text"},
+  {"table_name":"backend_tools","column_name":"input_schema","data_type":"jsonb"},
+  {"table_name":"backend_tools","column_name":"first_seen_at","data_type":"timestamp with time zone"},
+  {"table_name":"backend_tools","column_name":"last_seen_at","data_type":"timestamp with time zone"},
+  {"table_name":"backend_tools","column_name":"status","data_type":"text"},
+  {"table_name":"backend_tools","column_name":"via_gateway","data_type":"boolean"},
+  {"table_name":"domain_rules","column_name":"rule_id","data_type":"uuid"},
+  {"table_name":"domain_rules","column_name":"kind_id","data_type":"text"},
+  {"table_name":"domain_rules","column_name":"backend_id","data_type":"text"},
+  {"table_name":"domain_rules","column_name":"key","data_type":"text"},
+  {"table_name":"domain_rules","column_name":"payload","data_type":"jsonb"},
+  {"table_name":"domain_rules","column_name":"status","data_type":"text"},
+  {"table_name":"domain_rules","column_name":"version","data_type":"integer"},
+  {"table_name":"domain_rules","column_name":"created_by","data_type":"uuid"},
+  {"table_name":"domain_rules","column_name":"updated_by","data_type":"uuid"},
+  {"table_name":"domain_rules","column_name":"updated_at","data_type":"timestamp with time zone"},
+  {"table_name":"domain_rules","column_name":"ready_at","data_type":"timestamp with time zone"},
+  {"table_name":"domain_rules","column_name":"ready_by","data_type":"uuid"}
+]
+3. G1 · The 22 Gateway Inner Tools (RAW input_schema)
+json
+[
+  {
+    "tool_name": "add_chart_to_existing_dashboard",
+    "status": "active",
+    "via_gateway": true,
+    "input_schema": {
+      "tags": ["mutate"],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false
+      },
+      "parameters_hint": "request"
+    }
+  },
+  {
+    "tool_name": "create_virtual_dataset",
+    "status": "active",
+    "via_gateway": true,
+    "input_schema": {
+      "tags": ["mutate"],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false
+      },
+      "parameters_hint": "request"
+    }
+  },
+  {
+    "tool_name": "execute_sql",
+    "status": "active",
+    "via_gateway": true,
+    "input_schema": {
+      "tags": ["mutate"],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true
+      },
+      "parameters_hint": "request"
+    }
+  },
+  {
+    "tool_name": "generate_chart",
+    "status": "active",
+    "via_gateway": true,
+    "input_schema": {
+      "tags": ["mutate"],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false
+      },
+      "parameters_hint": "request"
+    }
+  },
+  {
+    "tool_name": "generate_dashboard",
+    "status": "active",
+    "via_gateway": true,
+    "input_schema": {
+      "tags": ["mutate"],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false
+      },
+      "parameters_hint": "request"
+    }
+  },
+  {
+    "tool_name": "generate_explore_link",
+    "status": "active",
+    "via_gateway": true,
+    "input_schema": {
+      "tags": ["explore"],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false
+      },
+      "parameters_hint": "request"
+    }
+  },
+  {
+    "tool_name": "get_chart_data",
+    "status": "active",
+    "via_gateway": true,
+    "input_schema": {
+      "tags": ["data"],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false
+      },
+      "parameters_hint": "request"
+    }
+  },
+  {
+    "tool_name": "get_chart_info",
+    "status": "active",
+    "via_gateway": true,
+    "input_schema": {
+      "tags": ["discovery"],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false
+      },
+      "parameters_hint": "request"
+    }
+  },
+  {
+    "tool_name": "get_chart_preview",
+    "status": "active",
+    "via_gateway": true,
+    "input_schema": {
+      "tags": ["data"],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false
+      },
+      "parameters_hint": "request"
+    }
+  },
+  {
+    "tool_name": "get_chart_type_schema",
+    "status": "active",
+    "via_gateway": true,
+    "input_schema": {
+      "tags": ["discovery"],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false
+      },
+      "parameters_hint": "chart_type, include_examples"
+    }
+  },
+  {
+    "tool_name": "get_dashboard_info",
+    "status": "active",
+    "via_gateway": true,
+    "input_schema": {
+      "tags": ["discovery"],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false
+      },
+      "parameters_hint": "request"
+    }
+  },
+  {
+    "tool_name": "get_database_info",
+    "status": "active",
+    "via_gateway": true,
+    "input_schema": {
+      "tags": ["discovery"],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false
+      },
+      "parameters_hint": "request"
+    }
+  },
+  {
+    "tool_name": "get_dataset_info",
+    "status": "active",
+    "via_gateway": true,
+    "input_schema": {
+      "tags": ["discovery"],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false
+      },
+      "parameters_hint": "request"
+    }
+  },
+  {
+    "tool_name": "get_schema",
+    "status": "active",
+    "via_gateway": true,
+    "input_schema": {
+      "tags": ["discovery"],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false
+      },
+      "parameters_hint": "request"
+    }
+  },
+  {
+    "tool_name": "list_charts",
+    "status": "active",
+    "via_gateway": true,
+    "input_schema": {
+      "tags": ["core"],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false
+      },
+      "parameters_hint": "request"
+    }
+  },
+  {
+    "tool_name": "list_dashboards",
+    "status": "active",
+    "via_gateway": true,
+    "input_schema": {
+      "tags": ["core"],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false
+      },
+      "parameters_hint": "request"
+    }
+  },
+  {
+    "tool_name": "list_databases",
+    "status": "active",
+    "via_gateway": true,
+    "input_schema": {
+      "tags": ["core"],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false
+      },
+      "parameters_hint": "request"
+    }
+  },
+  {
+    "tool_name": "list_datasets",
+    "status": "active",
+    "via_gateway": true,
+    "input_schema": {
+      "tags": ["core"],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false
+      },
+      "parameters_hint": "request"
+    }
+  },
+  {
+    "tool_name": "open_sql_lab_with_context",
+    "status": "active",
+    "via_gateway": true,
+    "input_schema": {
+      "tags": ["explore"],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false
+      },
+      "parameters_hint": "request"
+    }
+  },
+  {
+    "tool_name": "save_sql_query",
+    "status": "active",
+    "via_gateway": true,
+    "input_schema": {
+      "tags": ["mutate"],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false
+      },
+      "parameters_hint": "request"
+    }
+  },
+  {
+    "tool_name": "update_chart",
+    "status": "active",
+    "via_gateway": true,
+    "input_schema": {
+      "tags": ["mutate"],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true
+      },
+      "parameters_hint": "request"
+    }
+  },
+  {
+    "tool_name": "update_chart_preview",
+    "status": "active",
+    "via_gateway": true,
+    "input_schema": {
+      "tags": ["mutate"],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true
+      },
+      "parameters_hint": "request"
+    }
+  }
+]
+S66 Pre-Declared Expectation Verification:
+
+22 rows returned.
+All 22 carry annotations + tags + parameters_hint.
+Zero carry properties or type.
+21 of 22 carry parameters_hint: "request" (1 tool, get_chart_type_schema, carries "parameters_hint": "chart_type, include_examples").
+Tag census: mutate 8, discovery 6, core 4, data 2, explore 2.
+Zero deviations from S66 expectations.
+4. G2 · The Entry Tools (via_gateway = false)
+json
+[
+  {
+    "tool_name": "call_tool",
+    "status": "active",
+    "via_gateway": false,
+    "input_schema": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The name of the tool to call"
+        },
+        "arguments": {
+          "type": "object",
+          "default": null,
+          "description": "Arguments to pass to the tool",
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  {
+    "tool_name": "get_instance_info",
+    "status": "active",
+    "via_gateway": false,
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "request": {
+          "type": "object",
+          "default": {},
+          "properties": {},
+          "description": "Request schema for get_instance_info tool.\n\nCurrently has no parameters but provides consistent API for future extensibility.",
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  {
+    "tool_name": "health_check",
+    "status": "active",
+    "via_gateway": false,
+    "input_schema": {
+      "type": "object",
+      "properties": {},
+      "additionalProperties": false
+    }
+  },
+  {
+    "tool_name": "search_tools",
+    "status": "active",
+    "via_gateway": false,
+    "input_schema": {
+      "type": "object",
+      "required": ["query"],
+      "properties": {
+        "query": {
+          "type": "string",
+          "description": "Natural language query to search for tools"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+]
+5. G3 · Completeness Probe Results
+Total row count for backend_id = 'superset': 26
+Gateway true count (via_gateway = true): 22
+Gateway false count (via_gateway = false): 4
+Equality Statements:
+
+G1 returned 22 rows, which EQUALS the gateway true count (22).
+G1 (22) + G2 (4) = 26, which EQUALS the total Superset row count (26).
+6. G4 · Current Governed Classification State
+Published domain_rules counts for tool classification kinds (tool_category and tool_annotation):
+
+json
+[
+  { "backend_id": "armes", "kind_id": "armes.tool_annotation", "published_count": 141 },
+  { "backend_id": "armes", "kind_id": "armes.tool_category", "published_count": 12 },
+  { "backend_id": "superset", "kind_id": "superset.tool_annotation", "published_count": 0 },
+  { "backend_id": "superset", "kind_id": "superset.tool_category", "published_count": 0 }
+]
+Note: Superset has zero published rows of both tool_annotation and tool_category kinds (empty != zero).
+
+7. Execution Compliance Confirmation
+Confirmation: No write, no DDL, no migration, no repo contact, and no secret value printed.
+

@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EAIP — Component Connectivity (100 connections)</title>
+<style>
+:root{
+  --bg:#0D1117;--bg2:#161B22;--bg3:#21262D;--border:#30363D;--border2:#444C56;
+  --text:#E6EDF3;--text2:#8B949E;--text3:#6E7681;
+  --blue:#58A6FF;--green:#3FB950;--amber:#E3B341;
+  --mono:ui-monospace,'JetBrains Mono','SFMono-Regular',Menlo,monospace;
+  --sans:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);line-height:1.5;-webkit-font-smoothing:antialiased;padding:0 0 60px}
+.hdr{background:linear-gradient(135deg,var(--bg2),#1C2333);border-bottom:1px solid var(--border);padding:22px 32px;position:sticky;top:0;z-index:10}
+.hdr h1{font-size:18px;font-weight:700;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.vb{font-family:var(--mono);font-size:10px;font-weight:700;background:rgba(88,166,255,.14);color:var(--blue);border:1px solid var(--blue);border-radius:20px;padding:2px 9px}
+.hdr .sub{font-size:12px;color:var(--text2);font-family:var(--mono);margin-top:5px}
+.main{max-width:1180px;margin:0 auto;padding:24px 32px}
+.sect{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin:32px 0 14px;padding-bottom:7px;border-bottom:1px solid var(--border)}
+.sect:first-of-type{margin-top:6px}
+.lede{font-size:13px;color:var(--text2);line-height:1.65;margin-bottom:16px;max-width:820px}
+svg{width:100%;height:auto;display:block}
+.tk{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:7px}
+.tki{background:var(--bg2);border:1px solid var(--border);border-radius:7px;padding:8px 10px}
+.tkb{font-family:var(--mono);font-size:10px;font-weight:700;border-radius:3px;padding:2px 6px;display:inline-block;margin-bottom:5px}
+.tkd{font-size:10.5px;color:var(--text2);line-height:1.4}
+.ctrl{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.in{background:var(--bg2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:7px 11px;font-size:12px;font-family:var(--mono);width:240px;outline:none}
+.in:focus{border-color:var(--blue)}
+.sel{background:var(--bg2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:7px 9px;font-size:12px;font-family:var(--mono);outline:none;cursor:pointer}
+.cnt{font-family:var(--mono);font-size:11px;color:var(--text3);margin-left:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);padding:8px 9px;border-bottom:1px solid var(--border2);position:sticky;top:73px;background:var(--bg)}
+td{padding:8px 9px;border-bottom:1px solid var(--border);vertical-align:top}
+.cfrom{font-weight:600;color:var(--text);white-space:nowrap}
+.carr{color:var(--text3);padding:0 4px}
+.cto{color:var(--text);white-space:nowrap}
+.cty{font-family:var(--mono);font-size:10px;font-weight:700;border-radius:3px;padding:1px 6px;white-space:nowrap}
+.cproto{font-family:var(--mono);font-size:10.5px;color:var(--blue)}
+.cpu{color:var(--text2);font-size:11px}
+.cph{font-family:var(--mono);font-size:9.5px;border-radius:10px;padding:1px 7px;white-space:nowrap}
+footer{max-width:1180px;margin:30px auto 0;padding:20px 32px;font-size:11px;color:var(--text3);font-family:var(--mono);border-top:1px solid var(--border)}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <h1>EAIP — Component Connectivity <span class="vb">100 CONNECTIONS · 16 PROTOCOLS</span></h1>
+  <div class="sub">who talks to what, over which protocol · regenerated clean from the v5 SSoT</div>
+</div>
+<div class="main">
+
+  <div class="sect">1 · Core request lifecycle — the hot path</div>
+  <div class="lede">Every customer message follows the same spine: a channel pushes it to the gateway, Kong authenticates and applies policy, FastAPI orchestrates, LangGraph reasons, and the LLM call goes through LiteLLM to vLLM. LangGraph fans out to retrieval, state, tools, and tracing on each turn.</div>
+  <svg viewBox="0 0 680 520" role="img" aria-label="Vertical request spine from channel to vLLM, with LangGraph fanning out to RAG, state, MES tool, and tracing.">
+    <defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+    <g>
+      <rect x="150" y="40" width="210" height="46" rx="8" fill="rgba(88,166,255,.14)" stroke="var(--blue)" stroke-width="1"/>
+      <text x="255" y="60" text-anchor="middle" fill="var(--text)" font-size="13.5" font-weight="600" font-family="var(--sans)">Channel</text>
+      <text x="255" y="77" text-anchor="middle" fill="var(--text2)" font-size="11.5" font-family="var(--sans)">WhatsApp · widget · Teams</text>
+    </g>
+    <g><rect x="150" y="106" width="210" height="46" rx="8" fill="var(--bg3)" stroke="var(--border)" stroke-width="1"/>
+      <text x="255" y="133" text-anchor="middle" fill="var(--text)" font-size="13.5" font-weight="600" font-family="var(--sans)">Channel gateway</text></g>
+    <g><rect x="150" y="172" width="210" height="46" rx="8" fill="var(--bg3)" stroke="var(--border)" stroke-width="1"/>
+      <text x="255" y="199" text-anchor="middle" fill="var(--text)" font-size="13.5" font-weight="600" font-family="var(--sans)">Kong + OPA</text></g>
+    <g><rect x="150" y="238" width="210" height="46" rx="8" fill="var(--bg3)" stroke="var(--border)" stroke-width="1"/>
+      <text x="255" y="265" text-anchor="middle" fill="var(--text)" font-size="13.5" font-weight="600" font-family="var(--sans)">FastAPI + Keycloak</text></g>
+    <g><rect x="150" y="304" width="210" height="46" rx="8" fill="rgba(88,166,255,.14)" stroke="var(--blue)" stroke-width="1"/>
+      <text x="255" y="331" text-anchor="middle" fill="var(--text)" font-size="13.5" font-weight="600" font-family="var(--sans)">LangGraph</text></g>
+    <g><rect x="150" y="392" width="210" height="46" rx="8" fill="rgba(63,185,80,.14)" stroke="var(--green)" stroke-width="1"/>
+      <text x="255" y="419" text-anchor="middle" fill="var(--green)" font-size="13.5" font-weight="600" font-family="var(--sans)">LiteLLM</text></g>
+    <g><rect x="150" y="458" width="210" height="46" rx="8" fill="var(--bg3)" stroke="var(--border)" stroke-width="1"/>
+      <text x="255" y="485" text-anchor="middle" fill="var(--text)" font-size="13.5" font-weight="600" font-family="var(--sans)">vLLM · Llama-3-8B</text></g>
+
+    <line x1="255" y1="86" x2="255" y2="104" stroke="var(--text3)" stroke-width="1.5" marker-end="url(#ar)"/>
+    <line x1="255" y1="152" x2="255" y2="170" stroke="var(--text3)" stroke-width="1.5" marker-end="url(#ar)"/>
+    <line x1="255" y1="218" x2="255" y2="236" stroke="var(--text3)" stroke-width="1.5" marker-end="url(#ar)"/>
+    <line x1="255" y1="284" x2="255" y2="302" stroke="var(--text3)" stroke-width="1.5" marker-end="url(#ar)"/>
+    <line x1="255" y1="350" x2="255" y2="390" stroke="var(--text3)" stroke-width="1.5" marker-end="url(#ar)"/>
+    <line x1="255" y1="438" x2="255" y2="456" stroke="var(--text3)" stroke-width="1.5" marker-end="url(#ar)"/>
+    <text x="263" y="98" fill="var(--text2)" font-size="11" font-family="var(--mono)">webhook / ws</text>
+    <text x="263" y="164" fill="var(--text2)" font-size="11" font-family="var(--mono)">rest</text>
+    <text x="263" y="230" fill="var(--text2)" font-size="11" font-family="var(--mono)">rest + oidc</text>
+    <text x="263" y="296" fill="var(--text2)" font-size="11" font-family="var(--mono)">rest</text>
+    <text x="263" y="375" fill="var(--text2)" font-size="11" font-family="var(--mono)">rest · openai-compat</text>
+    <text x="263" y="450" fill="var(--text2)" font-size="11" font-family="var(--mono)">rest</text>
+
+    <g><rect x="430" y="300" width="210" height="34" rx="7" fill="var(--bg3)" stroke="var(--border)" stroke-width="1"/>
+      <text x="442" y="321" fill="var(--text)" font-size="12" font-family="var(--sans)">LlamaIndex → Qdrant · gRPC</text></g>
+    <g><rect x="430" y="340" width="210" height="34" rx="7" fill="var(--bg3)" stroke="var(--border)" stroke-width="1"/>
+      <text x="442" y="361" fill="var(--text)" font-size="12" font-family="var(--sans)">PostgresSaver · PSQL</text></g>
+    <g><rect x="430" y="380" width="210" height="34" rx="7" fill="rgba(63,185,80,.14)" stroke="var(--green)" stroke-width="1"/>
+      <text x="442" y="401" fill="var(--green)" font-size="12" font-family="var(--sans)">ARMES MCP → MariaDB · MCP</text></g>
+    <g><rect x="430" y="420" width="210" height="34" rx="7" fill="var(--bg3)" stroke="var(--border)" stroke-width="1"/>
+      <text x="442" y="441" fill="var(--text)" font-size="12" font-family="var(--sans)">Langfuse trace · SDK</text></g>
+    <line x1="360" y1="327" x2="428" y2="317" stroke="var(--text3)" stroke-width="1" marker-end="url(#ar)"/>
+    <line x1="360" y1="327" x2="428" y2="357" stroke="var(--text3)" stroke-width="1" marker-end="url(#ar)"/>
+    <line x1="360" y1="327" x2="428" y2="397" stroke="var(--text3)" stroke-width="1" marker-end="url(#ar)"/>
+    <line x1="360" y1="327" x2="428" y2="437" stroke="var(--text3)" stroke-width="1" marker-end="url(#ar)"/>
+  </svg>
+
+  <div class="sect">2 · Connection-type key</div>
+  <div class="tk" id="typekey"></div>
+
+  <div class="sect">3 · Full connection reference</div>
+  <div class="ctrl">
+    <input class="in" id="q" placeholder="search component, protocol, purpose…" oninput="render()">
+    <select class="sel" id="fty" onchange="render()"><option value="">all types</option></select>
+    <select class="sel" id="fph" onchange="render()"><option value="">all phases</option></select>
+    <span class="cnt" id="cnt"></span>
+  </div>
+  <table><thead><tr><th>from</th><th></th><th>to</th><th>type</th><th>protocol</th><th>purpose</th><th>phase</th></tr></thead><tbody id="tb"></tbody></table>
+</div>
+<footer>ARDICTECH A.Ş. · EAIP component connectivity · 100 connections across phases A–G · protocols verbatim from the v5 SSoT · internal technical reference</footer>
+
+<script>
+const CT={REST:{c:'#388BFD',d:'Synchronous HTTP request/response. Standard service-to-service.'},
+MCP:{c:'#3FB950',d:'AI tool-calling. Target exposed as a callable tool over JSON-RPC.'},
+WS:{c:'#E3B341',d:'Persistent bidirectional socket. Real-time streaming to browser.'},
+KAFKA:{c:'#F85149',d:'Async event streaming via Redpanda (Kafka-compatible).'},
+CDC:{c:'#BC8CFF',d:'Debezium reads Postgres WAL. Zero-poll change capture.'},
+OIDC:{c:'#FF9933',d:'Signed JWT validated against Keycloak JWKS. Enterprise SSO.'},
+GRPC:{c:'#79C0FF',d:'Binary Protobuf over HTTP/2. Low-latency, strongly typed.'},
+S3:{c:'#56D364',d:'S3-compatible object API. MinIO implements it fully.'},
+WEBHOOK:{c:'#FFA657',d:'External system POSTs to our endpoint on an event. Push, not poll.'},
+PSQL:{c:'#8B949E',d:'Native Postgres wire (asyncpg/psycopg2). Most efficient DB path.'},
+SDK:{c:'#A371F7',d:'In-process imported library. No network hop.'},
+GRAPH:{c:'#56D364',d:'Redis-compatible GRAPH commands (FalkorDB). Cypher-like queries.'},
+JDBC:{c:'#388BFD',d:'JDBC driver. Airbyte/OpenMetadata/JVM analytics tools.'},
+OTEL:{c:'#58A6FF',d:'OpenTelemetry OTLP traces/metrics to collector.'},
+SMB:{c:'#6E7681',d:'SMB/CIFS file protocol. NiFi reads Windows shares.'},
+HTTP:{c:'#FF9933',d:'Generic HTTP (scrape / informal webhook), not a typed REST API.'}};
+const PH={core:{c:'#58A6FF',l:'Platform Core'},wa:{c:'#3FB950',l:'Web Asistan'},gu:{c:'#E3B341',l:'Galip Usta'},cwf1:{c:'#BC8CFF',l:'CWF v1'},ins:{c:'#F85149',l:'Insurance'},cwf2:{c:'#A371F7',l:'CWF v2'},fin:{c:'#79C0FF',l:'Astra'}};
+const C=[
+['WhatsApp','Channel gateway','WEBHOOK','HTTPS POST → /webhook (X-Hub-Signature verified)','Meta pushes every inbound message','core'],
+['Channel gateway','Whisper STT','REST','POST /transcribe','Voice note → Turkish STT','core'],
+['Channel gateway','LangGraph','REST','POST /invoke (MessageEnvelope)','Single entry point to agent reasoning','core'],
+['Channel gateway','Redis','SDK','SET/GET session:{id} (TTL 4h)','Carry context across multi-message turns','core'],
+['Kong','OPA','REST','POST /v1/data/authz/allow','Per-request tenant/role/flag policy','core'],
+['Kong','FastAPI','REST','HTTP proxy → :8000','Forward after auth + policy pass','core'],
+['FastAPI','LangGraph','REST','POST /invoke | /stream','Orchestrate agent execution','core'],
+['FastAPI','Keycloak','OIDC','JWKS validate Bearer JWT (5-min cache)','Verify signature, expiry, tenant claim','core'],
+['FastAPI','PostgreSQL','PSQL','asyncpg pool (2–20/replica)','Transactional data: sessions, billing, state','core'],
+['FastAPI','Redis','SDK','aioredis','Cache, sliding-window rate limit, session','core'],
+['FastAPI','MinIO','S3','PUT/GET (boto3), {tenant}/ namespaced','Files, generated PDFs, artifacts','core'],
+['Keycloak','PostgreSQL','PSQL','jdbc postgresql/keycloak','Realms, users, sessions, audit','core'],
+['Tenant provisioning','PostgreSQL','PSQL','schema create + pgvector + RLS','Per-tenant data isolation','core'],
+['Tenant provisioning','Keycloak','REST','POST /admin/realms','Per-tenant realm + roles','core'],
+['Tenant provisioning','Kubernetes','REST','K8s API: namespace + quota + netpolicy','Tenant namespace isolation','core'],
+['Tenant provisioning','Qdrant','REST','PUT /collections/{tenant}_{type}','Isolated vector collections','core'],
+['LangGraph','LiteLLM','REST','POST /v1/chat/completions','ALL LLM calls via the proxy','core'],
+['LangGraph','LlamaIndex','SDK','in-process index.retrieve()','RAG retrieval (embed → ANN → assemble)','core'],
+['LangGraph','Memori','REST','GET /session/{id} + /profile/{user}','Inject session + profile memory','core'],
+['LangGraph','Langfuse','SDK','LangfuseCallbackHandler (async batch)','Trace every run; no latency impact','core'],
+['LangGraph','Guardrails AI','SDK','Guard.parse(output)','Validate output vs Rail spec','core'],
+['LangGraph','Hybrid decision engine','SDK','engine.decide(candidates, ctx)','Deterministic YAML-rule decision','core'],
+['LangGraph','PostgreSQL','PSQL','PostgresSaver checkpoint','State checkpointing, resume, replay','core'],
+['LangGraph','Redis','SDK','hot graph state (db 1)','Sub-ms reads during a turn','core'],
+['LangGraph','Prompt store','REST','GET /admin/prompts/{name}?lang=tr','Fetch active prompt version (cached 5m)','core'],
+['Hybrid decision engine','PostgreSQL','PSQL','INSERT {tenant}.decisions','Immutable audit record per decision','core'],
+['LlamaIndex','Qdrant','GRPC','http://qdrant:6334 (Protobuf)','High-throughput vector upsert + ANN','core'],
+['LlamaIndex','PostgreSQL','PSQL','embedding <#> $1 (pgvector)','Semantic + relational co-query','core'],
+['LlamaIndex','MinIO','S3','GET {tenant}-rag-docs','Fetch source docs for re-index','core'],
+['LiteLLM','vLLM','REST','POST /v1/chat/completions','Prod inference (PagedAttention)','core'],
+['LiteLLM','Ollama','REST','POST /api/chat','Dev / fallback inference','core'],
+['LiteLLM','Langfuse','SDK','usage callbacks (async)','Per-call cost, tokens, latency','core'],
+['Langfuse','PostgreSQL','PSQL','jdbc postgresql/langfuse','Traces, spans, scores, sessions','core'],
+['Langfuse','MinIO','S3','PUT langfuse-blobs/{trace}','Large payloads off the trace DB','core'],
+['MLflow','PostgreSQL','PSQL','jdbc postgresql/mlflow','Experiments, metrics, model registry','core'],
+['MLflow','MinIO','S3','PUT mlflow-artifacts/','Model artifacts, eval datasets','core'],
+['Airflow','PostgreSQL','PSQL','jdbc postgresql/airflow','DAG/task state, XCom, logs','core'],
+['Airflow','MinIO','S3','GET/PUT pipeline-artifacts/','RAG re-index inputs/outputs','core'],
+['Airflow','OpenMetadata','REST','deploy ingestPipeline/{id}','Sync metadata + lineage after run','core'],
+['Soda Core','PostgreSQL','PSQL','soda-core-postgres scan','Quality checks on Bronze/Silver/Gold','core'],
+['Soda Core','OpenMetadata','REST','POST /quality (results)','Publish scan results to catalog','core'],
+['dbt Core','PostgreSQL','PSQL','dbt-postgres adapter','Bronze → Silver → Gold transforms','core'],
+['OpenMetadata','PostgreSQL','PSQL','jdbc postgresql/openmetadata','Catalog metadata + lineage edges','core'],
+['Audit / SPC PDF','PostgreSQL','PSQL','SELECT decisions WHERE period','Query audit log for the period','core'],
+['Audit / SPC PDF','MinIO','S3','PUT audit-pdfs/ (object-lock)','Store compliance PDFs, 24h URL','core'],
+['Grafana','Prometheus','REST','PromQL /api/v1/query_range','Metrics dashboards (cluster, LLM, cost)','core'],
+['Loki + OTel','MinIO','S3','PUT loki-chunks/','Cost-effective log chunk retention','core'],
+['Loki + OTel','Langfuse','OTEL','OTLP gRPC → /api/public/otel','Forward AI traces for LLM analysis','core'],
+['Loki + OTel','Grafana','OTEL','OTLP → Grafana Tempo','Infra distributed tracing / SLA','core'],
+['ArgoCD','Kubernetes','REST','sync loop every 3 min','GitOps desired-state apply','core'],
+['Vault','Kubernetes','REST','K8s TokenReview + agent sidecar','Inject secrets as env at pod start','core'],
+['Cert mgr','Kubernetes','REST','Certificate CRD (ACME / Vault PKI)','Auto TLS renew + inter-service mTLS','core'],
+['OpenTofu','Netaş / OSB cloud','REST','tofu apply (provider plugin)','Provision cluster, GPU pool, network','core'],
+['OpenTofu','MinIO','S3','s3://tofu-state (remote + lock)','Sovereign infra state + locking','core'],
+['CI pipeline','Container registry','REST','docker push (Trivy scan + Cosign sign)','Build → scan → sign → push image','core'],
+['CI pipeline','ArgoCD','REST','git tag-bump → webhook','CI (build) → CD (deploy) handoff','core'],
+['CI pipeline','Vault','REST','AppRole fetch creds','Short-lived registry + signing creds','core'],
+['Kubernetes','Container registry','REST','image pull + Cosign verify','Only signed, scanned images run','core'],
+['Container registry','MinIO','S3','s3://harbor-images (layer blobs)','Reuse object store for image layers','core'],
+['Container registry','PostgreSQL','PSQL','jdbc postgresql/harbor','Registry metadata, scans, provenance','core'],
+['Embed widget','Kong','WS','wss /ws/chat (upgrade)','Stream LLM tokens to the browser','wa'],
+['Embed widget','Kong','REST','POST /api/chat','Non-streaming message submit','wa'],
+['File upload','MinIO','S3','PUT raw-uploads/{hash} (SHA256 dedup)','Stage catalog files (CSV/XLS/PDF)','wa'],
+['File upload','Airflow','REST','trigger rag_reindex DAG','Chunk → embed → upsert pipeline','wa'],
+['Whisper STT','Channel gateway','REST','returns {text, language, duration}','Transcript replaces audio in envelope','gu'],
+['LangGraph','ARMES MES','MCP','MCP tool → armes-mcp:3001 (pre-built ✓)','get_work_orders / oee / equipment / quality','cwf1'],
+['ARMES MES','MariaDB','JDBC','read-only mysql+pymysql','Read-only MES SQL, tenant-scoped','cwf1'],
+['LangGraph','ClickHouse','MCP','MCP NL→SQL tool','Analytics: OEE trends, quality, volume','cwf1'],
+['Airbyte','MariaDB','JDBC','MySQL source, 15-min incremental','Sync ARMES ops data','cwf1'],
+['Airbyte','ClickHouse','JDBC','ClickHouse dest (ReplacingMergeTree)','Single analytical store for mfg data','cwf1'],
+['Soda Core','ClickHouse','JDBC','soda-core-clickhouse scan','Freshness/completeness on mfg tables','cwf1'],
+['dbt Core','ClickHouse','JDBC','dbt-clickhouse adapter','Silver/Gold OEE + quality models','cwf1'],
+['Teams bot','Channel gateway','REST','POST /teams/message (Bot Framework)','Teams → MessageEnvelope, Adaptive Cards','cwf1'],
+['n8n','LangGraph','WEBHOOK','POST /n8n/trigger','n8n flow asks for an AI decision','cwf1'],
+['LangGraph','n8n','REST','POST /webhook/{flow}','AI decision triggers an n8n action','cwf1'],
+['LightRAG','Qdrant','REST','search {tenant}_armes_docs','Multi-hop SOP / manual retrieval','cwf1'],
+['LightRAG','PostgreSQL','PSQL','entity/relation graph tables','Document knowledge graph store','cwf1'],
+['LightRAG','MinIO','S3','GET {tenant}-armes-docs','Source docs for KG construction','cwf1'],
+['Outlook / Graph','Channel gateway','WEBHOOK','POST /outlook/hook (Graph notification)','New insurance email → triage agent','ins'],
+['NiFi SMB crawler','SMB shares','SMB','GetSmbFile poll 5-min','Read insurance PDFs (bound + submissions)','ins'],
+['NiFi SMB crawler','PostgreSQL','PSQL','PutDatabaseRecord → documents','Metadata + SHA256 dedup + audit','ins'],
+['NiFi SMB crawler','Qdrant','REST','upsert {tenant}_insurance','Semantic search over historical risks','ins'],
+['ARU / KARU','FastAPI','HTTP','REST OR Playwright scrape ⚠ (Week-1 spike)','Prior facultative risk history lookup','ins'],
+['Debezium','PostgreSQL','CDC','WAL logical replication slot','Row-level change capture, zero-poll','cwf2'],
+['Debezium','Redpanda','KAFKA','Connect sink → topics (1/table)','Change events: before/after, LSN, ts','cwf2'],
+['Graphiti','Redpanda','KAFKA','consumer group → public.* topics','CDC events → temporal graph facts','cwf2'],
+['Graphiti','FalkorDB','GRAPH','GRAPH.QUERY (Redis wire :6379)','Timestamped temporal property graph','cwf2'],
+['LangGraph','Graphiti','REST','POST /query (causal, time window)','Diagnostic mfg queries (why did OEE drop)','cwf2'],
+['Evidently AI','Grafana','OTEL','prometheus remote_write','Drift + RAGAS metrics, alert on threshold','cwf2'],
+['LLM enrichment','LiteLLM','REST','POST /v1/chat/completions','Generate catalog descriptions/tags','cwf2'],
+['LLM enrichment','OpenMetadata','REST','PATCH /tables/{id}','Patch LLM metadata into catalog','cwf2'],
+['Entra federation','Keycloak','OIDC','IdP federation broker','Enterprise users log in with Microsoft','fin'],
+['IoT-Ignite','FastAPI','WEBHOOK','POST /iot/ingest (30s interval)','Push sensor telemetry to ingest adapter','fin'],
+['FastAPI','TimescaleDB','PSQL','INSERT sensor_readings (hypertable)','Time-partitioned sensor data + aggregates','fin'],
+['LangGraph','SAP','MCP','MCP → SAP server (OData / BAPI)','Stock, production orders, financial entries','fin'],
+['LangGraph','SharePoint','MCP','MCP → Graph API /sites/{site}/lists','Enterprise docs, SOPs, policies','fin'],
+['LangGraph','Salesforce','MCP','MCP → REST/SOQL','CRM accounts, contracts, opportunities','fin'],
+['Temporal','PostgreSQL','PSQL','jdbc postgresql/temporal','Durable workflow state + history','fin'],
+['LangGraph','Temporal','GRPC','Temporal SDK → :7233','Long-running workflows, at-most-once','fin'],
+['Iceberg','MinIO','S3','REST catalog + Parquet/Avro','Time-travel queries for financial audit','fin']
+];
+const tk=document.getElementById('typekey');
+tk.innerHTML=Object.entries(CT).map(([k,v])=>`<div class="tki"><span class="tkb" style="background:${v.c}22;color:${v.c};border:1px solid ${v.c}55">${k}</span><div class="tkd">${v.d}</div></div>`).join('');
+const fty=document.getElementById('fty');Object.keys(CT).forEach(k=>fty.innerHTML+=`<option>${k}</option>`);
+const fph=document.getElementById('fph');Object.entries(PH).forEach(([k,v])=>fph.innerHTML+=`<option value="${k}">${v.l}</option>`);
+function render(){
+  const q=document.getElementById('q').value.toLowerCase(),ty=fty.value,ph=fph.value;
+  const rows=C.filter(r=>(!ty||r[2]===ty)&&(!ph||r[5]===ph)&&(!q||(r[0]+r[1]+r[2]+r[3]+r[4]).toLowerCase().includes(q)));
+  document.getElementById('tb').innerHTML=rows.map(r=>{const c=CT[r[2]].c,p=PH[r[5]];
+    return `<tr><td class="cfrom">${r[0]}</td><td class="carr">→</td><td class="cto">${r[1]}</td><td><span class="cty" style="background:${c}22;color:${c};border:1px solid ${c}55">${r[2]}</span></td><td class="cproto">${r[3]}</td><td class="cpu">${r[4]}</td><td><span class="cph" style="background:${p.c}22;color:${p.c};border:1px solid ${p.c}55">${p.l}</span></td></tr>`;
+  }).join('');
+  document.getElementById('cnt').textContent=rows.length+' / '+C.length+' connections';
+}
+render();
+</script>
+</body>
+</html>

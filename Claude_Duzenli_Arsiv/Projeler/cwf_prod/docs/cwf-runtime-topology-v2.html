@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CWF — Runtime Topology · v2</title>
+<style>
+  :root{
+    --bg:#0a0e14; --panel:#111a26; --panel2:#0f1722;
+    --line:#1f2d3d; --line2:#2a3b4f;
+    --ink:#dbe6f0; --ink-dim:#8aa0b6; --ink-faint:#5c7186;
+    --cyan:#34d6e6;
+    /* edge security classes */
+    --jwt:#34d6e6;      /* browser→vercel: user JWT, token-free */
+    --rls:#3ad29f;      /* browser→supabase: auth + RLS-SELECT + owner-CRUD writes */
+    --priv:#f5b942;     /* vercel→supabase: service-role (privileged) */
+    --mcp:#8a7dff;      /* vercel→MCP backends */
+    --llm:#d07bff;      /* vercel→LLM providers */
+    --danger:#ff6b7a;
+    --mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+    --sans:ui-sans-serif,system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:
+      radial-gradient(1100px 560px at 78% -8%, #10202c 0%, transparent 60%),
+      radial-gradient(820px 460px at -8% 18%, #121a14 0%, transparent 55%),
+      var(--bg); color:var(--ink); font-family:var(--sans)}
+  .wrap{max-width:1380px;margin:0 auto;padding:28px 20px 64px}
+  header.top{border:1px solid var(--line);border-radius:14px;padding:20px 22px;
+    background:linear-gradient(180deg,var(--panel),var(--panel2));position:relative;overflow:hidden}
+  header.top::before{content:"";position:absolute;inset:0;
+    background:repeating-linear-gradient(90deg,transparent 0 38px, rgba(52,214,230,.025) 38px 39px);pointer-events:none}
+  .kick{font-family:var(--mono);font-size:11px;letter-spacing:.32em;text-transform:uppercase;color:var(--cyan);margin:0 0 8px}
+  h1{font-size:27px;margin:0;letter-spacing:-.01em;font-weight:680}
+  h1 .sub{color:var(--ink-dim);font-weight:400}
+  .tagline{color:var(--ink-dim);margin:10px 0 0;max-width:82ch;font-size:14px}
+  .stamp{position:absolute;top:18px;right:20px;font-family:var(--mono);font-size:10.5px;color:var(--ink-faint);text-align:right;line-height:1.7}
+  .stamp b{color:var(--rls)}
+
+  .legend{display:flex;flex-wrap:wrap;gap:9px 16px;margin:16px 0 0;align-items:center}
+  .lg{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;color:var(--ink-dim);font-family:var(--mono)}
+  .ln{width:22px;height:0;border-top:3px solid;border-radius:2px;flex:none}
+
+  .canvas{margin-top:16px;border:1px solid var(--line);border-radius:14px;
+    background:linear-gradient(180deg,var(--panel),var(--panel2));padding:10px}
+  svg{display:block;width:100%;height:auto}
+
+  /* SVG element styling via classes */
+  .node{fill:#0d141d;stroke:var(--line2);stroke-width:1.4;rx:12}
+  .node-title{font-family:var(--sans);font-weight:680;fill:var(--ink);font-size:14px}
+  .node-sub{font-family:var(--mono);font-size:10.5px;fill:var(--ink-dim)}
+  .node-tag{font-family:var(--mono);font-size:9.5px;fill:var(--ink-faint);letter-spacing:.06em;text-transform:uppercase}
+  .inner{fill:#0a121b;stroke:var(--line);stroke-width:1.1;rx:9}
+  .edge{fill:none;stroke-width:2.2}
+  .elabel{font-family:var(--mono);font-size:10px;fill:var(--ink-dim)}
+  .elabel b{fill:var(--ink)}
+  .zone{fill:none;stroke-dasharray:5 5;stroke-width:1.3}
+
+  .callout{margin-top:16px;border:1px solid var(--line2);border-left:3px solid var(--priv);border-radius:11px;
+    padding:13px 16px;background:linear-gradient(180deg,#1a160c,#13110a)}
+  .callout h3{margin:0 0 5px;font-size:13.5px;color:#ffe6ad}
+  .callout p{margin:0;font-size:12.5px;color:var(--ink-dim)}
+  .callout code{font-family:var(--mono);color:#ffd084;font-size:11.5px}
+
+  .notes{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-top:14px}
+  .nt{border:1px solid var(--line2);border-radius:10px;padding:11px 13px;background:#0d141d}
+  .nt h4{margin:0 0 5px;font-size:12.5px;color:var(--ink)}
+  .nt p{margin:0;font-size:11.5px;color:var(--ink-dim)}
+  .nt code{font-family:var(--mono);color:var(--cyan);font-size:10.5px}
+  footer{margin-top:22px;border-top:1px solid var(--line);padding-top:14px;font-family:var(--mono);font-size:11px;color:var(--ink-faint);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+  @media (max-width:760px){.notes{grid-template-columns:1fr}.stamp{position:static;text-align:left;margin-top:8px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <p class="kick">Chat With your Factory · runtime topology</p>
+    <h1>Functional Block Diagram <span class="sub">— who connects to whom</span></h1>
+    <p class="tagline">Live request-time topology: the nodes (browser, Vercel host with the agent inside it, Supabase, ARMES, Superset, LLM providers) and every connection between them — labeled with protocol, what travels, and the security class. Both backends now live; the governed store carries the trust registry. Drawn from source verified this session.</p>
+    <div class="stamp">
+      v2 · rev 2 · 2026-06-28<br>
+      edges: <b>code-verified</b> · HEAD bc7ce8e<br>
+      runtime view (not build/deploy)
+    </div>
+    <div class="legend">
+      <span class="lg"><span class="ln" style="border-color:var(--jwt)"></span>user JWT · token-free (browser→Vercel)</span>
+      <span class="lg"><span class="ln" style="border-color:var(--rls)"></span>auth + RLS read / owner-CRUD write (browser→Supabase)</span>
+      <span class="lg"><span class="ln" style="border-color:var(--priv)"></span>service-role · privileged (Vercel→Supabase)</span>
+      <span class="lg"><span class="ln" style="border-color:var(--mcp)"></span>MCP · token server-side (Vercel→backends)</span>
+      <span class="lg"><span class="ln" style="border-color:var(--llm)"></span>provider key · server env (Vercel→LLM)</span>
+    </div>
+  </header>
+
+  <div class="canvas">
+    <svg viewBox="0 0 1360 860" preserveAspectRatio="xMidYMid meet" role="img" aria-label="CWF runtime topology diagram">
+      <defs>
+        <marker id="aJwt" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="var(--jwt)"/></marker>
+        <marker id="aRls" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="var(--rls)"/></marker>
+        <marker id="aPriv" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="var(--priv)"/></marker>
+        <marker id="aMcp" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="var(--mcp)"/></marker>
+        <marker id="aLlm" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="var(--llm)"/></marker>
+      </defs>
+
+      <!-- ============ NODE: BROWSER ============ -->
+      <rect class="node" x="50" y="118" width="300" height="250" rx="12"/>
+      <text class="node-tag" x="68" y="142">CLIENT · no secrets</text>
+      <text class="node-title" x="68" y="164">🖥  Browser</text>
+      <rect class="inner" x="68" y="180" width="264" height="50" rx="9"/>
+      <text class="node-sub" x="80" y="201">React chat app · one layout (P5.5)</text>
+      <text class="node-sub" x="80" y="219">sidebar history · stream · raw-tool</text>
+      <rect class="inner" x="68" y="240" width="264" height="40" rx="9"/>
+      <text class="node-sub" x="80" y="264">Admin panel  ·  /admin  (role-gated)</text>
+      <rect class="inner" x="68" y="290" width="264" height="40" rx="9"/>
+      <text class="node-sub" x="80" y="314">authStore  ·  session JWT only</text>
+      <text class="node-tag" x="68" y="350" style="fill:var(--rls)">holds: the signed-in user's JWT — nothing else</text>
+
+      <!-- ============ NODE: SUPABASE ============ -->
+      <rect class="node" x="50" y="470" width="490" height="340" rx="12"/>
+      <text class="node-tag" x="68" y="494">backing store</text>
+      <text class="node-title" x="68" y="516">🗄  Supabase</text>
+      <rect class="inner" x="68" y="532" width="220" height="52" rx="9"/>
+      <text class="node-sub" x="80" y="553">Auth (email / password)</text>
+      <text class="node-sub" x="80" y="571">→ issues session JWT</text>
+      <rect class="inner" x="300" y="532" width="222" height="52" rx="9"/>
+      <text class="node-sub" x="312" y="553">RLS + REVOKE on every table</text>
+      <text class="node-sub" x="312" y="571">owner / role / scope scoped</text>
+      <rect class="inner" x="68" y="596" width="454" height="200" rx="9"/>
+      <text class="node-tag" x="82" y="616">postgres — 13 tables</text>
+      <text class="node-sub" x="82" y="637">mcp_settings · conversations (owner-CRUD · MCP token)</text>
+      <text class="node-sub" x="82" y="655">messages (server single-writer) · telemetry_events</text>
+      <text class="node-sub" x="82" y="673">tool_category_cache · user_roles · user_backend_scopes</text>
+      <text class="node-sub" x="82" y="691">rule_kinds · domain_rules (RLS draft-only) · _versions · _audit</text>
+      <text class="node-sub" x="82" y="709">backends (+trust_tier, scope_identity) · backend_authority</text>
+      <text class="node-tag" x="82" y="734" style="fill:var(--priv)">governed writes: service-role only, after the eval-gate</text>
+      <text class="node-tag" x="82" y="752" style="fill:var(--danger)">published set only by server publish() — RLS denies client (42501)</text>
+      <text class="node-tag" x="82" y="770" style="fill:var(--rls)">RULE 11: server-only tables REVOKE anon+auth writes (privilege deny)</text>
+
+      <!-- ============ NODE: VERCEL (host) ============ -->
+      <rect class="node" x="612" y="80" width="436" height="660" rx="12" style="stroke:var(--cyan);stroke-opacity:.35"/>
+      <text class="node-tag" x="632" y="106" style="fill:var(--priv)">serverless host · HOLDS ALL SECRETS</text>
+      <text class="node-title" x="632" y="128">▲  Vercel</text>
+
+      <!-- sub: Edge/API -->
+      <rect class="inner" x="634" y="142" width="392" height="150" rx="9"/>
+      <text class="node-tag" x="650" y="163">edge / api  (thin handlers)</text>
+      <text class="node-sub" x="650" y="186">api/cwf/chat.ts — verify · resolve MCP · stream · persist</text>
+      <text class="node-sub" x="650" y="207">api/admin/*.ts — rules · kinds · reset (adminGuard)</text>
+      <text class="node-sub" x="650" y="228">mcpTransport — connect/call · SSE-first · transient retry</text>
+      <text class="node-sub" x="650" y="262" style="fill:var(--ink-faint)">parse → authorize → delegate → stream (SSE) → ground (Mode A)</text>
+
+      <!-- sub: Agent core -->
+      <rect class="inner" x="634" y="306" width="392" height="416" rx="9"/>
+      <text class="node-tag" x="650" y="328">agent core  (api/cwf/_lib)</text>
+      <text class="node-sub" x="650" y="351">gateway — one streamChat() · all providers</text>
+      <text class="node-sub" x="650" y="372">prompt assembler — core + packs  (A2: tool=DATA)</text>
+      <text class="node-sub" x="650" y="393">DbKnowledgeProvider — published slice + floor</text>
+      <text class="node-sub" x="650" y="414" style="fill:var(--rls)">trustRegistry (A1) — tier/authority/scope · unknown→floor</text>
+      <text class="node-sub" x="650" y="435">scopeTools — toolset scoped to active backends</text>
+      <text class="node-sub" x="650" y="456">eval-gate — schema→referential→behavioral</text>
+      <text class="node-sub" x="650" y="477">governance — only path to published</text>
+      <text class="node-sub" x="650" y="498">grounding validator — empty≠zero (Mode A)</text>
+      <text class="node-sub" x="650" y="519">resultStore + meta-tools · repositories</text>
+      <text class="node-tag" x="650" y="548" style="fill:var(--priv)">env: service-role key · MCP tokens (resolved) · LLM keys</text>
+      <text class="node-tag" x="650" y="568" style="fill:var(--ink-faint)">NoopTracer → Langfuse seam · telemetry emit</text>
+      <text class="node-tag" x="650" y="588" style="fill:var(--ink-faint)">trust routes answers in Phase C — not yet (A1/A2 = DATA + boundary)</text>
+
+      <!-- ============ RIGHT COLUMN: external ============ -->
+      <!-- ARMES -->
+      <rect class="node" x="1140" y="118" width="180" height="130" rx="12" style="stroke:var(--mcp);stroke-opacity:.45"/>
+      <text class="node-tag" x="1156" y="142" style="fill:var(--mcp)">MCP · flat</text>
+      <text class="node-title" x="1156" y="164">ARMES</text>
+      <text class="node-sub" x="1156" y="186">Kale Seramik MES</text>
+      <text class="node-sub" x="1156" y="204">~142 flat tools</text>
+      <text class="node-sub" x="1156" y="222" style="fill:var(--rls)">system_of_record</text>
+
+      <!-- SUPERSET -->
+      <rect class="node" x="1140" y="288" width="180" height="130" rx="12" style="stroke:var(--mcp);stroke-opacity:.45"/>
+      <text class="node-tag" x="1156" y="312" style="fill:var(--mcp)">MCP · gateway</text>
+      <text class="node-title" x="1156" y="334">Superset</text>
+      <text class="node-sub" x="1156" y="356">Apache Superset 6.1 BI</text>
+      <text class="node-sub" x="1156" y="374">search_tools / call_tool</text>
+      <text class="node-sub" x="1156" y="392" style="fill:var(--inflight,#f5b942)">reporting_mirror · LIVE</text>
+
+      <!-- LLM -->
+      <rect class="node" x="1140" y="458" width="180" height="130" rx="12" style="stroke:var(--llm);stroke-opacity:.45"/>
+      <text class="node-tag" x="1156" y="482" style="fill:var(--llm)">LLM providers</text>
+      <text class="node-title" x="1156" y="504">Models</text>
+      <text class="node-sub" x="1156" y="526">Gemini Flash (default)</text>
+      <text class="node-sub" x="1156" y="544">GPT-4.1 · Sonnet 4.6</text>
+      <text class="node-sub" x="1156" y="562">one gateway · selectable</text>
+
+      <!-- ============ EDGES ============ -->
+      <!-- E1 Browser → chat -->
+      <path class="edge" d="M350,200 L632,200" stroke="var(--jwt)" marker-end="url(#aJwt)"/>
+      <text class="elabel" x="362" y="190"><tspan fill="var(--ink)">POST /api/cwf/chat</tspan> · Bearer JWT · SSE ↩</text>
+      <text class="elabel" x="362" y="222" fill="var(--rls)">no MCP token, no server config in the body</text>
+
+      <!-- E2 Browser → admin -->
+      <path class="edge" d="M350,262 L632,232" stroke="var(--jwt)" marker-end="url(#aJwt)"/>
+      <text class="elabel" x="372" y="280"><tspan fill="var(--ink)">/api/admin/*</tspan> · Bearer JWT · governed writes (gate+audit)</text>
+
+      <!-- E3 Browser → Supabase (auth + RLS read + owner-CRUD write) -->
+      <path class="edge" d="M150,368 L150,468" stroke="var(--rls)" marker-end="url(#aRls)"/>
+      <text class="elabel" x="166" y="406">sign-in → JWT;</text>
+      <text class="elabel" x="166" y="424">then <tspan fill="var(--ink)">RLS read + owner-CRUD</tspan></text>
+      <text class="elabel" x="166" y="442" fill="var(--ink-faint)">writes ONLY mcp_settings + conversations</text>
+
+      <!-- E4 Vercel(agent) → Supabase (service-role) -->
+      <path class="edge" d="M632,560 C560,600 560,610 542,632" stroke="var(--priv)" marker-end="url(#aPriv)"/>
+      <text class="elabel" x="300" y="556" fill="var(--priv)"><tspan fill="#ffe6ad">service-role (RLS-exempt)</tspan></text>
+      <text class="elabel" x="300" y="574" fill="var(--ink-faint)">resolve mcp_settings · governed store R/W · trust seed · persist</text>
+
+      <!-- E5 Vercel → ARMES -->
+      <path class="edge" d="M1026,200 L1138,182" stroke="var(--mcp)" marker-end="url(#aMcp)"/>
+      <text class="elabel" x="1030" y="150" fill="var(--mcp)">MCP (HTTP→SSE)</text>
+      <text class="elabel" x="1030" y="250" fill="var(--ink-faint)">token server-side</text>
+
+      <!-- E6 Vercel → Superset (now live, solid) -->
+      <path class="edge" d="M1026,360 L1138,352" stroke="var(--mcp)" marker-end="url(#aMcp)"/>
+      <text class="elabel" x="1030" y="420" fill="var(--mcp)">MCP gateway · SSE-first</text>
+
+      <!-- E7 Vercel → LLM -->
+      <path class="edge" d="M1026,520 L1138,520" stroke="var(--llm)" marker-end="url(#aLlm)"/>
+      <text class="elabel" x="1030" y="512" fill="var(--llm)">HTTPS · provider key (env)</text>
+
+      <!-- secret boundary marker around browser -->
+      <rect class="zone" x="42" y="110" width="316" height="266" rx="14" stroke="var(--rls)" stroke-opacity="0.5"/>
+    </svg>
+  </div>
+
+  <div class="callout">
+    <h3>🔒 The secret boundary — the one invariant this diagram proves at a glance</h3>
+    <p>Every secret — <code>MCP server tokens</code>, the <code>service-role key</code>, the <code>LLM provider keys</code> — lives ONLY server-side, in Vercel's env + the server-side MCP resolution. The browser ever holds just the signed-in user's JWT. So no browser edge (cyan/green) carries a secret; only the server-side edges (gold/violet/purple) do. The chat request body is literally <code>{ message, history, language, conversationId }</code> + Bearer — proven in the JS bundle and request payload.</p>
+  </div>
+
+  <div class="notes">
+    <div class="nt"><h4>How the browser reaches Supabase</h4><p>Direct but narrow: <code>Auth</code> (sign-in → JWT), <code>RLS-SELECT</code> reads, and <b>exactly two</b> owner-CRUD writes — <code>mcp_settings</code> upsert and <code>conversations</code> rename/soft-delete. Every governed write detours through <code>/api/admin/*</code>; <code>messages</code> are written only server-side. <b>RULE 11:</b> server-only tables REVOKE anon+authenticated writes so a stray client write hard-fails (42501), not a silent no-op.</p></div>
+    <div class="nt"><h4>The agent lives inside Vercel</h4><p>"Agent" isn't a separate server — it's the <code>_lib</code> code in the same serverless function as <code>chat.ts</code>. The host holds the secrets; the core uses them (service-role for DB, resolved tokens for MCP, env keys for LLM). The <code>trustRegistry</code> reads tier/authority/scope but does not route answers yet — enforcement is Phase&nbsp;C.</p></div>
+    <div class="nt"><h4>Both backends live · flat vs gateway</h4><p>ARMES = <code>flat</code> (~142 tools, <code>system_of_record</code>). Superset = <code>gateway</code> (<code>search_tools</code>/<code>call_tool</code>, <code>reporting_mirror</code> — authoritative for nothing; scope = bound datasource, never the title). Both edges solid: knowledge-governed and live. A new backend lands at the trust floor (<code>unverified</code>) until declared.</p></div>
+  </div>
+
+  <footer>
+    <span>cwf_yaprak · runtime topology · companion to the layered architecture map (v6)</span>
+    <span>edges code-verified · HEAD bc7ce8e · supersedes v1</span>
+  </footer>
+
+</div>
+</body>
+</html>

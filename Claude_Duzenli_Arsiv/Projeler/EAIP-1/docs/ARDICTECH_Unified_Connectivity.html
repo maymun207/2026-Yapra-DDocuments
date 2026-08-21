@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARDICTECH Unified Platform — Component Connectivity v2</title>
+<style>
+  :root{--bg:#fff;--bg2:#f8fafc;--text:#0f1b2d;--text2:#6b7280;--border:#e2e8f0;--font:-apple-system,'Segoe UI','Helvetica Neue',Arial,sans-serif}
+  @media(prefers-color-scheme:dark){:root{--bg:#0f1b2d;--bg2:#1e293b;--text:#e2e8f0;--text2:#94a3b8;--border:#334155}}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--font);background:var(--bg);color:var(--text);padding:20px;max-width:1200px;margin:0 auto}
+  h1{font-size:17px;font-weight:500;margin-bottom:2px}
+  h2{font-size:12px;font-weight:400;color:var(--text2);margin-bottom:10px}
+  .ver{font-size:10px;color:var(--text2);font-style:italic;margin-bottom:10px}
+  .cw{position:relative}
+  .canvas{position:relative;width:100%;height:1300px}
+  .nd{position:absolute;padding:3px 6px;border-radius:4px;font-size:9px;font-weight:500;text-align:center;cursor:pointer;z-index:2;transition:opacity .2s,box-shadow .2s;line-height:1.2;white-space:nowrap}
+  .nd .sub{font-size:7px;font-weight:400;opacity:.55;display:block}
+  .nd.dim{opacity:.08}
+  .nd.hi{box-shadow:0 0 0 2px #3B82F6}
+  svg.lines{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1}
+  svg.lines path{transition:opacity .2s}
+  svg.lines .dim{opacity:.02}
+  svg.lines .hi{opacity:1;stroke-width:2}
+  .leg{display:flex;flex-wrap:wrap;gap:8px;font-size:9px;color:var(--text2);margin:6px 0 10px}
+  .leg span{display:flex;align-items:center;gap:3px}
+  .leg .ln{width:16px;height:2px;border-radius:1px}
+  .note{font-size:9px;color:var(--text2);margin-top:6px;line-height:1.4}
+
+  .c1{background:#F0FDF4;color:#14532D;border:1px solid #22C55E}
+  .c2{background:#F5F3FF;color:#3C3489;border:1px solid #8B5CF6}
+  .c3{background:#FFF7ED;color:#92400E;border:1px solid #D97706}
+  .cm{background:#F3F4F6;color:#374151;border:0.5px solid #B4B2A9}
+
+  @media(prefers-color-scheme:dark){
+    .c1{background:#052E16;color:#86EFAC;border-color:#22C55E}
+    .c2{background:#2E1065;color:#C4B5FD;border-color:#8B5CF6}
+    .c3{background:#451A03;color:#FCD34D;border-color:#D97706}
+    .cm{background:#1F2937;color:#D1D5DB;border-color:#6B7280}
+    .nd.hi{box-shadow:0 0 0 2px #60A5FA}
+  }
+</style>
+</head>
+<body>
+<h1>ARDICTECH unified platform — component connectivity</h1>
+<h2>55 components · 7 connection types · hover any component to see its connections</h2>
+<div class="ver">April 2026 · Confidential · Phase 1 (green) → Phase 2 (purple) → Phase 3 (orange)</div>
+
+<div class="cw">
+  <div class="leg">
+    <span><span class="ln" style="background:#3B82F6"></span>Data flow</span>
+    <span><span class="ln" style="background:#EF4444"></span>Query / AI</span>
+    <span><span class="ln" style="background:#F59E0B"></span>Auth / security</span>
+    <span><span class="ln" style="background:#8B5CF6"></span>Monitoring</span>
+    <span><span class="ln" style="background:#10B981"></span>MCP / tool call</span>
+    <span><span class="ln" style="background:#22C55E;height:3px"></span>Data quality</span>
+    <span><span class="ln" style="background:#06B6D4"></span>Real-time API</span>
+  </div>
+
+  <div class="canvas" id="cv">
+    <!-- L10: Channels y=10 -->
+    <div class="nd c1" id="widget" style="left:1%;top:10px">Widget<span class="sub">Embed JS</span></div>
+    <div class="nd c1" id="admin" style="left:9%;top:10px">Admin Panel<span class="sub">Content+Config</span></div>
+    <div class="nd c1" id="dashboard" style="left:19%;top:10px">Dashboard<span class="sub">Analytics</span></div>
+    <div class="nd c1" id="landing" style="left:29%;top:10px">Landing<span class="sub">Marketing</span></div>
+    <div class="nd c2" id="nextjs" style="left:38%;top:10px">Next.js<span class="sub">Full app</span></div>
+    <div class="nd c2" id="superset" style="left:48%;top:10px">Superset<span class="sub">Viz</span></div>
+    <div class="nd c2" id="openwebui" style="left:57%;top:10px">OpenWebUI<span class="sub">Internal</span></div>
+    <div class="nd c3" id="b2b" style="left:67%;top:10px">B2B Portal<span class="sub">Sales</span></div>
+    <div class="nd c3" id="usta" style="left:76%;top:10px">Usta Portal<span class="sub">Tech</span></div>
+    <div class="nd c3" id="teams" style="left:85%;top:10px">Teams Bot<span class="sub">MS</span></div>
+
+    <!-- L9: API y=75 -->
+    <div class="nd c1" id="kong" style="left:10%;top:75px">Kong<span class="sub">API Gateway</span></div>
+    <div class="nd c1" id="fastapi" style="left:25%;top:75px">FastAPI<span class="sub">REST+WS</span></div>
+    <div class="nd c1" id="billing" style="left:39%;top:75px">Billing<span class="sub">iyzico/Stripe</span></div>
+    <div class="nd c2" id="cwfsvc" style="left:53%;top:75px">CWF Services<span class="sub">#1..#n</span></div>
+    <div class="nd c2" id="schemareg" style="left:67%;top:75px">Schema Reg<span class="sub">Contracts</span></div>
+    <div class="nd c3" id="ucsvc" style="left:80%;top:75px">UC Services<span class="sub">Fin/Inv/Gov</span></div>
+
+    <!-- L8: Security y=145 -->
+    <div class="nd c1" id="keycloak" style="left:1%;top:145px">Keycloak<span class="sub">OAuth2 SSO</span></div>
+    <div class="nd c1" id="tenant" style="left:13%;top:145px">Tenant Isol.<span class="sub">K8s ns</span></div>
+    <div class="nd c2" id="opa" style="left:25%;top:145px">OPA<span class="sub">Policy</span></div>
+    <div class="nd c2" id="halluc" style="left:35%;top:145px">Halluc Guard<span class="sub">Agent-lvl</span></div>
+    <div class="nd c2" id="vault" style="left:47%;top:145px">Vault<span class="sub">Secrets</span></div>
+    <div class="nd c3" id="rlscore" style="left:58%;top:145px">RLS Core<span class="sub">Row-level</span></div>
+    <div class="nd c3" id="guardrails" style="left:69%;top:145px">Guardrails AI<span class="sub">LLM safety</span></div>
+    <div class="nd c3" id="presidio" style="left:80%;top:145px">Presidio<span class="sub">PII</span></div>
+    <div class="nd c3" id="entraid" style="left:90%;top:145px">Entra ID<span class="sub">Fed.</span></div>
+
+    <!-- L7: Agents y=220 -->
+    <div class="nd c1" id="llamaindex" style="left:1%;top:220px">LlamaIndex<span class="sub">RAG</span></div>
+    <div class="nd c1" id="productagent" style="left:13%;top:220px">Product Agent<span class="sub">Catalog</span></div>
+    <div class="nd c2" id="langgraph" style="left:26%;top:220px">LangGraph<span class="sub">Multi-agent</span></div>
+    <div class="nd c2" id="langchain" style="left:38%;top:220px">LangChain<span class="sub">Sequential</span></div>
+    <div class="nd c2" id="n8n" style="left:49%;top:220px">n8n<span class="sub">Workflow</span></div>
+    <div class="nd c2" id="kb" style="left:58%;top:220px">Knowledge Base<span class="sub">Structured</span></div>
+    <div class="nd c3" id="temporal" style="left:71%;top:220px">Temporal<span class="sub">Durable</span></div>
+    <div class="nd c3" id="ucagents" style="left:82%;top:220px">UC Agents<span class="sub">Fin/Inv/Gov</span></div>
+
+    <!-- L6: AI/LLM y=295 -->
+    <div class="nd c1" id="litellm" style="left:1%;top:295px">LiteLLM<span class="sub">Unified proxy</span></div>
+    <div class="nd c1" id="ollama" style="left:12%;top:295px">Ollama<span class="sub">Dev</span></div>
+    <div class="nd c2" id="vllm" style="left:22%;top:295px">vLLM<span class="sub">Prod GPU</span></div>
+    <div class="nd c2" id="mlflow" style="left:32%;top:295px">MLflow<span class="sub">Registry</span></div>
+    <div class="nd c2" id="promptstore" style="left:43%;top:295px">Prompt Store<span class="sub">Versioned</span></div>
+    <div class="nd c2" id="crosscheck" style="left:55%;top:295px">Cross Check<span class="sub">Verify</span></div>
+    <div class="nd c3" id="langfuse" style="left:67%;top:295px">Langfuse<span class="sub">LLM obs</span></div>
+    <div class="nd c3" id="evidently" style="left:78%;top:295px">Evidently AI<span class="sub">Drift</span></div>
+    <div class="nd c3" id="azureoai" style="left:89%;top:295px">Azure OAI<span class="sub">Fallback</span></div>
+
+    <!-- L5: MCP y=370 -->
+    <div class="nd c2" id="mcpdb" style="left:5%;top:370px">MariaDB MCP<span class="sub">SQL</span></div>
+    <div class="nd c2" id="mcpqd" style="left:18%;top:370px">Qdrant MCP<span class="sub">Vector</span></div>
+    <div class="nd c2" id="mcpch" style="left:31%;top:370px">CH MCP<span class="sub">Analytics</span></div>
+    <div class="nd c3" id="mcpsap" style="left:45%;top:370px">SAP MCP<span class="sub">MDX/OData</span></div>
+    <div class="nd c3" id="mcpsp" style="left:58%;top:370px">SharePt MCP<span class="sub">Graph</span></div>
+    <div class="nd c3" id="mcpsf" style="left:71%;top:370px">SF MCP<span class="sub">REST</span></div>
+
+    <!-- L4: Storage y=440 -->
+    <div class="nd c1" id="mariadb" style="left:1%;top:440px">MariaDB<span class="sub">Txn</span></div>
+    <div class="nd c1" id="qdrant" style="left:11%;top:440px">Qdrant<span class="sub">Vector</span></div>
+    <div class="nd c1" id="redis" style="left:21%;top:440px">Redis<span class="sub">Cache/Session/State</span></div>
+    <div class="nd c1" id="minio" style="left:30%;top:440px">MinIO<span class="sub">Objects</span></div>
+    <div class="nd c2" id="galera" style="left:41%;top:440px">Galera<span class="sub">HA cluster</span></div>
+    <div class="nd c2" id="clickhouse" style="left:52%;top:440px">ClickHouse<span class="sub">Analytics</span></div>
+    <div class="nd c2" id="iceberg" style="left:64%;top:440px">Iceberg<span class="sub">Table fmt</span></div>
+    <div class="nd c3" id="medallion" style="left:76%;top:440px">Medallion<span class="sub">B/S/G</span></div>
+
+    <!-- L3: Ingestion y=515 -->
+    <div class="nd c1" id="fileupload" style="left:1%;top:515px">File Upload<span class="sub">CSV/XLS/PDF</span></div>
+    <div class="nd c2" id="nifi" style="left:12%;top:515px">NiFi<span class="sub">Data flows</span></div>
+    <div class="nd c2" id="airbyte" style="left:22%;top:515px">Airbyte<span class="sub">Connectors</span></div>
+    <div class="nd c2" id="spark" style="left:32%;top:515px">Spark<span class="sub">Processing</span></div>
+    <div class="nd c3" id="soda" style="left:42%;top:515px">Soda Core<span class="sub">Quality</span></div>
+    <div class="nd c3" id="dbt" style="left:52%;top:515px">dbt Core<span class="sub">B-S-G</span></div>
+    <div class="nd c3" id="openmeta" style="left:61%;top:515px">OpenMeta<span class="sub">Catalog</span></div>
+    <div class="nd c3" id="llmenrich" style="left:72%;top:515px">LLM Enrich<span class="sub">AI curation</span></div>
+    <div class="nd c3" id="redpanda" style="left:83%;top:515px">Redpanda<span class="sub">Stream</span></div>
+    <div class="nd c3" id="debezium" style="left:92%;top:515px">Debezium<span class="sub">CDC</span></div>
+
+    <!-- L2: Infra (right sidebar) y=600 row -->
+    <div class="nd c1" id="k8s" style="left:1%;top:600px">K8s<span class="sub">Orch</span></div>
+    <div class="nd c1" id="argocd" style="left:9%;top:600px">ArgoCD<span class="sub">GitOps</span></div>
+    <div class="nd c1" id="grafana" style="left:18%;top:600px">Grafana<span class="sub">Dash</span></div>
+    <div class="nd c1" id="prometheus" style="left:28%;top:600px">Prometheus<span class="sub">Metrics</span></div>
+    <div class="nd c1" id="certmgr" style="left:40%;top:600px">Cert Mgr<span class="sub">TLS</span></div>
+    <div class="nd c2" id="loki" style="left:51%;top:600px">Loki<span class="sub">Logs</span></div>
+    <div class="nd c2" id="otel" style="left:60%;top:600px">OpenTelemetry<span class="sub">Tracing</span></div>
+    <div class="nd c2" id="wireguard" style="left:73%;top:600px">Wireguard<span class="sub">VPN</span></div>
+
+    <!-- L1: Sources y=680, y=730 -->
+    <div class="nd c1" id="fileuploads" style="left:1%;top:680px">File Uploads<span class="sub">CSV/XLS/PDF</span></div>
+    <div class="nd c2" id="armes" style="left:13%;top:680px">ARMES<span class="sub">MES</span></div>
+    <div class="nd c2" id="iot" style="left:23%;top:680px">IoT-Ignite<span class="sub">Edge</span></div>
+    <div class="nd c3" id="sapbw" style="left:34%;top:680px">SAP BW/S4<span class="sub">MDX/OData</span></div>
+    <div class="nd c3" id="sapbpc" style="left:47%;top:680px">SAP BPC<span class="sub">BAPI</span></div>
+    <div class="nd c3" id="sharepoint" style="left:58%;top:680px">SharePoint<span class="sub">Graph</span></div>
+    <div class="nd c3" id="salesforce" style="left:70%;top:680px">Salesforce<span class="sub">REST</span></div>
+    <div class="nd c3" id="pim" style="left:81%;top:680px">PIM<span class="sub">XML</span></div>
+    <div class="nd c3" id="sqlserver" style="left:90%;top:680px">SQL Svr<span class="sub">KBY</span></div>
+
+    <svg class="lines" id="svg" viewBox="0 0 1000 750" preserveAspectRatio="none"></svg>
+  </div>
+
+  <div class="note">
+    <strong>55 components, 7 connection types, 120+ connections (audited).</strong> Green border = Phase 1 (Web Asistan). Purple border = Phase 2 (CWF). Orange border = Phase 3 (Astra EAIP). Hover any component to see its connections. Blue = data flow, Red = query/AI path, Amber = auth/security, Purple = monitoring, Green dashed = data quality, Teal = MCP tool calls, Cyan = real-time API.
+  </div>
+</div>
+
+<script>
+var connections = [
+  // ── DATA FLOW (blue) ──
+  {from:'fileuploads',to:'fileupload',c:'#3B82F6',t:'data'},
+  {from:'armes',to:'nifi',c:'#3B82F6',t:'data'},{from:'iot',to:'nifi',c:'#3B82F6',t:'data'},
+  {from:'sapbw',to:'nifi',c:'#3B82F6',t:'data'},{from:'sapbpc',to:'nifi',c:'#3B82F6',t:'data'},
+  {from:'sharepoint',to:'nifi',c:'#3B82F6',t:'data'},{from:'salesforce',to:'airbyte',c:'#3B82F6',t:'data'},
+  {from:'pim',to:'nifi',c:'#3B82F6',t:'data'},{from:'sqlserver',to:'nifi',c:'#3B82F6',t:'data'},
+  {from:'fileupload',to:'mariadb',c:'#3B82F6',t:'data'},{from:'fileupload',to:'qdrant',c:'#3B82F6',t:'data'},
+  {from:'fileupload',to:'minio',c:'#3B82F6',t:'data'},
+  {from:'nifi',to:'mariadb',c:'#3B82F6',t:'data'},{from:'nifi',to:'clickhouse',c:'#3B82F6',t:'data'},
+  {from:'nifi',to:'minio',c:'#3B82F6',t:'data'},{from:'nifi',to:'qdrant',c:'#3B82F6',t:'data'},
+  {from:'airbyte',to:'mariadb',c:'#3B82F6',t:'data'},{from:'airbyte',to:'clickhouse',c:'#3B82F6',t:'data'},
+  {from:'spark',to:'clickhouse',c:'#3B82F6',t:'data'},{from:'spark',to:'minio',c:'#3B82F6',t:'data'},
+  {from:'debezium',to:'redpanda',c:'#3B82F6',t:'data'},{from:'redpanda',to:'clickhouse',c:'#3B82F6',t:'data'},
+
+  // ── QUERY / AI PATH (red) ──
+  {from:'widget',to:'kong',c:'#EF4444',t:'query'},{from:'admin',to:'kong',c:'#EF4444',t:'query'},
+  {from:'dashboard',to:'kong',c:'#EF4444',t:'query'},{from:'nextjs',to:'kong',c:'#EF4444',t:'query'},
+  {from:'b2b',to:'kong',c:'#EF4444',t:'query'},{from:'usta',to:'kong',c:'#EF4444',t:'query'},
+  {from:'teams',to:'kong',c:'#EF4444',t:'query'},{from:'openwebui',to:'kong',c:'#EF4444',t:'query'},
+  {from:'kong',to:'fastapi',c:'#EF4444',t:'query'},{from:'fastapi',to:'keycloak',c:'#EF4444',t:'query'},
+  {from:'fastapi',to:'cwfsvc',c:'#EF4444',t:'query'},{from:'fastapi',to:'ucsvc',c:'#EF4444',t:'query'},
+  {from:'cwfsvc',to:'langgraph',c:'#EF4444',t:'query'},{from:'ucsvc',to:'ucagents',c:'#EF4444',t:'query'},
+  {from:'keycloak',to:'rlscore',c:'#EF4444',t:'query'},
+  {from:'rlscore',to:'langgraph',c:'#EF4444',t:'query'},
+  {from:'productagent',to:'llamaindex',c:'#EF4444',t:'query'},
+  {from:'llamaindex',to:'qdrant',c:'#EF4444',t:'query'},
+  {from:'langgraph',to:'litellm',c:'#EF4444',t:'query'},
+  {from:'langgraph',to:'langchain',c:'#EF4444',t:'query'},
+  {from:'langgraph',to:'llamaindex',c:'#EF4444',t:'query'},
+  {from:'langgraph',to:'temporal',c:'#EF4444',t:'query'},
+  {from:'langgraph',to:'kb',c:'#EF4444',t:'query'},
+  {from:'ucagents',to:'langgraph',c:'#EF4444',t:'query'},
+  {from:'litellm',to:'ollama',c:'#EF4444',t:'query'},
+  {from:'litellm',to:'vllm',c:'#EF4444',t:'query'},
+  {from:'litellm',to:'azureoai',c:'#EF4444',t:'query'},
+  {from:'litellm',to:'promptstore',c:'#EF4444',t:'query'},
+  {from:'crosscheck',to:'mariadb',c:'#EF4444',t:'query'},
+
+  // ── MCP / TOOL CALLS (teal) ──
+  {from:'langgraph',to:'mcpdb',c:'#10B981',t:'mcp'},{from:'langgraph',to:'mcpqd',c:'#10B981',t:'mcp'},
+  {from:'langgraph',to:'mcpch',c:'#10B981',t:'mcp'},{from:'ucagents',to:'mcpsap',c:'#10B981',t:'mcp'},
+  {from:'ucagents',to:'mcpsp',c:'#10B981',t:'mcp'},{from:'ucagents',to:'mcpsf',c:'#10B981',t:'mcp'},
+  {from:'mcpdb',to:'mariadb',c:'#10B981',t:'mcp'},{from:'mcpdb',to:'galera',c:'#10B981',t:'mcp'},
+  {from:'mcpqd',to:'qdrant',c:'#10B981',t:'mcp'},{from:'mcpch',to:'clickhouse',c:'#10B981',t:'mcp'},
+  {from:'mcpsap',to:'sapbw',c:'#10B981',t:'mcp'},{from:'mcpsp',to:'sharepoint',c:'#10B981',t:'mcp'},
+  {from:'mcpsf',to:'salesforce',c:'#10B981',t:'mcp'},
+
+  // ── AUTH / SECURITY (amber) ──
+  {from:'entraid',to:'keycloak',c:'#F59E0B',t:'auth'},
+  {from:'keycloak',to:'kong',c:'#F59E0B',t:'auth'},
+  {from:'opa',to:'kong',c:'#F59E0B',t:'auth'},
+  {from:'rlscore',to:'opa',c:'#F59E0B',t:'auth'},
+  {from:'guardrails',to:'litellm',c:'#F59E0B',t:'auth'},
+  {from:'presidio',to:'guardrails',c:'#F59E0B',t:'auth'},
+  {from:'halluc',to:'langgraph',c:'#F59E0B',t:'auth'},
+  {from:'vault',to:'litellm',c:'#F59E0B',t:'auth'},
+  {from:'vault',to:'kong',c:'#F59E0B',t:'auth'},
+  {from:'tenant',to:'k8s',c:'#F59E0B',t:'auth'},
+
+  // ── MONITORING (purple) ──
+  {from:'litellm',to:'langfuse',c:'#8B5CF6',t:'monitor'},
+  {from:'mlflow',to:'vllm',c:'#8B5CF6',t:'monitor'},
+  {from:'prometheus',to:'grafana',c:'#8B5CF6',t:'monitor'},
+  {from:'loki',to:'grafana',c:'#8B5CF6',t:'monitor'},
+  {from:'otel',to:'grafana',c:'#8B5CF6',t:'monitor'},
+  {from:'evidently',to:'mlflow',c:'#8B5CF6',t:'monitor'},
+  {from:'clickhouse',to:'superset',c:'#8B5CF6',t:'monitor'},
+
+  // ── DATA QUALITY (green dashed) ──
+  {from:'nifi',to:'soda',c:'#22C55E',t:'quality'},{from:'nifi',to:'dbt',c:'#22C55E',t:'quality'},
+  {from:'nifi',to:'openmeta',c:'#22C55E',t:'quality'},{from:'nifi',to:'llmenrich',c:'#22C55E',t:'quality'},
+  {from:'soda',to:'mariadb',c:'#22C55E',t:'quality'},{from:'soda',to:'clickhouse',c:'#22C55E',t:'quality'},
+  {from:'soda',to:'minio',c:'#22C55E',t:'quality'},{from:'soda',to:'grafana',c:'#8B5CF6',t:'monitor'},
+  {from:'dbt',to:'mariadb',c:'#22C55E',t:'quality'},{from:'dbt',to:'clickhouse',c:'#22C55E',t:'quality'},
+  {from:'dbt',to:'minio',c:'#22C55E',t:'quality'},
+  {from:'openmeta',to:'mariadb',c:'#22C55E',t:'quality'},{from:'openmeta',to:'clickhouse',c:'#22C55E',t:'quality'},
+  {from:'openmeta',to:'qdrant',c:'#22C55E',t:'quality'},{from:'openmeta',to:'grafana',c:'#8B5CF6',t:'monitor'},
+  {from:'llmenrich',to:'litellm',c:'#22C55E',t:'quality'},{from:'llmenrich',to:'qdrant',c:'#22C55E',t:'quality'},
+  {from:'llmenrich',to:'mariadb',c:'#22C55E',t:'quality'},
+  {from:'medallion',to:'mariadb',c:'#22C55E',t:'quality'},{from:'medallion',to:'clickhouse',c:'#22C55E',t:'quality'},
+  {from:'medallion',to:'minio',c:'#22C55E',t:'quality'},
+
+  // ── REAL-TIME API (cyan) ──
+  {from:'n8n',to:'armes',c:'#06B6D4',t:'realtime'},
+  {from:'langgraph',to:'sapbw',c:'#06B6D4',t:'realtime'},
+  {from:'langgraph',to:'sharepoint',c:'#06B6D4',t:'realtime'},
+  {from:'billing',to:'fastapi',c:'#06B6D4',t:'realtime'},
+
+  // ── REDIS CONNECTIONS (red - query path) ──
+  {from:'kong',to:'redis',c:'#EF4444',t:'query'},
+  {from:'fastapi',to:'redis',c:'#EF4444',t:'query'},
+  {from:'langgraph',to:'redis',c:'#EF4444',t:'query'},
+  {from:'keycloak',to:'redis',c:'#EF4444',t:'query'},
+  {from:'litellm',to:'redis',c:'#EF4444',t:'query'},
+
+  // ── AUDIT FIXES: Critical missing connections ──
+  {from:'llamaindex',to:'litellm',c:'#EF4444',t:'query'},
+  {from:'productagent',to:'litellm',c:'#EF4444',t:'query'},
+  {from:'langchain',to:'litellm',c:'#EF4444',t:'query'},
+  {from:'llamaindex',to:'minio',c:'#3B82F6',t:'data'},
+  {from:'langgraph',to:'n8n',c:'#EF4444',t:'query'},
+  {from:'kb',to:'mariadb',c:'#3B82F6',t:'data'},
+  {from:'kb',to:'qdrant',c:'#3B82F6',t:'data'},
+  {from:'keycloak',to:'mariadb',c:'#3B82F6',t:'data'},
+  {from:'iceberg',to:'minio',c:'#3B82F6',t:'data'},
+  {from:'nifi',to:'spark',c:'#3B82F6',t:'data'},
+  {from:'debezium',to:'armes',c:'#3B82F6',t:'data'},
+  {from:'mobile',to:'kong',c:'#EF4444',t:'query'},
+  {from:'nginx',to:'nextjs',c:'#EF4444',t:'query'},
+  {from:'langfuse',to:'grafana',c:'#8B5CF6',t:'monitor'},
+  {from:'mcpsap',to:'sapbpc',c:'#10B981',t:'mcp'},
+  {from:'crosscheck',to:'langgraph',c:'#EF4444',t:'query'},
+
+  // ── AUDIT FIXES: Data persistence connections ──
+  {from:'billing',to:'mariadb',c:'#3B82F6',t:'data'},
+  {from:'mlflow',to:'mariadb',c:'#3B82F6',t:'data'},
+  {from:'promptstore',to:'mariadb',c:'#3B82F6',t:'data'},
+  {from:'temporal',to:'mariadb',c:'#3B82F6',t:'data'},
+  {from:'superset',to:'mariadb',c:'#8B5CF6',t:'monitor'},
+  {from:'cwfsvc',to:'schemareg',c:'#EF4444',t:'query'},
+  {from:'spark',to:'iceberg',c:'#3B82F6',t:'data'},
+  {from:'debezium',to:'sqlserver',c:'#3B82F6',t:'data'},
+  {from:'vault',to:'nifi',c:'#F59E0B',t:'auth'},
+  {from:'argocd',to:'k8s',c:'#8B5CF6',t:'monitor'},
+  {from:'landing',to:'kong',c:'#EF4444',t:'query'},
+];
+
+var cv=document.getElementById('cv');
+var svg=document.getElementById('svg');
+
+function getCenter(id){
+  var el=document.getElementById(id);if(!el)return{x:0,y:0};
+  var cr=el.getBoundingClientRect(),pr=cv.getBoundingClientRect();
+  return{x:((cr.left-pr.left+cr.width/2)/pr.width)*1000,y:((cr.top-pr.top+cr.height/2)/pr.height)*750};
+}
+
+function drawLines(){
+  var html='<defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse"><path d="M2 2L8 5L2 8" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round"/></marker></defs>';
+  connections.forEach(function(conn){
+    var f=getCenter(conn.from),t=getCenter(conn.to);
+    if(!f.x&&!f.y)return;
+    var dx=t.x-f.x,dy=t.y-f.y;
+    var d;
+    if(Math.abs(dy)>Math.abs(dx)*0.4){
+      var cy=(f.y+t.y)/2+(Math.abs(dx)>80?dx*0.1:0);
+      d='M'+f.x+' '+f.y+' Q'+f.x+' '+cy+' '+t.x+' '+t.y;
+    }else{d='M'+f.x+' '+f.y+' L'+t.x+' '+t.y;}
+    var sw=conn.t==='quality'?1.3:0.8;
+    var op=conn.t==='quality'?0.35:0.22;
+    var dash=conn.t==='quality'?' stroke-dasharray="4 3"':'';
+    html+='<path d="'+d+'" fill="none" stroke="'+conn.c+'" stroke-width="'+sw+'" opacity="'+op+'" marker-end="url(#ah)" data-from="'+conn.from+'" data-to="'+conn.to+'" data-type="'+conn.t+'" class="conn"'+dash+'/>';
+  });
+  svg.innerHTML=html;
+}
+
+function highlight(nodeId){
+  var connected=new Set([nodeId]);
+  svg.querySelectorAll('.conn').forEach(function(p){
+    var from=p.getAttribute('data-from'),to=p.getAttribute('data-to');
+    if(from===nodeId||to===nodeId){
+      connected.add(from);connected.add(to);
+      p.classList.add('hi');p.classList.remove('dim');p.setAttribute('opacity','0.85');
+    }else{p.classList.add('dim');p.classList.remove('hi');p.setAttribute('opacity','0.02');}
+  });
+  cv.querySelectorAll('.nd').forEach(function(n){
+    if(connected.has(n.id)){n.classList.add('hi');n.classList.remove('dim');}
+    else{n.classList.add('dim');n.classList.remove('hi');}
+  });
+}
+
+function clearHighlight(){
+  cv.querySelectorAll('.nd').forEach(function(n){n.classList.remove('hi','dim');});
+  svg.querySelectorAll('.conn').forEach(function(p){
+    p.classList.remove('hi','dim');
+    var t=p.getAttribute('data-type');
+    p.setAttribute('opacity',t==='quality'?'0.35':'0.22');
+  });
+}
+
+cv.querySelectorAll('.nd').forEach(function(n){
+  n.addEventListener('mouseenter',function(){highlight(n.id);});
+  n.addEventListener('mouseleave',clearHighlight);
+});
+
+setTimeout(drawLines,200);
+window.addEventListener('resize',drawLines);
+</script>
+</body>
+</html>

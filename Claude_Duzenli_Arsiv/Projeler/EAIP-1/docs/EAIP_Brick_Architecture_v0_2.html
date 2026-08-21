@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EAIP Brick Architecture v0_2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F3F4F1; --ink:#1B1E22; --muted:#5C6168; --line:#D8DAD4; --card:#FFFFFF;
+  --amber:#B87513; --amber-bg:#FAEEDA; --amber-dk:#633806;
+  --teal:#0F6E56;  --teal-bg:#E1F5EE;  --teal-dk:#085041;
+  --purple:#534AB7;--purple-bg:#EEEDFE;--purple-dk:#3C3489;
+  --gray:#5F5E5A;  --gray-bg:#ECEBE4;  --gray-dk:#2C2C2A;
+  --coral:#993C1D; --coral-bg:#FAECE7;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:'IBM Plex Sans',sans-serif;line-height:1.6;font-size:15.5px}
+.mono{font-family:'IBM Plex Mono',monospace}
+header{border-bottom:1px solid var(--line);padding:22px 36px;display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:8px}
+header h1{font-size:18px;font-weight:600}
+header .ver{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted)}
+main{max-width:1120px;margin:0 auto;padding:40px 36px 80px}
+section{margin-bottom:60px}
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--amber-dk);margin-bottom:8px}
+h2{font-size:24px;font-weight:600;margin-bottom:10px;letter-spacing:-.01em}
+h3{font-size:16px;font-weight:600;margin:26px 0 10px}
+.lede{color:var(--muted);max-width:76ch;margin-bottom:24px}
+p{max-width:80ch}
+.principles{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px;margin-top:8px}
+.pr{border-top:2px solid var(--amber);padding-top:12px}
+.pr h4{font-size:14px;font-weight:600;margin-bottom:4px}
+.pr p{font-size:13.5px;color:var(--muted)}
+/* assembly ladder */
+.ladder{max-width:760px}
+.rung{border:1px solid var(--line);border-left:4px solid var(--purple);border-radius:8px;background:var(--card);padding:12px 18px;margin-bottom:10px;display:flex;gap:14px;align-items:baseline}
+.rung .rn{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--purple-dk);min-width:150px;font-weight:500}
+.rung .rd{font-size:13.5px;color:var(--muted)}
+.rung.hot{border-left-color:var(--amber)}
+.rung.hot .rn{color:var(--amber-dk)}
+.seq{counter-reset:s;max-width:80ch}
+.seq li{list-style:none;counter-increment:s;padding:6px 0 6px 40px;position:relative;font-size:14px;color:var(--ink)}
+.seq li::before{content:counter(s);position:absolute;left:0;top:8px;width:24px;height:24px;border-radius:50%;background:var(--gray-bg);color:var(--gray-dk);font-family:'IBM Plex Mono',monospace;font-size:12px;display:flex;align-items:center;justify-content:center}
+/* brick cards */
+.bricks{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
+.brick{border:1px solid var(--line);border-radius:10px;background:var(--card);padding:14px 16px;border-left-width:4px}
+.brick.fnd{border-left-color:var(--gray)}
+.brick.ctl{border-left-color:var(--amber)}
+.brick .bh{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.brick .bn{font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:14px}
+.brick .bp{font-size:11px;font-family:'IBM Plex Mono',monospace;padding:1px 7px;border-radius:9px;white-space:nowrap}
+.bp.p0{background:var(--gray-bg);color:var(--gray-dk)}
+.bp.new{background:var(--amber-bg);color:var(--amber-dk)}
+.bp.upd{background:var(--purple-bg);color:var(--purple-dk)}
+.brick .bd{font-size:13px;color:var(--muted);margin:4px 0 8px}
+.brick .bc{font-size:12.5px;font-family:'IBM Plex Mono',monospace;color:var(--ink);line-height:1.8}
+.brick .bc b{font-weight:500;color:var(--muted)}
+/* capability compact table */
+table{border-collapse:collapse;width:100%;font-size:13.5px;background:var(--card);border:1px solid var(--line)}
+th,td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
+th{font-weight:600;background:var(--gray-bg);font-size:13px}
+td.y{background:var(--teal-bg);color:var(--teal-dk);text-align:center;font-weight:500}
+td.l{background:var(--amber-bg);color:var(--amber-dk);text-align:center;font-size:12px}
+td.n{color:var(--line);text-align:center}
+td .mono{font-size:12.5px}
+.matrix-note{font-size:13px;color:var(--muted);margin-top:10px;max-width:80ch}
+/* manifests */
+.manifests{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.man{border:1px solid var(--line);border-radius:10px;background:var(--card);overflow:hidden}
+.man .mh{padding:10px 16px;font-weight:600;font-size:14px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:baseline}
+.man .mh .mode{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted)}
+.man.gu .mh{background:var(--teal-bg);color:var(--teal-dk)}
+.man.cwf .mh{background:var(--purple-bg);color:var(--purple-dk)}
+.man.ins .mh{background:var(--amber-bg);color:var(--amber-dk)}
+.man.hq .mh{background:var(--gray-bg);color:var(--gray-dk)}
+.man pre{font-family:'IBM Plex Mono',monospace;font-size:12px;line-height:1.75;padding:14px 16px;overflow-x:auto;color:var(--ink)}
+.man pre .c{color:var(--muted)}
+.man pre .k{color:var(--purple-dk)}
+/* decisions */
+.dec{border:1px solid var(--line);border-radius:10px;background:var(--card);padding:14px 18px;margin-bottom:12px}
+.dec h4{font-size:14px;font-weight:600;margin-bottom:4px}
+.dec h4 .mono{color:var(--muted);font-weight:400;font-size:12px}
+.dec p{font-size:13.5px;color:var(--muted)}
+.open{border:1px dashed var(--amber);border-radius:10px;background:var(--amber-bg);padding:16px 20px}
+.open ul{margin-left:18px;font-size:14px}
+.open li{margin-bottom:6px}
+.open code{font-family:'IBM Plex Mono',monospace;font-size:12.5px}
+footer{border-top:1px solid var(--line);margin-top:20px;padding:16px 36px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px}
+@media(max-width:720px){main{padding:28px 18px 60px}header,footer{padding-left:18px;padding-right:18px}.mwrap{overflow-x:auto}.rung{flex-direction:column;gap:2px}}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>EAIP brick architecture</h1>
+  <span class="ver">EAIP_Brick_Architecture_v0_2 · supersedes v0_1 · derived from Platform v5.1 SSoT · July 2026</span>
+</header>
+
+<main>
+
+<!-- 1 PRINCIPLES -->
+<section>
+  <div class="eyebrow">1 · Principles</div>
+  <h2>Purposeful bricks on an immutable substrate</h2>
+  <p class="lede">v0_2 integrates the cluster-substrate decision (Talos Linux), the fleet management plane, and telemetry/tenancy tiering into the v0_1 brick model. The unifying idea: <em>everything is a file in the fleet repo</em> — from the operating system of a node to the brick list of a product. One repo, one approval gate, one audit trail.</p>
+  <div class="principles">
+    <div class="pr"><h4>Foundation vs capability</h4><p>Foundation bricks are singletons per instance. Capability bricks declare dependencies on foundation contracts (a schema, a realm, a Vault path); they never own shared infrastructure.</p></div>
+    <div class="pr"><h4>Brick contract</h4><p>Versioned inputs, outputs, registered MCP tools, semver. The syscall-table discipline applied to infrastructure.</p></div>
+    <div class="pr"><h4>Release BOM</h4><p>An <span class="mono">EAIP Release</span> pins tested-together brick versions. Instances ride the release train; the eval harness runs per manifest.</p></div>
+    <div class="pr"><h4>Granularity test</h4><p>"Ships in one product but not another?" Yes → brick. No → internal detail of a brick.</p></div>
+    <div class="pr"><h4>Whose cluster, whose controls</h4><p>Management channels end at ownership boundaries. ARDICTECH-owned clusters get full central control; customer perimeters are pull-only via the fleet repo, gated by customer PR approval.</p></div>
+  </div>
+</section>
+
+<!-- 2 ASSEMBLY -->
+<section>
+  <div class="eyebrow">2 · The assembly model</div>
+  <h2>Five nested definition layers, all in git</h2>
+  <div class="ladder">
+    <div class="rung hot"><span class="rn">fleet repo</span><span class="rd">One directory per instance. The management brain. PR merge = the only write path into any environment.</span></div>
+    <div class="rung"><span class="rn">instance manifest</span><span class="rd">Product identity: brick list, release pin, tenancy tier, telemetry tier, customer values.</span></div>
+    <div class="rung"><span class="rn">release BOM</span><span class="rd">eaip-YYYY.N — tested-together brick versions. Manifests reference it; never loose brick versions.</span></div>
+    <div class="rung"><span class="rn">bricks</span><span class="rd">OpenTofu module + Helm chart per brick, OCI artifacts in Harbor, materialized by ArgoCD app-of-apps.</span></div>
+    <div class="rung"><span class="rn">machine configs</span><span class="rd">Talos machine-config YAML per node. The OS itself is a declarative file — no SSH, no drift, no snowflakes.</span></div>
+  </div>
+  <h3>Birth sequence of an instance</h3>
+  <ol class="seq">
+    <li>Open <span class="mono">instances/&lt;name&gt;/</span> in the fleet repo: manifest + Talos machine configs + values.</li>
+    <li>OpenTofu (Talos provider) boots nodes from the Talos image and applies machine configs — the cluster exists.</li>
+    <li>Bootstrap ArgoCD (infra-core) is pointed at the instance directory and Harbor. Outbound-only; zero inbound access.</li>
+    <li>App-of-apps materializes the 9 foundation bricks, then capability bricks per manifest.</li>
+    <li><span class="mono">tenantprov</span> runs day-1: realm/Organizations, schemas, routes, collections per tenancy tier.</li>
+    <li><span class="mono">fleet-control</span> (ARDICTECH side) registers the instance: heartbeat expectation armed, BOM recorded.</li>
+    <li>Every subsequent change — app version, K8s version, <em>OS version</em> — is a PR to the instance directory, merged on customer approval, synced by ArgoCD. One gate for all three upgrade classes.</li>
+  </ol>
+</section>
+
+<!-- 3 FOUNDATION -->
+<section>
+  <div class="eyebrow">3 · Foundation bricks — 9 singletons per instance</div>
+  <h2>The kernel: nobody brings their own</h2>
+  <div class="bricks">
+    <div class="brick fnd"><div class="bh"><span class="bn">cluster-substrate</span><span class="bp new">NEW</span></div>
+      <div class="bd">The layer below Kubernetes, as declarative files: node OS, boot images, upgrade plans. OS+K8s upgrade in one API-driven rolling action.</div>
+      <div class="bc">Talos Linux machine configs · boot image pipeline (Harbor) · upgrade plans via fleet repo<br><b>fallback: RKE2 (see decision D1)</b></div></div>
+    <div class="brick fnd"><div class="bh"><span class="bn">infra-core</span><span class="bp upd">UPDATED</span></div>
+      <div class="bd">GitOps, CI, registry, secrets, network, event-driven autoscaling, ops glass.</div>
+      <div class="bc">ArgoCD · CI Pipeline · Harbor · Vault · Cert-Mgr + Wireguard · KEDA · Headlamp<br><b>client tools (not deployed): talosctl, k9s</b></div></div>
+    <div class="brick fnd"><div class="bh"><span class="bn">observability</span><span class="bp upd">UPDATED</span></div>
+      <div class="bd">Metrics, logs, traces, cost metering. Telemetry tier decides what leaves the perimeter: <span class="mono">full-export</span> (own clusters) / <span class="mono">class-ab</span> (typical sovereign) / <span class="mono">sealed</span> (nothing leaves).</div>
+      <div class="bc">Grafana + Prometheus (Alertmanager) · Loki + OTel · OpenCost</div></div>
+    <div class="brick fnd"><div class="bh"><span class="bn">data-core</span><span class="bp p0">P0</span></div>
+      <div class="bd">Shared relational, cache, object storage + platform scheduler. Owns schemas; leases them to capability bricks.</div>
+      <div class="bc">PostgreSQL 16 + pgvector · Redis · MinIO · Airflow</div></div>
+    <div class="brick fnd"><div class="bh"><span class="bn">identity-gateway</span><span class="bp upd">UPDATED</span></div>
+      <div class="bd">AuthN/AuthZ and the north-south perimeter. Tenancy tiers: <span class="mono">silo</span> (realm-per-tenant) / <span class="mono">pooled</span> (single realm + Keycloak Organizations). Keycloak OIDC also fronts kube-apiserver — cluster RBAC without a management middleman.</div>
+      <div class="bc">Keycloak · OPA · Kong · Tenant Provisioning</div></div>
+    <div class="brick fnd"><div class="bh"><span class="bn">api-core</span><span class="bp p0">P0</span></div>
+      <div class="bd">Application server, channel normalization, admin panel.</div>
+      <div class="bc">FastAPI · Channel Gateway · Min. Dashboard</div></div>
+    <div class="brick fnd"><div class="bh"><span class="bn">llm-serving</span><span class="bp p0">P0</span></div>
+      <div class="bd">Model runtime and its governance ring.</div>
+      <div class="bc">vLLM · LiteLLM · Ollama · Guardrails AI · Prompt Store · Langfuse · MLflow</div></div>
+    <div class="brick fnd"><div class="bh"><span class="bn">agent-runtime</span><span class="bp p0">P0</span></div>
+      <div class="bd">Agent graphs, hybrid LLM-ranks/rules-decide engine with immutable decision audit, session memory.</div>
+      <div class="bc">LangGraph · Hybrid Decision Engine · Memori</div></div>
+    <div class="brick fnd"><div class="bh"><span class="bn">data-governance</span><span class="bp p0">P0</span></div>
+      <div class="bd">Quality scans, transformation framework, catalog/lineage.</div>
+      <div class="bc">Soda Core · dbt Core · OpenMetadata</div></div>
+  </div>
+</section>
+
+<!-- 4 CAPABILITY -->
+<section>
+  <div class="eyebrow">4 · Capability bricks — 21, unchanged from v0_1</div>
+  <h2>Composed per product</h2>
+  <p class="lede">Full cards in v0_1; listed compactly here for self-containment. Boundaries and component mapping are unchanged in v0_2.</p>
+  <div class="mwrap">
+  <table>
+    <tr><th>Category</th><th>Bricks</th></tr>
+    <tr><td>Channels</td><td class="mono">channel-whatsapp · channel-teams · channel-web · channel-email · stt-voice</td></tr>
+    <tr><td>Knowledge &amp; retrieval</td><td class="mono">rag (owns Qdrant + File Upload) · rag-graph (LightRAG → Graphiti)</td></tr>
+    <tr><td>Manufacturing data plane</td><td class="mono">armes-link · analytics (ClickHouse + Airbyte + MCP + query gate) · timeseries-iot · cdc-streaming</td></tr>
+    <tr><td>Workflow &amp; documents</td><td class="mono">automation (n8n) · doc-ingest (NiFi) · compliance-pdf · workflow-durable</td></tr>
+    <tr><td>Commercial &amp; enterprise</td><td class="mono">billing · enterprise-sso · enrichment · lakehouse · ml-monitoring · connector-erp</td></tr>
+  </table>
+  </div>
+</section>
+
+<!-- 5 FLEET PLANE -->
+<section>
+  <div class="eyebrow">5 · Fleet plane — the ARDICTECH side</div>
+  <h2>One control brick that never ships to customers</h2>
+  <div class="bricks">
+    <div class="brick ctl"><div class="bh"><span class="bn">fleet-control</span><span class="bp new">NEW</span></div>
+      <div class="bd">Runs only on ARDICTECH infrastructure. Monitoring face: Class A/B telemetry receiver, dead-man rules (absence of heartbeat = the alarm), per-instance cost anomaly views. Management face: fleet-repo state — which instance is on which BOM pin, which PRs await customer approval, last sync per instance. v1 UI = Grafana panels; no bespoke frontend.</div>
+      <div class="bc">Prometheus remote-write receiver · Grafana (fleet views) · dead-man ruleset · BOM inventory (from ArgoCD status)</div></div>
+  </div>
+  <h3>Telemetry classes (contract language)</h3>
+  <div class="mwrap">
+  <table>
+    <tr><th>Class</th><th>Content</th><th>Crosses perimeter?</th><th>Mechanism</th></tr>
+    <tr><td class="mono">A — heartbeat</td><td>Alive, version, last backup OK</td><td class="y">yes (default)</td><td>push, minimal cardinality; absence triggers dead-man alarm</td></tr>
+    <tr><td class="mono">B — aggregates</td><td>p95 latency, error rates, token/cost totals, quality-scan pass %</td><td class="l">contract opt-in</td><td>Prometheus remote_write, labels stripped, zero payloads</td></tr>
+    <tr><td class="mono">C — traces/logs</td><td>Prompts, queries, documents</td><td class="n">never</td><td>stays local; debugging via customer-approved, time-boxed Wireguard support session</td></tr>
+  </table>
+  </div>
+  <p class="matrix-note">Sealed instances disable A and B. Consequence written into the sealed contract: outage detection is the customer NOC's obligation, and support SLA is priced accordingly — a dead-man switch cannot hear a heartbeat that is never sent.</p>
+</section>
+
+<!-- 6 MATRIX -->
+<section>
+  <div class="eyebrow">6 · Composition matrix</div>
+  <h2>Which brick ships where</h2>
+  <div class="mwrap">
+  <table>
+    <tr><th>Brick</th><th>GU — pooled shared cluster</th><th>CWF v1 — sovereign silo</th><th>Insurance — firewalled silo</th><th>ARDICTECH HQ</th></tr>
+    <tr><td class="mono">foundation ×9</td><td class="y">✓ pooled · full-export</td><td class="y">✓ silo · class-ab</td><td class="y">✓ silo · class-ab/sealed</td><td class="y">✓ (hosts fleet-control)</td></tr>
+    <tr><td class="mono">fleet-control</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="y">✓ only here</td></tr>
+    <tr><td class="mono">channel-whatsapp · stt-voice</td><td class="y">✓</td><td class="n">—</td><td class="n">—</td><td class="n">—</td></tr>
+    <tr><td class="mono">channel-web</td><td class="y">✓ patron dashboard</td><td class="y">✓</td><td class="n">—</td><td class="n">—</td></tr>
+    <tr><td class="mono">channel-teams</td><td class="n">—</td><td class="y">✓</td><td class="n">—</td><td class="n">—</td></tr>
+    <tr><td class="mono">channel-email</td><td class="n">—</td><td class="n">—</td><td class="y">✓ broker intake</td><td class="n">—</td></tr>
+    <tr><td class="mono">rag</td><td class="l">light</td><td class="y">✓</td><td class="y">✓</td><td class="n">—</td></tr>
+    <tr><td class="mono">rag-graph</td><td class="n">—</td><td class="y">✓</td><td class="n">—</td><td class="n">—</td></tr>
+    <tr><td class="mono">armes-link</td><td class="n">—</td><td class="y">✓</td><td class="n">—</td><td class="n">—</td></tr>
+    <tr><td class="mono">analytics</td><td class="y">✓ benchmark</td><td class="y">✓ + query gate</td><td class="n">—</td><td class="n">—</td></tr>
+    <tr><td class="mono">automation</td><td class="n">—</td><td class="y">✓ ext. surface</td><td class="n">—</td><td class="n">—</td></tr>
+    <tr><td class="mono">doc-ingest</td><td class="n">—</td><td class="n">—</td><td class="y">✓</td><td class="n">—</td></tr>
+    <tr><td class="mono">compliance-pdf</td><td class="y">✓ IATF karne</td><td class="l">optional</td><td class="y">✓ Takip audit</td><td class="n">—</td></tr>
+    <tr><td class="mono">billing</td><td class="y">✓</td><td class="n">—</td><td class="n">—</td><td class="n">—</td></tr>
+    <tr><td class="mono">enterprise-sso</td><td class="n">—</td><td class="y">✓</td><td class="y">✓ day-one (D8)</td><td class="n">—</td></tr>
+    <tr><td class="mono">timeseries-iot</td><td class="l">later</td><td class="n">—</td><td class="n">—</td><td class="n">—</td></tr>
+    <tr><td class="mono">cdc-streaming · ml-monitoring</td><td class="n">—</td><td class="l">CWF v2</td><td class="n">—</td><td class="n">—</td></tr>
+    <tr><td class="mono">workflow-durable · enrichment · lakehouse · connector-erp</td><td class="n">—</td><td class="l">FIN phase</td><td class="n">—</td><td class="n">—</td></tr>
+  </table>
+  </div>
+  <p class="matrix-note">The insurance firewall remains structural: no manufacturing bricks in its manifest. New in v0_2: the ARDICTECH HQ column — fleet-control is a deployment like any other, born from its own directory in the fleet repo, managing the repo that defines it.</p>
+</section>
+
+<!-- 7 MANIFESTS -->
+<section>
+  <div class="eyebrow">7 · Product manifests</div>
+  <h2>Product = substrate + foundation + brick list + tiers + release pin</h2>
+  <div class="manifests">
+    <div class="man gu"><div class="mh">galip-usta <span class="mode">pooled · own cluster</span></div>
+<pre><span class="k">release:</span> eaip-2026.3
+<span class="k">substrate:</span> talos            <span class="c"># machines/gu/*.yaml</span>
+<span class="k">tenancy:</span> pooled             <span class="c"># realm + Orgs</span>
+<span class="k">telemetry:</span> full-export      <span class="c"># our cluster</span>
+<span class="k">bricks:</span>
+  - channel-whatsapp
+  - stt-voice
+  - channel-web
+  - rag                    <span class="c"># profile: light</span>
+  - analytics              <span class="c"># benchmark store</span>
+  - compliance-pdf
+  - billing</pre></div>
+    <div class="man cwf"><div class="mh">chat-with-factory <span class="mode">silo · sovereign</span></div>
+<pre><span class="k">release:</span> eaip-2026.3
+<span class="k">substrate:</span> talos            <span class="c"># customer nodes</span>
+<span class="k">tenancy:</span> silo
+<span class="k">telemetry:</span> class-ab         <span class="c"># contract opt-in</span>
+<span class="k">bricks:</span>
+  - channel-teams
+  - channel-web
+  - rag
+  - rag-graph
+  - armes-link
+  - analytics              <span class="c"># + query gate</span>
+  - automation
+  - enterprise-sso</pre></div>
+    <div class="man ins"><div class="mh">insurance-uc <span class="mode">silo · firewalled</span></div>
+<pre><span class="k">release:</span> eaip-2026.3
+<span class="k">substrate:</span> talos
+<span class="k">tenancy:</span> silo
+<span class="k">telemetry:</span> class-ab         <span class="c"># sealed if required</span>
+<span class="k">bricks:</span>
+  - channel-email
+  - doc-ingest
+  - rag
+  - compliance-pdf
+  - enterprise-sso         <span class="c"># D8 day-one</span>
+<span class="c"># firewall = absence of mfg bricks</span></pre></div>
+    <div class="man hq"><div class="mh">ardictech-hq <span class="mode">control · own cluster</span></div>
+<pre><span class="k">release:</span> eaip-2026.3
+<span class="k">substrate:</span> talos
+<span class="k">tenancy:</span> n/a                <span class="c"># internal only</span>
+<span class="k">telemetry:</span> full-export
+<span class="k">bricks:</span>
+  - fleet-control          <span class="c"># A/B receiver,</span>
+                           <span class="c"># dead-man, BOM view</span></pre></div>
+  </div>
+</section>
+
+<!-- 8 DECISIONS -->
+<section>
+  <div class="eyebrow">8 · Decision records</div>
+  <h2>Choices made, gates defined</h2>
+  <div class="dec"><h4>D1 — Cluster substrate: Talos Linux <span class="mono">· pilot-gated</span></h4>
+    <p>SOTA choice over the management-platform paradigm: immutable, API-only OS (no SSH, no shell, no package manager), OS+K8s lifecycle as one declarative action, CIS hardening built in, materially lower ops/security TCO. Strong sovereign/defense narrative ("there is no SSH to audit") and native fit for sealed offline-bundle upgrades. <b>Gate:</b> two-week staging pilot — team must sustain API-only debugging; ARMES/GU workloads must show no friction. <b>Fallback (not shameful):</b> RKE2 + Rancher, the conservative pair.</p></div>
+  <div class="dec"><h4>D2 — No Rancher for customer perimeters <span class="mono">· 3-condition re-evaluation gate</span></h4>
+    <p>Rancher's persistent agent channel is remote control into the customer cluster — incompatible with the PR-approval promise and defense accreditation. Re-open the discussion only if all three hold: (1) ARDICTECH-operated clusters &gt; ~10–15, (2) heterogeneous infra (bare-metal + VM mix), (3) ops team large enough to need central UI/RBAC as a first-class tool. Even then: Rancher on own clusters only; customer perimeters stay fleet-repo.</p></div>
+  <div class="dec"><h4>D3 — Omni deferred <span class="mono">· licensing stance</span></h4>
+    <p>Omni server is BSL-1.1; production use requires a commercial license (converts to MPL after 4 years). OSS-first stance, same reflex as the Terraform-BUSL → OpenTofu call: start with talosctl + OpenTofu Talos provider + Headlamp. Omni becomes a deliberate purchase decision if fleet ops pain grows — not a default dependency.</p></div>
+  <div class="dec"><h4>D4 — Fleet repo is the management plane <span class="mono">· pull-only</span></h4>
+    <p>Git as brain: instance directories, PR merge as the single write path, customer approval as a first-class merge gate, ArgoCD pull as the single sync mechanism. Zero inbound access to customer perimeters. Sealed variant: signed offline bundles derived from the same directories. Scales comfortably to ~50 instances; beyond that, revisit (see D2).</p></div>
+  <div class="dec"><h4>D5 — Sealed-customer NOC obligation <span class="mono">· contract clause</span></h4>
+    <p>Where telemetry is sealed, outage detection is contractually the customer NOC's duty and support SLA is priced for blind operation. Prevents the "system was down for three days and nobody noticed" invoice landing on ARDICTECH.</p></div>
+</section>
+
+<!-- 9 OPEN -->
+<section>
+  <div class="eyebrow">9 · Open items</div>
+  <h2>What v0_2 does not settle</h2>
+  <div class="open">
+    <ul>
+      <li><code>[open:]</code> Talos pilot execution &amp; verdict (D1 gate) — staging cluster, two weeks, GU + ARMES-link workloads.</li>
+      <li><code>[open:]</code> Effort to re-cut existing Helm charts / repo layout to brick boundaries — requires repo audit (Antigravity task candidate) before any hour figure.</li>
+      <li><code>[open:]</code> Brick contract schema — candidate to merge with semantic-contract work (SOTA gap 3).</li>
+      <li><code>[open:]</code> Release BOM cadence + eval-harness-per-manifest wiring (SOTA gap 1).</li>
+      <li><code>[open:]</code> Pooled-tier detail: Keycloak Organizations at GU scale, shared-namespace quotas, ClickHouse tenant isolation, LiteLLM per-tenant budgets.</li>
+      <li><code>[open:]</code> <code>rag</code> light/full profiles — one brick with values profiles vs. two bricks.</li>
+      <li><code>[open:]</code> fleet-control v1 scope cut: which Grafana panels, which dead-man thresholds, PR-status surfacing.</li>
+    </ul>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <span>EAIP_Brick_Architecture_v0_2.html — 9 foundation + 21 capability + 1 control brick · full 67-component coverage vs Platform v5.1 SSoT</span>
+  <span>refs: v5.1 SSoT · SOTA gaps 1–3 · Build Schedule v5.1 · decisions D1–D5 · v5_2 changeset candidate</span>
+</footer>
+
+</body>
+</html>

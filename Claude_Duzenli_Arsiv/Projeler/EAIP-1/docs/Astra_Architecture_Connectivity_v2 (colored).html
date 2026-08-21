@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Astra — Architecture Connectivity Diagram v2 — ARDICTECH</title>
+<style>
+  :root{--bg:#fff;--bg2:#f8fafc;--text:#0f1b2d;--text2:#6b7280;--border:#e2e8f0;--font:-apple-system,'Segoe UI','Helvetica Neue',Arial,sans-serif}
+  @media(prefers-color-scheme:dark){:root{--bg:#0f1b2d;--bg2:#1e293b;--text:#e2e8f0;--text2:#94a3b8;--border:#334155}}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--font);background:var(--bg);color:var(--text);padding:24px;max-width:1100px;margin:0 auto}
+  h1{font-size:18px;font-weight:500;margin-bottom:2px}
+  h2{font-size:13px;font-weight:400;color:var(--text2);margin-bottom:12px}
+  .cw{position:relative;padding:0}
+  .canvas{position:relative;width:100%;height:1100px}
+  .nd{position:absolute;padding:4px 8px;border-radius:5px;font-size:10px;font-weight:500;text-align:center;border:0.5px solid;cursor:pointer;z-index:2;transition:opacity .2s,box-shadow .2s;line-height:1.3;white-space:nowrap}
+  .nd .sub{font-size:8px;font-weight:400;opacity:.6;display:block}
+  .nd.dim{opacity:.12}
+  .nd.hi{box-shadow:0 0 0 2px #3B82F6}
+  .keep{border-style:dashed !important}
+  svg.lines{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1}
+  svg.lines path{transition:opacity .2s}
+  svg.lines .dim{opacity:.03}
+  svg.lines .hi{opacity:1;stroke-width:2}
+  .leg{display:flex;flex-wrap:wrap;gap:10px;font-size:10px;color:var(--text2);margin:8px 0 12px}
+  .leg span{display:flex;align-items:center;gap:4px}
+  .leg .ln{width:20px;height:2px;border-radius:1px}
+  .note{font-size:9px;color:var(--text2);margin-top:8px;line-height:1.5}
+  .ver{font-size:11px;color:var(--text2);font-style:italic;margin-bottom:14px}
+
+  .c1{background:#DBEAFE;color:#0C447C;border-color:#85B7EB}
+  .c2{background:#EDE9FE;color:#3C3489;border-color:#AFA9EC}
+  .c3{background:#FEE2E2;color:#791F1F;border-color:#F09595}
+  .c4{background:#FFF7ED;color:#633806;border-color:#EF9F27}
+  .c5{background:#CCFBF1;color:#085041;border-color:#5DCAA5}
+  .c6{background:#DCFCE7;color:#166534;border-color:#97C459}
+  .c7{background:#F1F5F9;color:#1E293B;border-color:#94A3B8}
+  .c8{background:#F3F4F6;color:#374151;border-color:#B4B2A9}
+  .cm{background:#FFF7ED;color:#92400E;border-color:#D97706}
+  .cn{background:#F0FDF4;color:#14532D;border-color:#22C55E;border-width:1.5px}
+
+  @media(prefers-color-scheme:dark){
+    .c1{background:#1E3A5F;color:#93C5FD;border-color:#3B82F6}
+    .c2{background:#2D2456;color:#C4B5FD;border-color:#7C3AED}
+    .c3{background:#450A0A;color:#FCA5A5;border-color:#DC2626}
+    .c4{background:#451A03;color:#FCD34D;border-color:#D97706}
+    .c5{background:#042F2E;color:#5EEAD4;border-color:#0D9488}
+    .c6{background:#052E16;color:#86EFAC;border-color:#16A34A}
+    .c7{background:#1E293B;color:#CBD5E1;border-color:#475569}
+    .c8{background:#1F2937;color:#D1D5DB;border-color:#6B7280}
+    .cm{background:#451A03;color:#FCD34D;border-color:#D97706}
+    .cn{background:#052E16;color:#86EFAC;border-color:#22C55E;border-width:1.5px}
+    .nd.hi{box-shadow:0 0 0 2px #60A5FA}
+  }
+  @media print{body{padding:12px}.nd{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+</style>
+</head>
+<body>
+<h1>Astra Holding — Architecture connectivity diagram v2</h1>
+<h2>Enhanced with data quality & governance layer — hover any component to see connections</h2>
+<div class="ver">ARDICTECH · March 2026 · Confidential · v2.0</div>
+
+<div class="cw">
+  <div class="leg">
+    <span><span class="ln" style="background:#3B82F6"></span>Data flow</span>
+    <span><span class="ln" style="background:#EF4444"></span>Query / AI path</span>
+    <span><span class="ln" style="background:#F59E0B"></span>Auth / security</span>
+    <span><span class="ln" style="background:#8B5CF6"></span>Monitoring</span>
+    <span><span class="ln" style="background:#10B981"></span>Real-time API</span>
+    <span><span class="ln" style="background:#22C55E;height:3px"></span>Data quality (new)</span>
+  </div>
+
+  <div class="canvas" id="cv">
+    <div class="nd c6" id="nextjs" style="left:2%;top:10px">Next.js<span class="sub">Web apps</span></div>
+    <div class="nd c6" id="b2b" style="left:14%;top:10px">B2B Portal<span class="sub">Sales reps</span></div>
+    <div class="nd c6" id="website" style="left:27%;top:10px">Website<span class="sub">Consumers</span></div>
+    <div class="nd c6" id="usta" style="left:39%;top:10px">Usta Portal<span class="sub">Technicians</span></div>
+    <div class="nd cm keep" id="teams" style="left:52%;top:10px">Teams Bot<span class="sub">Bot Framework</span></div>
+    <div class="nd c6" id="openwebui" style="left:65%;top:10px">Open WebUI<span class="sub">Internal</span></div>
+
+    <div class="nd c5" id="kong" style="left:20%;top:80px">Kong<span class="sub">API gateway</span></div>
+    <div class="nd c5" id="fastapi" style="left:40%;top:80px">FastAPI<span class="sub">REST + WebSocket</span></div>
+
+    <div class="nd cm keep" id="entra" style="left:2%;top:150px">Entra ID<span class="sub">SSO / OIDC</span></div>
+    <div class="nd c7" id="rlscore" style="left:18%;top:150px">RLS Core Engine<span class="sub">Shared security</span></div>
+    <div class="nd c7" id="opa" style="left:38%;top:150px">OPA<span class="sub">Policy engine</span></div>
+    <div class="nd c7" id="guardrails" style="left:52%;top:150px">Guardrails AI<span class="sub">LLM safety</span></div>
+    <div class="nd cm keep" id="presidio" style="left:68%;top:150px">Presidio<span class="sub">PII detection</span></div>
+
+    <div class="nd c4" id="langgraph" style="left:15%;top:230px">LangGraph<span class="sub">Agentic workflows</span></div>
+    <div class="nd c4" id="temporal" style="left:35%;top:230px">Temporal<span class="sub">Durable processes</span></div>
+    <div class="nd c4" id="n8n" style="left:53%;top:230px">n8n<span class="sub">Business automation</span></div>
+
+    <div class="nd c3" id="vllm" style="left:2%;top:310px">vLLM<span class="sub">Self-hosted LLM</span></div>
+    <div class="nd c3" id="litellm" style="left:16%;top:310px">LiteLLM<span class="sub">Unified proxy</span></div>
+    <div class="nd cm keep" id="aoai" style="left:31%;top:310px">Azure OpenAI<span class="sub">GPT-4o fallback</span></div>
+    <div class="nd c3" id="llamaindex" style="left:48%;top:310px">LlamaIndex<span class="sub">RAG orchestration</span></div>
+    <div class="nd c3" id="mlflow" style="left:66%;top:310px">MLflow<span class="sub">Model registry</span></div>
+    <div class="nd c3" id="langfuse" style="left:80%;top:310px">Langfuse<span class="sub">LLM observability</span></div>
+
+    <div class="nd c1" id="pg" style="left:5%;top:400px">PostgreSQL<span class="sub">B / S / G schemas</span></div>
+    <div class="nd c1" id="ch" style="left:27%;top:400px">ClickHouse<span class="sub">B / S / G tables</span></div>
+    <div class="nd c1" id="minio" style="left:48%;top:400px">MinIO + Iceberg<span class="sub">B / S / G buckets</span></div>
+    <div class="nd c1" id="qdrant" style="left:70%;top:400px">Qdrant<span class="sub">raw / enriched</span></div>
+
+    <div class="nd cn" id="soda" style="left:5%;top:475px">Soda Core<span class="sub">Quality checks</span></div>
+    <div class="nd cn" id="dbt" style="left:22%;top:475px">dbt Core<span class="sub">B→S→G transforms</span></div>
+    <div class="nd cn" id="openmeta" style="left:40%;top:475px">OpenMetadata<span class="sub">Catalog + lineage</span></div>
+    <div class="nd cn" id="llmenrich" style="left:60%;top:475px">LLM Enrichment<span class="sub">AI data curation</span></div>
+
+    <div class="nd c2" id="airflow" style="left:15%;top:555px">Apache Airflow<span class="sub">ETL orchestration</span></div>
+    <div class="nd c2" id="redpanda" style="left:38%;top:555px">Redpanda<span class="sub">Event streaming</span></div>
+    <div class="nd c2" id="debezium" style="left:58%;top:555px">Debezium<span class="sub">CDC connectors</span></div>
+    <div class="nd cm keep" id="docintel" style="left:75%;top:555px">Doc Intelligence<span class="sub">PDF extract</span></div>
+
+    <div class="nd c7" id="sapbw" style="left:1%;top:640px">SAP BW4<span class="sub">MDX/XMLA</span></div>
+    <div class="nd c7" id="sapbpc" style="left:13%;top:640px">SAP BPC<span class="sub">BAPI/API</span></div>
+    <div class="nd c7" id="saps4" style="left:25%;top:640px">SAP S/4HANA<span class="sub">OData/CDS</span></div>
+    <div class="nd c7" id="sqlsrv" style="left:42%;top:640px">SQL Server<span class="sub">KBY (JDBC)</span></div>
+    <div class="nd c7" id="pim" style="left:57%;top:640px">PIM<span class="sub">XML nightly</span></div>
+    <div class="nd c7" id="plm" style="left:68%;top:640px">PLM<span class="sub">API</span></div>
+    <div class="nd cm keep" id="sharepoint" style="left:1%;top:700px">SharePoint<span class="sub">Graph API</span></div>
+    <div class="nd c7" id="salesforce" style="left:16%;top:700px">Salesforce<span class="sub">REST/SOQL</span></div>
+    <div class="nd c7" id="excel" style="left:32%;top:700px">Excel / CSV<span class="sub">File staging</span></div>
+    <div class="nd cm keep" id="asana" style="left:47%;top:700px">Asana<span class="sub">REST API</span></div>
+
+    <div class="nd c8" id="grafana" style="left:87%;top:400px">Grafana<span class="sub">Dashboards</span></div>
+    <div class="nd c8" id="prometheus" style="left:87%;top:450px">Prometheus<span class="sub">Metrics</span></div>
+    <div class="nd c8" id="evidently" style="left:87%;top:500px">Evidently AI<span class="sub">Model drift</span></div>
+    <div class="nd c8" id="metabase" style="left:87%;top:555px">Metabase<span class="sub">Analytics</span></div>
+
+    <svg class="lines" id="svg" viewBox="0 0 1000 760" preserveAspectRatio="none"></svg>
+  </div>
+
+  <div class="note">
+    <strong>v2 changes:</strong> 4 new data quality & governance components (green border) sit between the pipeline layer and storage layer. Soda Core validates data at Bronze/Silver/Gold checkpoints. dbt Core executes transformations. OpenMetadata catalogs all assets with automated lineage. LLM Enrichment Service uses LiteLLM for AI-powered data curation (document classification, entity extraction, quality scoring). All orchestrated by existing Airflow — no new orchestration tools needed.
+  </div>
+  <div class="note" style="margin-top:6px">
+    6 connection types: blue = data flow, red = query/AI path, amber = auth/security, purple = monitoring, teal = real-time API calls, green dashed = data quality flows (new).
+  </div>
+</div>
+
+<script>
+const connections = [
+  {from:'sapbw',to:'airflow',c:'#3B82F6',t:'data'},{from:'sapbpc',to:'airflow',c:'#3B82F6',t:'data'},
+  {from:'saps4',to:'airflow',c:'#3B82F6',t:'data'},{from:'sqlsrv',to:'airflow',c:'#3B82F6',t:'data'},
+  {from:'pim',to:'airflow',c:'#3B82F6',t:'data'},{from:'plm',to:'airflow',c:'#3B82F6',t:'data'},
+  {from:'sharepoint',to:'airflow',c:'#3B82F6',t:'data'},{from:'salesforce',to:'airflow',c:'#3B82F6',t:'data'},
+  {from:'excel',to:'airflow',c:'#3B82F6',t:'data'},{from:'sharepoint',to:'docintel',c:'#3B82F6',t:'data'},
+  {from:'docintel',to:'airflow',c:'#3B82F6',t:'data'},
+  {from:'debezium',to:'redpanda',c:'#3B82F6',t:'data'},{from:'redpanda',to:'ch',c:'#3B82F6',t:'data'},
+  {from:'airflow',to:'pg',c:'#3B82F6',t:'data'},{from:'airflow',to:'ch',c:'#3B82F6',t:'data'},
+  {from:'airflow',to:'minio',c:'#3B82F6',t:'data'},{from:'airflow',to:'qdrant',c:'#3B82F6',t:'data'},
+  {from:'airflow',to:'soda',c:'#22C55E',t:'quality'},{from:'airflow',to:'dbt',c:'#22C55E',t:'quality'},
+  {from:'airflow',to:'openmeta',c:'#22C55E',t:'quality'},{from:'airflow',to:'llmenrich',c:'#22C55E',t:'quality'},
+  {from:'soda',to:'pg',c:'#22C55E',t:'quality'},{from:'soda',to:'ch',c:'#22C55E',t:'quality'},
+  {from:'soda',to:'minio',c:'#22C55E',t:'quality'},
+  {from:'dbt',to:'pg',c:'#22C55E',t:'quality'},{from:'dbt',to:'ch',c:'#22C55E',t:'quality'},
+  {from:'dbt',to:'minio',c:'#22C55E',t:'quality'},
+  {from:'openmeta',to:'pg',c:'#22C55E',t:'quality'},{from:'openmeta',to:'ch',c:'#22C55E',t:'quality'},
+  {from:'openmeta',to:'minio',c:'#22C55E',t:'quality'},{from:'openmeta',to:'qdrant',c:'#22C55E',t:'quality'},
+  {from:'llmenrich',to:'litellm',c:'#22C55E',t:'quality'},{from:'llmenrich',to:'qdrant',c:'#22C55E',t:'quality'},
+  {from:'llmenrich',to:'pg',c:'#22C55E',t:'quality'},
+  {from:'openmeta',to:'grafana',c:'#8B5CF6',t:'monitor'},
+  {from:'nextjs',to:'kong',c:'#EF4444',t:'query'},{from:'b2b',to:'kong',c:'#EF4444',t:'query'},
+  {from:'website',to:'kong',c:'#EF4444',t:'query'},{from:'usta',to:'kong',c:'#EF4444',t:'query'},
+  {from:'teams',to:'kong',c:'#EF4444',t:'query'},{from:'openwebui',to:'kong',c:'#EF4444',t:'query'},
+  {from:'kong',to:'fastapi',c:'#EF4444',t:'query'},{from:'fastapi',to:'rlscore',c:'#EF4444',t:'query'},
+  {from:'rlscore',to:'langgraph',c:'#EF4444',t:'query'},
+  {from:'langgraph',to:'litellm',c:'#EF4444',t:'query'},
+  {from:'litellm',to:'vllm',c:'#EF4444',t:'query'},{from:'litellm',to:'aoai',c:'#EF4444',t:'query'},
+  {from:'langgraph',to:'llamaindex',c:'#EF4444',t:'query'},{from:'llamaindex',to:'qdrant',c:'#EF4444',t:'query'},
+  {from:'langgraph',to:'temporal',c:'#EF4444',t:'query'},
+  {from:'langgraph',to:'pg',c:'#EF4444',t:'query'},{from:'langgraph',to:'ch',c:'#EF4444',t:'query'},
+  {from:'langgraph',to:'saps4',c:'#10B981',t:'realtime'},{from:'langgraph',to:'salesforce',c:'#10B981',t:'realtime'},
+  {from:'langgraph',to:'sharepoint',c:'#10B981',t:'realtime'},{from:'langgraph',to:'asana',c:'#10B981',t:'realtime'},
+  {from:'n8n',to:'asana',c:'#10B981',t:'realtime'},
+  {from:'entra',to:'kong',c:'#F59E0B',t:'auth'},{from:'entra',to:'rlscore',c:'#F59E0B',t:'auth'},
+  {from:'opa',to:'kong',c:'#F59E0B',t:'auth'},{from:'guardrails',to:'litellm',c:'#F59E0B',t:'auth'},
+  {from:'presidio',to:'guardrails',c:'#F59E0B',t:'auth'},{from:'rlscore',to:'opa',c:'#F59E0B',t:'auth'},
+  {from:'litellm',to:'langfuse',c:'#8B5CF6',t:'monitor'},{from:'mlflow',to:'vllm',c:'#8B5CF6',t:'monitor'},
+  {from:'prometheus',to:'grafana',c:'#8B5CF6',t:'monitor'},
+  {from:'ch',to:'metabase',c:'#8B5CF6',t:'monitor'},{from:'evidently',to:'mlflow',c:'#8B5CF6',t:'monitor'},
+  {from:'soda',to:'grafana',c:'#8B5CF6',t:'monitor'},
+];
+
+const cv=document.getElementById('cv');
+const svg=document.getElementById('svg');
+
+function getCenter(id){
+  const el=document.getElementById(id);if(!el)return{x:0,y:0};
+  const cr=el.getBoundingClientRect(),pr=cv.getBoundingClientRect();
+  return{x:((cr.left-pr.left+cr.width/2)/pr.width)*1000,y:((cr.top-pr.top+cr.height/2)/pr.height)*760};
+}
+
+function drawLines(){
+  let html='<defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M2 2L8 5L2 8" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round"/></marker></defs>';
+  connections.forEach(conn=>{
+    const f=getCenter(conn.from),t=getCenter(conn.to);
+    if(!f.x&&!f.y)return;
+    const dx=t.x-f.x,dy=t.y-f.y;
+    let d;
+    if(Math.abs(dy)>Math.abs(dx)*0.5){
+      const cy=(f.y+t.y)/2+(Math.abs(dx)>100?dx*0.12:0);
+      d='M'+f.x+' '+f.y+' Q'+f.x+' '+cy+' '+t.x+' '+t.y;
+    }else{d='M'+f.x+' '+f.y+' L'+t.x+' '+t.y;}
+    const sw=conn.t==='quality'?1.5:1;
+    const op=conn.t==='quality'?0.45:0.3;
+    const dash=conn.t==='quality'?' stroke-dasharray="4 3"':'';
+    html+='<path d="'+d+'" fill="none" stroke="'+conn.c+'" stroke-width="'+sw+'" opacity="'+op+'" marker-end="url(#ah)" data-from="'+conn.from+'" data-to="'+conn.to+'" data-type="'+conn.t+'" class="conn"'+dash+'/>';
+  });
+  svg.innerHTML=html;
+}
+
+function highlight(nodeId){
+  const connected=new Set([nodeId]);
+  svg.querySelectorAll('.conn').forEach(function(p){
+    const from=p.getAttribute('data-from'),to=p.getAttribute('data-to');
+    if(from===nodeId||to===nodeId){
+      connected.add(from);connected.add(to);
+      p.classList.add('hi');p.classList.remove('dim');p.setAttribute('opacity','0.9');
+    }else{p.classList.add('dim');p.classList.remove('hi');p.setAttribute('opacity','0.03');}
+  });
+  cv.querySelectorAll('.nd').forEach(function(n){
+    if(connected.has(n.id)){n.classList.add('hi');n.classList.remove('dim');}
+    else{n.classList.add('dim');n.classList.remove('hi');}
+  });
+}
+
+function clearHighlight(){
+  cv.querySelectorAll('.nd').forEach(function(n){n.classList.remove('hi','dim');});
+  svg.querySelectorAll('.conn').forEach(function(p){
+    p.classList.remove('hi','dim');
+    var t=p.getAttribute('data-type');
+    p.setAttribute('opacity',t==='quality'?'0.45':'0.3');
+  });
+}
+
+cv.querySelectorAll('.nd').forEach(function(n){
+  n.addEventListener('mouseenter',function(){highlight(n.id);});
+  n.addEventListener('mouseleave',clearHighlight);
+});
+
+setTimeout(drawLines,150);
+window.addEventListener('resize',drawLines);
+</script>
+</body>
+</html>

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Astra Holding — OSS-Hybrid Architecture v2 — ARDICTECH</title>
+<style>
+  :root{--bg:#fff;--bg2:#f8fafc;--text:#0f1b2d;--text2:#6b7280;--border:#e2e8f0;--font:-apple-system,'Segoe UI','Helvetica Neue',Arial,sans-serif}
+  @media(prefers-color-scheme:dark){:root{--bg:#0f1b2d;--bg2:#1e293b;--text:#e2e8f0;--text2:#94a3b8;--border:#334155}}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--font);background:var(--bg);color:var(--text);padding:24px;max-width:960px;margin:0 auto}
+  h1{font-size:20px;font-weight:500;margin-bottom:2px}
+  h2{font-size:14px;font-weight:400;color:var(--text2);margin-bottom:16px}
+  .layer{display:flex;gap:6px;margin-bottom:4px;align-items:stretch}
+  .layer-label{width:94px;min-width:94px;display:flex;align-items:center;justify-content:center;border-radius:6px 0 0 6px;padding:4px 6px;text-align:center}
+  .layer-label span{font-size:10px;font-weight:500;line-height:1.2;color:#fff}
+  .layer-content{flex:1;display:flex;flex-wrap:wrap;gap:4px;padding:6px;border-radius:0 6px 6px 0;border:0.5px solid var(--border)}
+  .comp{padding:5px 8px;border-radius:4px;font-size:11px;line-height:1.3;border:0.5px solid;display:flex;flex-direction:column;align-items:center;text-align:center;min-width:70px}
+  .comp .name{font-weight:500}.comp .tech{font-size:9px;opacity:.7;margin-top:1px}
+  .keep{border-style:dashed !important}
+  .new-badge{font-size:7px;font-weight:500;padding:1px 4px;border-radius:3px;margin-top:2px;display:inline-block}
+  .legend{display:flex;flex-wrap:wrap;gap:10px;font-size:10px;color:var(--text2);margin:8px 0 12px}
+  .legend span{display:flex;align-items:center;gap:4px}
+  .legend .sq{width:10px;height:10px;border-radius:2px;border:0.5px solid}
+  .sep{width:100%;height:0;border-top:2px solid var(--border);margin:6px 0 2px}
+  .note{font-size:10px;color:var(--text2);margin:8px 0 0;line-height:1.5}
+  .medal{font-size:8px;padding:2px 6px;border-radius:3px;margin:1px;display:inline-block;font-weight:500}
+  .medal-row{display:flex;gap:3px;flex-wrap:wrap;margin-top:3px}
+  .ver{font-size:11px;color:var(--text2);margin-bottom:12px;font-style:italic}
+
+  .l-src .layer-label{background:#1E293B}.l-ing .layer-label{background:#7C3AED}.l-str .layer-label{background:#2563EB}
+  .l-ai .layer-label{background:#DC2626}.l-agt .layer-label{background:#D97706}.l-sec .layer-label{background:#0F172A}
+  .l-api .layer-label{background:#0EA5A0}.l-ui .layer-label{background:#16A34A}.l-mon .layer-label{background:#6B7280}
+
+  .c-src{background:#F1F5F9;color:#1E293B;border-color:#94A3B8}
+  .c-ing{background:#EDE9FE;color:#3C3489;border-color:#AFA9EC}
+  .c-str{background:#DBEAFE;color:#0C447C;border-color:#85B7EB}
+  .c-ai{background:#FEE2E2;color:#791F1F;border-color:#F09595}
+  .c-agt{background:#FFF7ED;color:#633806;border-color:#EF9F27}
+  .c-sec{background:#F1F5F9;color:#0F172A;border-color:#64748B}
+  .c-api{background:#CCFBF1;color:#085041;border-color:#5DCAA5}
+  .c-ui{background:#DCFCE7;color:#166534;border-color:#97C459}
+  .c-mon{background:#F3F4F6;color:#374151;border-color:#B4B2A9}
+  .c-ms{background:#FFF7ED;color:#92400E;border-color:#D97706}
+  .c-new{background:#F0FDF4;color:#14532D;border-color:#22C55E;border-width:1.5px}
+  .nb-green{background:#DCFCE7;color:#14532D}.nb-blue{background:#DBEAFE;color:#1E40AF}
+
+  @media(prefers-color-scheme:dark){
+    .c-src{background:#1E293B;color:#CBD5E1;border-color:#475569}
+    .c-ing{background:#2D2456;color:#C4B5FD;border-color:#7C3AED}
+    .c-str{background:#1E3A5F;color:#93C5FD;border-color:#3B82F6}
+    .c-ai{background:#450A0A;color:#FCA5A5;border-color:#DC2626}
+    .c-agt{background:#451A03;color:#FCD34D;border-color:#D97706}
+    .c-sec{background:#1E293B;color:#CBD5E1;border-color:#475569}
+    .c-api{background:#042F2E;color:#5EEAD4;border-color:#0D9488}
+    .c-ui{background:#052E16;color:#86EFAC;border-color:#16A34A}
+    .c-mon{background:#1F2937;color:#D1D5DB;border-color:#6B7280}
+    .c-ms{background:#451A03;color:#FCD34D;border-color:#D97706}
+    .c-new{background:#052E16;color:#86EFAC;border-color:#22C55E;border-width:1.5px}
+    .nb-green{background:#14532D;color:#86EFAC}.nb-blue{background:#1E3A5F;color:#93C5FD}
+  }
+  @media print{.layer-label,.comp{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+</style>
+</head>
+<body>
+<h1>Astra Holding — Enterprise AI platform — OSS-Hybrid architecture v2</h1>
+<h2>Enhanced with data quality, governance & medallion pipeline</h2>
+<div class="ver">ARDICTECH · March 2026 · Confidential · v2.0</div>
+
+<div class="legend">
+  <span><span class="sq" style="background:#DBEAFE;border-color:#85B7EB"></span>OSS component (solid border)</span>
+  <span><span class="sq" style="background:#FFF7ED;border-color:#D97706;border-style:dashed"></span>Microsoft retained (dashed)</span>
+  <span><span class="sq" style="background:#F0FDF4;border-color:#22C55E;border-width:2px"></span>New: data quality & governance</span>
+</div>
+
+<div class="layer l-ui"><div class="layer-label"><span>9<br>Channels &<br>UI</span></div><div class="layer-content">
+  <div class="comp c-ui"><span class="name">Next.js</span><span class="tech">Web apps</span></div>
+  <div class="comp c-ui"><span class="name">B2B Portal</span><span class="tech">Sales reps</span></div>
+  <div class="comp c-ui"><span class="name">Website Widget</span><span class="tech">Consumers</span></div>
+  <div class="comp c-ui"><span class="name">Usta Portal</span><span class="tech">Technicians</span></div>
+  <div class="comp c-ms keep"><span class="name">Teams Bot</span><span class="tech">Bot Framework</span></div>
+  <div class="comp c-ui"><span class="name">Open WebUI</span><span class="tech">Internal chat</span></div>
+</div></div>
+
+<div class="layer l-api"><div class="layer-label"><span>8<br>API &<br>Gateway</span></div><div class="layer-content">
+  <div class="comp c-api"><span class="name">Kong</span><span class="tech">API gateway</span></div>
+  <div class="comp c-api"><span class="name">FastAPI</span><span class="tech">REST endpoints</span></div>
+  <div class="comp c-api"><span class="name">WebSocket</span><span class="tech">Streaming</span></div>
+</div></div>
+
+<div class="layer l-agt"><div class="layer-label"><span>7<br>Agent<br>Orchestration</span></div><div class="layer-content">
+  <div class="comp c-agt"><span class="name">LangGraph</span><span class="tech">Agentic workflows</span></div>
+  <div class="comp c-agt"><span class="name">Temporal</span><span class="tech">Durable processes</span></div>
+  <div class="comp c-agt"><span class="name">n8n</span><span class="tech">Business automation</span></div>
+  <div class="comp c-ms keep"><span class="name">Copilot Studio</span><span class="tech">Simple Teams flows</span></div>
+</div></div>
+
+<div class="layer l-ai"><div class="layer-label"><span>6<br>AI / ML<br>Core</span></div><div class="layer-content">
+  <div class="comp c-ai"><span class="name">vLLM</span><span class="tech">Self-hosted inference</span></div>
+  <div class="comp c-ai"><span class="name">LiteLLM</span><span class="tech">Unified LLM proxy</span></div>
+  <div class="comp c-ms keep"><span class="name">Azure OpenAI</span><span class="tech">GPT-4o fallback</span></div>
+  <div class="comp c-ai"><span class="name">LlamaIndex</span><span class="tech">RAG orchestration</span></div>
+  <div class="comp c-ai"><span class="name">MLflow</span><span class="tech">Model registry</span></div>
+  <div class="comp c-ai"><span class="name">Langfuse</span><span class="tech">LLM observability</span></div>
+</div></div>
+
+<div class="layer l-sec"><div class="layer-label"><span>5<br>Security &<br>Identity</span></div><div class="layer-content">
+  <div class="comp c-ms keep"><span class="name">Entra ID</span><span class="tech">SSO / OIDC</span></div>
+  <div class="comp c-sec"><span class="name">RLS Core Engine</span><span class="tech">Shared security svc</span></div>
+  <div class="comp c-sec"><span class="name">OPA</span><span class="tech">Policy enforcement</span></div>
+  <div class="comp c-sec"><span class="name">Guardrails AI</span><span class="tech">LLM input/output</span></div>
+  <div class="comp c-ms keep"><span class="name">Presidio</span><span class="tech">PII detection (OSS)</span></div>
+</div></div>
+
+<div class="layer l-str"><div class="layer-label"><span>4<br>Data<br>Storage<br><span style="font-size:8px;opacity:.7">(Medallion)</span></span></div><div class="layer-content">
+  <div class="comp c-str"><span class="name">PostgreSQL</span><span class="tech">Transactional + pgvector</span><div class="medal-row"><span class="medal" style="background:#FEF3C7;color:#92400E">B</span><span class="medal" style="background:#D1D5DB;color:#374151">S</span><span class="medal" style="background:#FDE68A;color:#78350F">G</span></div></div>
+  <div class="comp c-str"><span class="name">ClickHouse</span><span class="tech">Analytics (100x faster)</span><div class="medal-row"><span class="medal" style="background:#FEF3C7;color:#92400E">B</span><span class="medal" style="background:#D1D5DB;color:#374151">S</span><span class="medal" style="background:#FDE68A;color:#78350F">G</span></div></div>
+  <div class="comp c-str"><span class="name">MinIO + Iceberg</span><span class="tech">Data lake (open fmt)</span><div class="medal-row"><span class="medal" style="background:#FEF3C7;color:#92400E">B</span><span class="medal" style="background:#D1D5DB;color:#374151">S</span><span class="medal" style="background:#FDE68A;color:#78350F">G</span></div></div>
+  <div class="comp c-str"><span class="name">Qdrant</span><span class="tech">Vector search</span><div class="medal-row"><span class="medal" style="background:#FEF3C7;color:#92400E">raw</span><span class="medal" style="background:#FDE68A;color:#78350F">enriched</span></div></div>
+</div></div>
+
+<div class="layer l-ing"><div class="layer-label"><span>3<br>Ingestion<br>Quality &<br>Governance</span></div><div class="layer-content">
+  <div class="comp c-ing"><span class="name">Apache Airflow</span><span class="tech">ETL orchestration</span></div>
+  <div class="comp c-ing"><span class="name">Redpanda</span><span class="tech">Event streaming</span></div>
+  <div class="comp c-ing"><span class="name">Debezium</span><span class="tech">CDC connectors</span></div>
+  <div class="comp c-ms keep"><span class="name">Azure Doc Intel.</span><span class="tech">PDF/transcript extract</span></div>
+  <div class="comp c-new"><span class="name">Soda Core</span><span class="tech">Data quality checks</span><span class="new-badge nb-green">NEW</span></div>
+  <div class="comp c-new"><span class="name">dbt Core</span><span class="tech">Bronze→Silver→Gold</span><span class="new-badge nb-green">NEW</span></div>
+  <div class="comp c-new"><span class="name">OpenMetadata</span><span class="tech">Catalog + lineage</span><span class="new-badge nb-green">NEW</span></div>
+  <div class="comp c-new"><span class="name">LLM Enrichment</span><span class="tech">AI-powered data curation</span><span class="new-badge nb-blue">NEW</span></div>
+</div></div>
+
+<div class="layer l-mon"><div class="layer-label"><span>2<br>Monitoring<br>& Ops</span></div><div class="layer-content">
+  <div class="comp c-mon"><span class="name">Grafana</span><span class="tech">Dashboards</span></div>
+  <div class="comp c-mon"><span class="name">Prometheus</span><span class="tech">Metrics</span></div>
+  <div class="comp c-mon"><span class="name">Evidently AI</span><span class="tech">Model drift</span></div>
+  <div class="comp c-mon"><span class="name">Metabase</span><span class="tech">Self-serve analytics</span></div>
+  <div class="comp c-ms keep"><span class="name">Power BI</span><span class="tech">If licensed</span></div>
+</div></div>
+
+<div class="sep"></div>
+
+<div class="layer l-src"><div class="layer-label"><span>1<br>External<br>Sources</span></div><div class="layer-content">
+  <div class="comp c-src"><span class="name">SAP BW4/HANA</span><span class="tech">MDX / XMLA</span></div>
+  <div class="comp c-src"><span class="name">SAP BPC</span><span class="tech">BAPI / API</span></div>
+  <div class="comp c-src"><span class="name">SAP S/4HANA</span><span class="tech">OData / CDS / RFC</span></div>
+  <div class="comp c-src"><span class="name">SQL Server</span><span class="tech">KBY (JDBC)</span></div>
+  <div class="comp c-src"><span class="name">PIM</span><span class="tech">XML feed (nightly)</span></div>
+  <div class="comp c-src"><span class="name">PLM</span><span class="tech">API</span></div>
+  <div class="comp c-ms keep"><span class="name">SharePoint</span><span class="tech">Graph API</span></div>
+  <div class="comp c-src"><span class="name">Salesforce</span><span class="tech">REST / SOQL</span></div>
+  <div class="comp c-src"><span class="name">Excel / CSV</span><span class="tech">File staging</span></div>
+</div></div>
+
+<div class="note">
+  <strong>v2 changes from v1:</strong> Layer 3 expanded to "Ingestion, Quality & Governance" with 4 new modular components: <strong>Soda Core</strong> (YAML-based quality validation as Airflow task operators), <strong>dbt Core</strong> (SQL-based Bronze→Silver→Gold transformations, per-UC projects), <strong>OpenMetadata</strong> (data catalog, automated lineage, profiling, searchable asset registry for operational handoff), <strong>LLM Enrichment Service</strong> (AI-powered data curation: document classification, entity extraction, product quality scoring, cross-source ID reconciliation — all via LiteLLM proxy as modular Airflow DAGs). Layer 4 gains internal Medallion structure: Bronze (raw as-ingested), Silver (cleaned, validated, cross-referenced), Gold (business-ready, UC-optimized). All new components are independently replaceable and orchestrated through existing Airflow. Estimated additional effort: 35–45 person-days across A0–A1.
+</div>
+<div class="note" style="margin-top:12px">
+  Dashed-border components retained from Microsoft. All other components are open-source, self-hostable, and vendor-independent. Core principle: LLM is a reasoning engine over <em>governed, quality-assured</em> data — never the source of truth.
+</div>
+</body>
+</html>

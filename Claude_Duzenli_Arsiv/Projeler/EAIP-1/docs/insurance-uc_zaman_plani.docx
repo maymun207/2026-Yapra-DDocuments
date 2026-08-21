@@ -1,0 +1,144 @@
+**ARDICTECH**
+
+Hazırlayan: ARDICTECH   ·   Hazırlanma tarihi: **[TARİH]**   ·   Sürüm: v0.3 — Müzakere taslağı
+
+**Fire ****&**** Engineering Facultative Offer Triage Assistant**
+
+*Proje zaman planı ve müşteri milestone**'**ları — Yerinde kurulum, iç kullanım odaklı*
+
+# **Genel bakış**
+
+İhtiyari yangın ve mühendislik reasüransı tekliflerinin otomatik olarak ayrıştırılması, sınıflandırılması ve takip edilmesi amacıyla geliştirilen sistem, müşteri altyapısında tamamen yerinde kurulum modeliyle teslim edilir. Proje 7 ay süreyle planlanmıştır ve üç ana müşteri milestone'u etrafında organize edilmiştir: 3. ayda PoC demosu, 5. ayda iç kullanımın başlaması, 7. ayda canlıya geçiş.
+
+Bu belge, projenin teslimat takvimini, her milestone'da nelerin teslim edileceğini ve kabul kriterlerini özetler. Detaylı teknik plan ayrı bir teslimat belgesinde mevcuttur.
+
+# **Müşteri milestone****'****ları ve zaman çizelgesi**
+
+*Şekil 1 — Üç müşteri milestone**'**unun (MS#1, MS#2, MS#3) ARDICTECH**'**in altı iç teslimat milestone**'**uyla (M0–M5) eşlenmesi.*
+
+# **Milestone detayları**
+
+| **MS#1 — Proof of Concept demosu** | **Ay 3 (Hafta 13)** |
+| --- | --- |
+
+Sistemin gelen mailleri okuyabildiğini, yapılandırılmış veri çıkarabildiğini ve teklifleri mevcut kayıtlarla eşleştirebildiğini gösteren ilk değer teslimat noktası. ARU/KARU entegrasyonu bu aşamada henüz yapılmamıştır; üç birincil kaynak (dosya paylaşımları + Outlook) üzerinden çalışan bir PoC sunulur.
+
+**Teslim edilenler**
+
+- Müşteri altyapısında çalışan on-prem platform stack'i
+
+- Exchange üzerinden mail alımı
+
+- Yapılandırılmış JSON üreten extraction servisi
+
+- VKN doğrulama, tarih kontrolü dahil validation engine
+
+- Bound Accounts ve Submissions klasörleri için indekslenmiş arama
+
+- Outlook arama entegrasyonu
+
+- Üç kaynak üzerinden çalışan temel sınıflandırma
+
+- Canlı PoC demo kabiliyeti
+
+**Kabul kriterleri**
+
+- Test corpus'unda extraction doğruluğu ≥ %85
+
+- Geçmiş örneklerin ≥ %90'ında doğru eşleşme (3 kaynak)
+
+- Müşteri iş sahibine başarılı uçtan uca PoC demosu
+
+*İç teslimat milestone**'**ları: M0 (H1-3), M1 (H4-9), M2**'**nin büyük bölümü (H10-14)*
+
+| **MS#2 — İç alfa başlangıcı** | **Ay 5 (Hafta 20)** |
+| --- | --- |
+
+Sistem tam fonksiyonel hale gelir: ARU/KARU entegre edilmiş, sınıflandırma motoru tamamlanmış, field expertlerin AI çıktılarını inceleyip düzeltebileceği verification tool çalışır durumdadır, uyarı sistemi konfigüre edilmiş ve field expertler sistemi günlük iş akışında kullanmaya başlar. Bu milestone, MS#3'e kadar sürecek 8 haftalık iç alfa fazının başlangıcıdır.
+
+**Teslim edilenler**
+
+- ARU/KARU dahil tam 4 kaynak lookup
+
+- Audit trail içeren deterministik sınıflandırma motoru
+
+- Top-3 öneri ile Faaliyet Kodu eşleştirici
+
+- Takip dashboard'u
+
+- Field expertler için verification ve düzeltme arayüzü
+
+- E-posta ve chat platformları üzerinden uyarı sistemi
+
+- İç doküman analizi bileşeni (M0'da kapsamı netleşecek)
+
+- Excel export ve Outlook reply otomasyonu
+
+- Role bazlı erişim kontrolü (RBAC)
+
+- Field expertler eğitilmiş ve sistemi aktif kullanıyor
+
+**Kabul kriterleri**
+
+- 100 maillik kör test setinde sınıflandırma ≥ %90 doğru
+
+- Faaliyet top-3 önerisi ≥ %85 doğruluk içeriyor
+
+- En az 3 field expert verification tool'u en az 1 hafta gerçek mailler üzerinde kullanıyor
+
+- Uyarılar tüm konfigüre kanallara hedef gecikme süresi içinde iletiliyor
+
+*İç teslimat milestone**'**ları: M2**'**nin son haftası (H14), M3 (H13-18), M4 (H17-20)*
+
+| **MS#3 — Version 1 production canlıya geçiş** | **Ay 7 (Hafta 28)** |
+| --- | --- |
+
+Underwriter ekibinin tamamı için production cutover gerçekleştirilir, müşterinin BT operasyon ekibine operasyonel devir tamamlanır ve 30 gün ardışık stabil çalışma teyit edilir. Uygulama teslimatının resmi olarak sonu ve canlı destek dönemiyle olan başlangıcıdır.
+
+**Teslim edilenler**
+
+- Tüm underwriterlar için production cutover
+
+- Eğitilmiş ve operasyonel müşteri BT ekibi
+
+- Rutin operasyon, olay yanıtı ve eskalasyon süreçlerini kapsayan runbook
+
+- Sistem sağlığı ve doğruluk metrikleri için monitoring dashboard'ları
+
+- On-call süreç devri (ilk 90 gün ARDICTECH eskalasyon kanalı dahil)
+
+- Müşteri takdirine göre ayarlanan auto-confirm eşikleri
+
+- İlk 30 günlük canlı çalışmanın doğruluk ve zaman tasarrufu raporu
+
+**Kabul kriterleri**
+
+- Kritik olay olmadan 30 gün ardışık production çalışma
+
+- Underwriterların intake süresi tasarrufunu teyit etmesi
+
+- Müşteri BT operasyon ekibinin operasyonel devri kabul etmesi
+
+*İç teslimat milestone**'**u: M5 (H21-28, pilot + production + handover)*
+
+# **Teslimat yaklaşımı**
+
+Üç müşteri milestone'u kabul ve ödeme için kullanılır. Bunları destekleyen altı iç ARDICTECH teslimat milestone'u (M0-M5), teknik yürütme ve risk yönetimi için ARDICTECH tarafından kullanılır; müşterinin incelemesi veya onayı gerekmez.
+
+**Yerinde kurulum modeli**
+
+Tüm sistem bileşenleri müşterinin altyapısında çalışır. LLM inference dahil hiçbir veri müşteri ağından çıkmaz. Kimlik doğrulama müşterinin AD veya Entra ID'si ile entegre edilir.
+
+**İç kullanım odaklı lisans**
+
+Yerleştirilen uygulama, müşterinin organizasyonu içinde, kendi underwriting ekiplerinin iç kullanımı için lisanslanır. Çok kiracılı dağıtım, white-label ve üçüncü taraflara hosting kapsam dışındadır.
+
+**Aşamalı ödeme yapısı**
+
+Implementation fee üç tranşta ödenir: %25 MS#1 kabulünde, %45 MS#2 kabulünde, %30 MS#3 kabulünde. Lisans bedeli ve yıllık destek aboneliği ayrı kalemler olarak yapılandırılır.
+
+**Operasyonel devir**
+
+MS#3'te ARDICTECH sistemi müşterinin BT operasyon ekibine devreder. İlk 90 gün boyunca eskalasyon kanalı açık tutulur; sonrasında destek yıllık abonelik üzerinden yürütülür.
+
+© ARDICTECH — Müzakere amaçlı taslak · v0.3 · Bağlayıcı değildir · Sayfa

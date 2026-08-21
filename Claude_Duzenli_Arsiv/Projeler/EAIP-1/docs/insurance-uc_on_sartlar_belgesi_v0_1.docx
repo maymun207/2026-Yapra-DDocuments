@@ -1,0 +1,26 @@
+**ARDICTECH × [Şirket Adı]**
+
+Sigorta Sektörü Platform Ortaklığı
+
+*İndikatif Ön Şartlar Belgesi · Müzakere Taslağı v0.1   **Yayın tarihinden itibaren 30 gün geçerlidir*
+
+Bu belge, ARDICTECH'in temel platformu sağladığı ve İşletmeci'nin Türkiye'deki sigorta şirketlerine yönelik çok kiracılı bir SaaS çözümü sunduğu ortaklık için indikatif ticari şartları ortaya koymaktadır. Aşağıdaki maddeler yalnızca indikatif niteliktedir, hukuken bağlayıcı değildir ve Ana Hizmet Sözleşmesi, Lisans Sözleşmesi ile İş Tanımı Belgesi çerçevesinde resmi olarak belgelenmesine tabidir.
+
+| **Madde** | **İndikatif Pozisyon** |
+| --- | --- |
+| **Taraflar** | ARDICTECH (Platform Sağlayıcı) ve [Şirket Adı] (İşletmeci) |
+| **İşbirliği yapısı** | Faz 1 — İşletmeci'nin kendi iç kullanımı için tek kiracılı, yerinde kurulum uygulama (mevcut teklif kapsamına uygun). Faz 2 — İşletmeci'nin Türkiye'deki sigorta şirketlerine yönelik bir SaaS hizmeti sunmasını sağlayan çok kiracılı platform genişlemesi. |
+| **Uygulama bedelleri** | Sabit ücret, kilometre taşı bazlı, kabul kriterleri karşılığında ödenir. İndikatif aralıklar: Faz 1: USD 450.000 – 600.000.   Faz 2: USD 250.000 – 400.000. Nihai tutarlar Keşif aşamasında (M0) kesinleştirilir. Bedeller yalnızca mühendislik teslimatını kapsar; platform fikri mülkiyet devri içermez. |
+| **Gelir paylaşımı** | İşletmeci'nin üçüncü taraf kiracılardan elde ettiği net SaaS abonelik gelirinden kademeli pay: İlk USD 500.000 yıllık tekrarlayan gelirin (ARR) %35'i  •  Sonraki USD 1.000.000 ARR'nin %30'u  •  USD 1.500.000 üzerindeki ARR'nin %25'i. İşletmeci'nin kendi iç kullanımı gelir paylaşımı kapsamı dışındadır. |
+| **Asgari yıllık taahhüt** | Ticari faaliyetin 2. yılından itibaren yıllık USD 75.000, aynı yıl içinde kazanılan gelir paylaşımına mahsup edilebilir. Pazara çıkış beklenenden yavaş seyrettiğinde platform yatırımını koruma amaçlıdır. |
+| **Platform fikri mülkiyet ve lisans** | ARDICTECH tüm platform fikri mülkiyet haklarını elinde tutar: kaynak kod, model komutları (prompts), mimari varlıklar ve operasyonel know-how. İşletmeci, mutabık kalınan kapsam dahilinde platformu işletmek üzere devredilemez ve münhasır olmayan bir lisans alır; lisans, gelir paylaşımının devamına bağlıdır. Gerektiğinde iş sürekliliği için kaynak kod emaneti (escrow) düzenlemesi mümkündür. |
+| **İşletmeci münhasırlığı** | Türkiye'de sigorta sektörü için platformu işletme konusunda canlıya alma tarihinden itibaren 3 yıl süreyle münhasır hak. Münhasırlık, ticari kilometre taşlarına bağlıdır: 1. yıl sonunda en az 3 ücretli üçüncü taraf kiracı, 2. yıl sonunda en az 7 ücretli kiracı. Kilometre taşlarının karşılanmaması durumunda münhasırlık, münhasır olmayan bir yapıya dönüşür. |
+| **ARDICTECH****'****in saklı hakları** | Türkiye dışındaki tüm haklar (Orta Doğu, Balkanlar, Orta Asya dahil). Sigorta dışındaki tüm sektörlerdeki haklar. İşletmeci'nin hizmet veremediği veya hizmet vermeyi reddettiği belirli sigorta müşterilerine doğrudan satış yapma hakkı. |
+| **Süre ve yenileme** | Başlangıç süresi: Faz 2 canlıya alma tarihinden itibaren 5 yıl. Karşılıklı yazılı mutabakatla 3 yıllık dönemler halinde yenilenebilir. Gelir paylaşımı, fesih sonrasında yalnızca mevcut üçüncü taraf kiracı sözleşmelerinin süresince devam eder. |
+| **Fesih** | Standart haklı sebep ile fesih hükümleri (ihlal giderme süresi tanınmak suretiyle esaslı ihlal). Tarafların herhangi birinin 12 aylık yazılı bildirim ile sebepsiz fesih hakkı; her iki tarafın çıkarlarını ve kiracı sürekliliğini koruyan çıkış düzenlemelerine tabidir. |
+| **Yönetişim** | Her taraftan iki temsilcinin yer alacağı Ortak Ürün Komitesi. Üç aylık yol haritası incelemeleri. Mutabık kalınan yol haritası dışındaki özel geliştirmeler, ARDICTECH standart ücretleri üzerinden ayrıca kapsamlandırılır ve fiyatlandırılır. |
+| **İşletmeci ve kiracı sorumlulukları** | İşletmeci, üçüncü taraf kiracılarına karşı asıl sözleşme tarafıdır ve kiracılara yönelik tüm ticari sözleşmeleri, destek ve SLA taahhütlerini elinde bulundurur. ARDICTECH, ayrı bir destek sözleşmesi çerçevesinde İşletmeci'ye platform seviyesinde SLA sağlar; bu kapsam gelir paylaşımı ekonomisine dahildir. |
+
+**Sonraki adımlar:  **(1) İşletmeci tarafından indikatif şartların incelenmesi ve müzakeresi.  (2) Ortaklık yapısı üzerinde mutabakat için ortak ticari çalıştay.  (3) Karşılıklı ön şartlar mutabakatının ardından Keşif (M0) aşamasının başlatılması.  (4) Keşif aşamasıyla paralel olarak resmi Ana Hizmet Sözleşmesi ve Lisans Sözleşmesi'nin hazırlanması.
+
+*Durum: Müzakere amaçlı, bağlayıcı olmayan indikatif şartlardır. ARDICTECH tarafından ticari diyaloğu kolaylaştırmak üzere iyi niyetle düzenlenmiştir. Kesin ve nihai sözleşmeler imzalanana kadar hiçbir taraf ilerleme yükümlülüğü altında değildir.*

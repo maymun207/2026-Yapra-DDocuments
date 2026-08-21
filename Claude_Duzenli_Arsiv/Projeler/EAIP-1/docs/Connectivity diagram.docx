@@ -1,0 +1,27 @@
+**Connectivity diagram**
+
+Hover over any component to see exactly what it connects to. The five connection types tell different stories:
+
+Red (query path) — the hot path a user query takes: Channel → Kong → FastAPI → RLS Core Engine → LangGraph → LiteLLM → vLLM or Azure OpenAI. LangGraph also reaches into LlamaIndex → Qdrant for RAG retrieval, and directly queries PostgreSQL/ClickHouse for deterministic data.
+
+Blue (data flow) — the ingestion pipeline: all 9 external sources feed through Airflow into the four storage engines (PostgreSQL, ClickHouse, MinIO/Iceberg, Qdrant). Debezium provides CDC into Redpanda for real-time streaming to ClickHouse.
+
+Green (real-time API) — LangGraph agents calling external systems directly during query execution: SAP S/4HANA for live stock/pricing, Salesforce for CRM data, SharePoint for document retrieval, Asana for action tracking. These are the "tool calls" the agents make.
+
+Amber (auth/security) — Entra ID feeds both Kong (authentication) and the RLS Core Engine (identity → scope resolution). OPA enforces policies at Kong. Guardrails AI + Presidio validate LLM inputs/outputs through LiteLLM.
+
+Purple (monitoring) — LiteLLM reports to Langfuse (LLM observability). MLflow serves models to vLLM. Prometheus feeds Grafana. ClickHouse feeds Metabase for self-serve analytics. Evidently AI monitors model drift via MLflow.
+
+Want me to save this as a standalone HTML file too?
+
+The updated connectivity diagram now shows all 35 components with the 4 new data quality components sitting between the pipeline layer and the storage layer. Hover over any of them to see how they connect:
+
+Soda Core — connected to Airflow (orchestration), PostgreSQL, ClickHouse, and MinIO (validates data in all three storage engines at Bronze, Silver, and Gold checkpoints), and Grafana (quality metrics dashboards).
+
+dbt Core — connected to Airflow (triggers dbt runs as DAG tasks), PostgreSQL, ClickHouse, and MinIO (executes Bronze→Silver→Gold transformations across all storage engines).
+
+OpenMetadata — the most connected new component. Links to all four storage engines (catalogs and profiles every table/collection), Airflow (captures DAG lineage automatically), and Grafana (data quality dashboards visible in the monitoring stack).
+
+LLM Enrichment — connected to Airflow (orchestrated as DAGs), LiteLLM (calls the LLM proxy for classification, entity extraction, quality scoring), and writes enriched results back to Qdrant (enriched embeddings with classification tags) and PostgreSQL (enriched metadata columns in Gold tables).
+
+The green dashed lines are the new data quality flow connections — visually distinct from the existing blue (data), red (query/AI), amber (auth), and purple (monitoring) connection types. When you hover over Airflow, you can see it's now the central orchestrator for both the data pipeline AND the quality pipeline — exactly as designed, with zero new orchestration tools needed.

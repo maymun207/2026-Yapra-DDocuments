@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARDICTECH — Strateji Haritası ve Yapılabilirlik Sentezi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ground:#0E1116;
+    --ground-2:#0B0E12;
+    --panel:#161B22;
+    --panel-2:#1C2230;
+    --line:#28303C;
+    --line-soft:#1F2630;
+    --text:#E6EAF0;
+    --muted:#9AA4B2;
+    --muted-2:#6E7886;
+    /* forge heat — the moat / manufacturing furnace */
+    --heat-1:#F2A33C;
+    --heat-2:#E8632A;
+    --heat-glow:rgba(232,99,42,.20);
+    /* steel — substrate / platform */
+    --steel-1:#7FB5CE;
+    --steel-2:#5B9DBF;
+    /* go / feasible */
+    --go:#6FBF73;
+    --go-deep:#3E8E54;
+    /* stop / trap */
+    --stop:#E5484D;
+    --stop-deep:#B5343A;
+    /* caution */
+    --caution:#E3B341;
+    --maxw:1140px;
+    --r:14px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;background:
+      radial-gradient(1200px 600px at 78% -8%, rgba(232,99,42,.10), transparent 60%),
+      radial-gradient(900px 500px at 0% 8%, rgba(91,157,191,.07), transparent 55%),
+      var(--ground);
+    color:var(--text);
+    font-family:'Inter',system-ui,sans-serif;
+    line-height:1.62;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+  h1,h2,h3,h4{font-family:'Space Grotesk',sans-serif;font-weight:600;letter-spacing:-.01em;line-height:1.15;margin:0}
+  .mono{font-family:'JetBrains Mono',monospace}
+  a{color:var(--steel-1)}
+
+  /* ---------- HERO ---------- */
+  header.hero{padding:70px 0 34px;border-bottom:1px solid var(--line-soft);position:relative;overflow:hidden}
+  .eyebrow{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--heat-1);display:flex;gap:14px;align-items:center}
+  .eyebrow::before{content:"";width:34px;height:2px;background:linear-gradient(90deg,var(--heat-2),var(--heat-1));display:inline-block}
+  h1.title{font-size:clamp(30px,5vw,52px);font-weight:700;margin:18px 0 0;line-height:1.05}
+  h1.title .heat{background:linear-gradient(92deg,var(--heat-1),var(--heat-2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .meta{margin-top:16px;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--muted-2);display:flex;flex-wrap:wrap;gap:8px 22px}
+  .spine{margin-top:26px;max-width:880px;font-size:17px;color:var(--text)}
+  .spine b{color:#fff;font-weight:600}
+  .spine .hl{color:var(--heat-1);font-weight:600}
+
+  /* ---------- SECTION ---------- */
+  section{padding:54px 0;border-bottom:1px solid var(--line-soft)}
+  .sec-head{display:flex;align-items:baseline;gap:16px;margin-bottom:8px}
+  .sec-num{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--heat-1);letter-spacing:.1em}
+  h2{font-size:clamp(22px,3vw,30px)}
+  .sec-sub{color:var(--muted);margin:10px 0 30px;max-width:820px;font-size:15.5px}
+
+  /* ---------- STRATEGY STACK (signature) ---------- */
+  .stack{display:flex;flex-direction:column;gap:0;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:var(--ground-2)}
+  .band{position:relative;padding:22px 22px 24px}
+  .band + .band{border-top:1px solid var(--line)}
+  .band-label{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+  .tag{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;padding:4px 9px;border-radius:6px;border:1px solid currentColor;font-weight:600}
+  .band-title{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:15px;color:var(--muted)}
+  .band-note{font-size:13px;color:var(--muted-2);margin-left:auto;text-align:right;max-width:46%}
+
+  .band.moat{background:
+      linear-gradient(180deg,rgba(232,99,42,.16),rgba(232,99,42,.04)),
+      radial-gradient(440px 130px at 22% 0%,var(--heat-glow),transparent 70%);}
+  .band.moat .tag{color:var(--heat-1)}
+  .band.fuel{background:linear-gradient(180deg,rgba(227,179,65,.05),transparent)}
+  .band.fuel .tag{color:var(--caution)}
+  .band.base .tag{color:var(--steel-1)}
+
+  .nodes{display:flex;flex-wrap:wrap;gap:12px}
+  .node{flex:1 1 220px;min-width:200px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:15px 16px;transition:transform .18s ease,border-color .18s ease}
+  .node:hover{transform:translateY(-3px)}
+  .node h4{font-size:15.5px;display:flex;align-items:center;gap:9px}
+  .node .role{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted-2);text-transform:uppercase;letter-spacing:.08em;margin-top:3px}
+  .node p{margin:9px 0 0;font-size:13.3px;color:var(--muted);line-height:1.5}
+  .node.flag{border-color:rgba(232,99,42,.5);background:linear-gradient(180deg,rgba(232,99,42,.08),var(--panel))}
+  .node.flag:hover{border-color:var(--heat-1)}
+  .dot{width:9px;height:9px;border-radius:50%;flex:none}
+  .dot.heat{background:var(--heat-1);box-shadow:0 0 10px var(--heat-2)}
+  .dot.steel{background:var(--steel-1)}
+  .dot.caution{background:var(--caution)}
+
+  .flow{display:flex;justify-content:center;padding:6px 0;color:var(--muted-2);font-size:12px;font-family:'JetBrains Mono',monospace;letter-spacing:.1em;background:var(--ground-2)}
+  .flow span{display:inline-flex;align-items:center;gap:8px}
+  .flow .arr{color:var(--heat-2)}
+
+  /* trap rail */
+  .traps{margin-top:18px;border:1px solid rgba(229,72,77,.4);border-radius:14px;background:linear-gradient(180deg,rgba(229,72,77,.07),transparent);padding:18px 20px}
+  .traps h3{font-size:15px;color:var(--stop);display:flex;align-items:center;gap:10px;margin-bottom:12px}
+  .traps h3 .tag{color:var(--stop)}
+  .trap-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+  .trap{font-size:13.2px;color:var(--muted);padding-left:18px;position:relative}
+  .trap::before{content:"✕";position:absolute;left:0;top:1px;color:var(--stop);font-size:12px;font-weight:700}
+  .trap b{color:#fff;font-weight:600}
+
+  /* ---------- ENTITY CARDS (pros/cons) ---------- */
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:18px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column}
+  .card-top{padding:18px 78px 14px 18px;border-bottom:1px solid var(--line);position:relative;cursor:pointer;-webkit-tap-highlight-color:transparent}
+  .card-top::after{content:"Neden ▾";position:absolute;top:17px;right:16px;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.06em;color:var(--muted-2);transition:color .2s}
+  .card-top:hover::after{color:var(--heat-1)}
+  .card.open .card-top::after{content:"Kapat ▴";color:var(--heat-1)}
+  .card-top h3{font-size:18px;display:flex;align-items:center;gap:10px}
+  .chip{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;padding:3px 8px;border-radius:5px;font-weight:600;border:1px solid currentColor}
+  .card .role-line{font-size:13px;color:var(--muted);margin-top:8px}
+  .accent-heat{border-top:3px solid var(--heat-2)}
+  .accent-steel{border-top:3px solid var(--steel-2)}
+  .accent-caution{border-top:3px solid var(--caution)}
+  .pc{padding:14px 18px 18px;display:grid;gap:13px}
+  .pc h5{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin:0 0 7px;display:flex;align-items:center;gap:7px}
+  .pc .pros h5{color:var(--go)}
+  .pc .cons h5{color:var(--stop)}
+  .pc ul{margin:0;padding:0;list-style:none;display:grid;gap:6px}
+  .pc li{font-size:13.2px;color:var(--muted);padding-left:17px;position:relative;line-height:1.45}
+  .pc .pros li::before{content:"+";position:absolute;left:0;color:var(--go);font-weight:700}
+  .pc .cons li::before{content:"–";position:absolute;left:0;color:var(--stop);font-weight:700}
+  .pc li b{color:var(--text);font-weight:600}
+  .deepdive{max-height:0;overflow:hidden;transition:max-height .45s ease}
+  .card.open .deepdive{max-height:2600px}
+  .deepdive .inner{padding:16px 18px 19px;font-size:13.4px;color:var(--muted);line-height:1.64;background:var(--ground-2);border-top:1px solid var(--line)}
+  .deepdive .inner b{color:var(--text);font-weight:600}
+  .deepdive .inner .lead{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--heat-1);letter-spacing:.12em;text-transform:uppercase;margin-bottom:9px;display:block}
+  .deepdive .inner p{margin:0 0 10px}
+  .deepdive .inner p:last-child{margin-bottom:0}
+
+  /* ---------- FEASIBILITY MATRIX ---------- */
+  .matrix-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r)}
+  table{width:100%;border-collapse:collapse;min-width:880px;font-size:13.5px}
+  thead th{background:var(--panel-2);font-family:'Space Grotesk',sans-serif;font-weight:600;text-align:left;padding:14px 16px;color:var(--text);border-bottom:1px solid var(--line);position:sticky;top:0;font-size:13px}
+  tbody td{padding:15px 16px;border-bottom:1px solid var(--line-soft);vertical-align:top;color:var(--muted);line-height:1.5}
+  tbody tr:last-child td{border-bottom:none}
+  tbody tr:hover td{background:rgba(255,255,255,.015)}
+  td .opt{font-family:'Space Grotesk',sans-serif;font-weight:600;color:var(--text);font-size:15px}
+  td .opt small{display:block;font-family:'JetBrains Mono',monospace;font-weight:400;font-size:10.5px;color:var(--muted-2);text-transform:uppercase;letter-spacing:.08em;margin-top:3px}
+  .feas{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;display:inline-flex;align-items:center;gap:7px}
+  .feas::before{content:"";width:8px;height:8px;border-radius:50%}
+  .feas.hi::before{background:var(--go)}
+  .feas.mid::before{background:var(--caution)}
+  .feas.lo::before{background:var(--stop)}
+  td ul.pre{margin:0;padding:0;list-style:none;display:grid;gap:5px}
+  td ul.pre li{padding-left:16px;position:relative;font-size:12.6px}
+  td ul.pre li::before{content:"▸";position:absolute;left:0;color:var(--heat-1);font-size:10px;top:1px}
+  .verdict{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.06em;padding:6px 10px;border-radius:6px;display:inline-block;text-align:center;white-space:nowrap}
+  .v-go{color:var(--go);background:rgba(111,191,115,.1);border:1px solid rgba(111,191,115,.4)}
+  .v-build{color:var(--steel-1);background:rgba(127,181,206,.1);border:1px solid rgba(127,181,206,.4)}
+  .v-fuel{color:var(--caution);background:rgba(227,179,65,.1);border:1px solid rgba(227,179,65,.4)}
+  .v-reframe{color:var(--heat-1);background:rgba(242,163,60,.1);border:1px solid rgba(242,163,60,.4)}
+  .v-fire{color:var(--stop);background:rgba(229,72,77,.1);border:1px solid rgba(229,72,77,.4)}
+
+  /* ---------- DECISIONS ---------- */
+  .dec-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:18px}
+  .dec{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:20px 20px 22px}
+  .dec .k{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--heat-1);letter-spacing:.12em;text-transform:uppercase}
+  .dec h3{font-size:17px;margin:9px 0 12px}
+  .dec p{margin:0 0 12px;font-size:13.6px;color:var(--muted)}
+  .branch{display:grid;gap:9px}
+  .opt2{display:flex;gap:11px;align-items:flex-start;font-size:13.2px;padding:11px 13px;border-radius:10px;border:1px solid var(--line)}
+  .opt2.good{border-color:rgba(111,191,115,.35);background:rgba(111,191,115,.05)}
+  .opt2.bad{border-color:rgba(229,72,77,.35);background:rgba(229,72,77,.05)}
+  .opt2 .lbl{font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:700;letter-spacing:.05em;padding:3px 7px;border-radius:5px;flex:none;margin-top:1px}
+  .opt2.good .lbl{color:var(--go);border:1px solid var(--go-deep)}
+  .opt2.bad .lbl{color:var(--stop);border:1px solid var(--stop-deep)}
+  .opt2 span{color:var(--muted)}
+  .opt2 b{color:var(--text)}
+
+  .gates{counter-reset:g;display:grid;gap:11px;margin-top:4px}
+  .gate{display:flex;gap:14px;align-items:flex-start;padding:13px 15px;background:var(--panel-2);border:1px solid var(--line);border-radius:11px}
+  .gate .gn{counter-increment:g;font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--heat-1);font-size:15px;flex:none;width:26px;height:26px;border-radius:50%;border:1px solid var(--heat-2);display:grid;place-items:center}
+  .gate .gn::before{content:counter(g)}
+  .gate div p{margin:0;font-size:13.3px;color:var(--muted)}
+  .gate div .gt{font-weight:600;color:var(--text);font-size:14px;font-family:'Space Grotesk',sans-serif}
+  .reframe-q{margin-top:22px;border:1px dashed rgba(242,163,60,.5);border-radius:12px;padding:18px 20px;background:rgba(242,163,60,.04)}
+  .reframe-q .old{color:var(--stop);text-decoration:line-through;text-decoration-color:rgba(229,72,77,.6)}
+  .reframe-q .new{color:var(--heat-1);font-weight:600}
+
+  /* ---------- FOOTER ---------- */
+  footer{padding:38px 0 60px;color:var(--muted-2);font-size:12.5px}
+  footer .mono{color:var(--muted)}
+  .legend{display:flex;flex-wrap:wrap;gap:8px 20px;margin:14px 0 0;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted-2)}
+  .legend span{display:inline-flex;align-items:center;gap:7px}
+  .legend i{width:9px;height:9px;border-radius:2px;display:inline-block}
+
+  .reveal{opacity:0;transform:translateY(14px);transition:opacity .6s ease,transform .6s ease}
+  .reveal.in{opacity:1;transform:none}
+  @media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}.node{transition:none}}
+  @media (max-width:640px){
+    .band-note{display:none}
+    section{padding:42px 0}
+    header.hero{padding:48px 0 28px}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">ARDICTECH · STRATEJİK SENTEZ · ŞİRKET İÇİ</div>
+    <h1 class="title">Strateji Haritası &amp;<br><span class="heat">Yapılabilirlik Sentezi</span></h1>
+    <div class="meta">
+      <span>SESSION ÖZETİ</span>
+      <span>KAPSAM: EAIP · GU · CWF · ARMES · SİGORTA · AEGIS</span>
+      <span>SÜRÜM v1.3</span>
+    </div>
+    <p class="spine">
+      Tek savunulabilir hendek <b>manufacturing domain derinliği</b>; bunun en kalıcı, taklit edilemez formu
+      <span class="hl">GU'nun çapraz-tenant veri ağıdır</span>. GU ve CWF ortak substrat üstünde duran <b>iki ayrı
+      business'tır</b> — teknolojide yakın, ekonomide ayrı: GU replike-edilemez veri-ağı moat'ı (amiral); CWF taşınabilir
+      governed-truth domain-modeli üstünde <b>ikinci ürün</b> — GU'nun altında (replike-edilebilir-ama-yavaş duvar),
+      ama gerçek, nakit-getiren bir iş. Geri kalan ya bu işleri besleyen <b>firewall'lı nakit</b> (Kale referansı, sigorta,
+      Aegis-O1), ya da paylaşılan <b>substrat</b> (EAIP, ARMES, IoT-Ignite). ARMES'in n=1 olması bir başarısızlık değil,
+      ağır-MES pazarının fiziğidir — ve önemlisi <b>kod n=1 olsa da domain-modeli taşınabilir IP'dir</b>: CWF'in derinliğini
+      yeni bir MES'e taşıyan da budur.
+    </p>
+  </div>
+</header>
+
+<!-- 1 — STRATEGY MAP -->
+<section>
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-num">01</span><h2>Strateji Haritası</h2></div>
+    <p class="sec-sub">Üç katman: altta üzerinde <b>durduğun varlıklar</b>, ortada hendeği finanse etmek için
+    <b>yaktığın firewall'lı nakit</b>, tepede inşa ettiğin <b>sahip-olunabilir hendek</b>. Kırmızı ray, enerjiyi yana
+    saptıran strateji-öldürücüler.</p>
+
+    <div class="stack reveal">
+      <!-- MOAT -->
+      <div class="band moat">
+        <div class="band-label">
+          <span class="tag">Katman 1 · Ürünler</span>
+          <span class="band-title">İki ayrı business · ortak substrat üstünde</span>
+          <span class="band-note">GU ve CWF teknolojide yakın, ekonomide ayrı — tek anlatıya zorlamak "karışıklık"ın kaynağıydı.</span>
+        </div>
+        <div class="nodes">
+          <div class="node flag" style="flex:1 1 100%">
+            <h4><span class="dot heat"></span>GU — Galip Usta / Sanal Usta · veri ağı</h4>
+            <div class="role">AMİRAL · REPLİKE-EDİLEMEZ DATA-NETWORK</div>
+            <p>MES-siz, düşük-dokunuş; usta WhatsApp üzerinden data source. Çapraz-tenant operasyonel veri seti =
+            compound eden, satın-alınamaz tek varlık — yatay rakiplerin yazamayacağı şey. SMB aboneliği ölçekte
+            <b>en büyük gelir hattı</b> (veri-edinme maliyeti değil); ikinci-katman gelir OEM/sigortacı/kreditör tarafında.
+            Üç kapıya kilitli (§04).</p>
+          </div>
+          <div class="node" style="flex:1 1 100%">
+            <h4><span class="dot heat"></span>CWF — Chat With Factory · domain-model duvarı</h4>
+            <div class="role">İKİNCİ ÜRÜN · TAŞINABİLİR GOVERNED-TRUTH DUVARI</div>
+            <p>Taşınabilir domain-modeli üstünde reasoning; orta-büyük üreticiye <b>egemenlik/penetrasyon wedge'inde</b> satılır.
+            GU'nun <b>altında</b> (duvar replike-edilebilir-ama-yavaş, veri-ağı değil), yakıtın <b>üstünde</b> (gerçek ürün,
+            kendi business'ı, Kale'de bugün recurring nakit). Cross-customer KB-harvesting ile duvar kullanımla kalınlaşır →
+            kendini-ören moat.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="flow"><span>FİNANSE EDER <span class="arr">▲</span></span></div>
+
+      <!-- FUEL -->
+      <div class="band fuel">
+        <div class="band-label">
+          <span class="tag">Katman 2 · Yakıt</span>
+          <span class="band-title">Firewall'lı nakit · Commodity yörüngesi · Hendeği fonlar</span>
+          <span class="band-note">Çekirdek paylaşılır; ama kaynak–yol haritası–anlatı–kapsam–finans–IP duvarlarıyla ayrılır.</span>
+        </div>
+        <div class="nodes">
+          <div class="node"><h4><span class="dot caution"></span>Kale</h4><div class="role">Referans logo · Nakit tabanı</div>
+          <p>8+ yıllık müşteri + ARMES'in scale kanıtı. Büyüme motoru değil; kredibilite çapası ve nakit tabanı. (CWF artık yakıt değil — Katman 1, ikinci ürün.)</p></div>
+          <div class="node"><h4><span class="dot caution"></span>Sigorta</h4><div class="role">Firewall'lı nakit · Asla dikey</div>
+          <p>On-prem reinsurance triage. Sabit kapsam/fiyat, junior-resourced. Dikeye terfi = doktrin ihlali.</p></div>
+          <div class="node"><h4><span class="dot caution"></span>Aegis <span class="mono" style="font-size:11px;color:var(--muted-2)">(yalnız Option 1)</span></h4><div class="role">Sovereign AI · Nakit SKU</div>
+          <p>Firewall'lı bir SKU olabilir. Amiral yapılırsa (Option 2) strateji-öldürücü → §04.</p></div>
+        </div>
+      </div>
+
+      <div class="flow"><span>ÜZERİNDE DURUR <span class="arr">▲</span></span></div>
+
+      <!-- BASE -->
+      <div class="band base">
+        <div class="band-label">
+          <span class="tag">Katman 3 · Substrat</span>
+          <span class="band-title">Paylaşılan veya yeniden-çerçevelenen varlıklar</span>
+          <span class="band-note">Mühendislik yatırımı her senaryoda ortak — boşa gitmez.</span>
+        </div>
+        <div class="nodes">
+          <div class="node"><h4><span class="dot steel"></span>EAIP — Platform çekirdeği</h4><div class="role">Paylaşılan substrat</div>
+          <p>vLLM zero-egress, WhatsApp-first, hybrid reasoning, RAG/agent/RBAC/audit. Tüm ürünlerin altyapısı.
+          Tek başına ürün <b>değil</b>; "platform satışı"na çevrilmesi Aegis tuzağını doğurur.</p></div>
+          <div class="node"><h4><span class="dot steel"></span>ARMES — MES (yeniden çerçeve)</h4><div class="role">Graduation · Domain sermaye · Kredibilite</div>
+          <p>4 yıllık derinlik (procedural+recipe+continuous, scale'de). n=1 (Kale). Scale edilmez —
+          GU huni-ucu graduation tier'ı + governed-truth + galip-usta rozeti olarak hasat edilir.</p></div>
+          <div class="node"><h4><span class="dot steel"></span>IoT-Ignite — Edge tier</h4><div class="role">Sovereign edge/IoT substratı</div>
+          <p>10+ yıllık yerli full-stack IoT + edge/fog platformu (PilarOS, EHUB, CEP). GU'nun capture/veri-fidelity
+          kapısını WhatsApp → sensör köprüsüyle çözer. Yatay PaaS olarak satılırsa Aegis-tuzağı; GU enabler'ı olarak moat-derinleştirici (§05).</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TRAPS -->
+    <div class="traps reveal">
+      <h3><span class="tag">Kırmızı Ray</span> Strateji-Öldürücüler</h3>
+      <div class="trap-grid">
+        <div class="trap"><b>Aegis'i amiral yapmak (Option 2)</b> → domain hendeği olmadan Dell/HPE/NVIDIA/SUSE/Mistral'a karşı altyapı bıçak dövüşü.</div>
+        <div class="trap"><b>Sigortayı dikeye terfi ettirmek</b> → "v1.0 reference / Ar-Ge lab" çerçevesi; sabit-fiyat nakit işini gold-plate eder.</div>
+        <div class="trap"><b>ARMES'i ağır-MES land-grab ile scale etmek</b> → devlerin kaçtığı kötü birim-ekonomiyi miras almak.</div>
+        <div class="trap"><b>CWF'i boyut ekseninde (olgun-bulut-büyük) konumlamak</b> → devlerin kalesine head-on; doğru eksen penetrasyon/egemenlik. <b>Harvesting'i consent mimarisi olmadan açmak</b> → ilk büyük müşteri sözleşmede yakalar.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 2 — PROS / CONS -->
+<section>
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-num">02</span><h2>Artılar ve Eksiler</h2></div>
+    <p class="sec-sub">Her varlığın stratejik rolü, lehine ve aleyhine olan gerekçeli noktalar. Renk = katman
+    (amber: hendek/yeniden-çerçeve · çelik: substrat · sarı: yakıt).</p>
+
+    <div class="cards">
+
+      <!-- GU -->
+      <div class="card accent-heat reveal">
+        <div class="card-top"><h3><span class="dot heat"></span>GU <span class="chip" style="color:var(--heat-1)">Amiral</span></h3>
+        <div class="role-line">MES-siz shop-floor-as-a-service · usta = data source · veri ağı</div></div>
+        <div class="pc">
+          <div class="pros"><h5>Lehine</h5><ul>
+            <li>Tek <b>satın-alınamaz, compound eden</b> varlık (çapraz-tenant veri); yatay rakiplerin yazamayacağı tek şey.</li>
+            <li><b>Time-irreducible moat:</b> operasyonel hakikat ancak zamanla yakalanır (var-olmayan bilgi sentezlenemez); GU bunu tüm popülasyonda <b>paralel</b> yakalar — 9 kadın 1 ayda değil, 9 ayda 9 bebek.</li>
+            <li>Düşük-dokunuş; devlerin kârlı ulaşamadığı SME long-tail'ine ulaşır.</li>
+            <li>Multi-sided: abonelik <b>ölçekte en büyük gelir hattı</b> (%61–85); ikinci-katman veri erişimi (OEM/sigortacı/kreditör) = compound eden moat.</li>
+          </ul></div>
+          <div class="cons"><h5>Aleyhine</h5><ul>
+            <li>Üç kapı (§04) açılana kadar bugün ilan edilmiş amiral değil, <b>bahis</b>.</li>
+            <li>İkinci-katman gelir density'ye kilitli; ilk fazda tek-tenant abonelik değeriyle başlanır (<b>tavuk-yumurta</b>).</li>
+            <li>SMB retention kırılgan + en yavaş nakit; metabolizma Kale + sigorta + firewall'lı yakıtla finanse edilir.</li>
+          </ul></div>
+        </div>
+        <div class="deepdive"><div class="inner">
+          <span class="lead">Neden amiral — ve neden CWF duvarının üstünde</span>
+          <p>Yazılım commodity'leşirken satın-alınamayan tek şey çapraz-tenant operasyonel veridir. Neden taklit edilemez — cevabı zamanın fiziğinde: operasyonel hakikat (drift, failure mode, batch varyansı) <b>henüz hiçbir yerde durmuyor</b>; gözlenene kadar var-olmayan bilgiyi ne 100 mühendis ne AI sentezleyebilir. 9 kadınla 1 ayda bebek olmaz. GU'nun hamlesi süreyi sıkıştırmak değil, <b>paralelleştirmek</b>: binlerce dükkân kendi gerçek operasyonunu kendi gerçek zamanında akıtır (9 ayda 9 bebek). CWF'in domain duvarı replike-edilebilir-ama-yavaştır; GU'nun veri ağı bu paralel-yakalama yüzünden <b>hiç</b> replike edilemez — ikisini ayıran ve GU'yu üste koyan tam olarak budur.</p>
+          <p>Gelir yapısı: abonelik (arz) <b>ölçekte en büyük hat</b> (%61–85), "veri-edinme maliyeti" değil; ikinci-katman veri erişimi (talep) compound eden moat. Ama bu bugün bir ilan değil, bir <b>bahis</b>: capture kalitesi → çapa-OEM → rıza kapıları (§04) bu sırayla açılana kadar GU bir tez. CWF ile teknoloji paylaşır ama <b>ayrı business'tır</b> (ayrı plan / GTM / P&amp;L); GU'nun olgunlaşan dükkânları CWF'in en ucuz acquisition kanalıdır (graduation).</p>
+        </div></div>
+      </div>
+
+      <!-- EAIP -->
+      <div class="card accent-steel reveal">
+        <div class="card-top"><h3><span class="dot steel"></span>EAIP <span class="chip" style="color:var(--steel-1)">Substrat</span></h3>
+        <div class="role-line">Paylaşılan platform çekirdeği · tüm ürünlerin altyapısı</div></div>
+        <div class="pc">
+          <div class="pros"><h5>Lehine</h5><ul>
+            <li>Mühendislik yatırımı <b>her senaryoda ortak</b> — boşa gitmez.</li>
+            <li>vLLM zero-egress, WhatsApp-first, hybrid reasoning — gerçek farklılaştırıcılar.</li>
+          </ul></div>
+          <div class="cons"><h5>Aleyhine</h5><ul>
+            <li>Tek başına ürün değil; kimliği yok; "platform" olarak satılamaz.</li>
+            <li>Product-shaped kalması disiplin ister; ürün başına fork edilirse maliyet patlar.</li>
+            <li>"Platform satışı" cazibesi doğrudan <b>Aegis tuzağını</b> besliyor.</li>
+          </ul></div>
+        </div>
+        <div class="deepdive"><div class="inner">
+          <span class="lead">Neden tek başına satılamaz — ve bu bir kusur değil</span>
+          <p>EAIP, tüm ürünlerin altında duran agentic/AI çekirdeği: vLLM zero-egress, WhatsApp-first, hybrid reasoning, RAG/agent/RBAC/audit. Her senaryoda ortak olduğu için mühendislik yatırımı asla boşa gitmez — Aegis'i ister firewall'la ister reddet, çekirdek yaşar.</p>
+          <p>Tehlike şu: "elimizde güçlü bir platform var, onu satalım" cazibesi. Ama platformun <b>kimliği yoktur</b>; onu "sovereign OS" diye paketlemek tam olarak Aegis Option-2 tuzağını doğurur. EAIP substrat olarak kalmalı — ürünleri (GU/CWF) mümkün kılan altyapı, kendi başına bir go-to-market değil.</p>
+        </div></div>
+      </div>
+
+      <!-- CWF -->
+      <div class="card accent-heat reveal">
+        <div class="card-top"><h3><span class="dot heat"></span>CWF <span class="chip" style="color:var(--heat-1)">İkinci Ürün</span></h3>
+        <div class="role-line">Taşınabilir governed-truth domain-modeli üstünde reasoning · GU'dan ayrı business · egemenlik/penetrasyon wedge'i</div></div>
+        <div class="pc">
+          <div class="pros"><h5>Lehine</h5><ul>
+            <li><b>Taşınabilir IP:</b> CWF ham ARMES tablolarına değil, governed-truth domain-modeline karşı reasoning yapar — derinlik yeni MES'e taşınır (kod n=1, model değil).</li>
+            <li><b>Compound eder:</b> cross-customer KB-harvesting yapısal pattern'i canonical model'e geri besler → kullanımla kalınlaşan, kendini-ören duvar.</li>
+            <li><b>Gerçek nakit, kendi business'ı:</b> Kale'de bugün recurring; GU'ya göre değil kendi ekonomisiyle (recurring + wedge genişlemesi) kurulur.</li>
+            <li><b>Beyaz alan:</b> egemenlik-duyarlı + düşük-penetrasyonlu + hafif-isteyen segment — devlerin bulut-ekonomisiyle çarpışan tek yer.</li>
+          </ul></div>
+          <div class="cons"><h5>Aleyhine</h5><ul>
+            <li>Duvar <b>replike-edilebilir-ama-yavaş</b> (domain IP); GU'nun replike-edilemez veri-ağının altında — eşit moat değil.</li>
+            <li>Harvesting <b>tavuk-yumurta</b>: cross-customer değer n büyüdükçe gelir; ilk n'e tek-tenant değerle satılır.</li>
+            <li><b>Egemenlik saati:</b> devler residency/edge bolt-on yapabilir → birkaç yıl runway, sonsuz değil.</li>
+            <li>Enterprise satış motion'u (uzun döngü, POV, referans); cold mid-large pace'i GTM kapasitesiyle sınırlı.</li>
+            <li>Consent/confidentiality cross-tenant'ta <b>çekirdek</b> gereksinim, sonradan-eklenen özellik değil. KB decay riski.</li>
+          </ul></div>
+        </div>
+        <div class="deepdive"><div class="inner">
+          <span class="lead">Neden ikinci ürün — GU'nun altında, yakıtın üstünde</span>
+          <p>Önceki "yakıt" verdict'i üç ayağa dayanıyordu; üçü de düştü. <b>Bir — Kale-lock yanlış:</b> CWF ARMES koduna lehimli değil; ARMES MCP + dbt Silver/Gold mfg modelleri + her kaynak katmanında adapter ile reasoning <b>governed-truth domain-modeline</b> karşı çalışır. Kod n=1 (yalnız Kale'de koşar) ama domain-modeli taşınabilir IP — yeni MES = canonical concept'lere bounded mapping işi, rebuild değil. <b>İki — compounding-yok yanlış:</b> per-customer KB'lerden yapısal pattern canonical'a geri beslenince model kullanımla kalınlaşır; bu, GU veri ağının bilgi-tarafı ikizi (asimetrik öğrenme: senin için hızlanır, rakip için yavaş kalır).</p>
+          <p><b>Üç — devler-segmenti-kapatmış yanlış:</b> devler (Siemens/SAP/Rockwell/AVEVA/GE) segmenti değil, sınırlı bir <b>bölge</b> tutar — büyük + olgun-pazar + bulut-kabul. CWF'in bölgesi tümleyen: egemenlik-duyarlı + düşük-penetrasyon + hafif-isteyen, devlerin bulut-ekonomisinin giremediği yer. Doğru eksen <b>boyut değil penetrasyon/egemenlik</b>; olgun-bulut pazarındaki büyük kurumsal — OEM-as-channel gibi — açıkça dışarıda.</p>
+          <p>Sonuç: CWF artık yakıt değil — <b>taşınabilir domain-model duvarı üstünde ikinci ürün</b>, GU'dan ayrı bir business. Varlık ekseninde GU'nun altında (replike-edilebilir-ama-yavaş < replike-edilemez veri-ağı), sigortanın üstünde (firewall'lı one-off ile yığılmaz). Onboarding = self-map + domain-model-validator + KB semantic loop; moat = harvesting-ready cross-tenant mimari. Sınıf-3 (henüz-gözlenmemiş operasyonel hakikat) time-locked kalır — gerçek savunulabilirlik orada.</p>
+        </div></div>
+      </div>
+
+      <!-- ARMES -->
+      <div class="card accent-heat reveal">
+        <div class="card-top"><h3><span class="dot heat"></span>ARMES <span class="chip" style="color:var(--heat-1)">Yeniden Çerçeve</span></h3>
+        <div class="role-line">4-yıllık MES · procedural + recipe + continuous, scale'de · n=1 (Kale)</div></div>
+        <div class="pc">
+          <div class="pros"><h5>Lehine</h5><ul>
+            <li>Kolay replike edilmez, gerçek IP — yeni girişimciye karşı duvar.</li>
+            <li>Domain sermayesi: governed truth, GU/CWF reasoning'ini besler.</li>
+            <li>Kredibilite çapası: "Kale'de scale'de çalışan gerçek MES" = galip-usta rozeti.</li>
+            <li>Graduation tier: GU hunisinde olgunlaşan azınlığın yüksek-değerli destinasyonu.</li>
+          </ul></div>
+          <div class="cons"><h5>Aleyhine</h5><ul>
+            <li>"Zor inşa edilir" ≠ "moat"; devler o derinliği <b>zaten ödedi</b> + dağıtım kası var.</li>
+            <li>Land-grab ile scale = 17 kişiyle devlere karşı kaybedilen dövüş.</li>
+            <li>Orta-ölçek boşluğu ürün değil, <b>birim-ekonomi/delivery</b> boşluğu → ağır MES'le girilirse marj tuzağı.</li>
+          </ul></div>
+        </div>
+        <div class="deepdive"><div class="inner">
+          <span class="lead">Neden scale değil, yeniden çerçeve?</span>
+          <p>ARMES'in 4 yıllık derinliği gerçek IP — kolay replike edilmez, yeni bir girişimciye karşı duvar. Ama "zor inşa edilir" <b>≠</b> "moat": Siemens/SAP/Rockwell o derinliği zaten ödedi, üstüne dağıtım kası var. Devlere karşı big-ticket MES'te bu bir fark değil. Orta-ölçek/kırılgan-ekonomi boşluğu gerçek ama bir <b>ürün</b> boşluğu değil — birim-ekonomi boşluğu; ağır MES'le girersen devlerin kaçtığı kötü matematiği miras alırsın.</p>
+          <p>Doğru hamle: ARMES = GU hunisinde olgunlaşan azınlığın <b>graduation tier'ı</b> + GU/CWF reasoning'ini besleyen <b>governed-truth</b> (domain sermayesi) + "Kale'de scale'de çalışan gerçek MES" <b>kredibilite çapası</b>. n=1 koda mahkûm olsa bile domain-modeli bütün portföyü akıllı kılar. Doğru soru "ARMES nasıl ölçeklenir" değil — "GU'nun hangi homojen beachhead'inde ARMES doğal graduation tier'a döner".</p>
+        </div></div>
+      </div>
+
+      <!-- SİGORTA -->
+      <div class="card accent-caution reveal">
+        <div class="card-top"><h3><span class="dot caution"></span>Sigorta <span class="chip" style="color:var(--caution)">Yakıt</span></h3>
+        <div class="role-line">On-prem reinsurance triage · firewall'lı nakit</div></div>
+        <div class="pc">
+          <div class="pros"><h5>Lehine</h5><ul>
+            <li>Yakın, öngörülebilir nakit; EAIP çekirdeğini finanse eder.</li>
+            <li>Firewall'lı kalırsa temiz ve kabul edilebilir.</li>
+          </ul></div>
+          <div class="cons"><h5>Aleyhine</h5><ul>
+            <li><b>Asla dikey değil</b>; sabit kapsam/fiyat, junior-resourced.</li>
+            <li>Aegis PRD'si onu "v1.0 reference / Ar-Ge lab" yapıp doktrin ihlaline çekiyor → gold-plating.</li>
+            <li>Multi-tenant SaaS talebi gelirse term-sheet'le firewall'lanmalı, sessizce elevate edilmemeli.</li>
+          </ul></div>
+        </div>
+        <div class="deepdive"><div class="inner">
+          <span class="lead">Neden firewall, neden asla dikey?</span>
+          <p>Sigorta yakın, öngörülebilir nakit — EAIP çekirdeğini finanse eder, firewall'lı kalırsa temiz. Ama tek bir kural: <b>asla dikey değil</b>. Sabit kapsam, sabit fiyat, junior-resourced.</p>
+          <p>Aegis PRD'sinin "sigorta = v1.0 reference / Ar-Ge laboratuvarı" çerçevesi tam da bu firewall'ı deler — sabit-fiyat bir nakit işini bir amiral ürünün proving ground'una çevirip maliyetini ve süresini şişirir (<b>gold-plating</b>). Multi-tenant SaaS talebi gelirse bu bir term-sheet konusu, sessiz bir terfi değil. Sigorta, Kale ile aynı kategoride: nakit tabanı + referans, büyüme motoru değil.</p>
+        </div></div>
+      </div>
+
+      <!-- AEGIS -->
+      <div class="card accent-caution reveal">
+        <div class="card-top"><h3><span class="dot caution"></span>Aegis <span class="chip" style="color:var(--stop)">Soru İşareti</span></h3>
+        <div class="role-line">Yatay zero-egress sovereign AI appliance (PRD + Market Research)</div></div>
+        <div class="pc">
+          <div class="pros"><h5>Lehine</h5><ul>
+            <li>Makro tez doğru ve güncel (sovereign AI 2026; IDC %84 on-prem/edge; CLOUD Act/DORA/KVKK).</li>
+            <li>5 deal-breaker doğru; "no custom core code" disiplini doğru içgüdü.</li>
+            <li>OpenAI-uyumlu API fikri iyi.</li>
+          </ul></div>
+          <div class="cons"><h5>Aleyhine</h5><ul>
+            <li>Rekabet analizi <b>boş</b>: Dell/HPE/NVIDIA/SUSE/CIQ/Nutanix/Mistral/Iternal/Palantir yok.</li>
+            <li>Moat yok; her feature table-stakes; <b>switching-cost argümanı tersine</b> çalışıyor.</li>
+            <li>TAM/SAM/SOM yok; "100M değer" modelsiz; model ref'leri bayat (Llama 3).</li>
+            <li>Savunma/kamu aspirasyonel; air-gap operasyonel maliyeti yok sayılmış.</li>
+            <li>Otonom hasar kararı → hukuki sorumluluk + "LLM≠source of truth" ilkene aykırı.</li>
+            <li><b>Manufacturing tamamen yok</b> → amiral yapılırsa hendeği feda eder.</li>
+          </ul></div>
+        </div>
+        <div class="deepdive"><div class="inner">
+          <span class="lead">İki seçenek — ve belgenin gizlediği</span>
+          <p>Aegis = iyi pazar zamanlaması (sovereign AI 2026 gerçek) + doğru ürün-disiplini içgüdüsü + zayıf rekabet realizmi + eksik moat + gizli bir pivot karışımı. <b>Option 1:</b> firewall'lı bir nakit SKU — sigorta gibi, çekirdek EAIP'le paylaşılır, israf yok, savunulabilir. <b>Option 2:</b> yatay amiral pivot — domain hendeği olmadan Dell/HPE/NVIDIA/SUSE/Mistral'a karşı altyapı bıçak dövüşü; manufacturing-moat doktrinini terk eder; <b>strateji-öldürücü</b>.</p>
+          <p>Belge bugün Option 2'yi "firewall" retoriğiyle Option 1 kılığında sunuyor ("100M'e giden yol Aegis", "sigorta Ar-Ge lab'ımız"). Yapılacaksa düzeltmeler: rekabet analizini doldur; model ref'lerini güncelle (Llama 3 → Qwen/DeepSeek/GLM, Apache/MIT); savunma/kamu'yu düşür; otonom hasar kararını <b>karar-desteğe</b> indir (hem hukuki sorumluluk hem senin "LLM ≠ source of truth" ilken). Asla amiral değil.</p>
+        </div></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- 3 — FEASIBILITY MATRIX -->
+<section>
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-num">03</span><h2>Yapılabilirlik &amp; Ön Koşul Matrisi</h2></div>
+    <p class="sec-sub">Filtre: <b>17 kişilik, OSS-first, kırılgan-ekonomi (TR) bir ekip bunu gerçekten kazanabilir mi?</b>
+    Yapılabilirlik = bu ekibin kazanma olasılığı; ön koşul = ilerlemeden önce doğru olması gereken sert şartlar.</p>
+
+    <div class="matrix-scroll reveal">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:15%">Seçenek</th>
+            <th style="width:14%">Stratejik Rol</th>
+            <th style="width:15%">Yapılabilirlik</th>
+            <th style="width:36%">Sert Ön Koşullar / Kapılar</th>
+            <th style="width:12%">Karar</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="opt">GU<small>Galip Usta</small></span></td>
+            <td>Amiral / Hendek</td>
+            <td><span class="feas mid">Orta-zor</span><br><span style="font-size:12px">ama doğru dövüş — kazanılabilir</span></td>
+            <td><ul class="pre">
+              <li>Capture-extraction kalitesi kanıtlanmalı <b>(birincil ürün riski)</b></li>
+              <li>Çapa-OEM kimliği çözülmeli <b>(hard blocker)</b></li>
+              <li>Çapraz-tenant rıza / veri hukuk mimarisi</li>
+              <li>Homojen beachhead (FBH / fasteners) kilitlenmeli</li>
+            </ul></td>
+            <td><span class="verdict v-go">PURSUE</span></td>
+          </tr>
+          <tr>
+            <td><span class="opt">EAIP<small>Platform</small></span></td>
+            <td>Paylaşılan substrat</td>
+            <td><span class="feas hi">Devam ediyor</span></td>
+            <td><ul class="pre">
+              <li>Product-shaped kal; ürün başına fork etme</li>
+              <li>Kimliğini "platform satışı"na çevirme (Aegis tuzağı buradan doğar)</li>
+            </ul></td>
+            <td><span class="verdict v-build">BUILD</span></td>
+          </tr>
+          <tr>
+            <td><span class="opt">CWF<small>Chat w/ Factory</small></span></td>
+            <td>İkinci ürün / domain-model duvarı</td>
+            <td><span class="feas mid">Koşullu</span><br><span style="font-size:12px">egemenlik wedge'inde evet; olgun-bulut pazarında devlere head-on hayır</span></td>
+            <td><ul class="pre">
+              <li>Hedefleme penetrasyon/egemenlik ekseni; olgun-bulut-büyük dışarıda (OEM-as-channel gibi)</li>
+              <li>Harvesting-ready cross-tenant mimari + consent/confidentiality çekirdekte</li>
+              <li>GTM kapasitesi (GU graduation = en ucuz acquisition kanalı)</li>
+              <li>Egemenlik saati: devler residency/edge bolt-on yapmadan önce runway</li>
+            </ul></td>
+            <td><span class="verdict v-go">PURSUE</span></td>
+          </tr>
+          <tr>
+            <td><span class="opt">ARMES<small>MES</small></span></td>
+            <td>Graduation + domain sermaye + kredibilite</td>
+            <td><span class="feas lo">Scale = yapılamaz</span><br><span style="font-size:12px">17 kişiyle devlere karşı</span></td>
+            <td><ul class="pre">
+              <li>Ağır-MES land-grab <b>yapma</b></li>
+              <li>GU huni-ucu + governed-truth olarak yeniden çerçevele</li>
+              <li>Ölçeklenecekse yalnız proses-homojen bir beachhead'de</li>
+            </ul></td>
+            <td><span class="verdict v-reframe">REFRAME</span></td>
+          </tr>
+          <tr>
+            <td><span class="opt">IoT-Ignite<small>Edge / IoT</small></span></td>
+            <td>Edge substrat (EAIP/ARMES ile)</td>
+            <td><span class="feas mid">Koşullu</span><br><span style="font-size:12px">GU enabler'ı olarak evet; yatay PaaS olarak hayır</span></td>
+            <td><ul class="pre">
+              <li>Generic IoT PaaS olarak <b>satma</b> (yatay devler + Aegis-tuzağı)</li>
+              <li>GU fidelity-graduation yolu olarak konumla (WhatsApp → sensör)</li>
+              <li>Enstrümantasyon on-ramp'ta değil, olgunlaşan dükkânda</li>
+              <li>Güncellik auditi: edge-AI runtime, güvenlik, modern protokoller</li>
+            </ul></td>
+            <td><span class="verdict v-reframe">REFRAME</span></td>
+          </tr>
+          <tr>
+            <td><span class="opt">SİGORTA<small>Reinsurance</small></span></td>
+            <td>Firewall'lı nakit</td>
+            <td><span class="feas hi">Yapılabilir</span><br><span style="font-size:12px">firewall şartıyla</span></td>
+            <td><ul class="pre">
+              <li>Sabit kapsam, junior-resourced</li>
+              <li>Asla dikeye terfi yok</li>
+              <li>Aegis "R&amp;D lab" çerçevesine <b>diren</b></li>
+            </ul></td>
+            <td><span class="verdict v-go">TAKE</span></td>
+          </tr>
+          <tr>
+            <td><span class="opt">AEGIS<small>Sovereign OS</small></span></td>
+            <td>O1: nakit SKU · O2: strateji-öldürücü</td>
+            <td><span class="feas lo">O2 yapılamaz</span><br><span style="font-size:12px">O1 firewall'lı yapılabilir</span></td>
+            <td><ul class="pre">
+              <li>Yapılacaksa <b>sert firewall</b> (kaynak/yol-haritası/anlatı/kapsam/finans/IP)</li>
+              <li>Rekabet analizini doldur; model ref'lerini güncelle</li>
+              <li>Savunma/kamu'yu düşür; otonomiyi karar-<b>desteğe</b> indir</li>
+            </ul></td>
+            <td><span class="verdict v-fire">FIREWALL / DECLINE</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- 4 — OPEN DECISIONS -->
+<section>
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-num">04</span><h2>Açık Kararlar</h2></div>
+    <p class="sec-sub">İki binary ve bir yeniden-çerçevelenmiş soru — bunlar netleşmeden portföy kilitlenmez.</p>
+
+    <div class="dec-grid">
+      <div class="dec reveal">
+        <div class="k">Karar A · Binary</div>
+        <h3>Aegis hangi kılıkta?</h3>
+        <p>Belge bugün Option 2'yi Option 1 retoriğiyle sunuyor. Bilinçli seçilmeli — ikisinin kaynak, yol haritası ve risk profili tamamen farklı.</p>
+        <div class="branch">
+          <div class="opt2 good"><span class="lbl">O1</span><span><b>Firewall'lı SKU.</b> Sigorta gibi: nakit + referans, ayrı duvarlı, ince kaynaklı, nakitle ölçülür. Çekirdek EAIP'le paylaşılır, israf yok.</span></div>
+          <div class="opt2 bad"><span class="lbl">O2</span><span><b>Yatay amiral pivot.</b> Domain hendeği olmadan altyapı devleriyle dövüş. Manufacturing-moat doktrinini terk eder. <b>Strateji-öldürücü.</b></span></div>
+        </div>
+      </div>
+
+      <div class="dec reveal">
+        <div class="k">Karar B · Sıralı kapılar</div>
+        <h3>GU üç kapısı — sırayla</h3>
+        <p>Bunlar bu sırayla açılana kadar GU bir bahis, ilan edilmiş amiral değil. İşin önümüzdeki dönemde bu kapıları kapatmak.</p>
+        <div class="gates">
+          <div class="gate"><span class="gn"></span><div><span class="gt">Capture-extraction kalitesi</span><p>Usta-as-sensor verisi (metin/ses/foto) yeterince temiz ve yapılandırılabilir mi? Birincil ürün riski.</p></div></div>
+          <div class="gate"><span class="gn"></span><div><span class="gt">Çapa-OEM kimliği</span><p>IATF 16949 forcing function'ın arkasındaki somut OEM. Density'nin ve adoption'ın hard blocker'ı.</p></div></div>
+          <div class="gate"><span class="gn"></span><div><span class="gt">Çapraz-tenant rıza mimarisi</span><p>Kim neye rıza verdi, veriyi kim sahipleniyor, rakip-hassasiyeti nasıl yönetiliyor. Asıl ürün riski AI değil, bu.</p></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="reframe-q reveal">
+      <div class="k" style="margin-bottom:8px">Karar C · Yeniden çerçeve</div>
+      <p style="margin:0;font-size:15px">
+        <span class="old">"ARMES nasıl ölçeklenir?"</span> &nbsp;→&nbsp;
+        <span class="new">"GU'nun hangi homojen beachhead'inde ARMES doğal graduation tier'a dönüşür?"</span>
+      </p>
+      <p style="margin:10px 0 0;font-size:13.3px;color:var(--muted)">
+        Doğru tespit (orta-ölçek boşluğu gerçek) + yanlış araç (ağır MES) = kafa karışıklığı. Aracı GU'ya çevir,
+        karışıklık biter; soru otomatik olarak Karar B'nin üç kapısına geri döner.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- 5 — IoT-IGNITE -->
+<section>
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-num">05</span><h2>IoT-Ignite — Görüş</h2></div>
+    <p class="sec-sub">Bu session'da konuşmadık. Dokümanı (2012 doğumlu platform, ~2017 kitap) ve canlı siteyi okuyarak, hafızadan değil kaynaktan değerlendiriyorum. Konum: <b>üçüncü substrat — edge tier</b>, EAIP ve ARMES'in yanında.</p>
+
+    <div class="cards">
+      <div class="card accent-heat reveal">
+        <div class="card-top"><h3><span class="dot heat"></span>IoT-Ignite <span class="chip" style="color:var(--heat-1)">Edge Substrat</span></h3>
+        <div class="role-line">10+ yıllık, yerli/sovereign full-stack IoT + edge/fog platformu — PilarOS (AOSP+AFEX, yabancı binary'siz), EHUB fleet yönetimi, CEP kural motoru, multi-tenant</div></div>
+        <div class="pc">
+          <div class="pros"><h5>Lehine</h5><ul>
+            <li>ARMES gibi <b>kolay replike edilmez</b>, decade-deep, yabancı binary bağımlılığı olmayan sovereign varlık.</li>
+            <li>Edge'de offline kural (CEP) + edge AI inference → <b>zero-egress doktrinle birebir</b> uyumlu.</li>
+            <li>GU'nun en zor kapısını (capture / veri-fidelity) zamanla çözen <b>köprü</b>: WhatsApp-capture → sensör-temelli veri.</li>
+            <li>Hazır donanım ortaklıkları (Dell, Gigabyte, Arçelik, Samsung, Intel) — appliance/dağıtım tarafı.</li>
+          </ul></div>
+          <div class="cons"><h5>Aleyhine</h5><ul>
+            <li><b>Yatay konumlu</b> (site: perakende/tarım/enerji/eğitim; "manufacturing wide open" = üretim dikeyi geliştirilmemiş) — generic IoT PaaS satılırsa Aegis-Option-2 tuzağı (AWS/Azure IoT, Bosch, PTC, MindSphere).</li>
+            <li>Edge enstrümantasyon, GU'nun kaçtığı <b>donanım + per-site dokunuş</b> maliyetini geri getirir → SME on-ramp'ta değil, graduation'da.</li>
+            <li><b>Güncellik riski:</b> public storefront donmuş (WordPress 4.9, AndroidThings, 2020 projeksiyonları, ~2021 telif). İç/enterprise sürüm modern mi — yük taşıyan açık soru, cevap sende.</li>
+          </ul></div>
+        </div>
+        <div class="deepdive"><div class="inner">
+          <span class="lead">Neden substrat, neden amiral değil — ve neden yine de kritik</span>
+          <p>IoT-Ignite tıpkı Aegis gibi <b>yatay</b> bir platform — ve yatay platformda senin manufacturing hendeğin bir işe yaramaz. Onu "herkese IoT PaaS" diye satarsan AWS IoT, Azure IoT Hub, Bosch IoT Suite, PTC, Siemens MindSphere ile dövüşürsün; 17 kişiyle kazanılmaz. Site zaten manufacturing'i "wide open" (yapılmamış) diye işaretliyor.</p>
+          <p>Ama gerçek değeri başka yerde, ve bu güçlü: GU'nun en zor kapısı <b>capture-extraction kalitesiydi</b>. GU v1 bilinçli olarak sensör-siz — usta WhatsApp'a yazıyor: ucuz ama gürültülü, insana bağımlı. IoT-Ignite tam olarak o gürültülü insan-verisinden <b>sensör-temelli, edge'de işlenmiş, makine-üretimi veriye</b> giden köprü. Bir GU dükkânı olgunlaştıkça onu IoT-Ignite edge gateway'leri/sensörleriyle enstrümante edersin → veri fidelity'si zıplar → çapraz-tenant veri seti (moat) zenginleşir ve taklit edilemez hale gelir. Üstelik bunu zaten sahip olduğun, yabancı-bağımlılığı olmayan, zero-egress edge inference yapabilen bir varlıkla yaparsın. Yani IoT-Ignite <b>moat-derinleştirici</b> — ama yalnız GU'nun fidelity-graduation yolu olarak; yatay PaaS olarak değil.</p>
+          <p>İki uyarı: (1) enstrümantasyon donanım + kurulum + per-site dokunuş demektir; bu, GU'nun kaçtığı maliyet modeli — o yüzden on-ramp WhatsApp-ucuz kalır, IoT-Ignite olgunlaşan azınlık için fidelity yükseltmesidir (<b>tam ARMES graduation simetrisi</b>). (2) Public storefront donmuş; iç sürümün modern edge-AI runtime, güncel güvenlik, K8s-native olup olmadığı bu varlığın <b>canlı bir asset mi yoksa bakım yükü mü</b> olduğunu belirler — ve o auditi yapman gerek.</p>
+        </div></div>
+      </div>
+    </div>
+
+    <div class="reframe-q reveal" style="margin-top:22px">
+      <div class="k" style="margin-bottom:10px">Birleştiren tez · Üç sovereign substrat</div>
+      <p style="margin:0;font-size:15px">ARDICTECH üç decade-deep yerli substrata sahip: <b>EAIP</b> (AI/agentic çekirdek), <b>ARMES</b> (MES domain), <b>IoT-Ignite</b> (edge/IoT). <span class="new">Hiçbiri tek başına moat değil</span> — üçü de yatay-yetenekli enabler. Moat, GU'nun veri ağı. Bu üç substrat, 17 kişilik bir ekibin GU'yu herkesten hızlı ve ucuz inşa etmesini sağlayan <b>haksız avantaj</b> — ama yalnızca her biri GU'yu beslemek üzere firewall'lanırsa, kendi başına yatay bir amiral olarak kovalanmazsa.</p>
+      <p style="margin:12px 0 0;font-size:13.3px;color:var(--muted)">Bütün session'ın tekrar eden tek hatası: <b>yatay bir substrat varlığını amiral sanmak.</b> Aegis-as-flagship, ARMES-as-land-grab, CWF-as-generic, IoT-Ignite-as-PaaS — dördü de aynı tuzak. Disiplin de tek: <b>substrat hendeği besler; substrat yatay satılmaz.</b></p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="mono">ARDICTECH · Strateji Haritası ve Yapılabilirlik Sentezi · v1.3 · Şirket İçi</div>
+    <div class="mono" style="font-size:11px;color:var(--muted-2);margin-top:5px">Değişiklik · v1.3: GU kartı iç-tutarlılığa getirildi (abonelik = ölçekte en büyük gelir hattı; banttaki düzeltmeyle çelişki giderildi) + time-irreducibility / paralel-yakalama (9 kadın) çerçevesi ve GU/CWF ayrı-business + graduation dikişi eklendi · v1.2: CWF yeniden sıralandı (yakıt → taşınabilir domain-model duvarı üstünde ikinci ürün); GU ve CWF iki ayrı business; CWF kartı, matris satırı (FUEL→PURSUE), strateji bandı, tuzak ve omurga güncellendi; ARMES kartıyla çelişki giderildi · v1.1: tıklanabilir kart açıklamaları + IoT-Ignite görüşü (§05) · v1.0: ilk sürüm</div>
+    <div class="legend">
+      <span><i style="background:var(--heat-1)"></i> Ürün (hendek / domain-duvarı) · Yeniden-çerçeve</span>
+      <span><i style="background:var(--caution)"></i> Yakıt (firewall'lı nakit)</span>
+      <span><i style="background:var(--steel-1)"></i> Substrat (paylaşılan)</span>
+      <span><i style="background:var(--go)"></i> Yapılabilir / Pursue</span>
+      <span><i style="background:var(--stop)"></i> Tuzak / Yapılamaz</span>
+    </div>
+    <p style="margin-top:16px;max-width:760px;color:var(--muted-2)">
+      Tek cümlelik omurga: <b style="color:var(--text)">amiral GU veri ağı (replike-edilemez); CWF ortak substrat üstünde ikinci ürün
+      (taşınabilir domain-model duvarı — GU'nun altında, yakıtın üstünde); geri kalan ya firewall'lı yakıt ya da paylaşılan substrat.
+      Ham yazılım commodity'leşir — ama governed-truth domain-modeli taşınabilir IP, çapraz-tenant veri ise satın-alınamaz moattır.</b>
+    </p>
+  </div>
+</footer>
+
+<script>
+  // Expandable cards — always on (independent of motion preference)
+  document.querySelectorAll('.cards .card .card-top').forEach(function(t){
+    t.addEventListener('click', function(){ t.parentElement.classList.toggle('open'); });
+  });
+  // Scroll reveal — respects reduced-motion
+  (function(){
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var io = new IntersectionObserver(function(es){
+      es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} });
+    }, {threshold:.12});
+    document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
+  })();
+</script>
+</body>
+</html>

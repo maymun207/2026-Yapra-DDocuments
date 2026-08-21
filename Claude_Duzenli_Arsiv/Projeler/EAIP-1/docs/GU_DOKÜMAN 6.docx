@@ -1,0 +1,75 @@
+**DOKÜMAN 6: SFaaS (Sanal Usta) Uçtan Uca Çözüm Tanımı ve Son Kullanıcı Deneyimi (UX/UI)**
+
+*(Bu doküman, KOBİ patronu ve ustabaşının sistemi adım adım nasıl kullandığını, hangi arayüzlerle platforma bağlandığını ve platformun sunduğu fonksiyonları açıklar.)*
+
+**Başlık: SFaaS Çözümü Nedir? Kullanıcı Yolculuğu ve Arayüz (Interface) Ekosistemi**
+
+**1. SFaaS (Sanal Usta) Uçtan Uca Çözümü Nedir? (Son Kullanıcı Gözünden)**
+
+SFaaS (Shop-Floor-as-a-Service), imalat KOBİ'leri için tasarlanmış; donanım, bağlantı ve yapay zeka yazılımını tek bir aylık abonelikte birleştiren "Anahtar Teslim" bir dijitalleşme paketidir.
+
+KOBİ kullanıcısı için Sanal Usta; bilgisayara yüklenen karmaşık bir yazılım, şifresi unutulan bir web sitesi veya okunması imkansız grafiklerle dolu bir panel DEĞİLDİR. Son kullanıcı gözünde Sanal Usta; **fabrikada görünmez olarak çalışan, makineleri saniye saniye dinleyen ve sadece önemli bir şey olduğunda Patronun ve Ustabaşının WhatsApp'ına insan gibi mesaj atan "Dijital bir Çırak ve Kalite Müfettişidir".** Öğrenme eğrisi sıfırdır, çünkü ana arayüz zaten herkesin bildiği WhatsApp'tır.
+
+**2. Son Kullanıcı Gözünden Kullanım Akışı (User Journey)**
+
+Bir KOBİ Patronu veya Ustabaşının sistemle ilk günden itibaren yaşayacağı akış şöyledir:
+
+- **Adım 1 - Kurulum ("Şak" Diye Yapıştır):** Kargodan gelen kutu açılır. Usta, ağ geçidini (ana kutuyu) prize takar. Sensörleri pres makinelerinin motorlarına "buzdolabı magneti" gibi yapıştırır. Cep telefonunun kamerasını açıp sensörün üzerindeki QR kodu okutur. Açılan WhatsApp sohbetine *"Bu 1 No'lu Pres Makinesidir"* yazar. Kurulum 15 dakikada, IT desteği olmadan biter.
+
+- **Adım 2 - İlk Değer ve Tanışma (Sıfırıncı Gün):** Kurulumdan birkaç saat sonra patronun WhatsApp'ına ilk mesaj düşer: *"Sanal Usta devrede. 1 No'lu Pres bugün 4 saat aktif üretim yaptı, 1 saat boşta (idle) bekleyerek enerji israf etti."* Patron ilk günden fabrikanın gizli firesini görür.
+
+- **Adım 3 - Pasif İzleme (Görünmez Asistan):** Her şey yolundayken sistem kullanıcıyı gereksiz bildirimlerle (spam) rahatsız etmez. Arka planda 7/24 sessizce makine DNA'sını izler.
+
+- **Adım 4 - Kriz ve Müdahale (Aktif Ajan):** Gece vardiyasında titreşim tehlikeli şekilde artarsa, Sanal Usta doğrudan WhatsApp'tan yazar: *"Acil: 1 Nolu Pres rulmanında aşırı titreşim var. Motor yanabilir. Makineyi güvenli hıza çekeyim mi?"* Usta tek bir tuşla onay verir ve arıza engellenir.
+
+- **Adım 5 - Denetim Anı (Uyum Zırhı):** OEM (Ana Sanayi) denetçisi fabrikaya geldiğinde patron web paneline girer ve "IATF 16949 Denetçi Raporu İndir" butonuna basarak, geçmişe dönük makine sağlığı loglarını resmi bir PDF olarak yazdırır.
+
+**3. Kullanıcı Arayüzü (Interface) Seçenekleri ve Etkileşim Yöntemleri**
+
+Fabrika ortamı gürültülüdür, işçinin elleri yağlıdır veya eldivenlidir. KOBİ patronu ise sürekli hareket halindedir. Bu nedenle etkileşim, kullanıcının o anki durumuna göre 4 farklı kanal üzerinden kurgulanmıştır:
+
+**Arayüz 1: WhatsApp (Metin ve Etkileşimli Butonlar) - "Ana Komuta Merkezi"** Platformun birincil arayüzüdür. KOBİ ustası uygulama indirmez, şifre ezberlemez. Rehberine kayıtlı "Sanal Usta" hesabıyla mesajlaşır.
+
+- **Aksiyon Butonları:** Sistem bir sorun bulduğunda sadece metin atmaz, KOBİ'den "Karar Onayı" ister. WhatsApp'ın etkileşimli butonları çıkar: **[Makineyi Durdur]**, **[Hızı %20 Düşür]**, **[Yok Say]**. Kullanıcı tuşa basar, makineye giden komut otonom olarak işlenir.
+
+- **Günlük Özetler:** Vardiya bitiminde otomatik olarak *"Bugün OEE (Verimlilik) %75. Sorunsuz tamamlandı."* gibi hap bilgiler gelir.
+
+**Arayüz 2: WhatsApp Sesli Mesaj (Voice Note) - "Sahanın Gerçekliği"** Gürültülü atölyede eldivenle klavye kullanmak imkansızdır. Bu özellik, mavi yakanın sisteme aşık olmasını sağlayan temel inovasyondur.
+
+- **Nasıl Çalışır?** Usta, Sanal Usta'ya tıpkı bir arkadaşına atar gibi ses kaydı gönderir: *"Usta, 2 nolu CNC'den garip bir tıkırtı geliyor, makinede bir sorun var mı?"*
+
+- **Arka Plan (AI):** Sistem (Whisper AI ile) sesi metne çevirir, 2 nolu CNC'nin anlık titreşim verisini analiz eder ve sesli/yazılı olarak yanıtlar: *"Ustam titreşim son 1 saatte normale göre %15 artmış. Tehlike sınırında değil ama sabah vardiyasında yağlamasını kontrol etmeniz iyi olur."*
+
+- **Sesli Veri Girişi:** Usta, *"1 nolu makinenin rulmanını değiştirdim, üretime başlıyorum"* diyerek denetim loglarına sesle veri girebilir.
+
+**Arayüz 3: Akıllı Chatbot (Doğal Dil Arama Motoru)** Web/Tablet uygulamasının içinde bulunan, "Veri Madenciliği" asistanıdır.
+
+- **Kullanım:** Üretim Müdürü, karmaşık Excel tablolarıyla veya SQL sorgularıyla uğraşmaz. Chatbot'a doğrudan yazar: *"Son 6 ayda en çok plansız duruş yapan 2 makineyi ve tahmini üretim kaybı maliyetimizi listele."*
+
+- **İşleyiş:** Chatbot veritabanını tarar ve saniyeler içinde tabloyu, grafiği veya metni mühendisin önüne koyar.
+
+**Arayüz 4: Minimalist Web Dashboard - "Stratejik Kontrol Ekranı"** Sadece ayda bir veya denetim olduğunda girilen, patronun veya Kalite Müdürünün masaüstü (PC/Tablet) yönetim panelidir. Operasyonel grafik çöplüğü yoktur.
+
+- **Denetim (Audit) Raporları (Sopa):** Ekranda devasa bir **[IATF 16949 / AS9100 Uyum Raporunu İndir]** butonu bulunur. OEM denetçisine verilmek üzere, mühürlü, manipüle edilemez İstatistiksel Süreç Kontrol (SPC) ve bakım geçmişi PDF/Excel olarak tek tıkla alınır.
+
+- **Cihaz ve Kullanıcı Yönetimi:** Fabrikaya yeni sensör ekleme, hangi ustanın hangi makineden bildirim alacağını ayarlama ve fatura ödeme işlemleri buradan yapılır.
+
+**4. Son Kullanıcı Profiline Göre Çıktılar (Kim Neye Ulaşır?)**
+
+- **Ustabaşı / Mavi Yaka:**
+
+- Sadece sorumlu olduğu makinelerin anlık arıza uyarılarını ve WhatsApp butonlarını (aksiyon onaylarını) görür.
+
+- Sesli makine sorgulaması yapar. Arızayı büyümeden yakalayarak "patrondan fırça yeme" riskini sıfırlar.
+
+- **KOBİ Patronu / Tesis Müdürü:**
+
+- Fabrikadaki tüm makinelerin günlük verimlilik (OEE) oranlarını ve boşa yatan makineleri (idle) görür.
+
+- Önlenen arızalardan kurtarılan parayı (ROI - Yatırım Getirisi) izler.
+
+- Web panelinden kalite loglarını çekip Ana Sanayi denetçilerine sunar.
+
+- **Ana Sanayi (OEM) Denetçisi / Kalite Yöneticisi:**
+
+- Eğer KOBİ izin verirse (API aracılığıyla); OEM sadece kendi siparişlerinin işlendiği ilgili makinenin şeffaf "Kalite Uyum Skorunu (Yeşil/Sarı)" görür. KOBİ'nin finansal veya üretim reçetesi sırlarına ASLA ulaşamaz.

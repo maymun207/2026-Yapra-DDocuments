@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Revolutionize — Project Schedule (8 phases)</title>
+<style>
+:root{
+  --bg:#0D1117;--bg2:#161B22;--bg3:#21262D;--border:#30363D;--border2:#444C56;
+  --text:#E6EDF3;--text2:#8B949E;--text3:#6E7681;
+  --purple:#BC8CFF;--green:#3FB950;--amber:#E3B341;--blue:#58A6FF;--red:#F85149;
+  --mono:ui-monospace,'JetBrains Mono','SFMono-Regular',Menlo,monospace;
+  --sans:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);line-height:1.5;-webkit-font-smoothing:antialiased;padding:0 0 60px}
+.hdr{background:linear-gradient(135deg,var(--bg2),#1C2333);border-bottom:1px solid var(--border);padding:22px 32px}
+.hdr h1{font-size:18px;font-weight:700;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.vb{font-family:var(--mono);font-size:10px;font-weight:700;background:rgba(188,140,255,.14);color:var(--purple);border:1px solid var(--purple);border-radius:20px;padding:2px 9px}
+.hdr .sub{font-size:12px;color:var(--text2);font-family:var(--mono);margin-top:5px}
+.main{max-width:1100px;margin:0 auto;padding:24px 32px}
+.sect{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin:30px 0 14px;padding-bottom:7px;border-bottom:1px solid var(--border)}
+.sect:first-of-type{margin-top:6px}
+.lede{font-size:13px;color:var(--text2);line-height:1.65;margin-bottom:16px;max-width:840px}
+svg{width:100%;height:auto;display:block}
+.legend{display:flex;gap:18px;flex-wrap:wrap;font-size:12px;color:var(--text2);margin:12px 2px 0}
+.sw{display:inline-block;width:22px;height:11px;border-radius:3px;vertical-align:-1px;margin-right:6px;border:1px solid var(--border2)}
+table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:8px}
+th{text-align:left;font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--text3);padding:8px 10px;border-bottom:1px solid var(--border2)}
+td{padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+.gid{font-family:var(--mono);font-weight:700;color:var(--text);white-space:nowrap}
+.gname{color:var(--text);font-size:12.5px}
+.gst{font-family:var(--mono);font-size:11px;color:var(--text);text-align:center;white-space:nowrap}
+.gout{color:var(--text2);font-size:11.5px}
+.gpatch{font-family:var(--mono);font-size:10px;color:var(--green);border:1px solid var(--green);background:rgba(63,185,80,.12);border-radius:10px;padding:1px 7px;white-space:nowrap}
+.gopen{font-family:var(--mono);font-size:10px;color:var(--amber);border:1px solid var(--amber);background:rgba(227,179,65,.12);border-radius:10px;padding:1px 7px;white-space:nowrap}
+.pcard{border:1px solid var(--border);border-radius:10px;background:var(--bg2);margin-bottom:12px;overflow:hidden}
+.phead{display:flex;align-items:center;gap:11px;padding:12px 16px;flex-wrap:wrap}
+.pn{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--text3)}
+.pname{font-size:14px;font-weight:600}
+.pb{font-family:var(--mono);font-size:10px;border-radius:10px;padding:1px 8px}
+.b-impl{background:rgba(63,185,80,.14);color:var(--green);border:1px solid var(--green)}
+.b-cal{background:rgba(227,179,65,.14);color:var(--amber);border:1px solid var(--amber)}
+.b-mix{background:rgba(88,166,255,.14);color:var(--blue);border:1px solid var(--blue)}
+.pmo{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--text3)}
+.pbody{padding:0 16px 14px;font-size:12.5px;color:var(--text2);line-height:1.6}
+.pbody .o{color:var(--text)}
+.pbody .dep{font-family:var(--mono);font-size:11px;color:var(--text3);margin-top:6px}
+.note{border-radius:0 8px 8px 0;padding:12px 15px;font-size:12.5px;line-height:1.6;margin-top:8px;max-width:900px;background:var(--bg2);border:1px solid var(--border)}
+.note.amber{border-left:3px solid var(--amber)}.note.red{border-left:3px solid var(--red)}
+.note b{color:var(--text);font-weight:500}
+.opens{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.open{background:var(--bg3);border:1px solid var(--border);border-left:3px solid var(--amber);border-radius:0 7px 7px 0;padding:9px 12px;font-size:12px}
+.open b{color:var(--amber);font-weight:600;font-family:var(--mono);font-size:11px}
+.open p{color:var(--text2);margin-top:3px;line-height:1.45}
+@media(max-width:680px){.opens{grid-template-columns:1fr}}
+footer{max-width:1100px;margin:30px auto 0;padding:20px 32px;font-size:11px;color:var(--text3);font-family:var(--mono);border-top:1px solid var(--border)}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <h1>Revolutionize — Project Schedule <span class="vb">8 PHASES · 12–15 MONTHS · PATCHED</span></h1>
+  <div class="sub">how we build · unit of work = 1 stage = 1 prompt = 1 PR · calendar-bound phases do not compress</div>
+</div>
+<div class="main">
+
+  <div class="sect">1 · Timeline — 8 phases, 12–15 months (projection)</div>
+  <div class="lede">The central scheduling truth: implementation-bound phases compress 50–80% with AI assistance; calendar-bound phases (shadow validation, telemetry maturity, production canaries) compress 0%. Hatched bars are calendar-bound and will not move no matter how fast the team is. This is a projection, not a commitment — phases are completion-gated, not date-gated.</div>
+  <svg viewBox="0 0 680 320" role="img" aria-label="Eight Revolutionize phases across fifteen months; calendar-bound phases shown hatched.">
+    <defs>
+      <pattern id="hatch" patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(45)">
+        <rect width="6" height="6" fill="rgba(227,179,65,.12)"/><line x1="0" y1="0" x2="0" y2="6" stroke="var(--amber)" stroke-width="1.2"/>
+      </pattern>
+    </defs>
+    <line x1="150" y1="40" x2="150" y2="300" stroke="var(--border)" stroke-width="1"/>
+    <g font-family="var(--mono)" font-size="9.5" fill="var(--text3)">
+      <text x="150" y="32">M1</text><text x="184" y="32">M2</text><text x="218" y="32">M3</text><text x="252" y="32">M4</text><text x="286" y="32">M5</text><text x="320" y="32">M6</text><text x="354" y="32">M7</text><text x="388" y="32">M8</text><text x="422" y="32">M9</text><text x="453" y="32">M10</text><text x="487" y="32">M11</text><text x="521" y="32">M12</text><text x="555" y="32">M13</text><text x="589" y="32">M14</text><text x="623" y="32">M15</text>
+    </g>
+    <g font-family="var(--sans)" font-size="11" font-weight="600">
+      <rect x="150" y="46" width="68" height="24" rx="5" fill="rgba(63,185,80,.22)" stroke="var(--green)"/><text x="158" y="62" fill="var(--text)">1 · Foundation</text>
+      <rect x="184" y="78" width="102" height="24" rx="5" fill="rgba(63,185,80,.22)" stroke="var(--green)"/><text x="192" y="94" fill="var(--text)">2 · Measure + Vision</text>
+      <rect x="252" y="110" width="136" height="24" rx="5" fill="url(#hatch)" stroke="var(--amber)"/><text x="260" y="126" fill="var(--text)">3 · Speculation</text>
+      <rect x="286" y="142" width="136" height="24" rx="5" fill="url(#hatch)" stroke="var(--amber)"/><text x="294" y="158" fill="var(--text)">4 · Cells in shadow</text>
+      <rect x="320" y="174" width="136" height="24" rx="5" fill="rgba(88,166,255,.22)" stroke="var(--blue)"/><text x="328" y="190" fill="var(--text)">5 · Formal verification</text>
+      <rect x="388" y="206" width="136" height="24" rx="5" fill="url(#hatch)" stroke="var(--amber)"/><text x="396" y="222" fill="var(--text)">6 · Cells in production</text>
+      <rect x="453" y="238" width="170" height="24" rx="5" fill="url(#hatch)" stroke="var(--amber)"/><text x="461" y="254" fill="var(--text)">7 · Self-improvement</text>
+      <rect x="521" y="270" width="136" height="24" rx="5" fill="url(#hatch)" stroke="var(--amber)"/><text x="529" y="286" fill="var(--text)">8 · Meta-cognition</text>
+    </g>
+  </svg>
+  <div class="legend">
+    <span><span class="sw" style="background:rgba(63,185,80,.22);border-color:var(--green)"></span>implementation-bound (compresses 50–80%)</span>
+    <span><span class="sw" style="background:rgba(88,166,255,.22);border-color:var(--blue)"></span>mixed (learning curve)</span>
+    <span><span class="sw" style="background:repeating-linear-gradient(45deg,transparent,transparent 3px,var(--amber) 3px,var(--amber) 4px);border-color:var(--amber)"></span>calendar-bound (does not compress)</span>
+  </div>
+
+  <div class="sect">2 · Phase 1 detail — the patched foundation backlog</div>
+  <div class="lede">Phase 1 is the only phase with a fully decomposed stage backlog (the rest are produced just-in-time). ~42 stages, 6–8 weeks. Stage groups 1.4 and 1.7 run in parallel after 1.3, which is why the patch adds a net of +1 stage but does not move the Phase-1 calendar. Cadence: 3–5 stages/week ramping to 5–10/week. The bottleneck is human review — every PR gets ≥30 min, and verification does not compress.</div>
+  <table><thead><tr><th>group</th><th>name</th><th style="text-align:center">stages</th><th>expected outcome</th><th>change</th></tr></thead><tbody>
+    <tr><td class="gid">1.1</td><td class="gname">Telemetry foundation</td><td class="gst">10</td><td class="gout">Every agent action emits a schema-versioned event, fire-and-forget; pipeline rejects unknown versions.</td><td></td></tr>
+    <tr><td class="gid">1.2</td><td class="gname">Streaming + storage</td><td class="gst">7</td><td class="gout">Redpanda → ClickHouse (hot 30d) + Tempo (traces) + MinIO (cold 365d) ingesting telemetry.</td><td></td></tr>
+    <tr><td class="gid">1.3</td><td class="gname">Observability surface</td><td class="gst">7</td><td class="gout">Grafana (ops) + Metabase (analytical) dashboards live; cost + cache-efficiency visible.</td><td><span class="gpatch">1.3.4 expanded: + prefix-cache hit rate, alert &gt;10% wk/wk</span></td></tr>
+    <tr><td class="gid">1.4</td><td class="gname">LLM gateway · LiteLLM</td><td class="gst">2</td><td class="gout">All model calls via LiteLLM + wrapper: agent-aware cost attribution, per-minute token-burst limits, cache-hit emission, Living-Knowledge routing.</td><td><span class="gpatch">cut 7 → 2 (ADR-001)</span></td></tr>
+    <tr><td class="gid">1.7</td><td class="gname">MCP tool servers</td><td class="gst">6</td><td class="gout">External tool surface over MCP with allowlist enforced at server boot; filesystem (1.7.4) ships first as the calibration stage, then web/docs, git/github, sandbox.</td><td><span class="gpatch">NEW group (ADR-002)</span></td></tr>
+    <tr><td class="gid">1.5</td><td class="gname">First v1 agent set</td><td class="gst">10</td><td class="gout">Working specialised agents (EM, architect, FE/BE/DB/DevOps, reviewer, security) on the substrate; 1.5.1 base class integrates telemetry + gateway + MCP.</td><td><span class="gpatch">1.5.1 prereqs → 1.4 + 1.7</span></td></tr>
+    <tr><td class="gid">1.6</td><td class="gname">First product</td><td class="gst">TBD</td><td class="gout">First real product live in production, generating the telemetry every later phase depends on.</td><td><span class="gopen">gated by OPEN #1</span></td></tr>
+  </tbody></table>
+  <div class="note"><b>Phase 1 exit gate (all five must hold):</b> telemetry flows end-to-end and is queryable; the LiteLLM gateway routes with per-agent cost attribution; MCP servers enforce the capability allowlist at boot; v1 agents ship human-reviewed PRs through the verification gate; and the first product is live in production emitting telemetry.</div>
+
+  <div class="sect">3 · Phases 2–8 — goals, outcomes, bound-type</div>
+  <div class="lede">Detailed stage backlogs for these phases are produced just-in-time (when the team is ready to execute), to capture learnings between stages — so they are described here at the phase level by design, not omission.</div>
+  <div id="phases"></div>
+
+  <div class="note red"><b style="color:var(--red)">Why Phases 7 and 8 cannot start early.</b> Self-improvement (P7) needs cells generating real production data — it depends on P6, not the calendar. Meta-cognition (P8) genuinely needs 12+ months of accumulated telemetry from P2 onward before its outputs are reliable (the P2 → P8 dependency). Compressing either ships lower-quality v2 components. This is the single most-misunderstood part of the plan.</div>
+
+  <div class="sect">4 · Open prerequisites — resolve before / during Phase 1</div>
+  <div class="lede">These five were unresolved at last review and remain marked OPEN here rather than assumed. Two of them are effectively answered by the bridge (Revolutionize builds EAIP), but still need an explicit decision.</div>
+  <div class="opens">
+    <div class="open"><b>① First product</b><p>What the system builds first — gates Stage 1.6. The bridge suggests a CWF / EAIP component; needs explicit sign-off.</p></div>
+    <div class="open"><b>② Founder for SOUL.md</b><p>Anchors the taste model in the Vision Engine (Phase 2). Hand-curated; needs a named person.</p></div>
+    <div class="open"><b>③ Quarterly LLM budget</b><p>Shapes routing (Opus vs Sonnet vs Haiku) and the per-minute rate caps in the gateway wrapper.</p></div>
+    <div class="open"><b>④ Relation to ARDICTECH platform</b><p>Extensions vs independent products. The bridge implies Revolutionize builds EAIP — confirm the boundary.</p></div>
+    <div class="open"><b>⑤ Biggest expertise gaps</b><p>Likely formal methods (TLA+/Alloy), agent orchestration, multi-tenant security — drives the Phase 5 risk and reading week.</p></div>
+  </div>
+</div>
+<footer>ARDICTECH A.Ş. · Revolutionize project schedule · 8 phases · Phase 1 reflects ADR-001 + ADR-002 + dev_schedule_patch_v1 · Phases 2–8 stage backlogs are just-in-time · projection, not commitment · internal technical reference</footer>
+
+<script>
+const PH=[
+ {n:'Phase 2',name:'Measurement maturity + Vision / Empathy',bound:'mix',mo:'~M2–M4',
+  goal:'Mature the measurement foundation in production, and stand up the Vision Engine (intent stream from real signals) and the Empathy Engine (OASIS personas exercising the product).',
+  out:'Prioritised intents flow from OKRs + production + personas; quality scoring is live. The 12-month telemetry clock for Meta-cognition starts here.',dep:'depends on Phase 1'},
+ {n:'Phase 3',name:'Speculation',bound:'cal',mo:'~M4–M7',
+  goal:'Introduce v2\u2019s most important evolution: N parallel cells per intent, with the Verification Mesh selecting the winning implementation (tournament).',
+  out:'Speculative parallel execution validated in shadow against v1 baselines before any promotion.',dep:'depends on Phase 2 · calendar-bound (shadow validation)'},
+ {n:'Phase 4',name:'Cells in shadow',bound:'cal',mo:'~M5–M8',
+  goal:'Run generalist engineering cells alongside the v1 specialised agents silently; compare outputs before promoting anything.',
+  out:'Cell quality demonstrably matches or exceeds v1 on shadow comparison over a real validation window.',dep:'depends on Phase 3 · calendar-bound (cannot compress)'},
+ {n:'Phase 5',name:'Formal verification',bound:'mix',mo:'~M6–M9',
+  goal:'Harden the Verification Mesh: TLA+/Alloy specifications on critical paths (auth, accounting), with property-based testing (Hypothesis) as the pragmatic fallback elsewhere.',
+  out:'Critical paths are mathematically verified; standard paths pass multi-dimensional review. Expect a steep learning curve (per the Architecture Review) — lean on property-based testing if formal methods stall.',dep:'verification mesh exists from Phase 1 · mixed (cultural learning curve)'},
+ {n:'Phase 6',name:'Cells in production',bound:'cal',mo:'~M8–M11',
+  goal:'Promote validated cells from shadow into production, owning intents end-to-end behind canaries.',
+  out:'Cells produce production code under the same verification gates as v1, with canary rollout.',dep:'depends on Phases 4 + 5 · calendar-bound (canary)'},
+ {n:'Phase 7',name:'Self-improvement',bound:'cal',mo:'~M10–M14',
+  goal:'Activate DSPy-style prompt evolution and parameter tuning (speculation N, verification intensity, cell sizing) driven by production telemetry.',
+  out:'Prompts and parameters self-optimise from real outcomes, monthly per-agent.',dep:'depends on Phase 6 (needs production data) · calendar-bound'},
+ {n:'Phase 8',name:'Meta-cognition',bound:'cal',mo:'~M12–M15',
+  goal:'The crowning capability: system observer, bottleneck detector, architecture proposer, and decision auditor — the architecture watching itself.',
+  out:'The system proposes its own structural improvements (human-gated). Built last because it needs 12+ months of telemetry to be reliable.',dep:'depends on Phase 2 (12-month telemetry) + Phase 7 · calendar-bound'},
+];
+const BL={impl:['b-impl','implementation-bound'],cal:['b-cal','calendar-bound'],mix:['b-mix','mixed']};
+document.getElementById('phases').innerHTML=PH.map(p=>`
+ <div class="pcard">
+   <div class="phead">
+     <span class="pn">${p.n}</span>
+     <span class="pname">${p.name}</span>
+     <span class="pb ${BL[p.bound][0]}">${BL[p.bound][1]}</span>
+     <span class="pmo">${p.mo}</span>
+   </div>
+   <div class="pbody">${p.goal}<br><span class="o">Outcome:</span> ${p.out}<div class="dep">${p.dep}</div></div>
+ </div>`).join('');
+</script>
+</body>
+</html>

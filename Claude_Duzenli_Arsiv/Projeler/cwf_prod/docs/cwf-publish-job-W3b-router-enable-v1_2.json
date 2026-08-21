@@ -1,0 +1,19 @@
+{
+  "promptSegments": [],
+  "ruleInstances": [
+    {
+      "kindId": "agent.param",
+      "backendId": "system",
+      "key": "router.enabled",
+      "payload": {
+        "key": "router.enabled",
+        "value": 1,
+        "type": "number",
+        "min": 0,
+        "max": 1,
+        "stage": "07",
+        "sessionTweakable": false
+      }
+    }
+  ]
+}

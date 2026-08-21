@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A23 · CWF — Execution Runbook · implementation'a geçiş · v1</title>
+<!-- A23_cwf-execution-runbook-v1 · 2026-07-25 · Architect-authored.
+     Mimari kilidi sonrası, kod'a geçiş için adım-adım plan. Anchor 194f6a8 (rev 142).
+     Bu bir PLAN belgesidir (binding architecture değil); güncellendikçe v2 mint eder. -->
+<style>
+  :root{
+    --ink:#1C2422; --paper:#F5F6F3; --card:#FFFFFF; --line:#2A3330; --mut:#5C6662;
+    --pu:#6D4FC4; --te:#0E6B54; --gr:#667080; --am:#A8620A; --rd:#B3261E; --bl:#1D5FA8;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--paper);color:var(--ink);
+    font-family:"Avenir Next","Segoe UI",system-ui,sans-serif;font-size:15px;line-height:1.55;padding:0 0 72px}
+  header{border-bottom:2px solid var(--line);background:var(--card);padding:26px 30px 20px}
+  header .docid{font-family:ui-monospace,monospace;font-size:12px;color:var(--mut)}
+  header h1{font-size:24px;font-weight:600;margin:6px 0 4px}
+  header h1 span{font-size:14px;color:var(--te);font-family:ui-monospace,monospace}
+  header p.sub{color:var(--mut);max-width:900px;font-size:14px}
+  .wrap{max-width:900px;margin:0 auto;padding:0 22px}
+  section{margin-top:28px}
+  h2{font-size:18px;font-weight:600;border-left:4px solid var(--line);padding-left:12px;margin-bottom:12px}
+
+  .infobox{background:var(--card);border:1px solid #D8DDD9;border-radius:10px;padding:14px 18px;margin-top:16px;font-size:13.5px;line-height:1.6}
+  .infobox h3{font-size:14px;font-weight:600;margin-bottom:8px}
+  .infobox code{font-family:ui-monospace,monospace;font-size:12px;background:#F1F3EF;border:1px solid #E1E5E1;border-radius:4px;padding:0 4px}
+  .lane{display:inline-block;font-family:ui-monospace,monospace;font-size:11px;border-radius:5px;padding:2px 8px;border:1px solid;white-space:nowrap;margin:2px 3px 2px 0}
+  .lane.arch{background:#EFEAFB;color:#4A32A0;border-color:var(--pu)}
+  .lane.ag{background:#E3F1EB;color:#0A5240;border-color:var(--te)}
+  .lane.op{background:#FBF3E4;color:#7A4A08;border-color:var(--am)}
+  .lane.you{background:#E6EFF9;color:#134A85;border-color:var(--bl);font-weight:700}
+
+  .here{background:#E6EFF9;border:2px solid var(--bl);border-radius:10px;padding:12px 18px;margin:18px 0 6px;
+    font-weight:600;color:#134A85;font-size:14.5px}
+
+  .step{background:var(--card);border:1.5px solid #D8DDD9;border-radius:11px;margin:16px 0;overflow:hidden;
+    border-left:7px solid var(--accent,#999)}
+  .step.a{--accent:var(--pu)} .step.g{--accent:var(--te)} .step.o{--accent:var(--am)} .step.done0{--accent:var(--bl)}
+  .step .sh{display:flex;align-items:center;gap:12px;padding:12px 18px;background:#FaFbFa;border-bottom:1px solid #EAEDEA;flex-wrap:wrap}
+  .step .snum{font-family:ui-monospace,monospace;font-weight:700;font-size:15px;background:var(--accent,#555);color:#fff;
+    border-radius:7px;padding:3px 11px;white-space:nowrap}
+  .step .stitle{font-weight:600;font-size:16px;flex:1;min-width:180px}
+  .step .body{padding:6px 18px 14px}
+  .row{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid #F0F2EF;font-size:13.5px;line-height:1.5}
+  .row:last-child{border-bottom:none}
+  .row .lab{flex:0 0 96px;font-family:ui-monospace,monospace;font-size:11px;color:var(--mut);padding-top:2px;text-transform:uppercase}
+  .row .val{flex:1}
+  .row code{font-family:ui-monospace,monospace;font-size:12px;background:#F1F3EF;border:1px solid #E1E5E1;border-radius:4px;padding:0 4px}
+  .row.you{background:#EEF5FC;margin:0 -18px;padding:10px 18px;border-bottom:1px solid #DCE8F5}
+  .row.you .lab{color:#134A85;font-weight:700}
+  .row.you .val{font-weight:500;color:#0F3D6E}
+  .row.done .lab{color:#0A5240}
+  .row.done .val{color:#0A5240}
+  .tick{color:var(--te);font-weight:700}
+  .warn{color:var(--rd);font-weight:600}
+
+  .guard{background:#EAF3EE;border:1px solid var(--te);border-radius:10px;padding:14px 18px;margin-top:14px;font-size:13.5px;line-height:1.7}
+  .guard h3{font-size:14px;font-weight:600;margin-bottom:6px;color:#0A5240}
+  .guard li{margin:5px 0;list-style:none;padding-left:22px;position:relative}
+  .guard li::before{content:"🛡";position:absolute;left:0}
+  .guard code{font-family:ui-monospace,monospace;font-size:11.5px}
+
+  footer{max-width:900px;margin:40px auto 0;padding:16px 22px 0;border-top:1px solid #D8DDD9;
+    font-family:ui-monospace,monospace;font-size:12px;color:var(--mut);line-height:1.8}
+  @media(max-width:560px){ .row{flex-direction:column;gap:2px} .row .lab{flex-basis:auto} }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="docid">A23_cwf-execution-runbook-v1 · 2026-07-25 · anchor 194f6a8 (rev 142)</div>
+  <h1>CWF — Execution Runbook <span>implementation'a geçiş</span></h1>
+  <p class="sub">Mimari kilitlendi (v1_3 + component v1_2 + sequence v1_1) · F174→genişlik kararlı. Bu, kod'a geçiş için
+  adım-adım plan. Her adımda: <strong>ne</strong> · <strong>kim yapar</strong> · <strong style="color:var(--bl)">🔵 SEN ne yaparsın</strong> ·
+  <strong style="color:var(--te)">✅ "bitti"nin kanıtı</strong>. Hiçbir adım kanıtı olmadan bitmiş sayılmaz.</p>
+</header>
+
+<div class="wrap">
+
+<div class="infobox">
+  <h3>Önce: döngü nasıl çalışıyor (3 şerit)</h3>
+  <p><span class="lane arch">Architect = ben</span> teşhis + tasarım + gated faz promptları + RULE-25 taze-klon review + log okuma. Repo'ya <strong>yazmam</strong>.
+  &nbsp;<span class="lane ag">Author = AG</span> (Claude Code) tüm repo yazımları, branch, merge.
+  &nbsp;<span class="lane op">Operator = Gemini</span> yalnız migration (<code>db push</code>) + canlı DB okuma.
+  &nbsp;<span class="lane you">SEN = Maymun</span> ürün sahibi + <strong>yönlendirici</strong>: promptu doğru şeride relay edersin, artefaktı projeye yüklersin. Kod/migration yazmazsın.</p>
+  <p style="margin-top:10px"><strong>Tek akış deseni:</strong> ben gated faz yazarım → sen AG'ye relay edersin → AG branch açar → ben taze-klon review → GO + merge mesajı → merge → deploy (otomatik) → <strong style="color:var(--rd)">canlı okuma</strong>. <em>Altın kural (S63-1): merge tek başına kanıt DEĞİLDİR; prod okuması semptomun gittiğini gösterene kadar iş bitmemiştir.</em></p>
+</div>
+
+<div class="here">📍 ŞU AN BURADAYIZ → sıradaki adım: STEP 0. Aşağıyı yukarıdan aşağı takip et.</div>
+
+<!-- STEP 0 -->
+<div class="step done0">
+  <div class="sh"><span class="snum">STEP 0</span><span class="stitle">Session-close + kilit kaydı</span><span class="lane arch">Architect</span><span class="lane you">SEN</span></div>
+  <div class="body">
+    <div class="row"><div class="lab">Ne</div><div class="val">Bu session'ın kararları (F174→genişlik · üç A23_ dokümanın kilidi · D-N7/A-10 · P3c fix · GWT öz-düzeltmesi) kalıcı belgelere işlenir: <strong>register vN + KB vN + bootstrap vN</strong>. <em>Neden ilk:</em> proje kuralı — session state memory'de değil bu belgelerde yaşar; sonraki session oradan başlar. Kod'a geçmeden bunu kilitlemek "iş kaybetme" riskini sıfırlar.</div></div>
+    <div class="row"><div class="lab">Kim</div><div class="val"><span class="lane arch">Architect</span> üç artefaktı üretir. <em>(Opsiyonel: SOTA kıyası <code>A23_cwf-sota-benchmark-vs-industry-v1.md</code> dondurulur.)</em></div></div>
+    <div class="row you"><div class="lab">🔵 Sen</div><div class="val">(1) Ürettiğim register/KB/bootstrap + üç A23_ dokümanı <strong>projeye yükle</strong>. (2) Supersede edilenleri <strong>arşivle</strong>: eski <code>cwf-understanding-layer-architecture-v1_2</code>, önek-siz <code>cwf-target-component-architecture-v1</code> &amp; <code>cwf-turn-sequence-target-v1</code>, ve <code>A23_...component-v1_1</code>.</div></div>
+    <div class="row done"><div class="lab">✅ Bitti</div><div class="val"><span class="tick">✓</span> Belgeler projede · <span class="tick">✓</span> arşiv temiz · <span class="tick">✓</span> kanıt: bir sonraki session bootstrap §0 taze-klon <code>194f6a8</code> hash'ini ve doküman versiyonlarını sorunsuz doğrular.</div></div>
+    <div class="row"><div class="lab">→ Sonraki</div><div class="val">STEP 1 (F169).</div></div>
+  </div>
+</div>
+
+<!-- STEP 1 -->
+<div class="step a">
+  <div class="sh"><span class="snum">STEP 1</span><span class="stitle">F169 hotfix — force-flush yanıttan önce</span><span class="lane arch">Architect</span><span class="lane ag">AG</span><span class="lane you">SEN</span></div>
+  <div class="body">
+    <div class="row"><div class="lab">Ne</div><div class="val">Golden-runner flush'ı <code>try</code> içine, <code>res.json()</code>'dan ÖNCE, awaited (eval-ci.ts:222 deseni); <code>finally</code> flush tamamen kalkar. Tek dosya, migration/güvenlik yüzeyi yok. <em>Kritik yolun ilk kod adımı.</em></div></div>
+    <div class="row"><div class="lab">Kim</div><div class="val"><span class="lane arch">Architect</span> gated fazı yazar → <span class="lane ag">AG</span> branch açar (CI bloke edici STEP 1 dahil) → <span class="lane arch">Architect</span> taze-klon RULE-25 review + merge mesajı.</div></div>
+    <div class="row you"><div class="lab">🔵 Sen</div><div class="val">Yazdığım gated faz promptunu <strong>AG'ye relay et</strong>. Review sonrası vereceğim GO + merge mesajını <strong>AG'ye relay et</strong>. Başka elle iş yok — deploy merge'de otomatik, log okumayı ben Vercel MCP ile yaparım.</div></div>
+    <div class="row done"><div class="lab">✅ Bitti</div><div class="val"><span class="tick">✓</span> RULE-25 review PASS (taze klon, bağımsız) · <span class="tick">✓</span> merge push + remote hash raporlandı · <span class="warn">✓ ASIL KANIT:</span> deploy sonrası <code>[Obs]</code> okumasında late-settle satırı golden-runner şeridinde <strong>KAYBOLDU</strong>. <em>Merge kanıt değildir (S63-1).</em></div></div>
+    <div class="row"><div class="lab">→ Sonraki</div><div class="val">STEP 2 (paralel başlayabilir) → STEP 3.</div></div>
+  </div>
+</div>
+
+<!-- STEP 2 -->
+<div class="step o">
+  <div class="sh"><span class="snum">STEP 2</span><span class="stitle">F173 canlı teyidi — 22P02 durdu mu</span><span class="lane op">Operator</span><span class="lane you">SEN</span></div>
+  <div class="body">
+    <div class="row"><div class="lab">Ne</div><div class="val">non-uuid identity guard (LOG-TRUTH-1 ile merge edildi) çalışıyor mu: 22P02 şablon hatası <code>194f6a8</code> deploy'undan beri durdu mu. <em>STEP 1 ile paralel.</em></div></div>
+    <div class="row"><div class="lab">Kim</div><div class="val"><span class="lane op">Operator (Gemini)</span> Supabase/log canlı okuması yapar.</div></div>
+    <div class="row you"><div class="lab">🔵 Sen</div><div class="val">Vereceğim kısa kontrol talimatını <strong>Gemini'ye relay et</strong>.</div></div>
+    <div class="row done"><div class="lab">✅ Bitti</div><div class="val"><span class="tick">✓</span> Operator raporu: 22P02 deploy tarihinden beri log'da <strong>YOK</strong> (görülürse ayrı kalem açılır).</div></div>
+    <div class="row"><div class="lab">→ Sonraki</div><div class="val">STEP 3.</div></div>
+  </div>
+</div>
+
+<!-- STEP 3 -->
+<div class="step a">
+  <div class="sh"><span class="snum">STEP 3</span><span class="stitle">Korpus genişletme + TABAN ÇİZGİSİ ölçümü</span><span class="lane arch">Architect</span><span class="lane ag">AG</span><span class="lane you">SEN</span></div>
+  <div class="body">
+    <div class="row"><div class="lab">Ne</div><div class="val">8 yazılı v2 utterance yayınlanır (F174→genişlik) → genişletilmiş korpusta <strong>Recall@k + mevcut kapı davranışı taban çizgisi</strong> ölçülür. <em>S62-2: atlanamaz.</em></div></div>
+    <div class="row"><div class="lab">Neden burada</div><div class="val">Ölçüm güvenilir gözlemlenebilirliğe bağlı (o yüzden F169'dan sonra). Ve bu, mimari iddiayı <strong>ampirik</strong>e çeviren adım — ⑤/⑥'nın bir şeyi iyileştirdiğini ancak bir taban çizgisine karşı kanıtlayabiliriz. "10× ölç, 1× yap."</div></div>
+    <div class="row"><div class="lab">Kim</div><div class="val"><span class="lane arch">Architect</span> ölçüm tasarımı + yorum · <span class="lane ag">AG</span> harness/çalıştırma.</div></div>
+    <div class="row you"><div class="lab">🔵 Sen</div><div class="val">Ölçüm çalıştırma talimatını <strong>AG'ye relay et</strong>. Sonuçları bana getir (ben yorumlarım).</div></div>
+    <div class="row done"><div class="lab">✅ Bitti</div><div class="val"><span class="tick">✓</span> Genişletilmiş korpusta Recall@k + kapı davranışı baseline'ı ölçüldü ve raporlandı (N-tekrar; küçük temiz örnek kanıt değildir).</div></div>
+    <div class="row"><div class="lab">→ Sonraki</div><div class="val">STEP 4.</div></div>
+  </div>
+</div>
+
+<!-- STEP 4 -->
+<div class="step a">
+  <div class="sh"><span class="snum">STEP 4</span><span class="stitle">turn_context iskeleti</span><span class="lane arch">Architect</span><span class="lane ag">AG</span><span class="lane you">SEN</span></div>
+  <div class="body">
+    <div class="row"><div class="lab">Ne</div><div class="val">§9 Step 2: append-only + katkı üçlüsü (değer·güven·üretici) + ağırlık beyanı. <strong>⑤/⑥'nın önkoşulu</strong> — akış olmadan güven okunamaz.</div></div>
+    <div class="row"><div class="lab">Kim</div><div class="val"><span class="lane arch">Architect</span> gated faz → <span class="lane ag">AG</span> kod → <span class="lane arch">Architect</span> RULE-25 review.</div></div>
+    <div class="row you"><div class="lab">🔵 Sen</div><div class="val">Gated fazı <strong>AG'ye relay et</strong> + GO'yu relay et.</div></div>
+    <div class="row done"><div class="lab">✅ Bitti</div><div class="val"><span class="tick">✓</span> Merge + RULE-25 PASS · <span class="tick">✓</span> append-only / güven / katkı-üçlüsü testleri yeşil.</div></div>
+    <div class="row"><div class="lab">→ Sonraki</div><div class="val">STEP 5 (çekirdek).</div></div>
+  </div>
+</div>
+
+<!-- STEP 5 -->
+<div class="step a">
+  <div class="sh"><span class="snum">STEP 5</span><span class="stitle">⑤+⑥ fazı — çekirdek (+ çapraz-tur taşıyıcı + P3c)</span><span class="lane arch">Architect</span><span class="lane ag">AG</span><span class="lane op">Operator</span><span class="lane you">SEN</span></div>
+  <div class="body">
+    <div class="row"><div class="lab">Ne</div><div class="val">§9 Step 3: teşhis/yürütme ayrımı + τ/β + çapa/taşıyıcılık + üç davranış + kapsam kapısı + deterministik atıf + <strong>çapraz-tur taşıyıcı (A-10)</strong> + P3c. Governed tablolar (τ/β, sinyal, kök, coverage-graph=Postgres+CTE) migration ister.</div></div>
+    <div class="row"><div class="lab">Kim</div><div class="val"><span class="lane arch">Architect</span> gated faz + review → <span class="lane ag">AG</span> kod + branch → <span class="lane op">Operator</span> migrations (<code>db push</code>, FENCE-first, verifyGrants).</div></div>
+    <div class="row you"><div class="lab">🔵 Sen</div><div class="val">Gated fazı <strong>AG'ye</strong>, migration promptunu <strong>Gemini'ye</strong> relay et; GO'ları relay et. (İki farklı şerit — hangisinin hangisine gittiğine dikkat; ben her prompta hedef şeridi yazacağım.)</div></div>
+    <div class="row done"><div class="lab">✅ Bitti</div><div class="val"><span class="tick">✓</span> Merge + RULE-25 PASS · <span class="tick">✓</span> migrations <code>db push</code> + verifyGrants probe yeşil · <span class="tick">✓</span> davranış testleri · <span class="warn">✓ ASIL:</span> ölçüm STEP 3 baseline'ına karşı <strong>iyileşme</strong> gösterdi.</div></div>
+    <div class="row"><div class="lab">→ Sonraki</div><div class="val">STEP 6.</div></div>
+  </div>
+</div>
+
+<!-- STEP 6 -->
+<div class="step a">
+  <div class="sh"><span class="snum">STEP 6</span><span class="stitle">F177 okumaları → B3/MEMORY-1 tasarım notu</span><span class="lane arch">Architect</span><span class="lane you">SEN</span></div>
+  <div class="body">
+    <div class="row"><div class="lab">Ne</div><div class="val">F177 gözlemlenebilirlik okumaları → bellek tasarım notu (carrier-aware: çapraz-tur taşıyıcı = minimal working-memory; B3 onun üst-kümesi mi ayrı dilim mi netleşir).</div></div>
+    <div class="row you"><div class="lab">🔵 Sen</div><div class="val">Tasarım notunu incele/onayla.</div></div>
+    <div class="row done"><div class="lab">✅ Bitti</div><div class="val"><span class="tick">✓</span> B3 tasarım notu üretildi (henüz kod değil — tasarım aşaması).</div></div>
+    <div class="row"><div class="lab">→ Sonraki</div><div class="val"><em>Sonrası (§9 Step 4-7, ayrı planlanır):</em> ③ typer · ④ ikinci kanal + RRF · L5 ledger + τ/β ayar döngüsü · keyword-map + router_proposals · soru bütçesi + AUROC. <em>Paralel/arka plan:</em> F178 · F179 · F180.</div></div>
+  </div>
+</div>
+
+<div class="guard">
+  <h3>Hata yakalayan korkuluklar — neden yanlış gitmesi zor</h3>
+  <ul style="margin:0;padding:0">
+    <li><strong>RULE-25:</strong> AG'nin raporuna asla güvenmem — her merge öncesi <strong>taze klon</strong>dan bağımsız doğrularım (recount + byte-diff + grep). "Bende çalışıyor" kanıt değildir.</li>
+    <li><strong>CI bloke eder:</strong> AG'nin GO bloğunda CI geçişi bloke edici STEP 1'dir (<code>in_progress/null</code> = geçiş DEĞİL).</li>
+    <li><strong>Migration güvenliği:</strong> Operator FENCE-first + G-gate'ler + idempotence probe + verifyGrants ile ilerler; sadece <code>db push</code> (asla <code>apply_migration</code>).</li>
+    <li><strong>Canlı-okuma kuralı (S63-1):</strong> hiçbir fix, prod okuması semptomun gittiğini göstermeden "bitti" değildir. Log okumayı ben yaparım — senin elle log okuman gerekmez.</li>
+    <li><strong>Değişmezlik:</strong> her artefakt versiyonlanır; sessiz üstüne-yazma yok. Yanlış olursa yeni versiyon, eski arşiv.</li>
+    <li><strong>Şerit ayrımı:</strong> her prompta hedef şeridi (AG mi Gemini mi) açıkça yazacağım — senin işin doğru kutuya relay etmek.</li>
+  </ul>
+</div>
+
+</div>
+
+<footer>
+END · A23_cwf-execution-runbook-v1 · 2026-07-25 · anchor 194f6a8 (rev 142)<br>
+plan belgesi (binding architecture değil) · sıra: cwf-open-items-register-v64 §8 = A23 mimari §9 build order<br>
+güncellenirse mint v2 — never in-place
+</footer>
+
+</body>
+</html>

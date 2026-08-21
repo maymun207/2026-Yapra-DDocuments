@@ -1,0 +1,205 @@
+**insurance-uc Discovery Questions**
+
+*Türk Reasürans – Fire **&** Engineering Facultative Offer Triage Assistant*
+
+This document lists the questions ARDICTECH needs answered before locking the architecture, effort estimate, and timeline for the insurance-uc project. Questions are grouped by topic and tagged P0 (blocking), P1 (high), or P2 (clarifying).
+
+P0 questions determine which of two architectures we build. P1 questions determine effort. P2 questions sharpen the proposal but do not gate the kickoff.
+
+# **1. ARU / KARU integration  (P0 – critical path)**
+
+ARU/KARU is the only lookup source whose access pattern is fundamentally unknown. Whether it exposes an API or requires UI automation can shift effort by ~30 person-days and the project duration by 2-3 months.
+
+### **Must answer before scoping**
+
+- Does ARU/KARU expose a documented API (REST, SOAP, or database view) for read-only queries on past offers and policies?
+
+- If yes, what authentication does it use (OAuth2, basic, API key, Kerberos/AD)?
+
+- If no API exists, is direct read-only access to the underlying database (or a replica) feasible? Which DB engine?
+
+- If neither, are we expected to drive the ARU/KARU UI via RPA (Robotic Process Automation)? If so, is there an existing RPA platform at Türk Re we should integrate with?
+
+- What is the query latency expectation? (synchronous in mail-handling flow = <5s, vs. async batch lookup acceptable)
+
+- Is there a search endpoint that accepts fuzzy parameters (insured name with typo tolerance), or do we need to pull the candidate set and rank locally?
+
+- How many records are in scope for the lookup (last 5 years? all-time? Fire & Engineering only or all branches)?
+
+- Is there a system-of-record vs. read-replica architecture? Are we permitted to hit the SoR, or only a copy?
+
+# **2. SMB shared file system  (P0)**
+
+The Excel specifies \\10.34.106.24\turkre ortak alan\007-Yangın ve Mühendislik İhtiyari Reasürans\Fire & Engineering\ with two child folders: 1-Bound Accounts and 2-Quotes & Submissions. Understanding the naming conventions in these folders is the engineering critical path for the matching logic.
+
+### **Folder structure and naming**
+
+- Sample of 20-30 folder names from 1-Bound Accounts (anonymized if needed) — to validate the regex/parser for extracting insured name, year, broker.
+
+- Is the folder naming convention enforced (e.g. by a procedure document) or organic? How much variance should we expect?
+
+- Are there sub-folders inside each bound/submission folder? If so, do they follow a convention (mail, attachments, slip, contract)?
+
+- What is the typical file count per folder, and total folder count across both directories?
+
+- Are bound/submission dates inferable from folder name, file mtime, or both? If from filename, what is the date format pattern?
+
+- Is there a parallel "Kabul Edilmemiş İşler" (rejected jobs) list referenced in the Word document? Where does it live — Excel file on the same share, separate database, mailbox?
+
+### **Access and permissions**
+
+- Will the AI service account be granted SMB read-only access? Which AD group?
+
+- Is there a network path or DMZ consideration (the IP 10.34.106.24 suggests internal network — where will our crawler run)?
+
+- Are there any folders we must exclude (legal hold, restricted brokers)?
+
+- Is the share backed by a Windows file server, NetApp, or similar? Any throttling we should know about?
+
+# **3. Exchange / Outlook integration  (P1)**
+
+Two trigger paths in the spec: (a) automated on incoming mail, (b) on-demand chat. Both depend on Exchange access patterns.
+
+- Is Türk Re on Exchange Online (Microsoft 365) or Exchange Server on-prem? Hybrid?
+
+- Will the AI consume mails via Microsoft Graph API, or do we need EWS for an on-prem deployment?
+
+- Is there a shared mailbox for incoming broker/cedant offers, or do offers land in individual underwriter mailboxes?
+
+- If individual: which underwriters are in scope for the pilot? How is delegation handled?
+
+- What is the email volume per day? Per underwriter? (sizing the extraction LLM throughput)
+
+- Are broker mails reliably from a known sender domain list, or do new brokers appear regularly?
+
+- PDF/Word/Excel attachments: typical formats, language (Turkish/English), scanned vs. native?
+
+- Are there any KVKK/GDPR retention rules on mail content (how long can we keep the parsed offer in our DB)?
+
+- Should the AI reply to the broker, only to the internal underwriter, or both?
+
+# **4. Decision rules and edge cases  (P1)**
+
+The Excel "Karar Mantığı" sheet defines three classifications. Edge cases will determine reviewer trust.
+
+- When ARU/KARU shows a match but Bound Accounts does not (or vice versa), what is the correct classification?
+
+- When the insured name matches but the risk address is different (multi-site insured), is this still considered the same job?
+
+- VKN match vs. name match: which takes priority when they disagree? (Example: same VKN, different trade name)
+
+- For "Yenileme", is the 2-year window measured from policy expiry, mail receipt, or bound date?
+
+- If a broker resends an offer mid-evaluation (corrected slip), should the AI create a new takip entry or update the existing one? What is the match key?
+
+- Confidence threshold: when the fuzzy match score is borderline, do we (a) auto-classify with a flag, (b) escalate to underwriter, (c) ask via chat? Underwriter preference?
+
+- Is there an authoritative list of brokers/cedants we should normalize against (e.g. "AON" vs. "Aon Reinsurance Solutions Turkey")?
+
+# **5. Faaliyet (activity) code matching  (P1)**
+
+The Excel reference list contains roughly 1,000+ rows across Yangın, İnşaat-Montaj, and Enerji branches. The matching quality drives suggestion accuracy.
+
+- Is the provided Faaliyet Kodları sheet the canonical source, or is there a master list elsewhere?
+
+- How frequently is this list updated? Who owns it?
+
+- Are NAICS codes used as the primary key, or is the Turkish activity name authoritative?
+
+- Should the AI suggest one code, or top-N with confidence scores for underwriter selection?
+
+- When the activity description in the mail does not cleanly map (e.g. "karton ve plastik karışık üretim"), what is the fallback?
+
+- Is there a historical mapping table (incoming description → chosen code) we could use for evaluation/training?
+
+# **6. Takip output and downstream use  (P1)**
+
+The Takip Şablonu sheet has 18 columns. We need to understand where this output goes after the AI writes it.
+
+- Is the takip list read by humans (underwriter dashboard), fed into another system, or both?
+
+- If fed into another system, what is the integration (REST, file drop, DB sync)?
+
+- Are there historical takip records we can use to validate AI output against ground truth?
+
+- Will the underwriter edit AI suggestions? If yes, we need a feedback loop and audit trail.
+
+- What is the SLA from mail arrival to takip row appearing? Real-time, near-real-time (minutes), or batch (end of day)?
+
+- Is there a notification mechanism expected — Teams, email, dashboard widget?
+
+# **7. Identity, authorization, and KVKK  (P1)**
+
+- Türk Re identity provider: Active Directory on-prem, Entra ID, or both? SSO available?
+
+- Should underwriters see only their own portfolio's takip rows, or the full list?
+
+- Is broker information treated as commercially sensitive? Should it be masked for some viewer roles?
+
+- VKN of natural persons (sahıs şirketi) is personal data under KVKK. What is Türk Re's policy on logging, retention, and the right-to-be-forgotten workflow?
+
+- Data residency: must all components run in Turkey, or is EU acceptable? Cloud or on-prem?
+
+- Are there KVKK-specific audit logging requirements (every read of a VKN must be logged)?
+
+# **8. Deployment environment  (P2)**
+
+- Is this expected to run on Türk Re infrastructure, ARDICTECH cloud (multi-tenant), or hybrid?
+
+- If on-prem at Türk Re: what hypervisor (VMware, Hyper-V, Proxmox)? Kubernetes available?
+
+- Network egress for LLM calls: can the deployment make outbound HTTPS, or must everything be air-gapped?
+
+- GPU availability if local LLM hosting (vLLM) is required for KVKK reasons?
+
+- Backup/DR expectations? RPO/RTO?
+
+# **9. Pilot scope and success criteria  (P2)**
+
+- Which underwriters/teams are in the pilot? How many users on day one?
+
+- What does "working" look like — classification accuracy target, time-saved per offer, both?
+
+- Is there a parallel-run period (AI runs in shadow, no UI exposure) before going live?
+
+- How will accuracy be measured? Manual sampling, ground truth comparison, both?
+
+- What is the rollback plan if classification accuracy is below target?
+
+- Who is the business owner empowered to decide go/no-go?
+
+# **10. Commercial and contracting  (P2)**
+
+- Is this expected to be a fixed-scope project, time & materials, or a CWF-style annual license + delivery?
+
+- Is Türk Re comfortable with the multi-tenant CWF model (their data isolated, but platform shared with other tenants), or do they require dedicated infrastructure?
+
+- Procurement preference: direct contract with ARDICTECH, or via a system integrator on Türk Re's preferred vendor list?
+
+- What is the realistic decision timeline from proposal to PO?
+
+- Is there budget allocated for the current fiscal year, or does this slot into next year's plan?
+
+# **Meeting logistics**
+
+Recommended attendees from Türk Re:
+
+- Business owner (underwriting manager for Fire & Engineering Facultative)
+
+- Application owner for ARU/KARU (likely IT, may be vendor-supported)
+
+- IT infrastructure (networking, file server, identity)
+
+- Information security / KVKK officer
+
+- Procurement (briefly, at the end)
+
+Suggested format:
+
+- Meeting 1 (90 min): Sections 1, 2, 3 — the architecture-shaping questions
+
+- Meeting 2 (60 min): Sections 4, 5, 6 — business logic and output
+
+- Meeting 3 (45 min): Sections 7, 8, 9, 10 — operational and commercial
+
+ARDICTECH attendees: solution architect, project lead, KVKK/security lead. The CEO/founder should attend Meeting 1 only — to anchor the relationship and clear architectural blockers.

@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CWF — Governance & RBAC Model · Detailed Design · v1</title>
+<style>
+  :root{
+    --bg:#0a0e14; --panel:#111a26; --panel2:#0f1722;
+    --line:#1f2d3d; --line2:#2a3b4f;
+    --ink:#dbe6f0; --ink-dim:#8aa0b6; --ink-faint:#5c7186;
+    --cyan:#34d6e6;
+    --user:#7fb2ff; --power:#f5a742; --super:#d07bff;
+    --hard:#3ad29f; --soft:#e0a93b; --deny:#ff6b7a;
+    --live:#3ad29f; --target:#f5a742; --gap:#ff6b7a;
+    --db:#5fa8ff;
+    --mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+    --sans:ui-sans-serif,system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:
+      radial-gradient(1100px 560px at 80% -8%, #10202c 0%, transparent 60%),
+      radial-gradient(820px 460px at -8% 16%, #121a14 0%, transparent 55%),
+      var(--bg); color:var(--ink); font-family:var(--sans);
+      -webkit-font-smoothing:antialiased; padding:26px 18px 64px}
+  .wrap{max-width:1160px;margin:0 auto}
+
+  header.top{border:1px solid var(--line);border-radius:14px;padding:22px 24px;
+    background:linear-gradient(180deg,var(--panel),var(--panel2));position:relative;overflow:hidden}
+  header.top::after{content:"";position:absolute;inset:0;
+    background:repeating-linear-gradient(90deg,transparent 0 38px, rgba(52,214,230,.025) 38px 39px);pointer-events:none}
+  .kick{font-family:var(--mono);font-size:11px;letter-spacing:.32em;text-transform:uppercase;color:var(--cyan);margin:0 0 8px}
+  h1{font-size:25px;margin:0;letter-spacing:-.01em;font-weight:680}
+  h1 .sub{color:var(--ink-dim);font-weight:400;font-size:18px}
+  .stamp{position:absolute;top:18px;right:22px;font-family:var(--mono);font-size:10.5px;color:var(--ink-faint);text-align:right;line-height:1.75}
+  .stamp b{color:var(--live)}
+  .thesis{margin:14px 0 0;padding:14px 16px;border:1px solid var(--line2);border-left:3px solid var(--cyan);border-radius:10px;
+    background:linear-gradient(180deg,#0c1a20,#0b1318);font-size:14px;line-height:1.65;color:var(--ink)}
+  .thesis b{color:#9fe9f3}
+  .statuslegend{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px 16px;font-family:var(--mono);font-size:11px;color:var(--ink-dim)}
+  .statuslegend span{display:inline-flex;align-items:center;gap:7px}
+  .sb{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.05em;padding:2px 7px;border-radius:5px}
+  .s-live{background:rgba(58,210,159,.13);color:var(--live);border:1px solid rgba(58,210,159,.45)}
+  .s-target{background:rgba(245,167,66,.13);color:var(--target);border:1px solid rgba(245,167,66,.45)}
+  .s-gap{background:rgba(255,107,122,.13);color:var(--gap);border:1px solid rgba(255,107,122,.45)}
+
+  h2.sec{font-size:13px;font-family:var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--cyan);
+    margin:34px 4px 14px;display:flex;align-items:center;gap:10px}
+  h2.sec::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line2),transparent)}
+  .lead{color:var(--ink-dim);font-size:13px;line-height:1.6;margin:-6px 4px 16px;max-width:98ch}
+
+  /* hero flow: maker-checker */
+  .hero{border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,var(--panel),var(--panel2));padding:18px;margin-top:4px}
+  .flow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:8px;align-items:center}
+  @media(max-width:900px){.flow{grid-template-columns:1fr;gap:12px}}
+  .fbox{border:1px solid var(--line2);border-radius:12px;padding:13px 14px;background:#0b121b;text-align:center}
+  .fbox .role{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;margin-bottom:5px}
+  .fbox h4{margin:0 0 5px;font-size:14px}
+  .fbox p{margin:0;font-size:11.5px;color:var(--ink-dim);line-height:1.45}
+  .fbox.maker{border-top:3px solid var(--power)} .fbox.maker .role{color:var(--power)}
+  .fbox.gate{border-top:3px solid var(--hard);background:repeating-linear-gradient(135deg,#0c1812 0 9px,#0b1410 9px 18px)} .fbox.gate .role{color:var(--hard)}
+  .fbox.checker{border-top:3px solid var(--super)} .fbox.checker .role{color:var(--super)}
+  .farrow{font-family:var(--mono);font-size:11px;color:var(--ink-faint);text-align:center;white-space:nowrap}
+  @media(max-width:900px){.farrow{transform:rotate(90deg)}}
+  .env{margin-top:12px;display:flex;gap:10px;flex-wrap:wrap}
+  .envbox{flex:1;min-width:240px;border:1px solid var(--line2);border-radius:11px;padding:11px 14px;background:#0c141d}
+  .envbox .e{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;margin-bottom:4px}
+  .envbox.dev{border-left:3px solid var(--power)} .envbox.dev .e{color:var(--power)}
+  .envbox.prod{border-left:3px solid var(--super)} .envbox.prod .e{color:var(--super)}
+  .envbox p{margin:0;font-size:11.8px;color:var(--ink-dim);line-height:1.5}
+
+  /* role cards */
+  .roles{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}
+  @media(max-width:820px){.roles{grid-template-columns:1fr}}
+  .rcard{border:1px solid var(--line2);border-radius:12px;padding:14px 15px;background:linear-gradient(180deg,var(--panel),var(--panel2));border-top:3px solid var(--line2)}
+  .rcard.user{border-top-color:var(--user)} .rcard.power{border-top-color:var(--power)} .rcard.super{border-top-color:var(--super)}
+  .rcard h4{margin:0 0 2px;font-size:15px}
+  .rcard .tag{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint)}
+  .rcard ul{margin:9px 0 0;padding-left:16px;font-size:12px;color:var(--ink-dim);line-height:1.55}
+  .rcard ul li{margin:3px 0}
+  .rcard .no{color:var(--deny)}
+
+  /* matrix */
+  table.mx{width:100%;border-collapse:collapse;font-size:11.8px;margin-top:2px}
+  table.mx th,table.mx td{text-align:left;padding:8px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+  table.mx th{font-family:var(--mono);font-size:9px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-faint);background:#0c141d}
+  table.mx td code{font-family:var(--mono);font-size:10.5px;color:#cfe0ef}
+  table.mx tr:hover td{background:rgba(52,214,230,.03)}
+  .perm{font-family:var(--mono);font-size:11px;color:#cfe0ef}
+  .yes{color:var(--hard);font-weight:700;text-align:center}
+  .no{color:var(--deny);font-weight:700;text-align:center}
+  .scoped{color:var(--power);font-weight:700;text-align:center;font-size:10px}
+  .col-user{color:var(--user)} .col-power{color:var(--power)} .col-super{color:var(--super)}
+  .mono{font-family:var(--mono);font-size:10.5px;color:var(--ink-dim)}
+
+  /* state machine */
+  .sm{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch}
+  .smnode{flex:1;min-width:150px;border:1px solid var(--line2);border-radius:11px;padding:11px 13px;background:#0b121b}
+  .smnode .st{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:4px}
+  .smnode h5{margin:0 0 4px;font-size:13px}
+  .smnode p{margin:0;font-size:11px;color:var(--ink-dim);line-height:1.45}
+  .smnode.draft{border-left:3px solid var(--power)} .smnode.gate{border-left:3px solid var(--hard)} .smnode.pub{border-left:3px solid var(--super)}
+
+  /* guardrail cards */
+  .guards{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+  @media(max-width:760px){.guards{grid-template-columns:1fr}}
+  .gcard{border:1px solid var(--line2);border-radius:11px;padding:12px 14px;background:#0c141d;border-left:3px solid var(--deny)}
+  .gcard h4{margin:0 0 5px;font-size:13px;color:var(--ink)}
+  .gcard p{margin:0;font-size:12px;color:var(--ink-dim);line-height:1.5}
+  .gcard code{font-family:var(--mono);font-size:10.5px;color:#cfe0ef}
+
+  /* generic note */
+  .note{margin:12px 0;border:1px solid var(--line2);border-left:3px solid var(--cyan);border-radius:11px;padding:13px 16px;background:linear-gradient(180deg,#0c1a20,#0b1318)}
+  .note.warn{border-left-color:var(--deny);background:linear-gradient(180deg,#1c1012,#140d0e)}
+  .note.key{border-left-color:var(--soft);background:linear-gradient(180deg,#1a160c,#13110a)}
+  .note h4{margin:0 0 5px;font-size:12px;font-family:var(--mono);letter-spacing:.04em;text-transform:uppercase;color:#9fe9f3}
+  .note.warn h4{color:#ffb3bc}.note.key h4{color:#ffe6ad}
+  .note p{margin:0 0 6px;font-size:12.6px;color:var(--ink-dim);line-height:1.58}
+  .note p:last-child{margin-bottom:0}
+  .note code{font-family:var(--mono);font-size:11px;color:#cfe0ef}
+
+  /* sequencing */
+  .seq{display:flex;flex-direction:column;gap:8px}
+  .seqrow{display:grid;grid-template-columns:36px 1fr;gap:12px;align-items:start;border:1px solid var(--line2);border-radius:11px;padding:11px 13px;background:#0c141d}
+  .seqn{font-family:var(--mono);font-weight:700;font-size:14px;color:var(--bg);width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:var(--cyan)}
+  .seqrow h4{margin:0 0 3px;font-size:13.5px}
+  .seqrow p{margin:0;font-size:12px;color:var(--ink-dim);line-height:1.5}
+
+  footer{margin-top:28px;font-family:var(--mono);font-size:10.5px;color:var(--ink-faint);text-align:center;line-height:1.85}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <p class="kick">CWF · EAIP — detailed design · governance &amp; RBAC</p>
+    <h1>Who may change what, where, and how it deploys <span class="sub">— the maker-checker governance model</span></h1>
+    <div class="stamp">rev 2 · 2026-06-28<br>HEAD <b>780018a</b><br>design + current state</div>
+    <div class="thesis">
+      The model is not bespoke — it is textbook <b>separation-of-duties (maker-checker)</b> laid over <b>dev/prod environment isolation</b>,
+      and the project already implements half of it (drafts → an unbypassable eval-gate → published). A <b>power_user</b> (developer) is the
+      <b>maker</b>: it edits drafts and previews them <b>in its own session only</b> (dev). A <b>super_admin</b> is the <b>checker + deployer</b>:
+      it publishes globally (prod) and manages users. The <b>eval-gate is an automated impartial second checker that binds even super_admin</b> —
+      so no single human can both make and ship, and no one can ship poison.
+    </div>
+    <div class="statuslegend">
+      <span><span class="sb s-live">LIVE</span> code-verified at HEAD a8bd531</span>
+      <span><span class="sb s-target">TARGET</span> proposed in this design — to build</span>
+      <span><span class="sb s-gap">GAP</span> exists in concept, missing in UI/code</span>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <h2 class="sec">The model at a glance · maker · automated checker · human checker</h2>
+  <div class="hero">
+    <div class="flow">
+      <div class="fbox maker"><div class="role">maker · dev</div><h4>power_user</h4><p>Edits a draft. Previews it <b>in its own session</b>. Cannot ship.</p></div>
+      <div class="farrow">submit →</div>
+      <div class="fbox gate"><div class="role">automated checker</div><h4>eval-gate</h4><p>schema → referential → behavioral. Rejects poison. <b>Binds everyone.</b></p></div>
+      <div class="farrow">verdict →</div>
+      <div class="fbox checker"><div class="role">checker · prod</div><h4>super_admin</h4><p>Reviews the verdict, <b>publishes globally</b>. Manages users.</p></div>
+    </div>
+    <div class="env">
+      <div class="envbox dev"><div class="e">dev environment = the power_user's session</div>
+        <p>A draft previewed only in the maker's own chat. Zero blast radius — it <b>never</b> touches the global published baseline other users read.</p></div>
+      <div class="envbox prod"><div class="e">prod environment = the global published baseline</div>
+        <p>What every user's agent actually reads at runtime. Only a super_admin can promote a draft here, and only after the gate passes.</p></div>
+    </div>
+  </div>
+
+  <!-- ROLES -->
+  <h2 class="sec">The three roles · current → target</h2>
+  <p class="lead">Today the taxonomy is <code>super_admin</code> / <code>domain_editor</code> / <code>user</code>, where a scoped <code>domain_editor</code> <b>can publish globally</b>.
+    The target renames/repurposes the editor tier to <b>power_user</b> and <b>removes global publish from it</b> — the one deliberate change, and the one that makes the model true SoD (the maker cannot also be the shipper). The per-backend scope survives as an <b>attribute</b>, not a role.</p>
+  <div class="roles">
+    <div class="rcard user"><span class="tag">no panel</span><h4>user</h4>
+      <ul><li>Chat only.</li><li class="no">No admin panel.</li><li>The default for every new account.</li></ul></div>
+    <div class="rcard power"><span class="tag">maker · developer · session-scoped</span><h4>power_user <span class="sb s-target">TARGET</span></h4>
+      <ul><li>Panel access.</li><li>Create / edit <b>drafts</b> (scoped to its backends).</li><li><b>Preview drafts in its own session</b> (dev).</li><li>Lab toggles (routing bypass, knowledge-source) — own session.</li><li class="no">Cannot publish globally. Cannot manage users.</li></ul></div>
+    <div class="rcard super"><span class="tag">checker · deployer · global</span><h4>super_admin</h4>
+      <ul><li>Everything power_user can, unscoped.</li><li><b>Publish globally</b> (through the gate).</li><li>Reset-to-reference, rollback.</li><li><b>Manage users</b>: create / delete / assign roles + scopes.</li><li>Global config / system behavior.</li></ul></div>
+  </div>
+
+  <!-- PERMISSION MATRIX -->
+  <h2 class="sec">Role × permission matrix · the enforceable heart</h2>
+  <p class="lead">SOTA principle: <b>check permissions, not roles</b> — roles are bundles of atomic permissions. The rows are the permissions the server enforces; the columns are the roles.
+    <span class="scoped">◑ scoped</span> = limited to the user's <code>user_backend_scopes</code>. The three super_admin-only rows (global publish · user management · global config) are exactly where separation-of-duties lives.</p>
+  <div class="hero" style="padding:6px 14px 14px">
+    <table class="mx">
+      <thead><tr><th>permission</th><th class="col-user" style="text-align:center">user</th><th class="col-power" style="text-align:center">power_user</th><th class="col-super" style="text-align:center">super_admin</th><th>hard enforcement</th><th>status</th></tr></thead>
+      <tbody>
+        <tr><td class="perm">chat:query</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="mono">JWT verify (auth.ts)</td><td><span class="sb s-live">LIVE</span></td></tr>
+        <tr><td class="perm">panel:access</td><td class="no">✕</td><td class="yes">●</td><td class="yes">●</td><td class="mono">adminGuard role check</td><td><span class="sb s-live">LIVE</span></td></tr>
+        <tr><td class="perm">rule:draft:crud</td><td class="no">✕</td><td class="scoped">◑</td><td class="yes">●</td><td class="mono">/api/admin/rules · backend scope</td><td><span class="sb s-live">LIVE</span></td></tr>
+        <tr><td class="perm">rule:preview:session</td><td class="no">✕</td><td class="yes">●</td><td class="yes">●</td><td class="mono">Lab channel · session-scoped read</td><td><span class="sb s-target">TARGET</span></td></tr>
+        <tr><td class="perm">rule:publish:global</td><td class="no">✕</td><td class="no">✕</td><td class="yes">●</td><td class="mono">eval-gate + RLS deny 42501</td><td><span class="sb s-live">LIVE</span><span class="sb s-target" style="margin-left:4px">RE-GATE</span></td></tr>
+        <tr><td class="perm">rule:reset:reference</td><td class="no">✕</td><td class="no">✕</td><td class="yes">●</td><td class="mono">/api/admin/reset (new published ver)</td><td><span class="sb s-gap">UI GAP</span></td></tr>
+        <tr><td class="perm">rule:rollback</td><td class="no">✕</td><td class="no">✕</td><td class="yes">●</td><td class="mono">creates a gated draft</td><td><span class="sb s-live">LIVE</span></td></tr>
+        <tr><td class="perm">kind:soft:edit</td><td class="no">✕</td><td class="no" title="TARGET — restored when kinds.ts gets the soft/core split">✕<sup style="color:var(--target)">△</sup></td><td class="yes">●</td><td class="mono">kinds.ts ensureSuperAdmin — soft/core split pending</td><td><span class="sb s-target">TARGET</span></td></tr>
+        <tr><td class="perm">routing:edit:global</td><td class="no">✕</td><td class="no">✕</td><td class="yes">●</td><td class="mono">tool_category_cache (advisory, ungated)</td><td><span class="sb s-gap">UI GAP</span></td></tr>
+        <tr><td class="perm">lab:toggle:session</td><td class="no">✕</td><td class="yes">●</td><td class="yes">●</td><td class="mono">per-request override · audited · banner</td><td><span class="sb s-target">TARGET</span></td></tr>
+        <tr><td class="perm">telemetry:read</td><td class="no">✕</td><td class="yes">●</td><td class="yes">●</td><td class="mono">RLS role-scoped read</td><td><span class="sb s-live">LIVE</span></td></tr>
+        <tr><td class="perm">user:manage</td><td class="no">✕</td><td class="no">✕</td><td class="yes">●</td><td class="mono">gated endpoint + anti-lockout + audit</td><td><span class="sb s-gap">READ-ONLY</span></td></tr>
+        <tr><td class="perm">config:global</td><td class="no">✕</td><td class="no">✕</td><td class="yes">●</td><td class="mono">super_admin only</td><td><span class="sb s-target">TARGET</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note key"><h4>◆ the SoD lives in three rows</h4>
+    <p><code>rule:publish:global</code>, <code>user:manage</code>, <code>config:global</code> are super_admin-only. A power_user can <b>make</b> (draft + session preview) but never <b>ship</b>. That single cap is the entire separation-of-duties guarantee — encoded as permissions, enforced server-side, not as UI conditionals.</p></div>
+
+  <!-- PIPELINE STATE MACHINE -->
+  <h2 class="sec">The maker-checker pipeline · state machine</h2>
+  <p class="lead">This reuses the existing draft → eval-gate → published machinery verbatim. The only additions are the <b>session-preview</b> state (dev) and binding the publish action to super_admin.</p>
+  <div class="hero" style="padding:16px">
+    <div class="sm">
+      <div class="smnode draft"><div class="st">power_user · dev</div><h5>① draft</h5><p>Create/edit a draft rule. Not served to anyone.</p></div>
+      <div class="farrow" style="align-self:center">→</div>
+      <div class="smnode draft"><div class="st">power_user · dev</div><h5>② preview-in-session</h5><p>The maker's own chat reads the draft (Lab channel). Iterate freely. <b>Global untouched.</b></p></div>
+      <div class="farrow" style="align-self:center">→</div>
+      <div class="smnode gate"><div class="st">automated</div><h5>③ eval-gate</h5><p>On submit: schema→referential→behavioral. Poison rejected. Binds all.</p></div>
+      <div class="farrow" style="align-self:center">→</div>
+      <div class="smnode pub"><div class="st">super_admin · prod</div><h5>④ publish</h5><p>Review verdict, promote to <code>published</code>. Writes <code>rule_versions</code> + <code>rule_audit</code>.</p></div>
+    </div>
+    <div class="note" style="margin-top:14px"><h4>side transitions</h4>
+      <p><b>reset-to-reference</b> (super_admin): rewrites the code baseline as a <b>new published version</b> — never a delete; history intact, <code>rule_audit(action='reset')</code>. <b>rollback</b> (super_admin): re-opens an old version as a <b>draft</b> that must re-pass the gate. <b>reject</b> at ③: the draft stays a draft; nothing ships.</p></div>
+  </div>
+
+  <!-- SESSION PREVIEW MECHANISM -->
+  <h2 class="sec">Session-preview · how a maker's change stays in dev</h2>
+  <p class="lead">The load-bearing mechanism that makes "changes for my own session" real — and keeps them out of prod.</p>
+  <div class="note"><h4>mechanism</h4>
+    <p>Reuse the existing per-request override channel (the same one <code>forceProvider</code> rides). A power_user's chat request carries a flag: <code>previewDrafts: [ruleId…]</code> or <code>labMode: {routingBypass, knowledgeSource:'floor'}</code>. For <b>that request only</b>, <code>getDomainContext</code> / the tool filter read the draft / floor / full-set <b>instead of</b> the global published baseline.</p>
+    <p><b>Invariant — the overlay is read-only against global:</b> session-preview changes a single user's <i>read path</i>; it issues <b>no write</b> to <code>domain_rules.published</code>, <code>rule_kinds</code>, or <code>tool_category_cache</code> global state. Promotion to prod is exclusively the super_admin publish path through the gate.</p>
+    <p><b>Always visible, always audited:</b> a session in Lab/preview shows a persistent banner ("SESSION · dev — not global"), and entering it emits a telemetry event. It auto-expires with the session. No silent, sticky, global toggle.</p></div>
+
+  <!-- USER MANAGEMENT -->
+  <h2 class="sec">User management · the root of trust · start here</h2>
+  <p class="lead">Currently <span class="sb s-gap">READ-ONLY</span> (UsersTab) — role/scope assignment is done via the Supabase dashboard because a direct browser write would bypass RBAC. The target turns this into the gated heart of the system, with the guardrails mainstream RBAC mandates.</p>
+  <div class="guards">
+    <div class="gcard"><h4>Gated server endpoint only</h4><p>Create / delete / assign-role / set-scope flow through <code>/api/admin/users</code> under the service role. <b>Never</b> a direct client write — that would bypass RBAC.</p></div>
+    <div class="gcard"><h4>Anti-lockout / no self-escalation</h4><p>A super_admin cannot demote or delete <b>itself</b> or the <b>last remaining super_admin</b> (the classic "except herself" SoD rule). Guarantees the system can never be locked out of administration.</p></div>
+    <div class="gcard"><h4>Least-privilege default</h4><p>Every new user is created as <code>user</code>. Elevation is an explicit, deliberate action — never the default.</p></div>
+    <div class="gcard"><h4>Audit every change</h4><p>actor · target · old→new role/scope · reason · timestamp → an immutable audit row (mirror the <code>rule_audit</code> pattern). High-risk grants (super_admin) get an explicit confirmation step.</p></div>
+    <div class="gcard"><h4>Capability-driven UI</h4><p>The frontend asks "what may this user do" and hides/disables what the role can't. A power_user never sees an enabled "Publish global" or "Manage users" button.</p></div>
+    <div class="gcard"><h4>Future: JIT elevation</h4><p>Time-bounded, approved temporary elevation for one-off needs (e.g. prod debugging) instead of permanent grants. Designed-for, not built now.</p></div>
+  </div>
+
+  <!-- PER-TABLE TREATMENT -->
+  <h2 class="sec">Per-table governance treatment · respecting the determinism↔soft split</h2>
+  <p class="lead">The 12 tables are <b>not</b> edited uniformly. Correctness-critical knowledge goes through the gate; advisory routing does not; ledgers are read-only. This split is the design, not an accident.</p>
+  <div class="hero" style="padding:6px 14px 14px">
+    <table class="mx">
+      <thead><tr><th>table</th><th>class</th><th>who edits</th><th>how it's written</th><th>reset</th><th>UI status</th></tr></thead>
+      <tbody>
+        <tr><td><code>domain_rules</code></td><td class="mono">gated (CORE/SOFT)</td><td class="mono">power_user draft → super_admin publish</td><td class="mono">eval-gate (server) · RLS deny direct</td><td class="mono">to-reference (new ver)</td><td><span class="sb s-live">CRUD LIVE</span> <span class="sb s-gap">reset UI gap</span></td></tr>
+        <tr><td><code>rule_kinds</code></td><td class="mono">structure</td><td class="mono">SOFT: super_admin (power_user TARGET) · CORE: locked to code</td><td class="mono">field-spec validator</td><td class="mono">to-reference</td><td><span class="sb s-live">LIVE</span></td></tr>
+        <tr><td><code>rule_versions</code></td><td class="mono">history</td><td class="mono">— (system)</td><td class="mono">written by publish</td><td class="mono">—</td><td><span class="sb s-gap">diff UI gap</span></td></tr>
+        <tr><td><code>rule_audit</code></td><td class="mono">audit</td><td class="mono">— (system)</td><td class="mono">written by every governed action</td><td class="mono">—</td><td><span class="sb s-target">view TARGET</span></td></tr>
+        <tr><td><code>tool_category_cache</code></td><td class="mono">soft / advisory</td><td class="mono">super_admin (global) · power_user (session)</td><td class="mono">direct (ungated — can't poison correctness)</td><td class="mono">clear-learned</td><td><span class="sb s-gap">no surface</span></td></tr>
+        <tr><td><code>backends</code></td><td class="mono">registry</td><td class="mono">super_admin</td><td class="mono">row = a backend</td><td class="mono">—</td><td><span class="sb s-target">TARGET</span></td></tr>
+        <tr><td><code>user_roles</code> · <code>user_backend_scopes</code></td><td class="mono">RBAC</td><td class="mono">super_admin only</td><td class="mono">gated endpoint + anti-lockout</td><td class="mono">—</td><td><span class="sb s-gap">READ-ONLY</span></td></tr>
+        <tr><td><code>mcp_settings</code></td><td class="mono">config</td><td class="mono">owner</td><td class="mono">owner-only (RLS)</td><td class="mono">—</td><td><span class="sb s-live">LIVE</span></td></tr>
+        <tr><td><code>telemetry_events</code></td><td class="mono">ledger</td><td class="mono">— (system)</td><td class="mono">append-only, redacted</td><td class="mono">—</td><td><span class="sb s-live">read LIVE</span></td></tr>
+        <tr><td><code>conversations</code> · <code>messages</code></td><td class="mono">user data</td><td class="mono">owner / server</td><td class="mono">RLS owner · server-written</td><td class="mono">—</td><td><span class="sb s-live">LIVE</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- DESIGN DIRECTION -->
+  <h2 class="sec">Design direction · modern, mainstream, capability-driven</h2>
+  <div class="guards">
+    <div class="gcard" style="border-left-color:var(--cyan)"><h4>Admin shell + environment indicator</h4><p>Persistent left nav (Users · Rules · Kinds · Routing · Telemetry · Lab) + top bar with a <b>role badge + environment flag</b>: "GLOBAL · prod" for super_admin, "SESSION · dev" for power_user. The flag prevents the "didn't realize this was global" footgun.</p></div>
+    <div class="gcard" style="border-left-color:var(--cyan)"><h4>Real data tables</h4><p>Scrollable containers + sticky headers (fixes the Kinds-doesn't-scroll bug), search/filter, pagination, row actions, and proper <b>loading / empty / error</b> states — not bare lists.</p></div>
+    <div class="gcard" style="border-left-color:var(--cyan)"><h4>Capability-driven controls</h4><p>Buttons reflect permissions: disabled + tooltip ("requires super_admin") rather than hidden-or-crash. One capability query, no scattered role conditionals.</p></div>
+    <div class="gcard" style="border-left-color:var(--cyan)"><h4>Inline governance affordances</h4><p>Each tab explains <b>how to edit</b>, <b>how reset works</b>, and labels <b>CORE-locked vs SOFT-editable</b> and <b>gated vs advisory</b>. The existing gate-verdict teaching surface plugs in here.</p></div>
+    <div class="gcard" style="border-left-color:var(--cyan)"><h4>One design system</h4><p>A consistent component set (shadcn/ui-class) over the project's dark technical aesthetic — tokens, spacing scale, typography — replacing the current ad-hoc styling.</p></div>
+    <div class="gcard" style="border-left-color:var(--cyan)"><h4>Diff &amp; history surfaces</h4><p>Version diff (compare two <code>rule_versions</code> payloads), audit timeline (<code>rule_audit</code>), and a one-click reset-to-reference — the governance story made visible.</p></div>
+  </div>
+
+  <!-- INVARIANTS -->
+  <h2 class="sec">Invariants &amp; traps · non-negotiable</h2>
+  <div class="note warn"><h4>⚠ the four that must hold</h4>
+    <p><b>1 · The eval-gate binds everyone, super_admin included.</b> There is no "god-mode publish." The human checker is itself checked by the machine checker.</p>
+    <p><b>2 · Session-preview never writes global.</b> A maker's dev overlay changes only its own read path. A dev→prod leak would be the most dangerous bug in this system.</p>
+    <p><b>3 · Anti-lockout is absolute.</b> The system can never be left with zero super_admins; no one can demote/delete the last one or themselves into lockout.</p>
+    <p><b>4 · Don't over-engineer to ABAC/PBAC.</b> RBAC + a backend-scope attribute is the right fit at this scale. Full attribute/policy engines are premature.</p></div>
+  <div class="note key"><h4>known tradeoff — the super_admin bottleneck</h4>
+    <p>Strict maker-checker means one checker can become a throughput bottleneck. Accepted for now (safer, matches intent). If it bites, add a <b>scoped-publisher permission</b> (a trusted power_user may publish its own backend) — as a <i>permission</i>, not a new role. Permissions are atomic; roles are bundles.</p></div>
+
+  <!-- SEQUENCING -->
+  <h2 class="sec">Implementation sequencing</h2>
+  <div class="seq">
+    <div class="seqrow"><div class="seqn">1</div><div><h4>RBAC core + user management — the root of trust</h4><p>3-role model + permission checks; gated <code>/api/admin/users</code> (create/delete/assign) with anti-lockout, least-privilege default, audit; capability-driven UI gating. Start here — everything hangs off "who can do what."</p></div></div>
+    <div class="seqrow"><div class="seqn">2</div><div><h4>Admin shell redesign + real data tables</h4><p>The chassis: nav + role/environment badge, scrollable/searchable tables, loading/empty/error states, one design system. Fixes the "baştan savma" UX.</p></div></div>
+    <div class="seqrow"><div class="seqn">3</div><div><h4>Per-table edit/reset affordances</h4><p>Reset-to-reference buttons (endpoint exists), version diff + rollback UI, CORE/SOFT + gated/advisory labels, inline how-to-edit help.</p></div></div>
+    <div class="seqrow"><div class="seqn">4</div><div><h4>power_user session-preview + Lab mode</h4><p>The dev-environment overlay (draft preview in own session) + routing-bypass / knowledge-source toggles — the mechanism that also unblocks correct, apples-to-apples acceptance testing.</p></div></div>
+    <div class="seqrow"><div class="seqn">5</div><div><h4>Tool Routing tab (tool_category_cache)</h4><p>View/edit/clear learned mappings; folds into steps 3–4. (The OEE-uncategorized <i>fix</i> itself is a code change in Phase F, not a panel edit.)</p></div></div>
+  </div>
+
+  <footer>
+    CWF · EAIP — governance &amp; RBAC model · detailed design · rev 2 · 2026-06-28 · grounded against HEAD 780018a<br>
+    v2: kind:soft:edit corrected — power_user grant moved to TARGET (returns when kinds.ts gets the soft/core split); matrix now matches enforcement (RBAC-1.1 matrix-honesty).<br>
+    instantiates: separation-of-duties (maker-checker) · dev/prod environment isolation · least-privilege scoped roles · permissions-as-atomic-units · capability-driven UI · anti-lockout SoD<br>
+    companions: cwf-llm-control-surface-v1 · cwf-request-lifecycle-v2 · cwf-architecture-map-v6
+  </footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,2622 @@
+Governed Agentic Intelligence
+
+**CWF  →  EAIP**
+
+**Governed Agentic Intelligence**
+
+Principles, Patterns, and Implementation of the CWF Platform
+
+*A textbook on building AI agents that can be trusted*
+
+*with a decision, and not merely with a sentence.*
+
+Version 1.0  ·  August 2026
+
+#### **About this book**
+
+**Governed Agentic Intelligence** · v1.0 · August 2026.
+
+This book documents the architecture of the CWF (Chat With Factory) platform and its generalization, the Enterprise Agentic Intelligence Platform (EAIP). It is written as a textbook rather than as system documentation: every mechanism is introduced from the problem it solves, and every design is billed for what it actually delivers.
+
+Its structure follows the four-part **foundations → build → govern → operate** progression used in Victor Dibia's Designing Multi-Agent Systems, and readers of that book will find the chapter conventions — a this chapter covers opening, numbered sections, figures, and a key-takeaways summary — deliberately familiar.
+
+All figures are original. All measured values were read from the live system or from CI-arbitrated runs at the time of writing.
+
+**A note on versioning.** Every artifact in this programme carries its version in its filename and inside itself, and is never silently overwritten. This book follows the same rule: corrections produce a new version, and the version this document claims is the one printed on its title page.
+
+**Where this book and an ADR disagree, the ADR wins**, and this book is the thing that needs updating. Where this book and the code disagree, the code wins, and both need updating.
+
+**Contents**
+
+	Preface	07
+
+	**Foundations of Governed Agentic Systems**	09
+
+	**1  Understanding Governed Agentic Systems**	10
+
+	1.1  Introduction	10
+
+	1.2  From a model, to an agent, to a governed agent	10
+
+	1.3  Why an enterprise system of record changes the problem	11
+
+	1.4  What CWF is	11
+
+	1.5  Four properties of a governed agent	12
+
+	1.6  The recurring trap: determinism versus learning	12
+
+	1.7  When not to build this	13
+
+	1.8  Summary	13
+
+	**2  The Anatomy of a Turn**	14
+
+	2.1  A turn is not a function call	14
+
+	2.2  The fifteen stages	14
+
+	2.3  Execution order is not concept order	15
+
+	2.4  One completion site	15
+
+	2.5  TurnContext: the shared spine	16
+
+	2.6  A real turn, measured	16
+
+	2.7  Summary	17
+
+	**3  The Governance Substrate: DB-First, Code-Floor**	18
+
+	3.1  The question every configurable system eventually faces	18
+
+	3.2  The three sanctioned roles of code	18
+
+	3.3  Absence-only seeding	19
+
+	3.4  Three kinds of configuration, three homes	19
+
+	3.5  empty ≠ zero	19
+
+	3.6  partial ≠ complete	20
+
+	3.7  Coverage is configuration	20
+
+	3.8  Summary	20
+
+	**Building the System**	22
+
+	**4  Backends as Data**	23
+
+	4.1  What MCP gives you, and what it does not	23
+
+	4.2  Backend identity is a row	23
+
+	4.3  Two backend shapes	24
+
+	4.4  The tool mirror: missing ≠ deleted	24
+
+	4.5  Secrets by reference	24
+
+	4.6  Coverage, authority, and the shape of a backend row	25
+
+	4.7  Summary	25
+
+	**5  Understanding the Question: Intent Resolution**	26
+
+	5.1  The problem with routing on words	26
+
+	5.2  The frame	26
+
+	5.3  Six actions, thirteen objects	27
+
+	5.4  Derivation: from frame to candidate categories	27
+
+	5.5  Armor	28
+
+	5.6  Clarification is an outcome, not a failure	28
+
+	5.7  What intent resolution costs	29
+
+	5.8  Summary	29
+
+	**6  Finding the Right Tool**	30
+
+	6.1  The candidate-set problem	30
+
+	6.2  The routing ladder	30
+
+	6.3  The availability floor is sacred	31
+
+	6.4  Four sources of tool information	31
+
+	6.5  What the funnel actually looks like	31
+
+	6.6  Measuring a router before trusting it	32
+
+	6.7  Summary	32
+
+	**7  Composing the Prompt**	33
+
+	7.1  The prompt is a component	33
+
+	7.2  Core modules and domain packs	33
+
+	7.3  Segments as governed data	33
+
+	7.4  Tool text is data, never command	34
+
+	7.5  Compression, and the failure it prevents	34
+
+	7.6  Summary	34
+
+	**8  Memory**	35
+
+	8.1  Four kinds of memory	35
+
+	8.2  The episode record	35
+
+	8.3  Retrieval: multi-signal and deterministic	36
+
+	8.4  Forgetting is a feature	36
+
+	8.5  Promotion, not accumulation	37
+
+	8.6  Surfacing memory honestly	37
+
+	8.7  Summary	37
+
+	**9  Knowledge and Retrieval**	39
+
+	9.1  Governed knowledge	39
+
+	9.2  Two paths to an answer	39
+
+	9.3  Choosing an engine, and naming the trigger	40
+
+	9.4  The bridge	40
+
+	9.5  What retrieval must never do	40
+
+	9.6  Summary	41
+
+	**Trust, Measurement, and Governance**	42
+
+	**10  Trust and Provenance**	43
+
+	10.1  The incident	43
+
+	10.2  The threat model	43
+
+	10.3  The hard truth that bounds the design	44
+
+	10.4  Trust is declared, ceiling-capped, and revocable	44
+
+	10.5  Enforcement lives in the architecture	44
+
+	10.6  Two tiers of provenance	45
+
+	10.7  Trust as a deterministic function	45
+
+	10.8  Containment	46
+
+	10.9  The honest limit	46
+
+	10.10  Summary	47
+
+	**11  Discovery and Earned Trust**	48
+
+	11.1  An asymmetry, and the cheap fix that would have made it permanent	48
+
+	11.2  The law	48
+
+	11.3  The boundary: shape versus inventory	49
+
+	11.4  The degree test	49
+
+	11.5  The other half: a declaration is a claim, not a warrant	50
+
+	11.6  Mismatch signals	50
+
+	11.7  Granularity and two speeds	51
+
+	11.8  The honest limit, again	51
+
+	11.9  Summary	51
+
+	**12  The Eval-Gate**	53
+
+	12.1  Why a gate	53
+
+	12.2  Three stages	53
+
+	12.3  "Unbypassable", defined precisely	53
+
+	12.4  Publish, version, roll back, audit	54
+
+	12.5  The anti-oracle principle	54
+
+	12.6  Summary	54
+
+	**13  Observability**	56
+
+	13.1  Three systems, one identifier	56
+
+	13.2  The full-trace mandate	56
+
+	13.3  Transport realities	57
+
+	13.4  A log line proves what the deployment that emitted it contained	57
+
+	13.5  Summary	58
+
+	**14  Measurement: Reads That Cannot Lie**	59
+
+	14.1  A number in a log is a claim	59
+
+	14.2  The silent-zero family	59
+
+	14.3  empty ≠ zero, all the way down	60
+
+	14.4  The pagination cliff	60
+
+	14.5  Positive controls	60
+
+	14.6  Flaky is usually one bug wearing many faces	61
+
+	14.7  The health board	61
+
+	14.8  Summary	62
+
+	**Operating and Scaling**	63
+
+	**15  Valves, Not Walls**	64
+
+	15.1  The challenge	64
+
+	15.2  The valve	64
+
+	15.3  The four-layer taxonomy	64
+
+	15.4  Two standing rules	65
+
+	15.5  Capability posture as data	65
+
+	15.6  Summary	66
+
+	**16  The Operating Model**	67
+
+	16.1  Three lanes	67
+
+	16.2  Mode is bound to a connection	67
+
+	16.3  The seven movements of a change	68
+
+	16.4  A doctrine for the design lane	68
+
+	16.5  Verification discipline	69
+
+	16.6  Summary	69
+
+	**17  Case Study: One Turn, One Incident**	71
+
+	17.1  The turn	71
+
+	17.2  The incident	72
+
+	17.3  What this would not have caught	72
+
+	17.4  Reading the turn as a measurement	73
+
+	17.5  Summary	73
+
+	**18  From One Customer to Many**	74
+
+	18.1  The split	74
+
+	18.2  What belongs where	74
+
+	18.3  Nesting	75
+
+	18.4  Named triggers, not roadmaps	75
+
+	18.5  What is designed and not yet built	75
+
+	18.6  Summary	76
+
+	**Appendices**	77
+
+	**Appendix A  The Named Laws**	78
+
+	**Appendix B  Architecture Decision Records**	79
+
+	**Appendix C  Glossary**	80
+
+### **Preface**
+
+*This book is about a narrow and stubborn problem: how to let a language model answer questions from a real factory**'**s live data without ever being able to lie to the person who asked.*
+
+#### **Who this book is for**
+
+This book is written for engineers and architects who are building — or are about to build — an agent that sits between people and a system of record. If your agent's wrong answer is a mildly annoying paragraph, you can read this book for the patterns and skip the discipline. If your agent's wrong answer is a production decision, a shipped pallet, or a regulatory filing, the discipline is the point.
+
+You should be comfortable with modern backend engineering: relational databases, HTTP services, typed application code, CI. You do not need prior experience with agent frameworks. Every agent-specific concept is introduced before it is used. Where the book assumes a concrete stack, it says so and explains what the equivalent would be elsewhere; almost nothing here depends on a particular vendor.
+
+#### **What you will learn**
+
+- How to decompose a single agent turn into stages that can be individually observed, measured and replaced — and why the stage tree, not a diagram, must be the definition of the pipeline.
+
+- How to make configuration, knowledge and inventory live in a governed database at runtime while code remains a safe floor beneath them.
+
+- How to integrate an open-ended set of tool backends without compiling any of them into the product.
+
+- How to resolve an unbounded natural-language question into a closed, checkable representation of intent — and what to do when it cannot be resolved.
+
+- How to build a trust model that makes a lying data source harmless rather than pretending to detect it.
+
+- How to publish changes to an agent's knowledge through a gate that cannot be bypassed, versioned and reversible.
+
+- How to measure whether any of this is actually working, using reads that cannot silently report success.
+
+#### **The system this book is written from**
+
+The examples in this book are drawn from a working platform, referred to throughout as **CWF** (Chat With Factory) and its generalization **EAIP** (Enterprise Agentic Intelligence Platform). CWF lets plant operators and managers ask questions in natural language against a ceramic factory's manufacturing execution system and its business-intelligence layer. It runs in production. Its numbers, incidents and failures are real, and several of the most useful lessons in this book are failures.
+
+That is deliberate. A book of clean patterns teaches you what to draw. A book that shows where the drawing broke teaches you what to build.
+
+#### **A note on evidence**
+
+This book inherits a rule from the project it describes: **a number in a log is a claim, not the world**. Every figure quoted here — 141 tools, 27 offered, 493 of 500 frames, 779 registry rows, 58 of 78 derivable pairs — came from a read of the live system or a CI-arbitrated test run, not from an estimate. Where something is unmeasured, the book says it is unmeasured. Where a design is decided but not yet built, the book says so in the same sentence as the design.
+
+You should hold this book to that standard, and your own system to it more strictly.
+
+#### **How this book is organized**
+
+The book is divided into four parts that follow a **foundations → build → govern → operate** progression.
+
+**Part I: Foundations of Governed Agentic Systems** establishes the conceptual ground. Chapter 1 defines what separates a governed agent from an agent, and why an enterprise system of record changes the problem. Chapter 2 decomposes a single turn into fifteen stages and traces a real one end to end. Chapter 3 introduces the substrate every later chapter stands on: the DB-first / code-floor rule and the three homes of configuration.
+
+**Part II: Building the System** takes the foundations into implementation. Chapter 4 shows how to make backend identity data rather than code. Chapter 5 builds intent resolution — turning an infinite language into a closed frame. Chapter 6 solves the candidate-set problem when a single backend exposes over a hundred tools. Chapter 7 covers prompt composition and the discipline of a single completion site. Chapter 8 builds memory as four separate things, only one of which is new. Chapter 9 covers governed knowledge and the retrieval path that sits beside it.
+
+**Part III: Trust, Measurement, and Governance** addresses the properties that make the system usable by someone who is accountable for the answer. Chapter 10 develops the trust and provenance model. Chapter 11 covers discovery and earned trust — how a system learns its own world and what it does when that world lies. Chapter 12 covers the eval-gate. Chapter 13 covers observability as three systems joined by one identifier. Chapter 14 is about measurement, and specifically about reads that cannot report a comfortable zero.
+
+**Part IV: Operating and Scaling** covers the parts that are usually left out of architecture books and are usually where systems die. Chapter 15 introduces a taxonomy that keeps restrictions from ossifying into dogma. Chapter 16 describes the three-lane operating model under which the system is actually changed. Chapter 17 is a full case study of one production turn and one production incident. Chapter 18 generalizes the whole system from one customer to many.
+
+Chapters are largely self-contained but the dependency order is real: Part III repeatedly assumes Chapter 3, and Part IV assumes Part III. If you read only three chapters, read 3, 10 and 14.
+
+#### **Conventions used in this book**
+
+| **Convention** | **Meaning** |
+| --- | --- |
+| monospace | A concrete identifier: a table, column, file, parameter or tool name in the running system. |
+| A LAW IN CAPITALS | A named, binding rule of the platform. Named laws are indexed in Appendix A. They are cited rather than re-argued. |
+| ADR-nnn | An Architecture Decision Record. ADRs are ground truth for their own subject; they are indexed in Appendix B. |
+| Callout boxes | A digression that is worth reading but not required to follow the argument — usually an incident, a trap, or a piece of history. |
+| "the owner" | The single accountable product decision-maker. Used because several rules in this book exist specifically to keep judgement with a human. |
+
+*Table P.1: Notation used throughout the book.*
+
+#### **What this book is not**
+
+It is not a survey of agent frameworks; it takes almost no position on which one you should use, because the properties it argues for are properties of your architecture rather than of your library. It is not an introduction to large language models. It is not a security manual, though Chapters 10 and 11 are load-bearing for security. And it does not claim the architecture it describes is finished — Chapter 18 ends with an honest list of what is designed but not yet built.
+
+**PART I**
+
+# **Foundations of Governed Agentic Systems**
+
+Part I establishes the conceptual ground the rest of the book stands on. It is deliberately light on implementation: nothing here requires you to have chosen a framework, a database or a model provider.
+
+Chapter 1 defines the object of study — an agent that is accountable for its answers — and argues that accountability is an architectural property rather than a prompting technique. Chapter 2 decomposes one turn into fifteen observable stages and walks a real production turn through all of them. Chapter 3 introduces the substrate: where truth lives at runtime, what code is still allowed to hold, and the two correctness laws that recur in every later chapter.
+
+## **1  Understanding Governed Agentic Systems**
+
+**This chapter covers:**
+
+- The accountability gap: why a competent agent over an enterprise backend can still be unusable
+
+- What separates a model, an agent, and a governed agent
+
+- The four properties that make an agent's answer usable by someone who is accountable for it
+
+- A system context for CWF: two live backends, one governed store, one platform
+
+- When a governed agent is the wrong choice
+
+### **1.1  Introduction**
+
+There is a particular disappointment that arrives about three weeks into building an agent over a real enterprise system. The demo works. The model calls the right tools, joins the results, writes a fluent paragraph, and everyone in the room is impressed. Then someone who actually runs the plant asks a question, gets a confident answer, and says: how do I know that's right?
+
+And you find you have no answer. Not a bad answer — no answer at all. You cannot say which system the number came from, or whether the tool that produced it was scoped to the thing the person asked about, or whether an empty result meant "the value is zero" or "the query failed". You cannot reproduce the answer, because the model may route differently next time. You cannot show your work, because the work happened inside a completion you did not record. The demo was never wrong; it was simply unaccountable, and accountability turns out to be the entire product.
+
+This book is about closing that gap. The thesis is simple to state and expensive to implement: **accountability is an architectural property, not a prompting technique**. You do not obtain it by asking the model to be careful, or by asking a second model to grade the first one. You obtain it by moving the checks out of the model's reasoning and into deterministic code, governed data, and an audit trail — so that the guarantee holds when the model is having a bad day, when the backend is lying, and when nobody is watching.
+
+### **1.2  From a model, to an agent, to a governed agent**
+
+It is worth being precise about the progression, because the three terms are routinely conflated and the differences are where the engineering lives.
+
+A **model** answers from what it learned during training. It has no access to your world. Ask it about last night's output on line 3 and, at best, it will tell you it cannot know.
+
+An **agent** is a model plus tools plus memory, wrapped in a loop that lets it act: choose a tool, call it, observe the result, decide whether it has enough, and answer. This is a genuine capability jump — the agent can now reach live data. It is also where the accountability gap opens, because the agent's ability to reach the data outruns the system's ability to account for what it did with it.
+
+A **governed agent** is an agent whose every claim carries its origin, whose routing decisions are made by declared policy rather than by inference, whose knowledge can only be changed through a gate that validates and versions the change, and whose entire turn is reconstructible after the fact. Figure 1.1 shows the progression.
+
+*Figure 1.1: Each step adds capability. Only the third adds the ability to be trusted with a decision.*
+
+Note what the third box does not say. It does not say the governed agent is more accurate, or that it hallucinates less. It may do both, but neither is the guarantee. The guarantee is that when it is wrong, the wrongness is contained, attributed, and visible. That is a weaker promise than "correct" and a far more achievable one — and, as Chapter 10 argues at length, it is the only promise you can actually keep against a data source you do not control.
+
+### **1.3  Why an enterprise system of record changes the problem**
+
+Most published agent architecture assumes the agent's tools are broadly benign: a search API, a code interpreter, a calendar. An enterprise system of record breaks four of those assumptions at once.
+
+#### **1.3.1  The tool surface is large and unhelpfully named**
+
+A manufacturing execution system does not expose eight tools. The MES in this book exposes roughly 141, flat, with names that were designed for an integration engineer rather than for a language model. A BI gateway adds another 26 behind two generic entry points. That is a corpus of about 167 callable operations, and no current model reliably picks correctly from a list that size without help. Chapter 6 is entirely about that help.
+
+#### **1.3.2  Scope is a first-class trap**
+
+In a consumer setting, an approximately right answer is usually useful. In a plant, an answer about the wrong production line is worse than no answer, because it is actionable and false. Worse, scope errors are self-consistent: a dashboard titled with one factory's name and bound to another factory's data will produce numbers that look completely plausible. Chapter 10 opens with exactly that incident.
+
+#### **1.3.3  Absence is meaningful**
+
+In a plant, zero is a reading. If a line produced nothing last night, that is a fact worth acting on. If the query failed, that is a different fact, worth acting on differently. If nothing matched the requested window, that is a third. A system that renders all three as 0 has not simplified anything; it has manufactured a lie and made it look like data. This principle recurs so often that it has a name in this book — **empty ≠ zero** — and it is introduced in Chapter 3, developed in Chapter 14, and never relaxed.
+
+#### **1.3.4  The set of backends is open-ended**
+
+Today there are two. Tomorrow there is an ERP, an IoT platform, a document store, and a backend somebody in another department stood up over a weekend. Any architecture that requires a code change, an enum edit, or a migration to add a backend has quietly made every new customer into a release. Chapter 4 shows the alternative.
+
+### **1.4  What CWF is**
+
+CWF is a production agentic platform that lets operators and managers query live industrial and BI data in natural language through governed backends spoken to over the Model Context Protocol. Figure 1.2 gives the system context.
+
+*Figure 1.2: System context. One platform, an open-ended set of backends, and nothing about any backend compiled into the product.*
+
+Two backends are live. **ARMES** is the manufacturing execution system for a ceramic factory — roughly 141 flat tools, and the declared system_of_record for production metrics. **Superset** is an Apache Superset business-intelligence instance exposed as a gateway: the agent sees two tools, search_tools and call_tool, behind which 26 inner operations are discovered and governed as data. It is declared a reporting_mirror, which is the platform's way of saying: useful, always attributed, and authoritative for nothing.
+
+The third box in that column is the important one. A backend nobody has assessed yet lands at the floor — advisory, never authoritative, always attributed, quarantinable. A fraudulent backend is therefore already in the basement the moment it connects, before any human has looked at it. That default is not politeness; it is the entire defence.
+
+### **1.5  Four properties of a governed agent**
+
+Across the whole architecture, four properties do the work. Everything else in this book is a mechanism for obtaining one of them.
+
+| **Property** | **What it means** | **Where it is built** |
+| --- | --- | --- |
+| Provenance | Every value the agent surfaces knows where it came from — which backend, which tool, which datasource. | Chapters 4, 10 |
+| Determinism at the boundaries | The decisions that must be exactly right are made by code and governed data, never by inference. Inference is used where being approximately right is acceptable. | Chapters 3, 5, 6, 12 |
+| Containment | A wrong or hostile input reaches nowhere load-bearing. The bar is "could not do damage", never "we detected it". | Chapters 10, 11 |
+| Reconstructibility | Any turn can be replayed and explained after the fact, from durable records, without asking the model what it was thinking. | Chapters 13, 14 |
+
+*Table 1.1: The four properties, and the chapters that build them.*
+
+It is worth noticing that none of these four is about answer quality. Answer quality is a real goal and Chapter 14 measures it. But quality is a distribution — you improve it, you never guarantee it. These four are invariants: they either hold on every turn or they are broken. Invariants are what you can build a business promise on.
+
+### **1.6  The recurring trap: determinism versus learning**
+
+The single most useful habit this book can give you is a question to ask before implementing anything. Every proposal to "just add X" to an agent hides a split, and naming the split before you build is worth more than any amount of cleverness afterwards.
+
+*Is this thing authoritative — must it be exactly correct — or is it advisory, where being usefully approximate is the job?*
+
+Authoritative things belong in code or in gated data: an entity's canonical identifier, a metric's definition, the mapping from a metric to the backend allowed to answer for it, the order of validation stages. Advisory things belong in learned or soft layers: which tools are probably relevant to this phrasing, which past interactions might be worth surfacing, how to rank a set of retrieval candidates.
+
+The clean formulation, which you will see repeatedly: **learning may improve how the agent FINDS things; it may never change what the agent KNOWS**. A learned layer that narrows a candidate set is safe, because the worst case is a search that offers too much. A learned layer that decides what a date means, or which factory an alias refers to, has crossed into knowledge and must be governed instead.
+
+Its sibling lives at the render layer and is just as important: a guess on an ambiguous input must never look like an answer. Chapter 5 turns that into a mechanism — the clarification gate — rather than a hope.
+
+### **1.7  When not to build this**
+
+The architecture in this book is not free. It costs a governed database, a gate on every knowledge change, provenance plumbing at every tool call, a test suite that would be excessive for a consumer product, and an operating discipline that constrains how changes reach production. That cost is justified by exactly one thing: somebody is accountable for the answer.
+
+Do not build this if your agent's outputs are drafts a human will obviously review, if there is no system of record to be wrong about, if a wrong answer costs a shrug, or if you have one backend with a dozen well-named tools and no plans for a second. In those cases most of Part III is overhead and you should read Parts I and II for the patterns and stop.
+
+Build it when the answer will be acted upon; when more than one source could plausibly answer and they may disagree; when you will eventually attach a backend you do not control; or when somebody will one day ask you to prove what the system said in March and why.
+
+### **1.8  Summary**
+
+In summary, here are the key takeaways from this chapter:
+
+- **The accountability gap is the real problem.** A competent agent over an enterprise backend fails not by being wrong but by being unable to account for itself. Closing that gap is architecture, not prompting.
+
+- **Model → agent → governed agent.** Tools and memory make an agent capable. Provenance, deterministic gating, governed knowledge and an audit trail make it trustable. The second jump is where the engineering is.
+
+- **A system of record breaks four common assumptions**: the tool surface is large, scope errors are self-consistent and actionable, absence is meaningful, and the backend set is open-ended.
+
+- **Four invariants carry the architecture**: provenance, determinism at the boundaries, containment, and reconstructibility. None of them is about accuracy; all of them are about whether an answer can be relied upon.
+
+- **Name the deterministic/soft split before implementing.** Learning may improve how the agent finds things; it may never change what the agent knows. A guess on an ambiguous input must never render as an answer.
+
+- **This architecture is not always warranted.** Its cost is justified by accountability. Without an accountable answer, most of Part III is overhead.
+
+## **2  The Anatomy of a Turn**
+
+**This chapter covers:**
+
+- Decomposing one agent turn into fifteen observable stages
+
+- Why the span tree, and not a diagram, must be the definition of the pipeline
+
+- The difference between execution order and concept order, and why both matter
+
+- The single-completion-site discipline and the one sanctioned exception
+
+- A real production turn traced end to end
+
+### **2.1  A turn is not a function call**
+
+The natural first implementation of an agent is a request handler: receive a message, build a prompt, call the model, stream the answer. It works, and it is unobservable. When something goes wrong you have one span called chat that took nine seconds, and no way to say which part of it did.
+
+The correction is to treat a turn as a **pipeline of named stages over a shared context**, where each stage is independently observable. In CWF the HTTP handler is a shell that does almost nothing; the stages live beside it and operate on a single TurnContext object that accumulates state as the turn proceeds. Each stage emits a span. The span tree is the pipeline — there is no second definition of the turn living in a document that can drift from the code.
+
+That last point is not a stylistic preference. A pipeline defined in a diagram and implemented in code has two definitions and therefore, within a few months, has none. A pipeline whose definition is the emitted span tree cannot drift, because the drift would be visible in the trace on the next turn.
+
+### **2.2  The fifteen stages**
+
+Figure 2.1 shows the conceptual stage map, numbered 00 through 14.
+
+*Figure 2.1: The conceptual stage map. Colour indicates what kind of thing each stage is.*
+
+Table 2.1 gives each stage's job and — more usefully — the failure it exists to prevent. Reading the third column top to bottom is a reasonable summary of what this book is about.
+
+| **#** | **Stage** | **Job** | **The failure it prevents** |
+| --- | --- | --- | --- |
+| 00 | Quota gate | Reserve budget; check identity, role, scope. | An unbounded spend or an unauthenticated turn. |
+| 01 | User query | Open the ledger record for this turn. | A turn nobody can find afterwards. |
+| 02 | Conversation & state | Load conversation history and turn state. | Amnesia between turns; unbounded context growth. |
+| 03 | Intent | Resolve the question into a closed frame. | Routing on raw language, which does not generalize. |
+| 04 | Planning | Decompose, where decomposition is needed. | A multi-part question answered in one part. |
+| 05 | Memory retrieval | Surface relevant past episodes, attributed. | A system that records everything and recalls nothing. |
+| 06 | Knowledge / RAG | Inject governed knowledge and retrieved context. | The model inventing domain rules it was never given. |
+| 07 | Tool selection | Narrow the catalogue to a candidate set. | 167 tools offered to a model that can handle a dozen. |
+| 08 | Compression | Fit the context budget without losing meaning. | Silent truncation of the part that mattered. |
+| 09 | Prompt assembly | Compose core modules plus active domain packs. | A prompt that is a string literal nobody can govern. |
+| 10 | LLM inference | The single completion site. | Telemetry and policy scattered across call sites. |
+| 11 | Tool loop | Execute tools; stamp provenance at the chokepoint. | A value in the answer with no traceable origin. |
+| 12 | Validation | Deterministic grounding and scope checks. | A fluent answer unsupported by any result. |
+| 13 | Format / render | Render, preserving the meaning of absence. | A gap rendered as a zero. |
+| 14 | Memory update | Distil the turn; force-flush telemetry. | Losing the trace because the response ended first. |
+
+*Table 2.1: The fifteen stages, and the specific failure each one exists to prevent.*
+
+### **2.3  Execution order is not concept order**
+
+A subtle and repeatedly costly confusion: the numbered stage map is a concept map, not an execution schedule. Real pipelines interleave. Provider resolution runs early because everything downstream needs it. Trust warming runs before inference so that validation is not paying a cold start. Several "stage 07" concerns resolve in two different places for good reasons.
+
+Figure 2.2 shows the actual execution order of one recorded production turn beside the concepts each step belongs to.
+
+*Figure 2.2: The execution order of one recorded turn. Concept numbering and execution numbering are deliberately different things.*
+
+**Why keep two orderings at all?**
+
+Because they answer different questions. The concept map answers *is there a place in this architecture where X is handled?* — it is how you find gaps, and it is stable across refactors. The execution order answers *what actually happened, in what sequence, at what cost* — it is how you debug, and it changes whenever you optimize.
+
+Collapsing them into one ordering feels tidier and destroys both properties: the map stops being a stable index of concerns, and the schedule stops being an honest record.
+
+### **2.4  One completion site**
+
+Among all the disciplines in this book, the cheapest to adopt and the most immediately valuable is this: **the chat turn issues exactly one model completion, from exactly one place in the code**.
+
+Everything you will eventually want to do — telemetry, token accounting, provider fallback, prompt governance, spend fences, replay, redaction — is a thing you want to do around a completion. If completions happen in four places, each of those concerns must be implemented four times and will be implemented three and a half times. If there is one call site, each concern is written once and cannot be bypassed.
+
+In CWF the completion telemetry hook lives only at that site. The provider registry resolves the model there. An unknown provider family throws rather than falling back to a default, because a silent fallback is a spend and quality decision made by an omission.
+
+#### **2.4.1  The sanctioned exception**
+
+There is a second model call in the turn — the intent router of Chapter 5 — and it is worth being precise about why it does not violate the rule. The router is not a chat completion: it is a small, governed, temperature-zero classifier with a capped output budget, returning JSON that is immediately parsed, schema-validated and filtered against closed enumerations. It cannot produce prose that reaches the user. Its output is armored before it is trusted.
+
+The rule, stated exactly, is therefore: one `streamText` site for the chat turn. A second completion site exists by explicit, recorded precedent, with different properties and different guarantees. The distinction matters because the next person who wants a second completion site will cite this one — and they should have to meet the same bar: bounded, governed, temperature-zero, schema-armored, and unable to speak to the user.
+
+### **2.5  TurnContext: the shared spine**
+
+The stages communicate through one mutable context object rather than through function arguments threaded stage to stage. This is a deliberate trade. The cost is that any stage can, in principle, read anything. The benefits are worth it:
+
+- **Adding a stage does not change any other stage****'****s signature.** In a pipeline that grew from six stages to fifteen over a year, this is the difference between growth and rewriting.
+
+- **The context is the natural unit of a trace.** A span's attributes are a projection of the context at that moment, which makes full-trace instrumentation nearly free.
+
+- **Replay becomes possible.** A stage that reads only the context can be re-run against a recorded context without the rest of the pipeline. This is what makes the replay lenses of Chapter 14 buildable at all.
+
+The discipline that keeps the trade honest is that stages own their writes: a stage writes only the fields it is responsible for. When that discipline slips — two stages writing the same field — the resulting bug is invariably a race that only appears under load, and it is invariably found late.
+
+### **2.6  A real turn, measured**
+
+Abstractions are cheap. Here is one recorded production turn, in full, to keep the rest of the book anchored to something that actually happened.
+
+The question was, in Turkish, "What was KB7's OEE last night?" — a request for a manufacturing metric, scoped to a factory, over a relative time window. Table 2.2 lists what the turn actually did.
+
+| **Measurement** | **Value** |
+| --- | --- |
+| Tool definitions resolved | 145 across two backends |
+| Tools offered to the model | 27 (23 flat + 4 gateway) |
+| Routing path | semantic, 513 ms |
+| Router output | categories metrics, machine, factory; frame armored; 0 values dropped |
+| Time expression | "dün gece" → 2026-07-19 17:00–20:59Z, resolved by deterministic code, not by the model |
+| Tools actually called | getFactoryLines(KB7) → 7 zones; getOeeValuesForZones → 24 records |
+| Tokens | input 60,827 · output 3,381 · total 64,208 |
+| Governed parameters in force | temperature 0.7 · maxToolRounds 16 · thinkingBudget 8192 — all read from the database, none hardcoded |
+| Grounding verdict | clean; empty ≠ zero satisfied |
+
+*Table 2.2: One production turn, measured. Every value here was read from the trace, not estimated.*
+
+Three observations are worth carrying forward. First, **two LLM touches and roughly a dozen deterministic steps** — the model is a component of this turn, not the turn itself. Second, the time expression was resolved by code: a governed row may say that a phrase is an alias for a zone, but no governed row is ever allowed to change what a date means. Third, dropped = 0 is recorded rather than assumed; the armor counts what it rejects, so a router that starts drifting shows up as a rising number long before it shows up as a wrong answer.
+
+### **2.7  Summary**
+
+In summary, here are the key takeaways from this chapter:
+
+- **A turn is a pipeline of named stages over a shared context**, not a request handler. Each stage emits a span, and the span tree is the definition of the pipeline — a diagram would drift, a trace cannot.
+
+- **Fifteen stages, each defined by the failure it prevents.** Writing the stage map as a list of prevented failures rather than a list of features makes gaps visible.
+
+- **Concept order and execution order are different artifacts** and both are needed: one is a stable index of concerns, the other an honest record of what ran.
+
+- **One completion site.** Every cross-cutting concern — telemetry, spend, governance, replay — is a thing you do around a completion. One site means each is implemented once and cannot be bypassed.
+
+- **A second completion site is permitted only by explicit precedent** and only under stricter properties: bounded, governed, temperature-zero, schema-armored, unable to address the user.
+
+- **Instrument the turn well enough that a chapter can be written from its trace.** If you cannot reconstruct a turn from durable records, you do not have observability; you have logs.
+
+## **3  The Governance Substrate: DB-First, Code-Floor**
+
+**This chapter covers:**
+
+- Where truth lives at runtime, and the cost of getting that answer wrong
+
+- The DB-first / code-floor rule and the three sanctioned roles of code
+
+- Three kinds of configuration and their three homes
+
+- empty ≠ zero and partial ≠ complete: the two correctness laws that recur everywhere
+
+- Absence-only seeding, and why staleness is solved on the read side
+
+### **3.1  The question every configurable system eventually faces**
+
+At runtime, when the system needs to know the temperature setting, the list of factories, the definition of a metric, or the text of a prompt segment — where does it look?
+
+There are only two honest answers, and hybrid schemes usually mean nobody has chosen. **Code-first** means the values live in the repository and the database caches or overrides them. **DB-first** means the database is the source of truth and code holds a fallback. The two look similar on a whiteboard and behave completely differently in production.
+
+Code-first has one decisive property: changing a value requires a deploy. For a small team that is a feature, because the deploy is the review. It stops being a feature the moment a non-engineer legitimately needs to change something — a threshold, a synonym, a prompt sentence — and it becomes actively harmful when the system has customers, because now every customer's configuration is a branch.
+
+CWF is **DB-first with a code floor**. The governed database is the runtime source of truth. Code holds a reference copy that serves exactly three roles and no fourth.
+
+### **3.2  The three sanctioned roles of code**
+
+*Figure 3.1: Code has exactly three sanctioned roles under DB-first / code-floor.*
+
+- **Seed.** On a fresh installation, the code reference is written into the database once, so the system boots into a working state without a manual import step. This is what makes a from-scratch deployment a single operation rather than a runbook.
+
+- **Reset target.** "Restore defaults" has to mean something specific. The code reference is what it means. Without a named reset target, "defaults" degrades into whatever the last person changed it from.
+
+- **Outage floor.** If the governed store is unreachable, the system serves the code floor rather than failing — *and it says that it is doing so*. Silently serving stale defaults while claiming to be live is worse than an error, because it is an error that looks like success.
+
+Reading a value from code at runtime, outside those three roles, is a defect. Not a shortcut, not a performance optimization — a defect, because it creates a second source of truth that nobody will notice has diverged until it produces a wrong answer.
+
+### **3.3  Absence-only seeding**
+
+There is a trap in the seed role that is worth naming, because almost everyone implements it wrong the first time. If the seeder runs on every boot — as it should, so that a newly added definition arrives without a manual step — what does it do about a row that already exists?
+
+The tempting answer is update it, so the code and the database agree. That answer silently destroys every governed change anyone ever made. The correct rule is **absence-only**: the seeder inserts what is missing and never rewrites what exists. A governed row, once written, belongs to governance.
+
+This immediately raises the obvious objection: then the database can go stale relative to the code. Yes. And that is solved on the **read** side, not the write side — the reader knows which fields are structurally required and can detect a row that predates a schema change, without any writer needing the authority to overwrite governed data. The general form of this principle is worth memorizing: **when writing would be destructive, solve the problem where it is read**.
+
+### **3.4  Three kinds of configuration, three homes**
+
+"Configuration" is three different things wearing one word, and mixing them is the most common architectural error in systems of this shape.
+
+*Figure 3.2: Structure, data and secrets have three different homes. Mixing them is the most common architectural error.*
+
+**Structure goes in code.** Shapes, schemas, algorithms, closed enumerations, the order in which validation stages run. These are things whose meaning is fixed by the software. A closed enum in the database is a trap: it invites someone to add a value the code cannot interpret, and the code will then either crash or silently ignore it.
+
+**Data goes in a gated admin surface.** Backend rows, domain rules, tuning parameters, entity inventory, aliases, thresholds. These are things that legitimately vary between installations and over time, that non-engineers should be able to change, and whose changes need to be reviewed, versioned and reversible. Chapter 12 covers the gate.
+
+**Secrets go in the environment, by reference.** Never in the database, never in code, never echoed in a log or an error message. Note the phrase by reference: a backend row does not contain an API key; it contains the **name** of the environment variable that holds one, constrained by a pattern so that a compromised row cannot point the resolver at an arbitrary variable. The row says which door; the environment holds the key.
+
+The test is a question: who should be able to change this, and what happens if they get it wrong? If the answer requires understanding the code, it is structure. If it requires understanding the business, it is data. If the answer is "nobody should ever see it", it is a secret.
+
+### **3.5  empty ≠ zero**
+
+This is the most-cited law in the entire system, and the one most likely to be quietly violated by a well-meaning refactor.
+
+*A real zero, an unreadable value, an empty result set, and a non-numeric value are four different facts. Any layer that renders them identically has destroyed information the layer above it needs.*
+
+Four states, four meanings:
+
+- **Real zero** — the measurement is 0. This is data. It renders as 0.
+
+- **Gap** — we could not read it. The query failed, the backend was down, the permission was denied. It renders as *not available*, never as 0.
+
+- **Empty** — the read succeeded and matched nothing. It renders as *no data for this range*.
+
+- **Not chartable** — a value exists but is not numeric. It renders as itself, with an explanation, not as a chart point.
+
+The law is easy to state and constantly under attack, because every one of these states is inconvenient at some layer. A repository method that returns 0 on error is a one-line convenience that makes the caller simpler. It is also a lie that propagates: an accounting ledger that reads that 0 will happily record that nothing was spent. Chapter 14 shows what that costs in practice, including a real case where a spend fence protecting a budget was reading a silent zero from a failing query.
+
+Two extensions of the law are worth stating now because they are where it usually breaks:
+
+- **It survives the outage.** When the system falls back to the code floor, it must still distinguish "the floor says 0" from "we are on the floor and cannot know".
+
+- **It survives the render layer.** The rendering code is the last chance to destroy the distinction and, being furthest from the read, is the most likely place to do it. A chart component that coerces null to 0 has undone every honest read beneath it.
+
+### **3.6  partial ≠ complete**
+
+The sibling law, less famous and equally load-bearing. A paginated or truncated result must state that it is partial. "Here are the line stops" and "here are the first 50 of 212 line stops" are different answers, and only the second one is true.
+
+This is not merely a courtesy to the user. It is a correctness property, because a downstream aggregation over a silently truncated set produces a number that is wrong in a way nothing downstream can detect. The most dangerous version is a data-access layer that caps results at some limit without signalling truncation — Chapter 14 covers a specific instance where a 1000-row cap silently under-reported a running total, and the failure was invisible precisely because the total was plausible.
+
+### **3.7  Coverage is configuration**
+
+A last small law with an outsized effect on how a multi-backend system feels to use. If a backend does not cover an entity — the BI layer knows nothing about individual machines, say — that is **configuration, not a blind spot**. The system should be able to say "this source does not cover machines" as a positive, declared fact.
+
+The alternative is that the system tries, gets nothing back, and reports absence — which is indistinguishable from a failure, and which trains users to distrust every empty answer they ever see. A declared coverage boundary converts a confusing silence into an informative one, and it costs one column on the backend row.
+
+### **3.8  Summary**
+
+In summary, here are the key takeaways from this chapter:
+
+- **DB-first with a code floor.** The governed database is the runtime source of truth; the code reference serves exactly three roles — seed, reset target, outage floor — and no fourth. A runtime read of code outside those roles is a defect.
+
+- **Seed absence-only.** A seeder that updates existing rows destroys governance. Insert what is missing, never rewrite what exists; solve resulting staleness on the read side.
+
+- **Structure → code, data → gated admin surface, secret → environment by reference.** The test is who should be able to change it and what happens if they are wrong.
+
+- **empty ≠ zero.** Real zero, gap, empty and not-chartable are four facts. The law must survive both the outage path and the render layer, which are the two places it usually dies.
+
+- **partial ≠ complete.** A truncated result that does not say so produces downstream numbers that are wrong in a way nothing downstream can detect.
+
+- **Coverage is configuration.** A declared "this source does not cover X" turns a confusing silence into an informative answer, at the cost of one column.
+
+**PART II**
+
+# **Building the System**
+
+Part II takes the foundations into implementation. It follows the path a question travels: it arrives at a system that must already know what backends exist (Chapter 4), it must be understood (Chapter 5), it must be matched to a small set of tools out of a large catalogue (Chapter 6), it must be composed into a prompt (Chapter 7), and it may be informed by memory (Chapter 8) and by knowledge (Chapter 9).
+
+Each chapter states the problem in general terms first, then shows the mechanism CWF uses, then names what that mechanism costs. Where a design is decided but not yet built, the text says so.
+
+## **4  Backends as Data**
+
+**This chapter covers:**
+
+- The Model Context Protocol as a contract, and what it does and does not promise
+
+- Making backend identity a database row rather than an enumeration
+
+- Two backend shapes: flat tool surfaces and gateways
+
+- The tool mirror, and why a missing row means "not seen" rather than "deleted"
+
+- Secrets by reference; coverage as a declared property
+
+### **4.1  What MCP gives you, and what it does not**
+
+The Model Context Protocol standardizes how a system discovers and calls the tools a server exposes. A server declares its tools — names, descriptions, input schemas — and the client calls them. That is a genuinely valuable standardization, and it is worth being clear about its boundaries.
+
+MCP tells you what a server claims to offer. It does not tell you whether the claim is accurate, whether the tool is authoritative for the thing it returns, what scope its results are bound to, whether it is safe to call twice, or whether calling it will change something. Those are not gaps in the protocol; they are questions outside its scope. But they are exactly the questions a governed agent must answer, which means every one of them has to be answered by a layer you build.
+
+The stance this book takes, which Chapter 11 develops fully: **accept the declaration for reachability, earn trust at the answer layer**. What a backend says it offers determines what may be called. Whether its output is fit to answer from is a separate question, settled by observation.
+
+### **4.2  Backend identity is a row**
+
+Here is a decision that looks like a detail and determines whether your platform can have a second customer.
+
+The instinctive way to represent "which backend is this?" is an enumeration in code, possibly mirrored by a CHECK constraint in the database. It is type-safe, it is exhaustively switchable, and it means that connecting a new backend requires a code change, a migration, a review, and a deploy. You have made integration a release.
+
+The alternative is that a backend is a **row**, plus a domain pack, plus one registration entry.
+
+*Figure 4.1: Backend identity as data — a row, a pack, and one registration.*
+
+The row carries the backend's governed declarations: its identifier, its trust role, the domains it is authoritative for, and its scope-identity contract — the description of how this backend names and scopes entities, and where in a result payload the binding scope can be read. Chapter 10 uses every one of those fields.
+
+The domain pack is the prompt material that teaches the agent this backend's vocabulary — what a zone is here, what OEE means, which words the operators actually use. Packs are governed segments, composed only for backends that are currently active.
+
+The registration is one entry naming the server and the environment variable holding its credential. Nothing else. There is no code branch that names a specific backend anywhere in the platform floor; Chapter 18 shows the CI gate that enforces this, and what it took to reach zero.
+
+**A design smell worth learning to recognize**
+
+If a backend entry arrives with no explicit identifier and the system maps it to a default, the temptation is to "fix" the omission by requiring the field.
+
+Sometimes the omission is the design: a legacy default that thousands of rows depend on, deliberately preserved. Before tightening a constraint, find out whether the looseness is a bug or a contract. In this system that specific default is documented as intentional, which saved at least one well-intentioned migration from breaking production.
+
+### **4.3  Two backend shapes**
+
+Backends come in two shapes and it pays to have a name for each, because they need the same governance through different plumbing.
+
+*Figure 4.2: A flat tool surface and a gateway. Two shapes, one governance model.*
+
+A **flat backend** exposes its operations directly. ARMES exposes roughly 141 named tools. Each is individually addressable, individually annotatable, and — importantly for Chapter 11 — individually trust-scored. The cost is the candidate-set problem of Chapter 6.
+
+A **gateway backend** exposes a small generic surface behind which many operations hide. Superset exposes search_tools and call_tool. The agent's view is two tools; the reality is 26. This is convenient for the model and hostile to governance, because a governance layer that can only see two tools can only make two decisions.
+
+The resolution is **deep discovery**: the gateway's inner surface is enumerated, mirrored into the same governed tables the flat backend's tools live in, and governed identically — annotations, categories, documentation overlays, trust. The gateway remains a gateway at call time; it is fully visible at governance time. What is explicitly not done is hand-listing the inner tools in code, which would grow with the world in exactly the way Chapter 11 forbids.
+
+### **4.4  The tool mirror: missing ≠ deleted**
+
+The governed tables that hold per-tool information are a **mirror**, synchronized from what discovery observed. That single word carries a rule with real consequences.
+
+If a sync runs while a backend is degraded and returns fewer tools than usual, a naive mirror deletes the missing rows — and with them, every annotation, category and documentation overlay a human ever authored. The next successful sync restores the tools and not the governance, and nobody notices until a routing decision silently changes.
+
+The rule is therefore: **a row missing from the mirror means ****"****not observed****"****, never ****"****deleted****"**. A failed sync, or an empty-but-successful one, never empties the mirror. This is the same shape as empty ≠ zero applied to a synchronization: an outage disables, it does not destroy. The last known good observation survives without any in-code copy of the tool list.
+
+### **4.5  Secrets by reference**
+
+A backend row must never contain a credential. It contains the name of an environment variable, and the resolver that reads it accepts only names matching a fixed pattern — in this system, ^MCP_[A-Z0-9_]+$.
+
+The pattern is not decoration. Without it, an attacker who can write a backend row can name any environment variable in the process, and the system will faithfully resolve it and send it somewhere. With it, the blast radius of a compromised row is confined to variables that were deliberately provisioned as backend credentials.
+
+Two supporting rules complete the posture. Secrets are **never echoed** — not in logs, not in error messages, not in a debug panel, not in a diagnostic that seemed harmless at the time. And a **silent success is correct**: an operation that resolved a secret and used it successfully should say that it succeeded, not what it used.
+
+### **4.6  Coverage, authority, and the shape of a backend row**
+
+Table 4.1 lists the governed declarations a backend carries and what each is for. Every one of them is data — set through a gated admin surface, never by the backend itself. A backend can never register itself as trusted, because the write path is closed to it.
+
+| **Declaration** | **What it says** | **Used by** |
+| --- | --- | --- |
+| Trust role | system_of_record · reporting_mirror · enrichment · unverified (the default) | Role ceiling, Chapter 10 |
+| Authority map | Which metrics or domains this backend may be authoritative for | Authority routing, Chapter 10 |
+| Scope-identity contract | How this backend names and scopes entities, and where its binding scope appears in a payload | Scope validation, Chapter 10 |
+| Entity-listing tool | Which tool enumerates this backend's entities — one nullable column, one entry per integration | Discovery, Chapter 11 |
+| Coverage | Which entity classes this backend does not cover | Honest absence, Chapter 3 |
+| Credential reference | The name of the environment variable holding the credential | Secret resolution, §4.5 |
+
+*Table 4.1: The governed declarations that constitute a backend. All are data; none is compiled in.*
+
+Notice the shape of the whole table: every row is **one entry per integration**, authored once when the backend is connected. None of them grows as the customer's plant grows. Chapter 11 turns that observation into a test you can apply to any diff.
+
+### **4.7  Summary**
+
+In summary, here are the key takeaways from this chapter:
+
+- **MCP standardizes discovery and invocation, not trust.** Authority, scope, safety and accuracy are outside its scope, which means they are inside yours.
+
+- **Backend identity is a row, a domain pack, and one registration** — never an enum or a CHECK constraint. The moment it is an enum, every new customer is a release.
+
+- **Two shapes, one governance model.** A gateway's inner surface is discovered and mirrored into the same governed tables as a flat backend's, so governance sees 26 tools where the model sees two.
+
+- **The tool mirror is a mirror.** A missing row means "not observed", never "deleted". An outage disables; it must never destroy hand-authored governance.
+
+- **Secrets by reference, pattern-constrained, never echoed.** The row names the door; the environment holds the key; the pattern bounds the blast radius of a compromised row.
+
+- **Every backend declaration is one entry per integration**, not one per thing in the customer's world. That property is the test that keeps the design honest.
+
+## **5  Understanding the Question: Intent Resolution**
+
+**This chapter covers:**
+
+- Why routing directly on raw language does not generalize
+
+- The frame: a closed contract for what a question is asking
+
+- Six actions and thirteen objects, and why the asymmetry is deliberate
+
+- The derivation table, and what an unmapped pair must do
+
+- Armor: dropping and counting values outside the ratified vocabulary
+
+- Clarification as a first-class outcome rather than a failure
+
+### **5.1  The problem with routing on words**
+
+The first routing implementation in almost every system of this kind is a keyword map: observe which words appear in questions, learn which tool categories those questions ended up needing, and route future questions by looking up their words.
+
+It works surprisingly well, right up until it doesn't, and the way it fails is instructive. In this system the learned map had absorbed the names of production lines as though they were domain signal. Two sibling lines — physically adjacent, functionally identical — had learned wholly different category sets: one mapped to material, the other to metrics, production, andon, factory, machine. Questions about the two lines routed to entirely different tool sets, for no reason but the accident of which questions happened to be asked first.
+
+Alongside it sat a hand-authored stopword list of about ninety words whose own comments recorded three separate rounds of "observed production leak, topped up". That list was growing with the world — with the number of entity names, time expressions and turns of phrase in the plant — which is the precise property Chapter 11 identifies as disqualifying.
+
+The deeper problem is that a keyword map has no notion of what the question is asking. It cannot distinguish "stop line 3" from "why did line 3 stop", because both contain the same words. What is needed is a representation of intent that is small, closed and checkable.
+
+### **5.2  The frame**
+
+The frame is a fixed-shape record describing what a question is asking. It is deliberately tiny.
+
+*Figure 5.1: The frame contract. Closed fields are enumerations; open fields are surface captures interpreted by code.*
+
+IrFrame {
+
+  action:     ActionId          // closed enum — 6 values
+
+  object:     ObjectId          // closed enum — 13 values
+
+  entity_ref: string[]          // raw surface mentions
+
+  metrics:    MetricId[]        // closed to a code-defined vocabulary
+
+  time:       { surface } | null // raw temporal expression
+
+  confidence: 'HIGH' | 'AMBIGUOUS'
+
+}
+
+The split between closed and open fields is the whole design. action, object and metrics are closed enumerations: a value outside them is dropped, not coerced. entity_ref and time.surface are free text **by design**, because they are captures, not interpretations — everything that interprets them is deterministic code downstream.
+
+That last point deserves its own name. The **polarity law**: a governed row may say that "glazing 3" is another name for a particular line, but no governed row may ever change what "last night" means. Aliases are data; resolvers are code. The moment a data row can redefine a time expression, an admin UI has become a programming language with no type checker.
+
+### **5.3  Six actions, thirteen objects**
+
+The asymmetry between the two enumerations is deliberate and is the reason the taxonomy survives new backends. **Actions are generic verbs; domain lives in objects.**
+
+| **Action** | **Essence** | **Example surface** |
+| --- | --- | --- |
+| QUERY_STATUS | Instantaneous state | "is the line running right now" |
+| QUERY_METRIC | A measured quantity over a window | "what was OEE last night" |
+| QUERY_EVENTS | Event records over a window | "last night's stoppages" |
+| QUERY_MASTER | Definitional records and structural inventory | "list the recipes" · "which zones does KB7 have" |
+| COMPARE | Multi-entity or multi-window contrast | "line A versus line B" |
+| COMMAND | A state-changing act | "stop the line" · "classify this stoppage" |
+
+*Table 5.1: The six actions. Note that none of them mentions manufacturing.*
+
+The thirteen objects carry all of the domain: LINE, ZONE, FACTORY, EQUIPMENT, ORDER, RECIPE, MATERIAL, TRANSFER, VEHICLE, EMPLOYEE, QUALITY, DOWNTIME, SYSTEM. When an ERP arrives, it adds objects — purchase orders, invoices, cost centres — and it adds no actions, because "query a metric" and "compare two things" are already the right verbs. That is what the orthogonality buys: the axis that grows is the one that was designed to grow.
+
+**The merge that traffic forced**
+
+An earlier version of this taxonomy had seven actions, the extra one being QUERY_TOPOLOGY — "which lines exist", "list the zones".
+
+Real traffic showed the router could not reliably separate "list the recipes" (master data) from "list the zones" (topology). Both are "give me a list of definitional things", and both derive to the same category set anyway. The seventh action was folded into QUERY_MASTER, changing exactly one cell of the derivation table.
+
+The lesson is not that seven was wrong. It is that the evidence pushed toward *fewer* categories, when the design's stated risk had been uncontrolled growth to an eighth. Measure before you extend a vocabulary — and be prepared for the measurement to tell you to shrink it.
+
+### **5.4  Derivation: from frame to candidate categories**
+
+The frame is not itself the routing decision. Routing is a **derivation**: a ratified table mapping each (action × object) pair to a set of tool categories. Six actions by thirteen objects gives 78 static pairs, of which 58 derive to a category set and 20 are invalid by design.
+
+Three properties of that table matter more than its contents.
+
+- **It is a table, not a model.** A reviewer can read it, an argument about it can be settled by pointing at a cell, and a unit test enumerates all 78 pairs and byte-compares them against the ratified version. Routing behaviour cannot drift silently.
+
+- **Every derived set is unioned with an availability floor.** A small set of tools — the ones that list factories and lines — is included on every path regardless of derivation. This is what makes the worst case a candidate set that is too *wide*.
+
+- **An unmapped pair is honest, not broken.** The 20 invalid pairs derive to the empty set and record unmapped: true. The frame is still recorded. Behaviour falls through to the layer below and is identical to what it would have been without the frame — so turning frame-based routing on cannot make an unmapped pair worse.
+
+That third property is what makes the flip from "recording frames" to "routing on frames" a safe, measurable change rather than a leap. Chapter 6 returns to it.
+
+### **5.5  Armor**
+
+The frame is produced by a small model. Small models produce plausible garbage under load: an action that does not exist, an object invented for the occasion, a metric it inferred was probably fine. The armor sits between the model and everything downstream.
+
+- **Parse.** The output is JSON, or it is nothing. Malformed output is a miss, not a repair job.
+
+- **Validate.** Schema validation against the frame contract.
+
+- **Filter.** Any action, object or metric outside the ratified enumeration is **dropped and counted**.
+
+- **Cap.** Array fields are bounded so a runaway output cannot inflate the downstream prompt.
+
+The word counted is what turns this from defensive coding into an instrument. Every turn records how many values the armor rejected. A healthy router drops zero. A router drifting after a model upgrade, a prompt edit, or a vocabulary change shows a rising drop count — days or weeks before it shows a visibly wrong answer. The armor is a canary that costs one integer.
+
+### **5.6  Clarification is an outcome, not a failure**
+
+The confidence field has two values, and AMBIGUOUS is a legitimate destination rather than an error. It is set deterministically:
+
+- two objects with no linking pattern between them,
+
+- a COMMAND with no resolvable entity reference,
+
+- a COMPARE with fewer than two resolvable targets,
+
+- an empty action and object after the armor has done its filtering.
+
+An ambiguous frame produces a clarifying question rather than a guess. Stated as a principle: **a guess on an ambiguous key must never look like an answer**. Asking "which glazing line — 1, 2 or 3?" costs the user two seconds. Silently picking one and presenting its numbers with full confidence costs them a decision made on the wrong data, and costs you the trust of everyone who finds out.
+
+There is a design consequence worth flagging. Clarification turns are turns: they consume budget, they occupy the conversation, and — as Chapter 14 discovered the hard way — if your measurement counts "turns that produced an answer" over "total turns", a system that clarifies honestly will score worse than one that guesses. Getting the numerator and denominator to agree about what a clarification is turns out to be a real piece of engineering, not a rounding detail.
+
+### **5.7  What intent resolution costs**
+
+Honesty about the bill: a second model call per turn (small, cheap, temperature zero, capped output — around half a second on the measured path); a ratified table that must be maintained as objects are added; a schema contract that must be versioned; and the discipline that no downstream stage may read a raw frame field without going through the armor. In exchange you get routing that generalizes to phrasings nobody has seen, a clarification gate that can be tested, and an instrument that reports its own degradation.
+
+### **5.8  Summary**
+
+In summary, here are the key takeaways from this chapter:
+
+- **Keyword routing does not generalize**, and it fails asymmetrically: sibling entities acquire wholly different routing by the accident of question order. A stopword list that grows with the world is the diagnostic.
+
+- **The frame is a closed contract**: six actions, thirteen objects, a closed metric vocabulary, plus raw captures for entities and time.
+
+- **The polarity law.** Aliases are data; resolvers are code. A governed row may name a thing; it may never redefine what a date means.
+
+- **Actions are generic, objects carry domain.** A new backend adds objects and no actions — the axis that grows is the one designed to grow.
+
+- **Derivation is a ratified table**, unioned with an availability floor, with unmapped pairs recorded honestly rather than treated as errors. That is what makes enabling frame routing a measurable change rather than a leap.
+
+- **Armor drops and counts.** The count is a leading indicator of router drift, obtained for the price of one integer per turn.
+
+- **Clarification is an outcome.** A guess on an ambiguous key must never render as an answer — and your measurement must not punish the system for being honest.
+
+## **6  Finding the Right Tool**
+
+**This chapter covers:**
+
+- The candidate-set problem when one backend exposes 141 tools
+
+- The routing ladder, and why every rung degrades into the one below
+
+- The availability floor, and the correct worst case for a router
+
+- The four sources of information the agent has about a tool
+
+- Measuring a router before trusting it: shadow replay and Recall@k
+
+### **6.1  The candidate-set problem**
+
+Give a model 167 tools with integration-engineer names and it will pick badly. Give it eight and it will usually pick well. The gap between those two sentences is the candidate-set problem, and it is the routing layer's entire job: narrow a large catalogue to a small, relevant, and — crucially — never empty set.
+
+There is a founding assumption underneath most implementations of this layer, and it is worth stating so it can be tested rather than believed: filtering helps weaker models navigate a large catalogue. It is plausible. It is also falsifiable, and in this system the first evidence went against it — a comparison suggested the filter may have been hurting the very models it was meant to help.
+
+That comparison was later found to be unsound: the two models were not offered the same catalogue, so it measured two variables at once. The right conclusion was not "the filter is fine" but "we have not measured it yet", and the re-run was scheduled with the arms equalized. **A measurement you cannot defend is not evidence for either side.**
+
+### **6.2  The routing ladder**
+
+Routing is a ladder of four rungs, not a switch. Each rung is tried in turn; a miss falls to the next.
+
+*Figure 6.1: The routing ladder. Every rung degrades into the one below; the bottom rung cannot fail closed.*
+
+- **Frame routing.** The derivation table of Chapter 5 maps (action × object) to categories. Deterministic, reviewable, testable.
+
+- **Semantic routing.** A small governed model proposes category names directly. In production this rung carries the vast majority of turns — of 500 measured injections, 493 carried a frame, and a frame exists only on this path.
+
+- **Learned keyword map.** Words observed in past traffic mapped to categories. This is the rung being retired, for the reasons in §5.1. It survives as a pinned, measured outage floor rather than a learning system.
+
+- **All-fallback.** No match at all: offer everything. Wide, expensive, and correct.
+
+The ladder shape matters more than any individual rung. It means a rung can be replaced without a flag day, measured against the rung below it, and removed once something better is proven — which is exactly the migration path the learned map is on.
+
+### **6.3  The availability floor is sacred**
+
+A small set of tools is unioned into the candidate set on **every** path. In this system it is the tools that list factories and lines — the ones without which no question about the plant can be answered at all.
+
+The consequence is precise and worth stating in the form it appears in the code: a learned or derived slice may add or change matched categories, but can never drop the floor or collapse the set to empty. Zero keyword matches returns the full catalogue, not nothing.
+
+*The worst case of a routing failure is a candidate set that is too wide. It is never a candidate set that is empty, and it is never a correctness effect.*
+
+This is what makes the routing layer safe to experiment with. A wide set costs tokens and latency. An empty set costs the user their answer, and — worse — costs it in a way that looks like the plant has no data. Bound the failure mode and you can iterate freely inside it.
+
+### **6.4  Four sources of tool information**
+
+What the agent believes about a tool is composed from four sources, in a fixed order.
+
+*Figure 6.2: Four sources of tool information. Only the first belongs to the backend.*
+
+- **The server****'****s own text.** The name, description and input schema as MCP declares them. This is the backend's claim about itself, and it is the only source we do not control.
+
+- **The category map.** A governed mapping from tool to routing category. This is what the ladder derives *to*.
+
+- **The annotation overlay.** A governed exposure layer: whether a tool may be offered at all, whether it writes, whether it is available in a given context. It is **fail-closed** — an unannotated write tool is not offered.
+
+- **The documentation overlay.** A governed description layer that can append to or replace the server's own text, with an anti-bloat cap so that a well-meaning documentation effort cannot quietly consume the context budget.
+
+The reason to enumerate them is that they have different owners and different failure modes. Source 1 changes when the backend team deploys; sources 2 through 4 change through the gate of Chapter 12. When a tool starts behaving oddly, the first diagnostic question is which of the four sources changed, and having exactly four makes that question answerable.
+
+**A tautological overlay is worse than none**
+
+The first documentation overlay written in this system said, in effect, that the tool returns what its name says it returns. It passed review because it was accurate.
+
+It was also useless: it consumed context budget and told the model nothing it did not already have from source 1. An overlay earns its tokens only by adding what the server's own text omits — units, scope, gotchas, the difference between two similarly named tools. "Accurate" is not the bar; "adds information" is.
+
+### **6.5  What the funnel actually looks like**
+
+Figure 6.3 shows the narrowing on the recorded turn from Chapter 2.
+
+*Figure 6.3: One turn**'**s funnel — from catalogue, to offer, to call, to result.*
+
+145 tool definitions were resolved. 27 were offered. Two were called. Twenty-four records came back. The only non-deterministic narrowing in that chain is the 145 → 27 step, and it is armored, counted, replayable and bounded below by the floor. Everything else is code.
+
+That ratio is the thing to hold onto when someone proposes making the routing layer smarter. The layer's job is to get from 145 to a set that contains the two tools that matter. It is not to guess which two. Guessing which two is the model's job, and it does it well when the set is small.
+
+### **6.6  Measuring a router before trusting it**
+
+A merged router is not a working router. Between the two sits a number, and producing that number is a piece of engineering in its own right.
+
+The technique used here is **shadow replay**: because frames have been recorded on every turn since long before frame routing was enabled, the question "what would frame routing have offered?" can be answered against already-recorded traffic. No new traffic is collected. No user is exposed to an unproven router. The lens produces two metrics:
+
+- **Frame accuracy** — how often the derived category set would have contained the tools that were actually called.
+
+- **Recall@k** — the metric a retrieval system lives or dies by, and one that had never been named in this system until the shadow lens forced it.
+
+Only then is the flip a governed publish, consented on evidence rather than on confidence. And the risk is stated in advance, in writing: the 20 unmapped pairs behave exactly as they do today, so they cannot get worse; the single real risk is a **high-confidence wrong frame** replacing a candidate set outright. The shadow lens exists to size precisely that. If it comes back worse than expected, the flip waits and a frame-correction phase is born between the measurement and the flip.
+
+This sequencing — instrument, freeze, measure, consent, flip — is the general pattern for turning on anything that changes behaviour. Chapter 14 gives the one additional precondition that is easy to miss: **you must freeze the learning before you measure**, or the instrument is calibrated against a moving target.
+
+### **6.7  Summary**
+
+In summary, here are the key takeaways from this chapter:
+
+- **The routing layer****'****s job is narrowing, not choosing.** Get from 167 tools to a set small enough for the model to pick from; picking is the model's job.
+
+- **Routing is a ladder, not a switch.** Frame → semantic → learned keywords → all-fallback. Each rung degrades into the one below, which makes rungs replaceable and measurable.
+
+- **The availability floor is sacred.** A derived slice may widen or change a set; it may never empty it. The correct worst case is *too wide*, never *empty*, and never a correctness effect.
+
+- **Four sources of tool information**, with different owners and failure modes: the server's own text, the category map, the fail-closed annotation overlay, and the capped documentation overlay.
+
+- **An overlay must add information, not repeat it.** A tautological overlay spends context budget for nothing.
+
+- **Shadow-replay before flipping.** Recorded frames let you measure a router against real traffic without exposing a user to it — and the risk that remains must be named in writing before the flip, not after.
+
+## **7  Composing the Prompt**
+
+**This chapter covers:**
+
+- The prompt as architecture rather than as a string
+
+- Backend-agnostic core modules and per-backend domain packs
+
+- Prompt segments as governed, versioned, reversible data
+
+- Why tool text must never reach the system role
+
+- Context compression, and the failure it exists to prevent
+
+### **7.1  The prompt is a component**
+
+In a prototype the system prompt is a template literal near the top of a file. In a governed system that is untenable for four reasons: it cannot be changed without a deploy, it cannot be versioned independently, it cannot be reviewed by the people who actually know the domain, and it cannot be rolled back when a change turns out to have degraded answers on questions nobody thought to test.
+
+Treating the prompt as a composed component fixes all four. In CWF the system prompt is built by a single function from a set of governed segments.
+
+*Figure 7.1: Prompt composition — core modules plus the packs of active backends, assembled at one place, consumed at one place.*
+
+### **7.2  Core modules and domain packs**
+
+The composition has two layers with different lifetimes.
+
+**Core modules are backend-agnostic.** They carry the agent's identity, its safety rules, its honesty posture — how to attribute a mirror source, how to render an absence, when to ask rather than guess. These do not mention any customer, any factory or any backend. Chapter 18 shows the CI gate that keeps them that way, and it is not a soft guideline: it is an enforced check with no exclusion list.
+
+**Domain packs are per-backend.** The MES pack teaches what a zone is, what OEE means in this plant, which words operators actually use for scrap. The BI pack teaches that a Superset answer is bound to a datasource and must be attributed as reporting rather than as a system of record.
+
+Packs are composed **only for currently active backends**. Turn a backend off and its vocabulary leaves the prompt on the next turn. This is a small property with a large payoff: the prompt is always exactly as large as the system's current capability, and a disabled backend cannot leave behind instructions that make the model reach for tools that are no longer there.
+
+### **7.3  Segments as governed data**
+
+Each segment is a governed row published through the eval-gate of Chapter 12. That means a prompt change is versioned, attributed, reviewable, reversible, and tested against a corpus of known questions before it goes live.
+
+It also means a prompt change is slow, and that is the point. The prompt is the most powerful and least constrained surface in the system: one sentence can change how the agent behaves on every turn, and prompt changes are notoriously hard to evaluate by reading. Making the change path deliberate is proportionate to the blast radius.
+
+**The freeze**
+
+For an extended period this system operated under an explicit freeze on prompt-segment publishes and golden-corpus runs, tied to a named block of work.
+
+A freeze on a specific surface is a legitimate engineering instrument — it holds one variable still while another is measured. What makes it legitimate rather than paralysing is that it is *named*, *scoped* to a surface, and has a stated lift condition. A freeze with no stated end is not a freeze; it is a system nobody is willing to touch.
+
+### **7.4  Tool text is data, never command**
+
+This is a containment property and it is structural rather than heuristic.
+
+A hostile or compromised backend can put anything it likes in a tool description or a tool result. If any code path lifts that text into the system or developer role, the backend has just written part of your prompt. The defence is not to scan tool text for instruction-shaped content — that is a fragile heuristic that manufactures false confidence, and Chapter 10 explains at length why this system rejects that entire class of defence.
+
+The defence is structural: **tool descriptions stay in the tool schema, tool results stay in the tool-result role, and the system role is only ever the output of the prompt builder**. That property is pinned by a test that reads the code and asserts it — an audit-as-test, so the guarantee survives a refactor by someone who has never read this chapter.
+
+The pass criterion is worth quoting because it sets the bar for the whole containment family: "could not hijack via tool content" — never "detected the injection".
+
+### **7.5  Compression, and the failure it prevents**
+
+Between assembly and inference sits a compression stage, and its job is less interesting than the failure it exists to prevent.
+
+Context budgets are finite. Something must give when history, memory, knowledge, tool schemas and the current question exceed the budget. The dangerous outcome is **silent truncation** — dropping the part that mattered, without recording that anything was dropped, so that a wrong answer looks like a considered one.
+
+The requirement is therefore not "compress well" but "compress legibly": what was dropped is recorded on the turn, so a later investigation can distinguish "the model ignored the evidence" from "the evidence never reached the model". Those two failures have completely different fixes, and a system that cannot tell them apart will spend weeks fixing the wrong one.
+
+### **7.6  Summary**
+
+In summary, here are the key takeaways from this chapter:
+
+- **The prompt is a component, not a literal.** Composed from governed segments so it can be versioned, reviewed by domain experts, and rolled back.
+
+- **Core modules are backend-agnostic; domain packs are per-backend** and are composed only for active backends, so the prompt is always exactly as large as current capability.
+
+- **A prompt change is a governed publish.** Deliberately slow, because one sentence changes every turn.
+
+- **Tool text never reaches the system role.** The guarantee is structural and pinned by an audit-as-test; content scanning is explicitly rejected as false confidence.
+
+- **Compress legibly.** Recording what was dropped is what lets you distinguish "the model ignored it" from "it never arrived" — two failures with different fixes.
+
+## **8  Memory**
+
+**This chapter covers:**
+
+- The four-part memory anatomy, and the discovery that three parts already existed
+
+- The episode record: one distilled row per turn, written by code
+
+- Multi-signal deterministic retrieval, and why not vector-only
+
+- Forgetting as a day-one feature rather than a later cleanup
+
+- Promotion, not accumulation: how an episode becomes knowledge
+
+### **8.1  Four kinds of memory**
+
+"Add memory to the agent" is one of the least useful sentences in this field, because memory names four different things with four different lifetimes, owners and failure modes.
+
+*Figure 8.1: The four-part memory anatomy, and how much of it a governed system typically already has.*
+
+**Working memory** is the turn's own context: the conversation window and the accumulating turn context. It lives for one turn.
+
+**Semantic memory** is what the system knows: domain rules, definitions, entity facts. In a governed system this is already built, because it is the governed knowledge store.
+
+**Procedural memory** is how the system does things: prompt segments, tool rules, routing configuration. Also already built, and also governed.
+
+**Episodic memory** is what happened: this user asked this, we called these tools, this is how it went, they corrected us. This is the one that is usually missing.
+
+Making that decomposition before writing any code produced the most useful sentence in the whole memory design:
+
+*The system recorded everything and recalled almost nothing. It kept a diary it never read.*
+
+Messages, telemetry and traces held every event. The only thing that flowed back into a future turn was a routing cache. The work was therefore not "build memory" — it was "build the reader, for the one slice that has no reader". Scoping a program by anatomy rather than by ambition is often the difference between a quarter and a year.
+
+### **8.2  The episode record**
+
+One distilled row per completed turn, append-only, written by deterministic code at end of turn. **No model anywhere on the write path.**
+
+Every field is distilled from structures the pipeline already holds — the frame, the resolver's canonical output, the tool ledger, the grounding verdict. Prose is never re-parsed. This matters: a distiller that re-reads the answer text to work out what happened is a second inference layer that can be wrong in ways nothing checks.
+
+| **Field group** | **Content** |
+| --- | --- |
+| Identity | turn id (the trace id) · conversation id · user id · actor attribution |
+| Question | a deterministic normalized digest of what was asked |
+| Resolution | canonical entity ids from the resolver · resolved scope, if any |
+| Execution | tools called, with call counts and outcomes |
+| Outcome | answered · withheld · clarified · error, plus the grounding verdict |
+| Correction | a structured record when a following turn's correction is attributable to this one |
+| Lifecycle | computed importance · created-at · expires-at · retrieval count |
+
+*Table 8.1: The shape of an episode. Structured and attributed fields only — no raw payloads, no secrets.*
+
+Four rulings shape this table more than its columns do:
+
+- **Episodes are user-private.** There is no organization-wide episodic read. The cross-user surface is promotion (§8.5), which goes through the gate with a human. This is the anti-leak position: one person's private correction becomes shared knowledge only deliberately.
+
+- **The store never blocks the answer.** The distiller runs with the telemetry flush; a write failure logs and drops. Memory being down must never mean chat being down.
+
+- **Replay writes nothing.** Governance and replay paths write zero episode rows, and the actor field carries provenance so a violation is *visible*, not merely forbidden.
+
+- **empty ≠ zero reaches the store.** An empty entity list and an empty tool list are real, recorded facts, distinct from a turn that was never recorded at all.
+
+### **8.3  Retrieval: multi-signal and deterministic**
+
+Retrieval scores the caller's own episodes on four signals and fuses them:
+
+- **keyword** — token overlap between the incoming question and the stored digest, with language-appropriate folding;
+
+- **entity** — overlap between this turn's canonical entity ids and the episode's, matched on exact ids and never on fuzzy text;
+
+- **recency** — decay over age;
+
+- **importance** — the stored score, reinforced each time an episode is retrieved.
+
+Weights, top-K and a character budget are governed parameters, not constants. And the requirement was explicitly "never vector-only" — satisfied here in the strongest possible way, by having no vector column at all in the first version. An embedding signal later is purely additive.
+
+The reason to resist vector-first retrieval in an episodic store is worth stating: entity overlap on canonical ids is exact and explainable, and it is the signal that actually matters for "have we discussed this line before". A vector search over question text will happily surface a semantically similar question about a different line — which is precisely the scope error this whole architecture exists to prevent.
+
+### **8.4  Forgetting is a feature**
+
+A memory system without a forgetting policy is a growing liability disguised as a growing asset. Forgetting is designed in from the first version, not deferred to a later cleanup phase.
+
+*Figure 8.2: The episodic loop — distil, retrieve, forget, promote.*
+
+Three mechanisms. **TTL**: every episode carries an expiry, from a governed parameter. **Importance**: computed deterministically from outcome class, bumped by retrieval, decayed by age — never scored by a model. **A forget tick**: a scheduled job that hard-deletes expired rows and logs its counts.
+
+That last one carries a trap this book returns to in Chapter 14. A forget tick that logs deleted=0 might have deleted nothing because there was nothing to delete — or because it is broken. Those are indistinguishable from the log alone. The requirement is a **positive control**: a test that plants an expired row and proves the tick deletes it. A zero is only trustworthy from a mechanism that has been proven able to produce a non-zero.
+
+### **8.5  Promotion, not accumulation**
+
+Here is the question that decides whether a memory system is an asset or a slow catastrophe: **can the agent write its own ground truth?**
+
+If yes, you have built an oracle that grades its own homework. Errors compound, nobody can say when a belief entered the system, and the audit trail is a pile of self-reinforcing episodes.
+
+The answer here is no. An episode becomes knowledge only by **promotion** through the existing governance rail:
+
+episode(s)  →  proposal  →  draft  →  eval-gate  →  publish
+
+            →  versioned  →  reversible  →  audited
+
+The agent proposes; the gate disposes. A proposed promotion is a draft, never a fact. In the first version, candidate surfacing is human-pulled: the admin surface highlights episodes carrying a user correction and repeated-miss patterns, and a human clicks to propose. Model assistance is permitted at draft authoring time — runtime stays deterministic.
+
+One consequence is elegant enough to state on its own: **a promoted episode****'****s knowledge outlives the episode**. The knowledge lives in the governed store; the episode row may still expire on its TTL. Memory of what happened is disposable. Knowledge is governed.
+
+### **8.6  Surfacing memory honestly**
+
+Retrieved episodes are rendered as a clearly attributed slice — from your past interactions — with each line carrying its date and turn provenance. They are placed with working context, never with governed knowledge: **governed knowledge stays deterministic, advisory memory stays advisory**, and the two must never be visually or structurally merged.
+
+The user-facing attribution chip states only what is deterministically true: how many memories were **offered**. It does not claim the model used them, because the runtime cannot prove that. Usage attribution is a measurement, obtained from telemetry fields recorded on every turn — not a claim made in the interface.
+
+That distinction — between what the interface may assert and what only a measurement may conclude — is one of the highest-leverage habits in this entire book. An interface that overclaims is not a UX flaw; it is the system lying in the one place users have no way to check.
+
+### **8.7  Summary**
+
+In summary, here are the key takeaways from this chapter:
+
+- **Decompose memory before building it.** Working, semantic, procedural, episodic. In a governed system, semantic and procedural memory already exist and are already governed — only the episodic slice is new.
+
+- **One distilled row per turn, written by code**, from structures the pipeline already holds. No model on the write path; prose is never re-parsed.
+
+- **Episodes are user-private, non-blocking, replay-free, and empty≠zero-clean.** The cross-user surface is promotion, not retrieval.
+
+- **Retrieval is multi-signal and deterministic** — keyword, entity-id overlap, recency, importance. Exact id matching is the signal that prevents the scope errors a vector search would introduce.
+
+- **Forgetting ships in version one**, with a positive control proving the delete path can actually delete. An unproven zero is not evidence.
+
+- **Promotion, not accumulation.** The agent proposes; the gate disposes. Knowledge outlives the episode that produced it.
+
+- **The interface asserts only what is deterministic** — what was offered — and leaves "was it used" to measurement.
+
+## **9  Knowledge and Retrieval**
+
+**This chapter covers:**
+
+- Governed knowledge as the runtime source of truth, and the CORE/SOFT split
+
+- Two paths to an answer: exact governed rows and ranked retrieval
+
+- Choosing a retrieval engine, and naming the trigger that would change it
+
+- The bridge that converts a frequent retrieval hit into a governed row
+
+- What retrieval must never be allowed to do
+
+### **9.1  Governed knowledge**
+
+The knowledge layer answers: what does this system know, as opposed to what can it look up? In CWF that is a set of governed row kinds — definitions, rules, mappings, aliases, thresholds — with the governed database as runtime source of truth and the code reference serving the three roles of Chapter 3.
+
+Not all kinds are equally locked, and the split is deliberate:
+
+- **CORE kinds** are field-locked to a schema and their values are gated. These are the things whose meaning the software depends on. Extending them is a code change.
+
+- **SOFT kinds** are extensible from the database. These are the things whose *set* legitimately grows with the installation — a new alias, a new documented rule, a new threshold.
+
+Getting this split wrong in either direction is expensive. Lock too much and every customer needs a release. Lock too little and someone adds a row the code cannot interpret, and the failure surfaces three layers away as a wrong answer rather than as a validation error.
+
+### **9.2  Two paths to an answer**
+
+There are two fundamentally different ways to get from a question to relevant context, and a mature system needs both — with a clear boundary between them.
+
+*Figure 9.1: Path A is exact and governed. Path B is ranked and advisory. The bridge converts B into A.*
+
+**Path A** is exact lookup over governed rows: canonical ids, ratified derivation tables, declared mappings. It is either correct or honestly absent. It cannot be approximately right, which is what makes it suitable for anything load-bearing.
+
+**Path B** is retrieval: lexical or dense search over a corpus, ranked and fused. It is always advisory, always attributed, and never authoritative. It is what you use when the question is phrased in a way nobody anticipated, or when the corpus is documents rather than rows.
+
+The failure mode to avoid is letting Path B silently answer questions Path A should own. A retrieval hit that looks confident is still a ranking, and a ranking over an entity name is exactly the scope error Chapter 10 is about. The boundary must be structural, not a matter of tuning.
+
+### **9.3  Choosing an engine, and naming the trigger**
+
+There is a strong pull, when retrieval enters a roadmap, to procure infrastructure first: a vector database, a self-hosted embedding service, a policy engine. Each is defensible in isolation. Together they are a program with its own deployment, its own spend, and its own operational surface — before a single measurement has justified any of it.
+
+The ruling here separates a **functionality** from an **infrastructure**.
+
+- The functionality — lexical search, optional dense search, reciprocal-rank fusion — is delivered on the database that is already in production. Full-text search and trigram matching are built in; a vector extension exists if measurement asks for one; fusion is arithmetic.
+
+- The parameters carry the names the future infrastructure would use — retrieval.topK, retrieval.scoreThreshold, fusion weights — so that swapping the engine later changes an engine, not a vocabulary.
+
+- The swap triggers are **named in advance**, in writing: corpus growth past what a single index serves within the turn's latency budget; p95 retrieval latency on the critical path; per-tenant collection isolation becoming a real requirement.
+
+*"**It would be nice**"** is not a trigger. A shelf without an alarm is a shelf nobody ever comes back to.*
+
+The result is that retrieval functionality ships with zero new infrastructure, zero spend approval and zero deployment program — and the infrastructure remains a named, alarmed item rather than a forgotten one. This pattern generalizes well beyond retrieval, and it is the single most useful piece of roadmap discipline in this book.
+
+### **9.4  The bridge**
+
+Path A and Path B are not rivals; they are connected by a mechanism that makes the system get more deterministic over time rather than less.
+
+A **retrieval-miss ledger** records questions that fell through to Path B and what they eventually needed. Frequently recurring Path B intents surface as candidates, and each one is promoted to Path A with exactly **one governed row**.
+
+This is why the exact-match table is never inflated by hand. You do not guess which phrasings people will use; you observe which ones they did use, and you promote the ones that recur. It is the same machine-proposes/human-ratifies pattern as memory promotion in Chapter 8 and alias learning in Chapter 11 — and noticing that three unrelated subsystems converged on the same pattern is a reasonable sign the pattern is right.
+
+### **9.5  What retrieval must never do**
+
+Three prohibitions, each learned the expensive way somewhere in this industry.
+
+- **Retrieval must never write governed knowledge.** A retrieval hit is evidence, at most a proposal. The gate is the only writer.
+
+- **Retrieval must never be the authority on scope.** "The most similar document mentions KB7" is not the same fact as "this data is scoped to KB7", and conflating them produces exactly the incident Chapter 10 opens with.
+
+- **Retrieved content is data, never command.** The same containment rule as tool text in Chapter 7. A document in the corpus can contain instructions; the architecture must make them structurally inert rather than trying to detect them.
+
+There is a fourth, softer point. Retrieval in a governed system should search the resolved representation of a question — the frame, the canonical entities — rather than raw user language wherever it can. Raw language is where the ambiguity lives, and retrieving on ambiguity produces confident results built on a coin flip.
+
+### **9.6  Summary**
+
+In summary, here are the key takeaways from this chapter:
+
+- **Governed knowledge is the runtime source of truth**, split into CORE kinds that are field-locked and gated, and SOFT kinds that are extensible from the database.
+
+- **Two paths, one boundary.** Path A is exact and governed — correct or honestly absent. Path B is ranked, advisory and attributed. Letting B answer A's questions is a scope error waiting to happen.
+
+- **Separate functionality from infrastructure.** Ship the retrieval functionality on the database you already run; keep the future engine's vocabulary; name the swap triggers in advance.
+
+- **A shelf without an alarm is a forgotten shelf.** "It would be nice" is not a trigger.
+
+- **The bridge makes the system more deterministic over time.** A miss ledger surfaces recurring retrieval intents; each promotes to an exact row. Observe, then promote — never guess and pre-populate.
+
+- **Retrieval never writes knowledge, never rules on scope, and never issues commands** — and prefers to search the resolved frame over raw language.
+
+**PART III**
+
+# **Trust, Measurement, and Governance**
+
+Part II built a system that can answer. Part III builds the properties that make an answer usable by someone who is accountable for it.
+
+Chapter 10 develops the trust and provenance model, starting from a real incident and ending at an honest statement of what the design cannot do. Chapter 11 covers the other half of that law: how a system discovers its own world, and what it does when the world it discovered turns out to be lying. Chapter 12 covers the gate through which every change to governed truth must pass. Chapter 13 covers observability as three separate systems joined by one identifier. Chapter 14 is about measurement, and specifically about reads that are structurally incapable of reporting a comfortable zero.
+
+If you read only one part of this book, read this one.
+
+## **10  Trust and Provenance**
+
+**This chapter covers:**
+
+- An incident: correct-looking numbers from the wrong factory
+
+- A four-tier threat model, and what each tier can actually be caught by
+
+- Why a model-generated trust score is security theatre
+
+- Trust as a deterministic function of provenance, role and scope
+
+- Two tiers of provenance: what we assign versus what the backend claims
+
+- The honest limit — software contains, only redundancy reveals
+
+### **10.1  The incident**
+
+A BI instance exposed a dashboard titled with the name of one factory. Its bound datasource was a different factory entirely. Anyone reading the dashboard's title would have concluded they were looking at the first factory's data. They were not.
+
+When the agent was asked about that factory's efficiency and the authoritative MES was unavailable, it answered from the dashboard. The numbers were plausible, internally consistent, well-formatted and completely wrong — wrong in the most dangerous available way, which is about the right subject at the wrong scope.
+
+The response that suggests itself is: use a better model. That was tested. Of three model families, one caught it and two did not. And a detail from that test is the reason this chapter exists at all: the system prompt itself contained a worked example that had been quietly steering models toward the trap.
+
+*If a defence works on one model family and not two others, and can be reversed by a sentence in a prompt, it is not a defence. It is a coincidence you have not measured yet.*
+
+The owner then escalated the requirement to its proper end state: eventually a deliberately fraudulent backend will be attached, on purpose, to try to collapse the system. The architecture must not fall for it. Everything below follows from taking that sentence literally.
+
+### **10.2  The threat model**
+
+Four ascending tiers, each of which needs a different answer.
+
+*Figure 10.1: Threat model, ascending. Note where detection stops and containment begins.*
+
+- **Incomplete or stale.** Rows are missing. This is covered by empty ≠ zero — the system distinguishes "no data" from "zero" and says which one it has.
+
+- **Mislabelled scope.** Data from one scope presented under another's title — the incident above. Catchable, because the backend is honest at the datasource layer even when its dashboard title is not.
+
+- **Deliberate liar.** Fabricated but plausible, self-consistent, in-scope values, with a forged scope label to match. **Not catchable by inspection.**
+
+- **Actively hostile.** Tool descriptions and results carrying embedded instructions intended to hijack the agent, exfiltrate data, or poison the knowledge store.
+
+### **10.3  The hard truth that bounds the design**
+
+A single-source, self-consistent, in-scope lie cannot be detected by inspection. There is no internal signal that separates a fabricated but plausible number from a real one without an independent reference. And this applies to scope exactly as it applies to values: the bound datasource is a field the backend self-reports, so an adversary forges it as easily as it forges a number.
+
+Which rules out the intuitive design. A trust score produced by asking a model to assess an answer is:
+
+- **non-deterministic** — the same input can yield different scores;
+
+- **un-auditable** — you cannot explain, six months later, why it scored 0.7;
+
+- **itself poisonable** — the hostile backend's text is in the model's context when it scores;
+
+- **and worst, confidence-manufacturing** — it produces a number that *looks* like a measurement and is not one.
+
+So the goal is restated, and the restatement is the most important sentence in this chapter:
+
+*The goal is not to make a lying backend honest, or to detect that it lied. The goal is to make a lying backend HARMLESS — its claim can never be authoritative, can never poison anything else, can never pass unattributed, and is quarantined on deterministic anomaly.*
+
+You neutralize the liar without needing to know it lied. You ensure the lie reaches nowhere load-bearing.
+
+### **10.4  Trust is declared, ceiling-capped, and revocable**
+
+Trust is not granted by connection. It is **earned by declaration plus verification, ceiling-capped by role, and revoked on anomaly**. A backend you cannot verify is not believed; it is contained.
+
+Three declarations per backend, set only through a gated administrative path. A backend can never register itself as trusted, because the write path is closed to it — this is enforced at the row-security layer, not by convention.
+
+| **Declaration** | **Content** |
+| --- | --- |
+| Trust role | system_of_record (authoritative) · reporting_mirror (advisory, always attributed) · enrichment · unverified — the default for anything new |
+| Authority map | Which metrics or domains this backend may be authoritative for. In this system, efficiency, scrap and throughput belong to the MES; the BI mirror is authoritative for nothing. |
+| Scope-identity contract | How this backend names and scopes entities, and where in a result payload the binding scope can be read — plus the trust basis of that field |
+
+*Table 10.1: The three governed trust declarations.*
+
+The default is the whole design. An unknown backend lands at unverified: advisory, never authoritative, always attributed, quarantinable. A fraudulent backend is in the basement from the moment it connects, before any human has assessed it.
+
+### **10.5  Enforcement lives in the architecture**
+
+Three mechanisms, none of which asks a model to judge anything.
+
+#### **10.5.1  Authority routing**
+
+A question about a metric routes to the backend declared authoritative for it. If that backend is unavailable, the system says the authoritative source is required — it does **not** silently fall back to a mirror. This is the strongest mechanism in the chapter because it depends on nothing the backend says: the routing decision is made entirely from our own governed declarations.
+
+#### **10.5.2  Scope match or decline**
+
+Answer a scoped question only from data whose scope is verified to match. Never substitute one factory for another. This is the direct sibling of empty ≠ zero: **wrong scope is not the answer**.
+
+Its strength is tier-dependent, and honesty about that is mandatory. Against an honest backend that truthfully reports its bound datasource, this catches the incident cleanly. Against a liar that forges the datasource label, it degrades to plausibility checking, and the guarantee falls back to containment — role ceiling plus attribution — rather than detection.
+
+#### **10.5.3  Attribution**
+
+Mirror and enrichment data are always labelled as what they are. Not "where useful" — always. The label is what lets a human apply their own judgement, and a human with a labelled BI number is in a completely different position from a human with an unlabelled one.
+
+### **10.6  Two tiers of provenance**
+
+Every value the agent surfaces carries its origin, and provenance comes in two tiers with opposite trust profiles. Conflating them is the error this distinction exists to prevent.
+
+*Figure 10.2: Envelope provenance is assigned by us and unforgeable. Payload provenance is claimed by the backend.*
+
+**Envelope provenance** — backend, tool, server — is assigned by our own code at the tool-execution chokepoint, where the server object already carries its identity. It is cheap, always available, and **unforgeable by the backend**, because the backend never touches it.
+
+**Payload provenance** — datasource, scope — is extracted from inside the result body. It is backend-shape-specific and self-reported, and is therefore a **claim**, carried under a role ceiling and never treated as ground truth. For an honest mirror it is a real verification signal. For a liar it is contained, not believed.
+
+Ship the envelope first. It is the cheaper half and it delivers the stronger guarantee. The rule underneath: **no provenance means unverified**. There is no fourth option, and there is certainly no "probably fine".
+
+### **10.7  Trust as a deterministic function**
+
+Trust in an answer is computed, not felt:
+
+trust(answer) = f(
+
+  provenance,                  // where did it come from
+
+  role_ceiling,                // what is this source allowed to be
+
+  scope_match,                 // does its scope match the question
+
+  authority_match,             // may this source answer this metric
+
+  cross_source_reconciliation, // do overlapping sources agree
+
+  invariants                   // empty != zero, counts, schema
+
+) -> score + explicit reason set
+
+Reproducible and auditable. When it says the answer's provenance, scope or authority does not hold, the system says this does not check out — a reasoned decision with a reason set attached, not a model's impression.
+
+Table 10.2 bills each term honestly, because a trust function that overclaims is exactly the theatre this chapter rejects.
+
+| **Term** | **Strength** | **Against whom** |
+| --- | --- | --- |
+| Role ceiling | Strong, content-independent | Every tier. The load-bearing guarantee. |
+| Authority match | Strong, model-independent | Every tier. |
+| Invariants | Strong | Every tier. |
+| Scope match | Strong → containment-grade | Strong vs an honest backend; degrades vs a forger. |
+| Reconciliation | The only revealing term | Exists only where two sources genuinely overlap. |
+
+*Table 10.2: Each term of the trust function, billed for what it actually delivers.*
+
+### **10.8  Containment**
+
+Five properties make a hostile backend reach nowhere load-bearing.
+
+- **Tool output is data, never command** — structural, per Chapter 7. Explicitly *not* a content sanitizer. Regex-stripping instruction-shaped text from tool output is fragile, non-deterministic and manufactures false confidence: it is the same theatre this chapter rejects for trust scores. The pass criterion is *could not hijack*, never *detected the injection*.
+
+- **Cannot poison the knowledge store** — publishing goes only through the gate of Chapter 12; direct client writes are denied at the row-security layer.
+
+- **Cannot self-elevate** — trust role and authority are gated data, writable only through an administrative path.
+
+- **Cannot see secrets** — credentials resolve server-side and never leave the backend boundary.
+
+- **Quarantine on anomaly, deterministic triggers only** — a schema or invariant violation, a backend breaching its *own* registered scope contract (self-inconsistency, which even a liar trips), or reconciliation divergence where overlap exists.
+
+That last item has an important exclusion. Injection-shaped tool content is **logged, not used to drive trust demotion**. "It tripped a pattern that smelled like an instruction" is not a quarantine trigger, because building demotion on a heuristic detector reintroduces the fragile detection layer through the back door.
+
+### **10.9  The honest limit**
+
+State it plainly, because a security design that overstates itself is worse than one that under-delivers with its eyes open.
+
+*A single-source, self-consistent, in-scope lie — in its values and in its self-reported scope label — is made harmless. It is not made visible. Software contains. Only redundancy reveals.*
+
+The original incident is detectable today only because the BI layer honestly self-labels its datasources. A hostile backend that forges the label defeats the scope validator and is contained rather than caught. Making that class of lie visible requires an independent second authoritative source to reconcile against — which is a data and infrastructure decision, not a software one.
+
+And the acceptance test is written to match. When a deliberately lying backend is eventually attached on purpose, the pass criterion is not the system knew the numbers were fake — that is impossible. It is: **its claims were never authoritative, were flagged on deterministic divergence, could not write the knowledge store, and could not hijack the agent through tool content.** That is achievable, and it is the correct bar.
+
+### **10.10  Summary**
+
+In summary, here are the key takeaways from this chapter:
+
+- **Scope errors are the dangerous class** because they are self-consistent, plausible and actionable. A defence that works on one model family and can be reversed by a prompt sentence is not a defence.
+
+- **A model-generated trust score is theatre** — non-deterministic, un-auditable, poisonable, and confidence-manufacturing. Trust must be a deterministic function of provenance and declared policy.
+
+- **Restate the goal: harmless, not honest.** Neutralize the liar without needing to know it lied.
+
+- **Trust is declared, ceiling-capped, revocable, and defaults to the floor.** A new backend is advisory and attributed before anyone assesses it. It can never register itself as trusted.
+
+- **Two tiers of provenance.** Envelope provenance is ours and unforgeable; payload provenance is the backend's claim, carried under a ceiling. Ship the envelope first.
+
+- **Bill every term of the trust function honestly.** Role ceiling and authority are strong against every tier; scope match degrades against a forger; reconciliation is the only term that reveals, and only where overlap exists.
+
+- **Containment is structural, and quarantine triggers are deterministic.** Injection-shaped content is logged, never used to drive demotion.
+
+- **Software contains; redundancy reveals.** Say so out loud, and write the acceptance test to the achievable bar.
+
+## **11  Discovery and Earned Trust**
+
+**This chapter covers:**
+
+- Why a hardcoded entity catalogue is an admission rather than a shortcut
+
+- The discovery law, and the boundary of what code may still hold
+
+- The degree test: turning "how much hardcoding is too much" into a review question
+
+- A declaration is a claim, not a warrant — the other half of the law
+
+- Five deterministic mismatch signals, and the one that must be read backwards
+
+- Two-speed enforcement: fast containment, slow ratified downgrade
+
+### **11.1  An asymmetry, and the cheap fix that would have made it permanent**
+
+A read of the live system exposed an uncomfortable table.
+
+| **Entity layer** | **Rows** | **How they got there** |
+| --- | --- | --- |
+| Factories | 17 | Auto-mirrored from the backend's live list |
+| Zones | 4 | Hand-authored, seeded from an in-code reference |
+| Aliases | 5 | Hand-authored, same path |
+| Lines | 0 | — |
+| Equipment | 0 | — |
+
+*Table 11.1: One layer discovered; the rest transcribed by hand or absent entirely.*
+
+The live consequence was already visible: one glazing line resolved and its sibling did not, because somebody had written an alias row for one and not the other. For a manufacturing system, where most questions concern lines and zones, the clarification gate was deciding against a nearly empty catalogue.
+
+The danger was not the gap. It was the **cheap fix**. When the measurement reports "most failures are unresolved entities on line and zone questions", writing an alias row for the missing line looks obvious, small and harmless.
+
+It is none of those. It is a vote for an architecture in which a human transcribes a factory's topology into a database by hand, forever, going stale on every backend change, with the maintenance landing on the one person least able to spare it.
+
+### **11.2  The law**
+
+*The system discovers its own world. Entity inventory and topology are OBSERVED from the backend, never authored by a human.*
+
+What must be discovered: which factories, lines, zones and equipment exist; their names and identifiers as the backend states them; and their parent–child edges. The topology graph is a derived observation, not a drawn diagram.
+
+A hardcoded entity catalogue is treated as an admission of ignorance: it means we have not yet learned how to observe that layer. The remedy is always to extend discovery, never to extend the hand-written list.
+
+The owner's formulation, which is blunter and better: the more we hardcode, the worse we are — putting a hardcode somewhere means we do not know how to do this.
+
+### **11.3  The boundary: shape versus inventory**
+
+This law does not repeal DB-first/code-floor and it is not "no constants anywhere". The line is between **shape** and **inventory**.
+
+Legitimately in code: shapes and schemas (what a zone is), algorithms (the normalize → exact → prefix → fuzzy resolution ladder, language folding, suffix stripping), policies and closed enumerations, and the discovery mechanism itself.
+
+Never in code: **inventory** — which things exist, what they are called, how they nest.
+
+And note that inventory has a better floor than code could ever be: the persisted mirror itself. A failed sync never empties the mirror, so the last known good observation survives an outage without any in-code copy of the world. The code floor's three roles apply to structure and policy; they do not extend to observed inventory, because inventory already has somewhere better to fall back to.
+
+#### **11.3.1  Vocabulary is a third case**
+
+Human synonyms are not inventory. "Glazing 3" as a colloquial name for a formally titled production line is a language fact, not a topology fact, and no backend will ever tell you about it.
+
+These are handled by a third pattern: **machine-proposed, human-ratified**. An entity-miss ledger records every unresolved or ambiguous resolution, proposes an alias with the evidence attached, and a human plus the gate publishes it. Machine-proposed and human-ratified is compliant. Hand-authored-from-scratch inventory is not. The distinction is not pedantry — one scales with observed usage, the other with the size of the world.
+
+### **11.4  The degree test**
+
+Some per-integration tweaking is legitimate and always will be; this is a custom agent, not a general one. The owner's framing of the limit was a ratio — roughly, 99% self-discovery with 1% tweaking is fine, 60% hardcoded with 40% discovery is not.
+
+The intent is exactly right and a percentage is unmeasurable in a code review. So it is operationalized as a **scaling test** a reviewer can apply to a diff without estimating anything:
+
+*Does the hand-authored artifact grow with the WORLD, or with the INTEGRATION?*
+
+Grows with the world — with the number of factories, lines, zones, machines, or anything else the customer's plant contains: **forbidden**. The world is unbounded, changes without telling you, and anything scaling with it is stale by construction.
+
+Grows with the integration — one entry per connected backend, authored once at connection time: **accepted**. This is the bounded, honest meaning of "custom", and it is where the 1% lives.
+
+| **Artifact** | **Scales with** | **Verdict** |
+| --- | --- | --- |
+| One nullable column naming a backend's entity-listing tool | integration | Accepted |
+| A per-backend quirk note ("this backend's ids are case-sensitive") | integration | Accepted |
+| Seventeen hand-written factory rows | world | Forbidden |
+| One alias row per zone, written by hand | world | Forbidden |
+| A code branch naming a specific backend | neither — a genericity breach | Forbidden twice |
+
+*Table 11.2: The degree test applied. If a reviewer cannot say which column an artifact falls in, that ambiguity is itself the finding.*
+
+This is the most portable idea in the chapter. It converts a philosophical limit into a mechanical review question, and it works in any system where configuration and inventory are at risk of blurring.
+
+### **11.5  The other half: a declaration is a claim, not a warrant**
+
+Discovery on its own is only half a law, and the missing half is easy to miss because discovery feels like it has solved the problem.
+
+Consider the scenario. You connect a backend. Philosophically — and this is the entire point of a tool protocol — its tools are declarations: "I expose this tool; it returns every zone inside a factory." You do not own that backend. You cannot verify the claim before using it. Accepting the declaration and adapting dynamically is the protocol's core value.
+
+Then reality arrives. A user asks for a factory's zones. You walk from the root the tool declared, request its sub-branches, and what comes back is not what was declared. At that point the only honest conclusion available is: **this tool is untrustable**.
+
+A system that cannot reach that conclusion has two remaining moves, both bad: keep answering from a source it has evidence against, or let a human quietly hardcode around it — which is precisely the failure the discovery law forbids.
+
+*Figure 11.1: Accept the declaration for reachability; earn fitness-to-answer by observation.*
+
+So the decision is stated in two halves. A tool declaration is accepted for **reachability** — it determines what may be called, preserving protocol plasticity in full. A payload's **fitness to be answered from** is earned by observation and can be lost by observation. And a third clause that closes the obvious loophole: **trust never silently improves.** Absence of evidence leaves a source where it was declared; it never promotes.
+
+### **11.6  Mismatch signals**
+
+Trust evidence inherits the determinism law of Chapter 10: only mechanically checkable signals count.
+
+- **Shape violation** — the declared output schema versus the returned payload's actual shape.
+
+- **Internal contradiction** — one source contradicting another: a registry reporting seventeen factories while the zone tool only ever serves one; a parent claiming children the child-listing tool denies.
+
+- **Declared-completeness violation** — a tool declaring "all X for Y" while returning a proper subset that a second source contradicts. **This is the dangerous class and it is undetectable from a single call.** A design that consults exactly one source per question cannot see it at all.
+
+- **Outcome failure** — a grounding violation fired, the turn errored, or a downstream check rejected an answer built on this payload.
+
+- **Absence pattern** — persistent emptiness from a tool declared to return data.
+
+**The signal that must be read backwards**
+
+Signal 5 must be read through empty ≠ zero, and getting it backwards is the most likely way to implement this whole design wrongly.
+
+A genuine real-zero — the factory truly has no zones configured — is a *correct answer* and must never count as evidence against the tool. Only gaps and unparseable outcomes accumulate.
+
+Implement it naively and you build a system that systematically punishes the most honest backends: the ones that correctly report emptiness get demoted, while the ones that fabricate a plausible row keep their tier.
+
+### **11.7  Granularity and two speeds**
+
+**Trust is per tool, not per backend.** The scenario is one tool lying while the rest of the backend works. A per-backend model forces an all-or-nothing response — quarantine everything or tolerate a known-bad tool — and both are wrong. Backend-level trust remains the ceiling; the floor is reachable per tool, and a per-tool downgrade must not disable its siblings.
+
+And the tension between "a lying backend keeps lying while a human sleeps" and "an automated system must not silently disable a working integration" resolves into two mechanisms at two speeds.
+
+|  | **Fast path** | **Slow path** |
+| --- | --- | --- |
+| What | Payload containment | Trust tier downgrade |
+| Speed | Per turn, automatic | Ratified, persistent |
+| Trigger | A deterministic check failed on this payload | Evidence accumulated in a ledger |
+| Action | Not answered from, or answered from only with explicit attribution and hedging | Machine proposes a downgrade with evidence; a human plus the gate ratifies; the new tier is published |
+| Risk | None — changes no persistent state, needs no human | None — no hidden automatic demotion, no silent tolerance either |
+
+*Table 11.3: Two speeds. The fast path protects the turn; the slow path changes the world.*
+
+The slow path is deliberately the same machine-proposes/human-ratifies pattern as alias promotion and memory promotion. Changing a source's standing authority is a governance act, because the tier is a governed declaration.
+
+### **11.8  The honest limit, again**
+
+Discovery makes the system faithful **to the backend**, not to the world. If a backend's zone list is simply wrong — consistently, without contradicting itself or any other source you have — discovery will faithfully mirror the wrong list and every mismatch signal will stay silent.
+
+That is not a flaw in the design; it is the same limit as Chapter 10, arriving from a different direction. What these mechanisms detect is **inconsistency**, not falsehood. Detecting falsehood requires an independent second source, which is a data decision.
+
+Saying this out loud, in the ADR, next to the decision, is what stops the next engineer from believing the system has a guarantee it does not have.
+
+### **11.9  Summary**
+
+In summary, here are the key takeaways from this chapter:
+
+- **A hardcoded entity catalogue is an admission of ignorance**, and the cheap fix that adds "just one more row" is a vote for an architecture where a human maintains the world by hand forever.
+
+- **Inventory is discovered; shape, algorithms and policy stay in code.** Inventory has a better floor than code: the persisted mirror, which an outage disables but never empties.
+
+- **Vocabulary is a third case** — machine-proposed from observed misses, human-ratified through the gate. Never hand-authored from scratch.
+
+- **The degree test.** Does the hand-authored artifact grow with the WORLD or with the INTEGRATION? A reviewer who cannot say which has found the finding.
+
+- **A declaration is a claim, not a warrant.** Accept it for reachability; earn fitness-to-answer by observation. Trust never silently improves.
+
+- **Five deterministic mismatch signals**, of which the absence pattern must be read through empty ≠ zero — or you will build a system that punishes honest backends.
+
+- **Trust is per tool.** A bad tool must not disable its working siblings; backend trust remains the ceiling.
+
+- **Two speeds.** Fast, automatic, reversible containment protects the turn. Slow, ratified downgrade changes the world — machine proposes, human plus gate disposes.
+
+## **12  The Eval-Gate**
+
+**This chapter covers:**
+
+- Why a knowledge change needs a gate rather than a review
+
+- Three validation stages: schema, referential, behavioral
+
+- What "unbypassable" means precisely enough to test
+
+- Publish, version, roll back, audit
+
+- The anti-oracle principle: the agent proposes, the gate disposes
+
+### **12.1  Why a gate**
+
+Once knowledge lives in a database rather than in code, it has lost the protections code had. There is no pull request, no type checker, no CI run, no reviewer. A governed row can be changed by anyone with the right permission, at any time, with no test between the intent and production.
+
+The gate restores those protections to data. Every change to governed truth is authored as a **draft**, validated by the gate, and published only if it passes. The gate is server-side, and direct client writes to governed tables are denied at the row-security layer — so the gate is not a convention the application layer follows, it is the only door that exists.
+
+### **12.2  Three stages**
+
+*Figure 12.1: The gate. Three stages, in this order, for every publish.*
+
+- **Schema.** Does the draft have the right shape? Required fields, types, closed-enum membership. Cheap, and it catches most authoring mistakes.
+
+- **Referential.** Does everything the draft points at exist? A rule referring to a category that was renamed, an alias pointing at an entity id that no longer resolves, a segment referencing a removed parameter. This is where most *interesting* failures are caught, because they are the ones a human author cannot see.
+
+- **Behavioral.** With this change applied, does the system still answer the corpus correctly? A set of known questions with known good outcomes is run against the candidate state. This is the expensive stage and the only one that catches semantic regressions.
+
+The order is not arbitrary and is itself part of the contract. Schema before referential means you do not waste a lookup on a malformed draft. Referential before behavioral means you do not run an expensive corpus against a draft that cannot resolve. And fixing the order in the contract means a future optimization cannot quietly reorder it into something weaker.
+
+### **12.3  ****"****Unbypassable****"****, defined precisely**
+
+"The gate cannot be bypassed" is a slogan until you say what would count as a violation. In this system the definition is deliberately mechanical:
+
+*No gate change means the engine, the stage order and the interpreter are byte-identical for every caller.*
+
+That precision earns its keep in a specific recurring argument. When a second backend arrives, it needs its own referential checks — its entity ids live elsewhere, its categories are different. Is adding those a gate change?
+
+No — provided it is **additive per-backend dispatch**: the engine, stage order and interpreter are untouched, and a new branch is added inside the referential stage for the new backend. What would be a violation is a caller that skips a stage, a second code path that publishes without the gate, or an interpreter that behaves differently depending on who is calling.
+
+Having that distinction written down in advance is what allows the system to grow without either freezing the gate or eroding it — and the erosion is always incremental, always well-argued, and always noticed too late.
+
+### **12.4  Publish, version, roll back, audit**
+
+A passing draft is published, and publication produces four things:
+
+- a **new version**, so the previous state is retained rather than overwritten;
+
+- an **audit record**, so who changed what, when, and on what evidence is answerable later;
+
+- a **rollback path**, so reverting is a first-class operation rather than an incident;
+
+- an **attribution**, so a published row can be traced to the human who took responsibility for it.
+
+Rollback deserves emphasis. A governance system where reverting is hard is a governance system where people avoid publishing, and a system where people avoid publishing routes the change somewhere unsupervised. Cheap reversal is what makes the gate acceptable to live with rather than something to be worked around.
+
+### **12.5  The anti-oracle principle**
+
+The gate is what allows an agent to participate in its own improvement without becoming an oracle.
+
+*The agent proposes; the gate disposes.*
+
+A proposed alias, a proposed knowledge row, a proposed trust downgrade, a proposed promotion from an episode — every one of these is a **draft**, never a fact. It carries its evidence. It goes through the same three stages as a human-authored change. A human ratifies it.
+
+This is the single structural difference between a system that improves and a system that drifts. In a drifting system the agent writes what it inferred, the inference is used as input to the next inference, and within months nobody can say when a belief entered the system or on what basis. In a gated system every belief has a version, an author, an evidence trail and a revert button.
+
+Model assistance is permitted at draft authoring time — a model can help write a proposal. It is never permitted at publish time, and it is never permitted at runtime as a judge. Chapter 10's rejection of the LLM-judge pattern and this chapter's gate are the same principle applied at two different layers.
+
+### **12.6  Summary**
+
+In summary, here are the key takeaways from this chapter:
+
+- **Data in a database has lost the protections code had.** The gate restores review, validation and testing to knowledge changes.
+
+- **Three stages, in a fixed order**: schema, referential, behavioral. The order is part of the contract so that a future optimization cannot quietly weaken it.
+
+- **Define unbypassable mechanically** — engine, stage order and interpreter byte-identical for every caller — so that legitimate growth (additive per-backend dispatch) is distinguishable from erosion.
+
+- **Publish produces a version, an audit record, a rollback path and an attribution.** Cheap reversal is what makes the gate liveable rather than something to route around.
+
+- **The agent proposes; the gate disposes.** This one sentence is the difference between a system that improves and a system that drifts.
+
+- **Model assistance at draft time, never at publish time, never as a runtime judge.**
+
+## **13  Observability**
+
+**This chapter covers:**
+
+- Three observability systems that must never be conflated
+
+- One turn id, and what it buys
+
+- The full-trace mandate and enforcement by construction
+
+- Transport realities that silently destroy telemetry
+
+- Which side of the wire your sensor lives on
+
+### **13.1  Three systems, one identifier**
+
+The most common observability mistake in agent systems is building one store and asking it to be three things. The three have different questions, different lifetimes, different access rules and different failure consequences.
+
+*Figure 13.1: Three observability systems, joined by one identifier.*
+
+|  | **Ledger** | **Trace** | **Digest** |
+| --- | --- | --- | --- |
+| Question | What did the system do, officially? | Why did it do that? | What should the debug panel show? |
+| Lifetime | Durable | Retention-bounded | Bounded — 14 days |
+| Content | Structured governance events | Every span, input and output, scrubbed | A display-only projection |
+| If deleted | Accountability is lost | Diagnosis gets harder | Nothing is lost |
+
+*Table 13.1: Three systems, three jobs. Conflating them costs you one of the three.*
+
+Conflating them produces predictable damage. Put governance events in the trace store and your accountability record inherits a retention policy. Put full trace payloads in the ledger and it becomes too large and too sensitive to keep. Treat the display digest as a source of truth and you will one day answer a compliance question from a fourteen-day cache.
+
+What joins them is a single identifier: **one turn id**, which is the OpenTelemetry trace id. Not a ledger id joined to a trace id joined to a session id through two mapping tables. One id, used everywhere, so that any of the three systems can be queried from any other's output.
+
+This sounds trivial and is not. It requires the id to be generated at the earliest possible point, threaded through the context, used as the session identifier in the ledger, and stamped on the digest. Systems that generate identifiers per subsystem discover, usually during an incident, that correlating three stores by timestamp is not correlation.
+
+### **13.2  The full-trace mandate**
+
+The rule is stated absolutely, because a partial version of it is worthless:
+
+*Every stage, every database read and every tool call shows both its input and its output in the trace and in the panel. Only raw secrets are scrubbed.*
+
+Half-instrumented traces are worse than none, because they create confident wrong conclusions. If stage 07 records its output but not its input, an investigator will infer the input from the output, and will be wrong in exactly the cases that matter — the ones where something unexpected arrived.
+
+The mandate is enforced **by construction**: a completeness check in CI fails the build when an instrumented surface stops reporting. This is the general pattern for any rule you actually intend to keep. A rule in a document decays at the speed of team turnover. A rule with a failing test decays not at all.
+
+### **13.3  Transport realities**
+
+Three lessons that cost real debugging time and generalize to almost any deployment.
+
+#### **13.3.1  A serverless response can end before the flush**
+
+In a serverless runtime the process may be frozen the moment the response completes. Telemetry buffered for a background flush is simply lost. The fix is to **force-flush before the response ends**, accepting the latency, because a trace that arrives 40 ms late is worth infinitely more than one that never arrives.
+
+#### **13.3.2  A transport that fails silently**
+
+The collector in this deployment accepts OTLP over HTTP and not over gRPC. The gRPC path does not error loudly; it simply produces no data. An entire debugging session can be spent looking for the bug in the instrumentation when the instrumentation is fine and the transport is wrong.
+
+The generalizable rule: **when telemetry is missing, verify the transport before the instrumentation**. And prove your telemetry path works with a deliberate positive control, once, at setup — do not infer from the absence of errors that data is arriving.
+
+#### **13.3.3  Which side of the wire is your sensor on?**
+
+A production verification was planned around reading a specific log line. It was impossible: the line is a browser console message, and the server-side log reader never sees the browser at all.
+
+Before promising an observation, ask where the sensor physically lives and whether the reader can reach it. Browser-side logs, direct client-to-database reads that bypass your server, and edge-cached responses are three common cases where the thing you intend to observe is on the other side of the wire from the thing doing the observing.
+
+### **13.4  A log line proves what the deployment that emitted it contained**
+
+This is the observability discipline most often violated by competent engineers under time pressure, and it is worth stating as a rule with a name.
+
+You ship a fix. You read the logs. You see the expected line. You record it as proof the fix works. But the line you read may have come from a deployment that predates the fix — a scheduled job that ran before the rollout, a cached instance, a region that had not yet cycled.
+
+*A log line proves what the deployment that emitted it contained — nothing more. Pin the deployment identifier before treating a log as evidence for a change.*
+
+This is a whole class of false evidence, and it is insidious because it always confirms what you hoped. Its cure is mechanical: every post-deployment proof read names the deployment it must have come from, and a read that cannot name one is not proof.
+
+### **13.5  Summary**
+
+In summary, here are the key takeaways from this chapter:
+
+- **Three systems, never conflated**: a durable governance ledger, a retention-bounded causal trace, and a short-lived display-only digest. Each answers a different question and has a different consequence when lost.
+
+- **One turn id joins all three** — generated early, threaded everywhere. Correlating stores by timestamp is not correlation.
+
+- **Full-trace or nothing.** Half-instrumented traces manufacture confident wrong conclusions. Enforce completeness in CI, because a rule with a failing test does not decay.
+
+- **Force-flush before the response ends** in serverless runtimes, and verify the transport before blaming the instrumentation.
+
+- **Check which side of the wire your sensor is on** before promising an observation.
+
+- **A log line proves what the deployment that emitted it contained.** Pin the deployment id, or the reading is not evidence.
+
+## **14  Measurement: Reads That Cannot Lie**
+
+**This chapter covers:**
+
+- Why a number in a log is a claim rather than a fact
+
+- The silent-zero family, and where it does the most damage
+
+- Distinguishing "no data" from "could not read" in every measuring read
+
+- The pagination cliff, and totals that are wrong in a plausible direction
+
+- Positive controls, and the health board that summarizes it all
+
+### **14.1  A number in a log is a claim**
+
+The rule that governs this entire chapter, and one of the few in this book that applies to prose as much as to code:
+
+*A number or a name in a log, a telemetry field or a gauge is a CLAIM, not the world. Grep the emitting line, or corroborate it independently, before it becomes a premise.*
+
+The reason is that a claim is cheap to produce and expensive to check, so an unchecked claim propagates: it becomes a premise in an argument, the argument becomes a design, the design becomes code, and the code is built on a number nobody ever verified.
+
+In this project the rule applies explicitly to the architect's own writing. Specifications written from documents rather than from live reads produced a measurable count of premise errors — enough that a standing rule now requires every design note to open with a live read of the state it depends on. **Evidence is computed, never asserted**, and hand-transcription of a value from one document into another is prohibited outright, because a transcription is exactly where an unchecked claim enters.
+
+### **14.2  The silent-zero family**
+
+Here is a specific defect class worth learning to recognize on sight, because it is nearly invisible in review and it destroys measurement systems from underneath.
+
+// The shape of the bug
+
+const { data, error } = await countSomething();
+
+if (error) return 0;     // <- here
+
+return data.length;
+
+The error branch returns zero. It reads as defensive coding: do not crash, return a safe default. But zero is not a safe default — **zero is a measurement**. The caller cannot distinguish "there were none" from "I could not find out", and the caller will do something with that zero.
+
+In this system an audit found this shape in more than seven places. The worst of them was reading into a spend fence: a query that failed reported zero tokens spent, so the fence protecting the budget concluded nothing had been spent and let the next call through. The fence had been silently disarmed by a failing read, and it would have stayed that way indefinitely, because a disarmed fence produces no symptoms until the day it matters.
+
+The fix is a single shared counting function that returns a value **or an explicit unreadable state**, and callers that must handle both. The law that resulted was written to be citable:
+
+*Any read that feeds a measurement, a ledger, an actuator or a fence must distinguish **"**no data**"** from **"**could not read**"**.*
+
+Note the four consumers named. A read feeding a chart can arguably degrade. A read feeding an actuator — something that acts on the value — cannot, because a wrong zero there is not a wrong pixel, it is a wrong decision.
+
+### **14.3  empty ≠ zero, all the way down**
+
+Chapter 3 introduced the law. Here is where it actually gets violated: at the four layers furthest from where the data was read.
+
+*Figure 14.1: Four facts a careless layer collapses into one.*
+
+- **At the repository**, by returning 0 or [] on error (§14.2).
+
+- **At the aggregation**, by summing a set that silently excluded unreadable members.
+
+- **At the filter**, by emptying a panel without saying why. A filter that can empty a view owes the reader the reason — otherwise "I filtered and nothing matched" and "this panel is broken" render as the same screen.
+
+- **At the chart**, by coercing null to zero so the line stays continuous. A continuous line is prettier and is a lie about a gap.
+
+Two refinements from production experience are worth carrying. First, an empty-state message must not claim **exclusive** causation: if both a filter and a search term are active, "your filter matched nothing" may be false. Naming the filter as active and unmatched is true under every combination. Second, **two empty states are two facts**: "your filter matched nothing" and "the lookup failed" have different remedies and can be true at the same time. Pin them as two distinct strings in a test, or a future refactor will merge them.
+
+### **14.4  The pagination cliff**
+
+A specific instance of partial ≠ complete that is worth its own section because of how quietly it fails.
+
+Many data-access layers cap a result set at some default — a thousand rows is common — **with no truncation signal**. Below the cap, results are complete. Above it, they are silently partial, and the failure is invisible because the number that comes back is entirely plausible.
+
+In this system a running-total query had exactly this shape. Under a low ceiling it was correct. When the ceiling was raised, the same code silently under-reported, and the under-report was in a comfortable direction: it made spending look lower than it was.
+
+The rule: **any read of a table that may exceed the cap must either page to exhaustion or aggregate on the database side**. A SUM computed by the database has no cap; a sum computed by counting rows the client received has one, and the client cannot tell whether it hit it.
+
+### **14.5  Positive controls**
+
+A zero from an instrument that has never been proven capable of producing a non-zero is not evidence. This is the discipline that separates measurement from wishful thinking.
+
+- A cleanup job logging deleted=0 — plant an expired row, prove the job deletes it, *then* believe the zero.
+
+- A grep proving a forbidden token appears nowhere — run the same grep against a directory that *does* contain the token, and confirm it fires. A grep with a typo in the pattern is silently green forever.
+
+- A permission probe returning no error — three-way classification, not two: permission-denied is a **pass**, no-error is a **leak**, and any other error is **inconclusive and therefore a failure**. Never treat inconclusive as green.
+
+- A fix that is about to be written — prove the test fails first. A test that passes before the fix was testing something else.
+
+The generalization is worth naming: **an instrument must be proven able to fail before its success means anything**. This applies to tests, greps, probes, cron jobs, health checks and dashboards equally.
+
+**False greens are a class, not an instance**
+
+Two were found in this system by deliberate mutation testing. One was a render suite that mocked the very function whose failure it claimed to pin. The other was a layout assertion absorbed by an ancestor element's scroll container — it was measuring a real thing, but not the thing it claimed to measure.
+
+A green suite would never have found either. Mutation testing found both in an afternoon. If a suite has never been mutated, its greenness is an untested hypothesis.
+
+### **14.6  Flaky is usually one bug wearing many faces**
+
+A test suite in this project had been intermittently red for months, and had accumulated seven separate retry blocks written as compensation. The cause turned out to be a single parse error at a single named path; parallel execution meant a different test was mid-interaction each run, which is why it read as randomness.
+
+Two lessons, both expensive to learn and cheap to reuse:
+
+- **Compensating for a defect you have not diagnosed installs blindness.** Each of those seven retry blocks was capable of hiding two real failures indefinitely.
+
+- **A gate is worth exactly as much as its willingness to stay red.** Three mitigations were on the table — hide the overlay, retry inside the test, rerun the job. All three make the gate green. Only one makes it *sound*. Fixing the instrument removed the whole family and let the gate pass on first attempt, twice, without spending a retry.
+
+### **14.7  The health board**
+
+All of the above exists to make one screen trustworthy. The board is deliberately small: six bands and a single-sentence verdict at the top.
+
+*Figure 14.2: The health board — six bands and one verdict.*
+
+Four design decisions matter more than the metric choices.
+
+- **A page-level verdict.** One sentence at the top saying whether the system is healthy and naming the worst thing about it today. A dashboard without a verdict makes every reader compute their own, and they will each compute a different one.
+
+- **An honesty-violations card that must read zero.** Not a trend, not a percentage — a count that is either zero or is the headline. Some numbers should not be allowed to have a comfortable range.
+
+- **Real users and synthetic traffic counted separately.** A nightly synthetic run generates volume, cost and outcomes. Mixing it into the same totals as real usage produces a metric that measures the robot.
+
+- **Direction-aware trend arrows.** Up is not always good. A rising clarification rate may mean the system got more honest; a rising answer rate may mean it got less. An arrow that does not know which direction is good is decoration.
+
+And one hard-won lesson about denominators. An early definition of "useful turn ratio" had a numerator and a denominator that disagreed about what a clarification turn was — clarification turns emitted no completion row, so they vanished from one side of the fraction and not the other. The ratio was therefore measuring something nobody had intended, and it took a live read to notice. **When a ratio surprises you, check first that both sides are counting the same population.**
+
+### **14.8  Summary**
+
+In summary, here are the key takeaways from this chapter:
+
+- **A number in a log is a claim.** Grep the emitting line or corroborate independently before it becomes a premise — and apply the rule to your own design documents.
+
+- **The silent-zero family.** An error branch returning 0 disarms every consumer downstream. Any read feeding a measurement, ledger, actuator or fence must distinguish "no data" from "could not read".
+
+- **empty ≠ zero dies at the repository, the aggregation, the filter and the chart.** Empty states must not claim exclusive causation, and two different empty states are two facts.
+
+- **The pagination cliff.** A capped read with no truncation signal produces a plausible, wrong total. Page to exhaustion or aggregate database-side.
+
+- **Positive controls.** An instrument must be proven able to fail before its success means anything — applies to tests, greps, probes, cron jobs and dashboards.
+
+- **Flaky is usually one deterministic bug wearing many faces**, and compensating retries install blindness. A gate is worth exactly as much as its willingness to stay red.
+
+- **A board needs a verdict, a zero-or-headline honesty card, separated populations, and direction-aware trends** — and both sides of every ratio must count the same population.
+
+**PART IV**
+
+# **Operating and Scaling**
+
+Parts I through III described a system. Part IV describes how it survives contact with time — with changing requirements, with a second customer, and with the ordinary organizational pressure that turns careful architectures into legacy ones.
+
+Chapter 15 gives a taxonomy that prevents restrictions from ossifying into dogma. Chapter 16 describes the operating model under which the system is actually changed, and the doctrine that governs it. Chapter 17 walks one production turn and one production incident end to end, as a consolidated case study. Chapter 18 generalizes the platform from one customer to many and ends with an honest account of what is designed but not yet built.
+
+## **15  Valves, Not Walls**
+
+**This chapter covers:**
+
+- How a restrictive architecture ossifies, and why the cause is labeling rather than restriction
+
+- The valve metaphor and its three separable properties
+
+- A four-layer taxonomy: invariant, policy, scope-cut, config
+
+- Two standing rules that prevent valve drift
+
+- Capability posture as per-tenant governed data
+
+### **15.1  The challenge**
+
+A well-governed system accumulates restrictions, and every one of them was justified when it was written. After a year or two the accumulated set starts to foreclose the system's own evolution — and, in a platform, the reuse of the foundation by anyone whose needs differ slightly from the first customer's.
+
+The diagnosis that resolved this in CWF is worth quoting because it is counter-intuitive:
+
+*The foundation is not the problem; the labeling is. Several stance choices were written in the same voice as identity-level laws. A policy written as constitution cannot be revisited — and that, not the restriction itself, is what produces ossification.*
+
+This is a precise and useful observation. "We never let a model write to the knowledge store" and "nothing writes governed truth except through the gate, attributed" sound like the same rule. They are not. The first forecloses an entire design space; the second is an invariant that a machine-proposed, human-ratified draft satisfies perfectly well. Writing the first when you meant the second costs you a capability you never decided to give up.
+
+### **15.2  The valve**
+
+The ratified metaphor: restrictions are **valves**. The system retains control of the flow precisely because the valves exist — not because they are all closed.
+
+*Figure 15.1: Every valve has three separable properties, and conflating them is the error the taxonomy exists to prevent.*
+
+- **Existence** — the valve is there at all. This is platform identity: the gate cannot be removed, attribution cannot be omitted, the observability chokepoint cannot be circumvented.
+
+- **Authority** — who may turn it. This lives in the permission fabric: roles, mode fences, server-only write paths. Authority questions are never settled by position arguments.
+
+- **Position** — where it is currently set. A coarse stance, or a fine adjustment.
+
+The classic failure is arguing about position in the language of existence. Learn to hear it, because once you can, a surprising number of long architecture arguments resolve in a sentence.
+
+### **15.3  The four-layer taxonomy**
+
+Every restriction on runtime capability belongs to exactly one layer, and the layer determines its change speed, its change authority, and the evidence needed to change it.
+
+*Figure 15.2: Four layers, four change speeds, four authorities.*
+
+| **Layer** | **What it fixes** | **Change speed** | **Authority** |
+| --- | --- | --- | --- |
+| INVARIANT | The valve's existence — provability, containment, reversibility | Never; re-litigation banned | Owner constitutional act |
+| POLICY | The valve's position — the current stance | Deliberate, written | Owner, via a versioned note |
+| SCOPE-CUT | A valve not installed yet — "later", never "never" | Register speed | Owner sequencing |
+| CONFIG | The valve's fine adjustment | Fast | Gated admin surface, audited |
+
+*Table 15.1: The four layers.*
+
+The boundary tests are mechanical, which is what makes the taxonomy usable rather than philosophical:
+
+- If removing it would make a lying backend *harmful*, a change *unprovable*, a publish *irreversible*, or provenance *absent* — **INVARIANT**.
+
+- If a plausible other customer could legitimately want the opposite setting while keeping every gate, attribution and audit intact — **POLICY**, and it must carry a named door.
+
+- If it is "we chose not to build this yet" — **SCOPE-CUT**, named in the register.
+
+- If it is a value on an already-open capability — **CONFIG**.
+
+One interplay note, recorded because it recurs: **a stance and its switch live in different layers**. "Ship with learning braked" is a policy; the flag that brakes it is a config instrument of that policy. Flipping the flag through the admin surface is legitimate operation. Abandoning the braked stance is a deliberate, written act. Confusing the two is how a consequential decision gets made by someone toggling a switch.
+
+### **15.4  Two standing rules**
+
+**R-1 — the label lives on the valve.** Every restriction carries its layer label at its definition site: for laws, in the document that states them; for flags and parameters, in the register entry that introduces them. The purpose is to prevent **valve drift** — a consequential policy being flipped through the config surface because nothing marked it as more than a knob.
+
+**R-2 — name the layer before legislating.** When a new restriction is proposed, the first question is not yes/no but which layer. A restriction proposed without a layer is returned, not debated.
+
+R-2 is the sibling of the deterministic/soft rule from Chapter 1, and the two together cover most of the recurring design arguments in this kind of system. Both work by refusing to have the argument until the category is settled — which is, in practice, most of the argument.
+
+### **15.5  Capability posture as data**
+
+The taxonomy has a natural destination once the platform has more than one customer: **capability posture becomes per-tenant governed data**.
+
+Every POLICY-layer position is, by its own definition, something a legitimate other customer might set differently. One tenant permits write-class operations through the agent; another does not. One permits web research on in-scope questions; another forbids any egress. One runs with learning braked; another does not.
+
+If those positions live in code, each customer is a fork. If they live as governed rows under the same gate, attribution and audit trail, each customer is a configuration — and the INVARIANT layer, which is genuinely identity, stays identical across all of them. That is what makes a platform a platform rather than a family of similar products.
+
+### **15.6  Summary**
+
+In summary, here are the key takeaways from this chapter:
+
+- **Ossification comes from labeling, not from restriction.** A stance written in the voice of a law cannot be revisited, and you lose a capability you never decided to give up.
+
+- **Restrictions are valves.** Control is retained because the valves exist, not because they are closed.
+
+- **Three separable properties**: existence, authority, position. Most long architecture arguments are a position argued in the language of existence.
+
+- **Four layers with mechanical boundary tests**: invariant, policy, scope-cut, config — each with its own change speed and authority.
+
+- **A stance and its switch live in different layers.** Flipping the flag is operation; abandoning the stance is a deliberate act.
+
+- **Label the valve at its definition site, and name the layer before legislating.** Both rules work by refusing the argument until the category is settled.
+
+- **Policy positions become per-tenant governed data**, which is precisely what turns a product into a platform.
+
+## **16  The Operating Model**
+
+**This chapter covers:**
+
+- Three lanes, and the one invariant that makes them safe
+
+- Binding a capability to a connection rather than to a claimed mode
+
+- The seven movements of a change, from reconnaissance to proof
+
+- A doctrine for the design lane: eight rules that prevent recurring errors
+
+- Why merge is not proof
+
+### **16.1  Three lanes**
+
+How a system is changed matters as much as how it is built. The model here separates three roles, each with a different capability set.
+
+*Figure 16.1: Three lanes and the invariant that makes them safe.*
+
+The **Architect** lane diagnoses, designs, writes one gated instruction per phase, and reviews the result from a fresh checkout. It never writes repository files and never hands anyone terminal commands. Its output is designs, prompts and reviews.
+
+The **Author** lane performs all repository writes: branches, pull requests, merges. Its database access is read-only.
+
+The **Operator** lane applies migrations, reads schema, and verifies live state. It never touches the repository.
+
+The point is not the division of labour. It is a single invariant:
+
+*No mode grants repository-write and database-write at the same time. Whoever authored a change is therefore never the actor that applies and verifies it.*
+
+That independence is what catches the class of bug where a change is correct in intent and wrong in effect. The author knows what they meant; a second actor verifying against live state knows only what is there. In this project that separation is what caught a gap between a fix and its actual effect on production — the author's own verification would have confirmed the intent.
+
+### **16.2  Mode is bound to a connection**
+
+A mode an agent merely declares is a convention, not a boundary. A confused or manipulated actor can announce it is in the safe mode and write anyway. So:
+
+- The developer role's database side is a genuinely read-only connection — enforced at the database, where DDL returns an error code rather than a promise. The write connection is **absent** from that actor's configuration, so it cannot write even if instructed to.
+
+- The operator role's write connection is enabled, and its repository access is absent.
+
+- **The default is always the safe side.** An actor that loses track of its mode, or a human who forgets to switch back, lands on read-only. The failure mode of forgetting is *no write*, never *accidental write*.
+
+The spoken mode switch is retained as the intent layer. The connection is the enforcement layer. Intent and capability can never diverge, because capability is set at the connection rather than in a sentence.
+
+There is one more constraint worth stating, because it is the kind of thing that erodes quietly: migrations go through exactly one channel. Not "usually". One. A second path that is faster in an emergency is a second path that will be used, and a system where two mechanisms can change the schema has no reliable record of the schema's history.
+
+### **16.3  The seven movements of a change**
+
+*Figure 16.2: One phase, seven movements.*
+
+- **Reconnaissance.** Read the live state before writing a word of design. This exists because the single most common design error in this project had one root cause: writing specifications from documents instead of from live artifacts.
+
+- **Design.** A versioned note that names the hidden trap before prescribing a fix. Diagnosis first; if the design does not name what is actually wrong, the fix is a guess with good formatting.
+
+- **Instruction.** Exactly one self-contained, gated file per phase, with all dependencies embedded and self-verification built in.
+
+- **Build.** In the author lane, on a branch, with CI as the arbiter of whether tests pass. Not a local run — CI on the branch head.
+
+- **Review.** From a fresh checkout, with independent recounts. A report is not evidence; the checkout is.
+
+- **Apply.** A merge instruction plus, where schema changes, an operator migration through the single channel.
+
+- **Proof.** A named live read that confirms the change did what it claimed, in production.
+
+The seventh movement is the one most often skipped, and it has its own rule:
+
+*Merge is not proof. Live measurement is. Every fix names, in advance, the read that will confirm it worked.*
+
+Naming it in advance is what makes it honest. A proof read chosen after the fact is chosen from the readings that are available, which are disproportionately the ones that confirm.
+
+### **16.4  A doctrine for the design lane**
+
+Design lanes fail in characteristic ways, and characteristic failures deserve mechanical rules. The eight below were each minted after a specific error.
+
+| **Rule** | **Statement** | **The error it prevents** |
+| --- | --- | --- |
+| RECON-FIRST | No instruction written over unverified live state. | Specifications built on a stale document. |
+| ONE-RELAY | One self-contained file per hand-off, dependencies embedded. | An instruction that only works if you also remember three other messages. |
+| COMPUTED-NOT-ASSERTED | Every value comes from a named command run in-session. Hand-transcription is banned. | A number that was right two weeks ago. |
+| CEREMONY-ZERO | Human work is limited to judgement, consent for spend, and real-world tests. Provable-zero operations get machine gates. | An architecture whose cost is paid in somebody's evenings. |
+| GATE-SELF-TEST | Every authored rule is tested in both directions, including an innocent case. | A rule that fires on everything, or on nothing. |
+| TOUCH-BUDGET | A hard ceiling on hand-offs per phase; exceeding it is a named incident. | Death by a thousand clarifications. |
+| PRE-SEND CHECKLIST | A mechanical check before every hand-off, including: if one step was requested, exactly one step is provided. | An answer that helpfully does four things nobody asked for. |
+| ABSOLUTE-PATH | Every write in a scratch session uses an absolute path. | A file written into whatever directory you happened to be in. |
+
+*Table 16.1: Eight doctrine rules, each minted after a specific failure.*
+
+Two of these are worth dwelling on because they generalize beyond this project.
+
+**CEREMONY-ZERO** is the operational form of a stronger principle: if manual work is required, the design is wrong. Before writing any human action item, ask whether it contains genuine judgement — a decision, a consent for spend, a real-world test. If not, it is machine work that has been mislabeled, and the correct response is to build the automation rather than to send the request.
+
+**COMPUTED-NOT-ASSERTED** is the doctrine form of Chapter 14's rule. Its practical effect is that a design note cannot be written from other design notes. Somebody has to go and look.
+
+**A doctrine that was structurally impossible to follow**
+
+The touch-budget rule originally allowed three hand-offs per phase. It was then observed that a phase with a gated hand-off structurally requires four: the instruction, the report, the go-ahead, and the merge confirmation.
+
+The rule was not being violated by carelessness; it was arithmetically unsatisfiable. The correct response was to fix the doctrine, not to keep declaring incidents.
+
+A rule that is impossible to satisfy does not produce compliance. It produces the quiet decision to stop counting.
+
+### **16.5  Verification discipline**
+
+Three rules that carry disproportionate weight.
+
+- **Verification starts at a fresh checkout.** Never trust a report, including your own. A stash is not a clean checkout; a shallow clone is not a repository.
+
+- **CI on the branch head is the sole arbiter of tests.** A local run is a hypothesis; a sharded run is a different experiment.
+
+- **A contaminated sample is re-measured, never reasoned away.** And a diagnosed transient is not a licence to rerun — if you know why it failed, fix the cause; if you do not, a rerun is a coin flip you are calling heads.
+
+One more that belongs here because it applies to any system with a manifest or a lockfile: **never hand-merge a hash**. When two branches both changed a generated artifact, take one side's version wholesale, re-apply the authored content, and let the tool recompute. A hand-merged hash is a value that looks authoritative and was typed by a person at midnight.
+
+### **16.6  Summary**
+
+In summary, here are the key takeaways from this chapter:
+
+- **Three lanes, one invariant.** No mode grants repository-write and database-write at once, so the author of a change is never the actor that applies and verifies it.
+
+- **Bind capability to a connection, not to a claimed mode**, and make the default the safe side. The failure mode of forgetting must be *no write*.
+
+- **One migration channel.** A faster emergency path is a path that will be used, and then the schema has no reliable history.
+
+- **Seven movements**: reconnaissance, design, instruction, build, review, apply, proof. Reconnaissance exists because designs written from documents rather than live reads are the most common error class.
+
+- **Merge is not proof.** Name the confirming live read in advance, because a proof chosen afterwards is chosen from the readings that confirm.
+
+- **Mint a mechanical rule after each characteristic failure** — and when a rule turns out to be arithmetically unsatisfiable, fix the rule rather than declaring recurring incidents.
+
+- **Verification starts at a fresh checkout, CI is the arbiter, and a contaminated sample is re-measured.** Never hand-merge a hash.
+
+## **17  Case Study: One Turn, One Incident**
+
+**This chapter covers:**
+
+- A production turn traced through every mechanism in this book
+
+- The incident that produced the trust architecture, and the three checks that answer it
+
+- What the architecture caught, and what it would not have caught
+
+- Reading the same turn as a measurement rather than as an answer
+
+### **17.1  The turn**
+
+A plant manager asks, in Turkish: "What was KB7's OEE last night?" Overall Equipment Effectiveness, scoped to one factory, over a relative time window. Everything in Parts I through III participates.
+
+#### **17.1.1  Admission and identity**
+
+The quota gate reserves budget and resolves identity, role and scope. The turn's identifier — which will be its trace id, its ledger session id and its digest key — is generated here and threaded through everything that follows.
+
+#### **17.1.2  Catalogue**
+
+145 tool definitions resolve across two backends. The MES is active and declared system_of_record; the BI gateway is active and declared reporting_mirror. Neither fact is in code; both are rows.
+
+#### **17.1.3  Understanding**
+
+The router — the small governed model, temperature zero, capped output, JSON only — returns a frame and a set of categories. The armor parses, validates against the schema, filters against the closed enumerations, and caps the arrays. Categories: metrics, machine, factory. Dropped values: **zero**.
+
+The frame is QUERY_METRIC × FACTORY, metric OEE, entity reference ["KB7"], time surface "dün gece", confidence HIGH. It is a valid pair, so it derives to a category set rather than to the honest empty set.
+
+#### **17.1.4  Narrowing**
+
+27 of 145 tools are offered — 23 flat and 4 gateway — unioned with the availability floor, which is present on every path regardless of what the router said. If the router had returned nothing at all, the turn would still have been answerable.
+
+#### **17.1.5  Composition and inference**
+
+The prompt is composed from backend-agnostic core modules plus the active backends' domain packs, all governed segments. One completion is issued, at one call site, where the telemetry hook lives. Governed parameters in force: temperature 0.7, a maximum of 16 tool rounds, a thinking budget of 8192 — **all read from the database**.
+
+#### **17.1.6  The tool loop, and the part a model must not do**
+
+The time expression is resolved by deterministic, timezone-aware code: "dün gece" becomes a concrete window, 17:00–20:59Z. This is the polarity law in action — an alias table may say what a line is called; nothing in the database gets to decide what last night means.
+
+Then two calls. The first lists the factory's lines, returning seven zones. The second reads efficiency values for those zones over the resolved window, returning 24 records. Envelope provenance — backend, tool, server — is stamped at the execution chokepoint on both.
+
+#### **17.1.7  Validation and render**
+
+Grounding runs deterministically over the answer text and the tool results. empty ≠ zero holds. Telemetry and persistence are force-flushed before the response ends, because in this runtime a response that ends first takes the trace with it.
+
+Final accounting: 60,827 input tokens, 3,381 output, 64,208 total, 513 ms on the routing path. **Two model touches and roughly a dozen deterministic steps.**
+
+### **17.2  The incident**
+
+Now the same question under different conditions: the MES is unavailable, and the BI layer holds a dashboard titled with this factory's name whose bound datasource is a different factory entirely.
+
+*Figure 17.1: The incident, and the three deterministic checks that answer it.*
+
+A naive agent answers from the dashboard. The numbers are plausible, internally consistent, well formatted, and about the wrong factory. Three checks stop it, and none of them asks a model to grade itself.
+
+- **Authority routing.** Efficiency is declared to belong to the MES. A mirror can never be authoritative for it. With the MES unavailable, the correct behaviour is to say the authoritative source is required — not to substitute. This check depends on nothing the backend says.
+
+- **Scope match or decline.** The requested scope is one factory; the payload's bound datasource is another. Wrong scope is not the answer.
+
+- **Role ceiling and attribution.** Even had the scope matched, a mirror answer is capped below authoritative and is labelled as reporting rather than as a system of record.
+
+The first and third checks are strong against every threat tier because they are content-independent. The second is strong here only because the BI layer honestly reports its bound datasource — its dashboard title lied, its datasource field did not.
+
+### **17.3  What this would not have caught**
+
+Honesty is the point of this section.
+
+Had the backend forged the datasource field as well as the title — a tier-3 adversary rather than an honest system with a misleading dashboard — check 2 would have passed. The answer would then have been contained by checks 1 and 3: never authoritative, capped below the system of record, explicitly attributed as reporting. **Contained, not caught.**
+
+And if the MES itself had been the liar — a system of record returning fabricated but plausible values, consistently, contradicting no other source you have — nothing in this architecture would have seen it. That is not a gap to be closed by better software. Making that class of lie visible requires an independent second authoritative feed to reconcile against, which is a data decision.
+
+*Software contains. Redundancy reveals. An architecture that claims otherwise is selling you the most dangerous product in this field: confidence.*
+
+### **17.4  Reading the turn as a measurement**
+
+The same turn produces a row in every one of the three observability systems: a durable ledger record, a full causal trace, and a bounded display digest — joined by the one identifier generated in §17.1.1.
+
+And it produces measurement material for Chapter 14's board. Some of it is subtle. The turn answered, so it counts toward the useful-turn ratio — but had the entity been ambiguous and the turn ended in a clarification, it would have emitted no completion row, and a careless ratio would have dropped it from the numerator while keeping it in the denominator. The system would have been penalized for being honest.
+
+That is a good place to end the case study, because it is the shape of the whole book in miniature. The mechanisms are not individually complicated. What is difficult is keeping the meaning of a fact intact across every layer that touches it — the read, the aggregation, the fence, the chart, the ratio, and the sentence a human finally reads.
+
+### **17.5  Summary**
+
+In summary, here are the key takeaways from this chapter:
+
+- **One real turn exercises the entire architecture**: governed backend declarations, an armored frame, a floored candidate set, composed governed prompt segments, one completion site, deterministic time resolution, stamped provenance, deterministic grounding, and a forced flush.
+
+- **Two model touches, a dozen deterministic steps.** The model is a component of the turn, not the turn.
+
+- **Three deterministic checks answer the scope incident**, and only one of them depends on anything the backend says.
+
+- **State what would not have been caught.** A forged scope label is contained rather than detected; a consistently lying system of record is invisible without redundancy.
+
+- **Keeping a fact****'****s meaning intact across every layer that touches it** — read, aggregate, fence, chart, ratio, sentence — is the actual difficulty. The individual mechanisms are not hard.
+
+## **18  From One Customer to Many**
+
+**This chapter covers:**
+
+- The floor/tenant split, and a CI gate with no exclusion list
+
+- What belongs to the floor and what belongs to a tenant
+
+- Capability posture, entity inventory and domain packs as tenant data
+
+- The named triggers that would justify new infrastructure
+
+- An honest account of what is designed but not yet built
+
+### **18.1  The split**
+
+A platform that serves one customer and a platform that serves many differ by one property: whether anything about the first customer is compiled in.
+
+*Figure 18.1: The split that makes a second customer a configuration rather than a fork.*
+
+The **floor** is code: the turn pipeline, the gate, the trust fabric, provenance, observability, the governance rail. It contains no customer's vocabulary — not in a prompt segment, not in a test fixture, not in a comment, not in a variable name.
+
+The **tenant layer** is data: backend rows, domain packs, entity inventory, aliases, thresholds, capability posture.
+
+And the split is enforced rather than intended. A CI gate greps the entire floor for customer-specific vocabulary across every token that could carry it, and fails the build on any hit. Critically, it has **no exclusion list** — the moment one exists, it grows, and a gate with a growing exclusion list is a gate that has been switched off slowly.
+
+Reaching zero took real work. It always does, because customer vocabulary leaks into exactly the places nobody greps: a test fixture that used the real factory's name for realism, a default value, an example in a comment. The exercise is worth it for a reason beyond multi-tenancy — it forces you to discover which of your "generic" abstractions were actually one customer's assumptions.
+
+### **18.2  What belongs where**
+
+| **Concern** | **Floor (code)** | **Tenant (data)** |
+| --- | --- | --- |
+| Turn pipeline and stages | Yes | — |
+| Eval-gate engine and stage order | Yes | — |
+| Trust model and provenance mechanics | Yes | — |
+| Which backends exist, and their roles | — | Yes |
+| Domain vocabulary and prompt packs | — | Yes |
+| Entity inventory and topology | — (discovered) | Yes (mirrored) |
+| Aliases and synonyms | — | Yes (proposed, ratified) |
+| Thresholds, weights, budgets | — | Yes |
+| Capability posture (POLICY positions) | — | Yes |
+| Credentials | — (by reference only) | — (environment) |
+
+*Table 18.1: The dividing line. Note that entity inventory is in neither column by authorship — it is discovered.*
+
+The last row of Chapter 15 completes the picture: policy-layer positions become per-tenant governed rows under the same gate, attribution and audit trail as everything else. The invariant layer stays identical across all tenants, because it is the platform's identity.
+
+### **18.3  Nesting**
+
+*Figure 18.2: Everything inside a ring is data to the ring outside it.*
+
+The general shape: a multi-tenant platform, a product built on it, a tenant of that product. Each ring treats the ring inside it as data. A tenant is a set of rows to the product; a product is a configuration of the platform; and the platform is the only thing that is code all the way down.
+
+The discipline this imposes is a single question to ask of every new feature: **which ring does this belong to?** A feature that seems to belong to the platform but that mentions a domain concept belongs to the product. A feature that seems to belong to the product but that only one customer would want belongs to the tenant layer. Getting this wrong does not fail immediately; it fails when the second customer arrives and half the platform turns out to be the first customer's assumptions.
+
+### **18.4  Named triggers, not roadmaps**
+
+There is a persistent pull toward acquiring infrastructure in advance of need: a vector database, a self-hosted embedding service, a policy engine, a graph database. Each is individually defensible and collectively a program.
+
+The discipline from Chapter 9 generalizes into a way of holding a roadmap. Each shelved item carries an **alarm** — a named, observable condition that would wake it.
+
+| **Shelved item** | **The alarm that wakes it** |
+| --- | --- |
+| Dedicated vector database | Corpus growth past what a single database index serves inside the turn's latency budget; or p95 retrieval latency on the critical path; or per-tenant collection isolation becoming a real requirement |
+| Self-hosted embedding service | A measurement showing lexical retrieval is insufficient for the actual question distribution |
+| External policy engine | Policy spanning multiple tenants and tool chains — not policy within one deployment, which existing deterministic code already covers |
+| Graph database | A genuine multi-parent topology requirement, or a latency budget breach on graph traversal |
+| Multi-tenant console | A concrete second-customer signal — a scheduled meeting or a sales decision, not an aspiration |
+
+*Table 18.2: A shelf with alarms. An item with no alarm is not shelved; it is forgotten.*
+
+The value of this discipline is not that it says no. It is that it says not yet, and here is exactly what would change my mind — which is a far more durable answer, and one that survives being re-asked in six months by somebody who was not in the original discussion.
+
+### **18.5  What is designed and not yet built**
+
+A book about a production system owes its reader an honest ledger. As of writing:
+
+- **Earned trust (Chapter 11) is accepted law and is not implemented.** The signal sources, the ledger, the two-speed split and the per-tool granularity are binding on any future work that touches backend trust. None of it exists in code yet.
+
+- **The full trust function (Chapter 10) is partially built.** Role ceiling, authority routing and the registry declarations are real. Envelope provenance is the near-term work. Cross-source reconciliation exists only where two backends genuinely overlap, which today is a narrow surface.
+
+- **Frame routing is merged and dark.** The router is written; the flip awaits the shadow-replay measurement of Chapter 6. Frames have been recorded on every turn throughout, which is what makes measuring it against real traffic possible at all.
+
+- **The learned keyword map is being retired, not repaired.** It survives as a pinned, measured outage floor.
+
+- **Episodic memory is partially shipped.** Store, retrieval and forgetting are designed in full; the promotion surface is the remaining work.
+
+- **The measurement board is in flight**, which is why Chapter 14 is written with more scars than the others.
+
+The reason to publish that list rather than to write around it is the same reason the architecture states its honest limits: a system whose documentation only describes what works teaches the next engineer to trust it in exactly the places they should not.
+
+### **18.6  Summary**
+
+In summary, here are the key takeaways from this chapter:
+
+- **A platform differs from a product by whether anything about the first customer is compiled in.** Enforce the split with a CI gate that has no exclusion list — the first exclusion is the beginning of the end.
+
+- **Floor is code; tenant is data; inventory is discovered.** Policy-layer positions become per-tenant governed rows under the same gate as everything else.
+
+- **Everything inside a ring is data to the ring outside it.** Ask of every feature which ring it belongs to, before the second customer answers it for you.
+
+- **Shelve with alarms, not with roadmaps.** "Not yet, and here is exactly what would change my mind" is a durable answer; an item with no alarm is forgotten rather than deferred.
+
+- **Publish what is designed and not built.** Documentation that only describes what works teaches the next engineer to trust the system precisely where they should not.
+
+**APPENDIX**
+
+# **Appendices**
+
+Reference material: the named laws cited throughout the book, the architecture decision records they derive from, and a glossary.
+
+## **Appendix A  The Named Laws**
+
+Laws are cited rather than re-argued. A law's value comes from being nameable in a code review without reopening the discussion that produced it.
+
+| **Law** | **Statement** | **Chapter** |
+| --- | --- | --- |
+| DB-FIRST / CODE-FLOOR | The governed database is the runtime source of truth; code serves as seed, reset target and outage floor, and no fourth role. | 3 |
+| ABSENCE-ONLY | A seeder inserts what is missing and never rewrites what exists. Staleness is solved on the read side. | 3 |
+| EMPTY ≠ ZERO | Real zero, gap, empty and not-chartable are four distinct facts. The distinction survives the outage path and the render layer. | 3, 14 |
+| PARTIAL ≠ COMPLETE | A truncated result must say so, or downstream aggregation is wrong in a way nothing downstream can detect. | 3, 14 |
+| COVERAGE IS CONFIG | A backend not covering an entity class is a declared fact, not a blind spot. | 3 |
+| POLARITY | Aliases are data; resolvers are code. No governed row may redefine what a date means. | 5 |
+| THE FLOOR IS SACRED | A derived or learned slice may widen a candidate set; it may never empty it. | 6 |
+| TOOL OUTPUT IS DATA | Tool text is never lifted into the system role. The bar is "could not hijack", never "detected the injection". | 7, 10 |
+| ANTI-ORACLE | The agent proposes; the gate disposes. The agent never writes its own ground truth. | 8, 12 |
+| GATE UNBYPASSABLE | Engine, stage order and interpreter are byte-identical for every caller; additive per-backend dispatch is legitimate. | 12 |
+| ONE TURN ID | A single identifier joins the ledger, the trace and the digest. | 13 |
+| FULL-TRACE | Every stage, database read and tool call shows input and output; only raw secrets are scrubbed; enforced in CI. | 13 |
+| CLAIM ≠ WORLD | A number in a log is a claim. Corroborate before it becomes a premise — including in your own documents. | 14 |
+| MEASURE-READ HONESTY | Any read feeding a measurement, ledger, actuator or fence must distinguish "no data" from "could not read". | 14 |
+| POSITIVE CONTROL | An instrument must be proven able to fail before its success means anything. | 14 |
+| MERGE IS NOT PROOF | Every change names, in advance, the live read that will confirm it worked. | 16 |
+| DEGREE TEST | Does the hand-authored artifact grow with the WORLD or with the INTEGRATION? | 11 |
+| NAME THE LAYER | Every restriction declares its layer — invariant, policy, scope-cut or config — at its definition site. | 15 |
+
+## **Appendix B  Architecture Decision Records**
+
+An ADR is ground truth for its own subject. Where this book and an ADR disagree, the ADR wins, and this book is the thing that needs updating.
+
+| **ADR** | **Subject** | **Core decision** |
+| --- | --- | --- |
+| 001 | Backend trust and provenance | Make a lying backend harmless — contained, attributed, quarantinable — rather than attempting to detect it. Trust is a deterministic function, never a model's judgement. |
+| 002 | Personal secret isolation | Personal backend credentials are owner-scoped at the row-security layer. |
+| 003/004 | Observability split | Ledger, trace and digest are three systems with three lifetimes, joined by one turn id. |
+| 005 | Migration authority | Schema changes travel through exactly one channel, applied by an actor that did not author them. |
+| 006 | Agent operating modes | No mode grants repository-write and database-write simultaneously. Mode binds to a connection, not to a claim; the default is the safe side. |
+| 007 | Secret handling | Secrets are never echoed anywhere. A silent success is the correct behaviour. |
+| 008 | Three-system observability | The ledger is durable governance; the trace is diagnosis; the digest is display-only and disposable. |
+| 009 | Entity topology is discovered | Inventory and topology are observed from the backend, never authored. Shape, algorithms and policy remain in code. The degree test operationalizes the limit. |
+| 010 | Earned trust | A declaration is a claim, not a warrant. Accept for reachability; earn fitness by observation; trust never silently improves; enforcement runs at two speeds. |
+| 011 | Write exclusion | Write-annotated tools are excluded from filtered turns by design, fail-closed. |
+| 012 | Restriction taxonomy | Four layers — invariant, policy, scope-cut, config. Label the valve at its definition site; name the layer before legislating. |
+
+## **Appendix C  Glossary**
+
+| **Term** | **Meaning** |
+| --- | --- |
+| Armor | The parse–validate–filter–cap layer between a small model's output and everything downstream. Drops out-of-vocabulary values and counts the drops. |
+| Availability floor | The set of tools included in every candidate set regardless of routing, guaranteeing the worst case is *too wide*, never *empty*. |
+| Backend | An external system reached over a tool protocol, represented as a governed row rather than as an enumeration value. |
+| Code floor | The in-repository reference copy of governed data, serving exactly three roles: seed, reset target, outage floor. |
+| Derivation table | The ratified mapping from an (action × object) pair to a set of tool categories. |
+| Domain pack | Per-backend prompt material teaching that backend's vocabulary; composed only for active backends. |
+| Envelope provenance | Origin metadata assigned by our own code at the execution chokepoint — backend, tool, server. Unforgeable by the backend. |
+| Eval-gate | The server-side publish path for governed data: schema, then referential, then behavioral validation. |
+| Frame | The closed-shape record of what a question is asking: action, object, entity references, metrics, time surface, confidence. |
+| Gateway backend | A backend exposing a small generic surface behind which many operations hide; its inner surface is discovered and governed as data. |
+| Governed row | A row that is runtime truth, changeable only through the gate, versioned, attributed, auditable and reversible. |
+| Ledger | The durable governance record of what the system did. Distinct from the trace and from the display digest. |
+| Payload provenance | Origin metadata read from inside a backend's result. Self-reported, therefore a claim carried under a role ceiling. |
+| Positive control | A deliberate test that an instrument can produce a non-zero result, without which its zero is not evidence. |
+| Reporting mirror | A trust role: advisory, always attributed, authoritative for nothing. |
+| Role ceiling | The cap a backend's declared role places on how authoritative any of its claims may be, independent of content. |
+| Scope-identity contract | A backend's declaration of how it names and scopes entities, and where its binding scope appears in a payload. |
+| Shadow replay | Evaluating a new decision layer against already-recorded traffic, without exposing any user to it. |
+| System of record | A trust role: authoritative for its declared domains. |
+| Valve | A restriction, understood as having three separable properties — existence, authority and position. |

@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fire & Engineering Facultative Offer Triage Assistant — Proje Zaman Planı</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --text-primary: #2C2C2A;
+    --text-secondary: #5F5E5A;
+    --text-tertiary: #888780;
+    --bg-page: #F8F7F2;
+    --bg-card: #FFFFFF;
+    --border: #D3D1C7;
+    --border-light: #E8E6DC;
+
+    --teal-bg: #E1F5EE;
+    --teal-border: #5DCAA5;
+    --teal-deep: #0F6E56;
+    --teal-text: #085041;
+
+    --purple-bg: #EEEDFE;
+    --purple-border: #AFA9EC;
+    --purple-deep: #534AB7;
+    --purple-text: #3C3489;
+
+    --blue-bg: #E6F1FB;
+    --blue-border: #85B7EB;
+    --blue-deep: #185FA5;
+    --blue-text: #0C447C;
+
+    --amber-bg: #FAEEDA;
+    --amber-border: #EF9F27;
+    --amber-deep: #854F0B;
+    --amber-text: #633806;
+
+    --coral-bg: #FAECE7;
+    --coral-border: #F0997B;
+    --coral-deep: #993C1D;
+    --coral-text: #712B13;
+  }
+
+  html, body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    color: var(--text-primary);
+    background: var(--bg-page);
+    line-height: 1.55;
+    font-size: 13px;
+  }
+
+  body {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 32px 28px 48px;
+  }
+
+  /* Header */
+  header.doc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 28px;
+  }
+
+  .brand {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--text-secondary);
+  }
+
+  .meta {
+    font-size: 10.5px;
+    color: var(--text-tertiary);
+    text-align: right;
+    line-height: 1.6;
+  }
+
+  .meta span { display: block; }
+
+  /* Title */
+  h1.doc-title {
+    font-size: 26px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+    line-height: 1.2;
+  }
+
+  p.doc-subtitle {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 28px;
+    font-style: italic;
+  }
+
+  /* Sections */
+  section {
+    margin-bottom: 32px;
+  }
+
+  h2.section-title {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  p.section-intro {
+    font-size: 13px;
+    margin-bottom: 14px;
+    color: var(--text-secondary);
+  }
+
+  /* Diagram */
+  .diagram-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 22px 18px;
+    margin: 18px 0 22px;
+  }
+
+  .diagram-card svg { display: block; width: 100%; height: auto; }
+
+  /* SVG class styles */
+  .diagram-card .th { font-size: 13px; font-weight: 500; }
+  .diagram-card .t  { font-size: 13px; font-weight: 400; }
+  .diagram-card .ts { font-size: 11px; font-weight: 400; }
+
+  .c-teal-fill   { fill: var(--teal-bg);   stroke: var(--teal-border); }
+  .c-purple-fill { fill: var(--purple-bg); stroke: var(--purple-border); }
+  .c-blue-fill   { fill: var(--blue-bg);   stroke: var(--blue-border); }
+  .c-bluedeep-fill { fill: var(--blue-border); stroke: var(--blue-deep); }
+  .c-amber-fill  { fill: var(--amber-bg);  stroke: var(--amber-border); }
+  .c-coral-fill  { fill: var(--coral-bg);  stroke: var(--coral-border); }
+
+  .c-teal-title   { fill: var(--teal-text); }
+  .c-purple-title { fill: var(--purple-text); }
+  .c-blue-title   { fill: var(--blue-text); }
+  .c-amber-title  { fill: var(--amber-text); }
+  .c-coral-title  { fill: var(--coral-text); }
+
+  .c-teal-sub   { fill: var(--teal-deep); }
+  .c-purple-sub { fill: var(--purple-deep); }
+  .c-blue-sub   { fill: var(--blue-deep); }
+  .c-amber-sub  { fill: var(--amber-deep); }
+  .c-coral-sub  { fill: var(--coral-deep); }
+
+  .axis-line { stroke: var(--text-tertiary); stroke-width: 1; }
+  .axis-tick { stroke: var(--text-tertiary); stroke-width: 1; }
+  .axis-label { fill: var(--text-secondary); font-size: 11px; }
+
+  .ms-connector { stroke: var(--text-tertiary); fill: none; }
+
+  /* Milestone cards */
+  .ms-section {
+    margin-top: 18px;
+  }
+
+  .ms-card {
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 22px 24px;
+    border-left: 5px solid;
+    margin-bottom: 16px;
+  }
+
+  .ms-card.ms-1 { border-left-color: var(--teal-border); background: var(--teal-bg); }
+  .ms-card.ms-2 { border-left-color: var(--amber-border); background: var(--amber-bg); }
+  .ms-card.ms-3 { border-left-color: var(--coral-border); background: var(--coral-bg); }
+
+  .ms-card.ms-1 .ms-title-bar { color: var(--teal-text); }
+  .ms-card.ms-2 .ms-title-bar { color: var(--amber-text); }
+  .ms-card.ms-3 .ms-title-bar { color: var(--coral-text); }
+
+  .ms-title-bar {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .ms-title {
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  .ms-month-badge {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 11px;
+    border-radius: 14px;
+    background: rgba(0,0,0,0.06);
+    color: inherit;
+    white-space: nowrap;
+  }
+
+  .ms-summary {
+    font-size: 13px;
+    color: var(--text-primary);
+    margin-bottom: 14px;
+    line-height: 1.55;
+  }
+
+  .ms-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 12px;
+  }
+
+  .ms-sub-title {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-secondary);
+    margin-bottom: 7px;
+  }
+
+  .ms-list {
+    list-style: none;
+    padding-left: 0;
+  }
+
+  .ms-list li {
+    font-size: 12.5px;
+    color: var(--text-primary);
+    padding: 3px 0 3px 14px;
+    position: relative;
+    line-height: 1.5;
+  }
+
+  .ms-list li::before {
+    content: "•";
+    position: absolute;
+    left: 2px;
+    font-weight: 700;
+  }
+
+  .ms-card.ms-1 .ms-list li::before { color: var(--teal-deep); }
+  .ms-card.ms-2 .ms-list li::before { color: var(--amber-deep); }
+  .ms-card.ms-3 .ms-list li::before { color: var(--coral-deep); }
+
+  /* Approach section */
+  .approach-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-top: 14px;
+  }
+
+  .approach-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+  }
+
+  .approach-card h3 {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--text-primary);
+  }
+
+  .approach-card p {
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    line-height: 1.55;
+    margin: 0;
+  }
+
+  /* Footer */
+  footer.doc-footer {
+    margin-top: 40px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 10.5px;
+    color: var(--text-tertiary);
+  }
+
+  /* Print adjustments */
+  @media print {
+    body { background: white; padding: 12mm; max-width: none; }
+    .diagram-card, .ms-card, .approach-card { page-break-inside: avoid; }
+    .ms-card { box-shadow: none; }
+  }
+
+  @media (max-width: 640px) {
+    .ms-grid, .approach-grid { grid-template-columns: 1fr; }
+    header.doc-header { flex-direction: column; align-items: flex-start; gap: 8px; }
+    .meta { text-align: left; }
+  }
+</style>
+</head>
+<body>
+
+<header class="doc-header">
+  <div class="brand">ARDICTECH</div>
+  <div class="meta">
+    <span>Hazırlayan: ARDICTECH</span>
+    <span>Hazırlanma tarihi: [Tarih]</span>
+    <span>Sürüm: v0.3 — Müzakere taslağı</span>
+  </div>
+</header>
+
+<h1 class="doc-title">Fire &amp; Engineering Facultative Offer Triage Assistant</h1>
+<p class="doc-subtitle">Proje zaman planı ve müşteri milestone'ları — Yerinde kurulum, iç kullanım odaklı</p>
+
+<section>
+  <h2 class="section-title">Genel bakış</h2>
+  <p class="section-intro">İhtiyari yangın ve mühendislik reasüransı tekliflerinin otomatik olarak ayrıştırılması, sınıflandırılması ve takip edilmesi amacıyla geliştirilen sistem, müşteri altyapısında tamamen yerinde kurulum modeliyle teslim edilir. Proje 7 ay süreyle planlanmıştır ve üç ana müşteri milestone'u etrafında organize edilmiştir: 3. ayda PoC demosu, 5. ayda iç kullanımın başlaması, 7. ayda canlıya geçiş.</p>
+  <p class="section-intro">Bu belge, projenin teslimat takvimini, her milestone'da nelerin teslim edileceğini ve kabul kriterlerini özetler. Detaylı teknik plan ayrı bir teslimat belgesinde mevcuttur.</p>
+</section>
+
+<section>
+  <h2 class="section-title">Müşteri milestone'ları ve zaman çizelgesi</h2>
+  <div class="diagram-card">
+    <svg viewBox="0 0 820 540" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Müşteri milestone'larının ARDICTECH iç teslimat milestone'larıyla eşlenmesi">
+      <title>Müşteri milestone'larının ARDICTECH iç teslimat milestone'larıyla eşlenmesi</title>
+      <desc>Üç müşteri milestone'unun (MS#1, MS#2, MS#3) ay 3, 5 ve 7'de yer aldığı zaman çizelgesi; altında ARDICTECH'in 6 iç teslimat milestone'u (M0-M5) gösterilmiştir.</desc>
+
+      <!-- Section title -->
+      <text x="20" y="24" class="th" style="font-size:14px;font-weight:600;fill:#2C2C2A">Müşteri görünür milestone'ları</text>
+
+      <!-- Customer milestone boxes -->
+      <g>
+        <rect x="20" y="40" width="240" height="80" rx="8" class="c-teal-fill" stroke-width="1"/>
+        <text x="140" y="64" class="th c-teal-title" text-anchor="middle">MS#1 — Ay 3</text>
+        <text x="140" y="86" class="ts c-teal-sub" text-anchor="middle">PoC demosu:</text>
+        <text x="140" y="102" class="ts c-teal-sub" text-anchor="middle">mail ayrıştırma + teklif bağlama</text>
+      </g>
+
+      <g>
+        <rect x="290" y="40" width="240" height="80" rx="8" class="c-amber-fill" stroke-width="1"/>
+        <text x="410" y="64" class="th c-amber-title" text-anchor="middle">MS#2 — Ay 5</text>
+        <text x="410" y="86" class="ts c-amber-sub" text-anchor="middle">Verification tool +</text>
+        <text x="410" y="102" class="ts c-amber-sub" text-anchor="middle">iç kullanım başlangıcı</text>
+      </g>
+
+      <g>
+        <rect x="560" y="40" width="240" height="80" rx="8" class="c-coral-fill" stroke-width="1"/>
+        <text x="680" y="64" class="th c-coral-title" text-anchor="middle">MS#3 — Ay 7</text>
+        <text x="680" y="86" class="ts c-coral-sub" text-anchor="middle">Version 1 production</text>
+        <text x="680" y="102" class="ts c-coral-sub" text-anchor="middle">canlıya geçiş</text>
+      </g>
+
+      <!-- Connectors to axis -->
+      <line x1="140" y1="120" x2="140" y2="158" class="ms-connector" stroke-width="1.5"/>
+      <line x1="410" y1="120" x2="410" y2="158" class="ms-connector" stroke-width="1.5"/>
+      <line x1="680" y1="120" x2="680" y2="158" class="ms-connector" stroke-width="1.5"/>
+
+      <!-- Time axis -->
+      <line x1="20" y1="170" x2="800" y2="170" class="axis-line"/>
+
+      <!-- Month markers (months 1-7) -->
+      <!-- Each month ~ 111.4 px; start at x=20 -->
+      <g>
+        <line x1="20" y1="168" x2="20" y2="178" class="axis-tick"/>
+        <text x="20" y="194" class="axis-label" text-anchor="middle">Ay 1</text>
+
+        <line x1="131" y1="168" x2="131" y2="178" class="axis-tick"/>
+        <text x="131" y="194" class="axis-label" text-anchor="middle">Ay 2</text>
+
+        <line x1="242" y1="168" x2="242" y2="178" class="axis-tick"/>
+        <text x="242" y="194" class="axis-label" text-anchor="middle">Ay 3</text>
+
+        <line x1="353" y1="168" x2="353" y2="178" class="axis-tick"/>
+        <text x="353" y="194" class="axis-label" text-anchor="middle">Ay 4</text>
+
+        <line x1="464" y1="168" x2="464" y2="178" class="axis-tick"/>
+        <text x="464" y="194" class="axis-label" text-anchor="middle">Ay 5</text>
+
+        <line x1="575" y1="168" x2="575" y2="178" class="axis-tick"/>
+        <text x="575" y="194" class="axis-label" text-anchor="middle">Ay 6</text>
+
+        <line x1="686" y1="168" x2="686" y2="178" class="axis-tick"/>
+        <text x="686" y="194" class="axis-label" text-anchor="middle">Ay 7</text>
+
+        <line x1="797" y1="168" x2="797" y2="178" class="axis-tick"/>
+      </g>
+
+      <!-- ARDICTECH internal milestones section title -->
+      <text x="20" y="230" class="th" style="font-size:14px;font-weight:600;fill:#2C2C2A">ARDICTECH iç teslimat milestone'ları</text>
+
+      <!-- Internal milestones as bars on timeline -->
+      <!-- M0: W1-W3 (weeks 1-3 of 28 total). Each week is 27.86 px (780/28). Start x=20 -->
+      <!-- M0: x=20 to x=103.6 (3 weeks) -->
+      <g>
+        <rect x="20" y="248" width="84" height="34" rx="5" class="c-teal-fill" stroke-width="1"/>
+        <text x="62" y="266" class="th c-teal-title" text-anchor="middle">M0</text>
+        <text x="62" y="278" class="ts c-teal-sub" text-anchor="middle">H1-3</text>
+      </g>
+
+      <!-- M1: W4-W9 (6 weeks). x=104 to x=271 -->
+      <g>
+        <rect x="106" y="248" width="167" height="34" rx="5" class="c-purple-fill" stroke-width="1"/>
+        <text x="190" y="266" class="th c-purple-title" text-anchor="middle">M1 Foundation + stack</text>
+        <text x="190" y="278" class="ts c-purple-sub" text-anchor="middle">H4-9 (6 hafta)</text>
+      </g>
+
+      <!-- M2: W10-W14 (5 weeks). x=271 to x=410 -->
+      <g>
+        <rect x="276" y="248" width="139" height="34" rx="5" class="c-blue-fill" stroke-width="1"/>
+        <text x="345" y="266" class="th c-blue-title" text-anchor="middle">M2 Lookup</text>
+        <text x="345" y="278" class="ts c-blue-sub" text-anchor="middle">H10-14</text>
+      </g>
+
+      <!-- M3: W13-W18 (6 weeks, overlap). Lower row. x=355 to x=521 -->
+      <g>
+        <rect x="361" y="294" width="167" height="34" rx="5" class="c-blue-fill" stroke-width="1"/>
+        <text x="445" y="312" class="th c-blue-title" text-anchor="middle">M3 ARU/KARU</text>
+        <text x="445" y="324" class="ts c-blue-sub" text-anchor="middle">H13-18 (overlap)</text>
+      </g>
+
+      <!-- M4: W17-W20 (4 weeks, overlap). Lower row. x=466 to x=577 -->
+      <g>
+        <rect x="472" y="340" width="111" height="34" rx="5" class="c-amber-fill" stroke-width="1"/>
+        <text x="528" y="358" class="th c-amber-title" text-anchor="middle">M4 UI + tool</text>
+        <text x="528" y="370" class="ts c-amber-sub" text-anchor="middle">H17-20</text>
+      </g>
+
+      <!-- M5: W21-W28 (8 weeks). x=577 to x=800 -->
+      <g>
+        <rect x="585" y="248" width="215" height="34" rx="5" class="c-coral-fill" stroke-width="1"/>
+        <text x="692" y="266" class="th c-coral-title" text-anchor="middle">M5 Pilot + Production</text>
+        <text x="692" y="278" class="ts c-coral-sub" text-anchor="middle">H21-28 (8 hafta uzatıldı)</text>
+      </g>
+
+      <!-- Bottom section title -->
+      <text x="20" y="412" class="th" style="font-size:14px;font-weight:600;fill:#2C2C2A">Her müşteri milestone'unda teslim edilenler</text>
+
+      <g>
+        <rect x="20" y="425" width="247" height="105" rx="8" class="c-teal-fill" stroke-width="0.5"/>
+        <text x="143" y="445" class="th c-teal-title" text-anchor="middle">MS#1 PoC demo</text>
+        <text x="32" y="464" class="ts c-teal-sub">• Mail ingestion çalışıyor</text>
+        <text x="32" y="481" class="ts c-teal-sub">• Extraction + validation</text>
+        <text x="32" y="498" class="ts c-teal-sub">• 3 kaynak üzerinden lookup</text>
+        <text x="32" y="515" class="ts c-teal-sub">• Temel sınıflandırma</text>
+      </g>
+
+      <g>
+        <rect x="287" y="425" width="247" height="105" rx="8" class="c-amber-fill" stroke-width="0.5"/>
+        <text x="410" y="445" class="th c-amber-title" text-anchor="middle">MS#2 İç alfa</text>
+        <text x="299" y="464" class="ts c-amber-sub">• Tam 4 kaynak lookup</text>
+        <text x="299" y="481" class="ts c-amber-sub">• Sınıflandırma + uyarılar</text>
+        <text x="299" y="498" class="ts c-amber-sub">• Verification tool</text>
+        <text x="299" y="515" class="ts c-amber-sub">• Field expertler kullanmaya başlar</text>
+      </g>
+
+      <g>
+        <rect x="554" y="425" width="247" height="105" rx="8" class="c-coral-fill" stroke-width="0.5"/>
+        <text x="678" y="445" class="th c-coral-title" text-anchor="middle">MS#3 V1 production</text>
+        <text x="566" y="464" class="ts c-coral-sub">• Tüm underwriterlar canlıda</text>
+        <text x="566" y="481" class="ts c-coral-sub">• Ops handover tamamlandı</text>
+        <text x="566" y="498" class="ts c-coral-sub">• 30 gün stabil çalışma</text>
+        <text x="566" y="515" class="ts c-coral-sub">• Runbook + on-call süreçleri</text>
+      </g>
+    </svg>
+  </div>
+</section>
+
+<section class="ms-section">
+  <h2 class="section-title">Milestone detayları</h2>
+
+  <div class="ms-card ms-1">
+    <div class="ms-title-bar">
+      <div class="ms-title">MS#1 — Proof of Concept demosu</div>
+      <div class="ms-month-badge">Ay 3 (Hafta 13)</div>
+    </div>
+    <p class="ms-summary">Sistemin gelen mailleri okuyabildiğini, yapılandırılmış veri çıkarabildiğini ve teklifleri mevcut kayıtlarla eşleştirebildiğini gösteren ilk değer teslimat noktası. ARU/KARU entegrasyonu bu aşamada henüz yapılmamıştır; üç birincil kaynak (dosya paylaşımları + Outlook) üzerinden çalışan bir PoC sunulur.</p>
+    <div class="ms-grid">
+      <div>
+        <div class="ms-sub-title">Teslim edilenler</div>
+        <ul class="ms-list">
+          <li>Müşteri altyapısında çalışan on-prem platform stack'i</li>
+          <li>Exchange üzerinden mail alımı</li>
+          <li>Yapılandırılmış JSON üreten extraction servisi</li>
+          <li>VKN doğrulama, tarih kontrolü dahil validation engine</li>
+          <li>Bound Accounts ve Submissions klasörleri için indekslenmiş arama</li>
+          <li>Outlook arama entegrasyonu</li>
+          <li>Üç kaynak üzerinden çalışan temel sınıflandırma</li>
+          <li>Canlı PoC demo kabiliyeti</li>
+        </ul>
+      </div>
+      <div>
+        <div class="ms-sub-title">Kabul kriterleri</div>
+        <ul class="ms-list">
+          <li>Test corpus'unda extraction doğruluğu ≥85%</li>
+          <li>Geçmiş örneklerin ≥90%'ında doğru eşleşme (3 kaynak)</li>
+          <li>Müşteri iş sahibine başarılı uçtan uca PoC demosu</li>
+        </ul>
+        <div class="ms-sub-title" style="margin-top:14px">İç teslimat milestone'ları</div>
+        <p style="font-size:12.5px;color:var(--text-secondary);margin-top:4px">M0 (H1-3), M1 (H4-9), M2'nin büyük bölümü (H10-14)</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="ms-card ms-2">
+    <div class="ms-title-bar">
+      <div class="ms-title">MS#2 — İç alfa başlangıcı</div>
+      <div class="ms-month-badge">Ay 5 (Hafta 20)</div>
+    </div>
+    <p class="ms-summary">Sistem tam fonksiyonel hale gelir: ARU/KARU entegre edilmiş, sınıflandırma motoru tamamlanmış, field expertlerin AI çıktılarını inceleyip düzeltebileceği verification tool çalışır durumdadır, uyarı sistemi konfigüre edilmiş ve field expertler sistemi günlük iş akışında kullanmaya başlar. Bu milestone, MS#3'e kadar sürecek 8 haftalık iç alfa fazının başlangıcıdır.</p>
+    <div class="ms-grid">
+      <div>
+        <div class="ms-sub-title">Teslim edilenler</div>
+        <ul class="ms-list">
+          <li>ARU/KARU dahil tam 4 kaynak lookup</li>
+          <li>Audit trail içeren deterministik sınıflandırma motoru</li>
+          <li>Top-3 öneri ile Faaliyet Kodu eşleştirici</li>
+          <li>Takip dashboard'u</li>
+          <li>Field expertler için verification ve düzeltme arayüzü</li>
+          <li>E-posta ve chat platformları üzerinden uyarı sistemi</li>
+          <li>İç doküman analizi bileşeni (M0'da kapsamı netleşecek)</li>
+          <li>Excel export ve Outlook reply otomasyonu</li>
+          <li>Role bazlı erişim kontrolü (RBAC)</li>
+          <li>Field expertler eğitilmiş ve sistemi aktif kullanıyor</li>
+        </ul>
+      </div>
+      <div>
+        <div class="ms-sub-title">Kabul kriterleri</div>
+        <ul class="ms-list">
+          <li>100 maillik kör test setinde sınıflandırma ≥90% doğru</li>
+          <li>Faaliyet top-3 önerisi ≥85% doğruluk içeriyor</li>
+          <li>En az 3 field expert verification tool'u en az 1 hafta gerçek mailler üzerinde kullanıyor</li>
+          <li>Uyarılar tüm konfigüre kanallara hedef gecikme süresi içinde iletiliyor</li>
+        </ul>
+        <div class="ms-sub-title" style="margin-top:14px">İç teslimat milestone'ları</div>
+        <p style="font-size:12.5px;color:var(--text-secondary);margin-top:4px">M2'nin son haftası (H14), M3 (H13-18), M4 (H17-20)</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="ms-card ms-3">
+    <div class="ms-title-bar">
+      <div class="ms-title">MS#3 — Version 1 production canlıya geçiş</div>
+      <div class="ms-month-badge">Ay 7 (Hafta 28)</div>
+    </div>
+    <p class="ms-summary">Underwriter ekibinin tamamı için production cutover gerçekleştirilir, müşterinin BT operasyon ekibine operasyonel devir tamamlanır ve 30 gün ardışık stabil çalışma teyit edilir. Uygulama teslimatının resmi olarak sonu ve canlı destek dönemiyle olan başlangıcıdır.</p>
+    <div class="ms-grid">
+      <div>
+        <div class="ms-sub-title">Teslim edilenler</div>
+        <ul class="ms-list">
+          <li>Tüm underwriterlar için production cutover</li>
+          <li>Eğitilmiş ve operasyonel müşteri BT ekibi</li>
+          <li>Rutin operasyon, olay yanıtı ve eskalasyon süreçlerini kapsayan runbook</li>
+          <li>Sistem sağlığı ve doğruluk metrikleri için monitoring dashboard'ları</li>
+          <li>On-call süreç devri (ilk 90 gün ARDICTECH eskalasyon kanalı dahil)</li>
+          <li>Müşteri takdirine göre ayarlanan auto-confirm eşikleri</li>
+          <li>İlk 30 günlük canlı çalışmanın doğruluk ve zaman tasarrufu raporu</li>
+        </ul>
+      </div>
+      <div>
+        <div class="ms-sub-title">Kabul kriterleri</div>
+        <ul class="ms-list">
+          <li>Kritik olay olmadan 30 gün ardışık production çalışma</li>
+          <li>Underwriterların intake süresi tasarrufunu teyit etmesi</li>
+          <li>Müşteri BT operasyon ekibinin operasyonel devri kabul etmesi</li>
+        </ul>
+        <div class="ms-sub-title" style="margin-top:14px">İç teslimat milestone'u</div>
+        <p style="font-size:12.5px;color:var(--text-secondary);margin-top:4px">M5 (H21-28, pilot + production + handover)</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2 class="section-title">Teslimat yaklaşımı</h2>
+  <p class="section-intro">Üç müşteri milestone'u kabul ve ödeme için kullanılır. Bunları destekleyen altı iç ARDICTECH teslimat milestone'u (M0-M5), teknik yürütme ve risk yönetimi için ARDICTECH tarafından kullanılır; müşterinin incelemesi veya onayı gerekmez.</p>
+  <div class="approach-grid">
+    <div class="approach-card">
+      <h3>Yerinde kurulum modeli</h3>
+      <p>Tüm sistem bileşenleri müşterinin altyapısında çalışır. LLM inference dahil hiçbir veri müşteri ağından çıkmaz. Kimlik doğrulama müşterinin AD veya Entra ID'si ile entegre edilir.</p>
+    </div>
+    <div class="approach-card">
+      <h3>İç kullanım odaklı lisans</h3>
+      <p>Yerleştirilen uygulama, müşterinin organizasyonu içinde, kendi underwriting ekiplerinin iç kullanımı için lisanslanır. Çok kiracılı dağıtım, white-label ve üçüncü taraflara hosting kapsam dışındadır.</p>
+    </div>
+    <div class="approach-card">
+      <h3>Aşamalı ödeme yapısı</h3>
+      <p>Implementation fee üç tranşta ödenir: %25 MS#1 kabulünde, %45 MS#2 kabulünde, %30 MS#3 kabulünde. Lisans bedeli ve yıllık destek aboneliği ayrı kalemler olarak yapılandırılır.</p>
+    </div>
+    <div class="approach-card">
+      <h3>Operasyonel devir</h3>
+      <p>MS#3'te ARDICTECH sistemi müşterinin BT operasyon ekibine devreder. İlk 90 gün boyunca eskalasyon kanalı açık tutulur; sonrasında destek yıllık abonelik üzerinden yürütülür.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="doc-footer">
+  <div>© ARDICTECH — Müzakere amaçlı taslak</div>
+  <div>v0.3 · Bağlayıcı değildir</div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CWF · IR Mimarisi — Sequence Logic Reference · v1</title>
+<!-- cwf-ir-sequence-logic-v1 · rev 1 · 2026-07-19 · Architect-authored.
+     Companion to cwf-ir-architecture-roadmap-v1.md. Captures the per-sequence
+     logic breakdown (görev/girdi/çıktı/mekanizma/tweak) ratified in session,
+     with the sequence diagram embedded. Wave-2 Stages content raw material.
+     Versioning rule: any amendment mints v1_2 / rev 1.2 — never in-place. -->
+<style>
+  :root{
+    --ink:#1C2422; --paper:#F5F6F3; --card:#FFFFFF; --line:#2A3330;
+    --mut:#5C6662; --t:#2A3330; --bg2:#FFFFFF;
+    --pu:#6D4FC4; --pu-f:#EFEAFB;
+    --te:#0E6B54; --te-f:#E3F1EB;
+    --gr:#667080; --gr-f:#ECEFF1;
+    --am:#A8620A; --am-f:#FBF3E4;
+    --rd:#B3261E; --rd-f:#FBEAE8;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--paper);color:var(--ink);
+    font-family:"Avenir Next","Segoe UI",system-ui,sans-serif;
+    font-size:15px;line-height:1.55;padding:0 0 64px}
+  .mono{font-family:ui-monospace,"SF Mono","Cascadia Code",Consolas,monospace}
+  header{border-bottom:2px solid var(--line);background:var(--card);padding:26px 34px 20px}
+  header .docid{font-family:ui-monospace,monospace;font-size:12px;color:var(--mut);letter-spacing:.04em}
+  header h1{font-size:25px;font-weight:600;margin:6px 0 4px}
+  header p.sub{color:var(--mut);max-width:880px}
+  main{max-width:1060px;margin:0 auto;padding:0 24px}
+  section{margin-top:40px}
+  h2{font-size:19px;font-weight:600;border-left:4px solid var(--line);padding-left:12px;margin-bottom:14px}
+  h2 .sn{font-family:ui-monospace,monospace;font-size:12px;color:var(--mut);margin-right:8px}
+  .note{background:var(--card);border:1px solid #D8DDD9;border-radius:8px;padding:14px 18px;margin:12px 0;color:var(--ink)}
+  .note b{font-weight:600}
+
+  /* ── SVG diagram text/shape classes (mirrors the in-chat widget) ── */
+  .diagwrap{background:var(--card);border:1px solid #D8DDD9;border-radius:10px;padding:18px 10px;overflow-x:auto}
+  svg text{fill:var(--ink)}
+  svg .th{font:600 13px "Avenir Next","Segoe UI",sans-serif}
+  svg .ts{font:11.5px "Avenir Next","Segoe UI",sans-serif}
+  svg .arr{stroke:var(--t);stroke-width:1.1;fill:none}
+  svg .c-gray rect{fill:var(--gr-f);stroke:var(--gr)}
+  svg .c-purple rect{fill:var(--pu-f);stroke:var(--pu)}
+  svg .c-teal rect{fill:var(--te-f);stroke:var(--te)}
+  svg .c-amber rect{fill:var(--am-f);stroke:var(--am)}
+  svg .c-red rect{fill:var(--rd-f);stroke:var(--rd)}
+
+  /* ── tweak taxonomy chips ── */
+  .chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
+  .chip{background:var(--card);border:1px solid #C9D0CC;border-radius:20px;padding:5px 14px;font-size:13px}
+  .chip b{font-weight:600}
+
+  /* ── step cards ── */
+  .card{background:var(--card);border:1px solid #D8DDD9;border-radius:10px;margin:16px 0;overflow:hidden}
+  .card .head{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid #E4E8E5}
+  .card .num{font-family:ui-monospace,monospace;font-weight:700;font-size:15px;
+    min-width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    border:2px solid var(--line)}
+  .card h3{font-size:16px;font-weight:600;flex:1}
+  .tag{font-family:ui-monospace,monospace;font-size:11px;border-radius:5px;padding:3px 8px;white-space:nowrap}
+  .tag.pu{background:var(--pu-f);color:var(--pu);border:1px solid var(--pu)}
+  .tag.te{background:var(--te-f);color:var(--te);border:1px solid var(--te)}
+  .tag.gr{background:var(--gr-f);color:#3E4650;border:1px solid var(--gr)}
+  .tag.ph{background:#F1F3EF;color:var(--mut);border:1px solid #C9D0CC}
+  .card.pu{border-left:5px solid var(--pu)}
+  .card.te{border-left:5px solid var(--te)}
+  .card.gr{border-left:5px solid var(--gr)}
+  .card.am{border-left:5px solid var(--am)}
+  .card.rd{border-left:5px solid var(--rd)}
+  .rows{padding:6px 18px 12px}
+  .row{display:grid;grid-template-columns:110px 1fr;gap:10px;padding:7px 0;border-bottom:1px dashed #E4E8E5}
+  .row:last-child{border-bottom:none}
+  .row .k{font-family:ui-monospace,monospace;font-size:11.5px;color:var(--mut);letter-spacing:.03em;padding-top:2px}
+  .row .v{font-size:14px}
+  .tweak{background:#F4F6F3;border-top:1px solid #E4E8E5;padding:10px 18px;font-size:13.5px}
+  .tweak .k{font-family:ui-monospace,monospace;font-size:11.5px;color:var(--mut);letter-spacing:.03em;display:block;margin-bottom:4px}
+  code{font-family:ui-monospace,"SF Mono",Consolas,monospace;font-size:12.5px;background:#EFF2EF;
+    border:1px solid #DDE2DE;border-radius:4px;padding:1px 5px}
+  .frame{background:#20282580;color:#EAF0EC;background:#232B28;border-radius:8px;padding:12px 16px;
+    font-family:ui-monospace,monospace;font-size:12.5px;line-height:1.7;overflow-x:auto;margin:10px 0}
+  footer{max-width:1060px;margin:48px auto 0;padding:0 24px;color:var(--mut);
+    font-family:ui-monospace,monospace;font-size:11.5px;border-top:1px solid #C9D0CC;padding-top:14px}
+  @media print{.diagwrap{overflow:visible}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="docid">cwf-ir-sequence-logic-v1 · rev 1 · 2026-07-19 · companion: cwf-ir-architecture-roadmap-v1.md</div>
+  <h1>IR Mimarisi — Sequence Logic Reference</h1>
+  <p class="sub">Bir kullanıcı sorgusunun IR (intermediate representation) hattındaki tam yolculuğu:
+  her adımın görevi, girdisi, çıktısı, üretim mekanizması ve tweak yüzeyi. Tek desen her yerde geçerli:
+  <b>makine gözlemler ve önerir · insan onaylar · eval-gate mühürler.</b> Hiçbir katman kendi kendini yazmaz.</p>
+</header>
+
+<main>
+
+<!-- ══════════════════ §1 · SEQUENCE DIAGRAM ══════════════════ -->
+<section>
+<h2><span class="sn">§1</span>Sequence Diagram</h2>
+<div class="diagwrap">
+<svg width="100%" viewBox="0 0 950 1250" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>IR mimarisi detaylı sequence diagram</title>
+<desc>Kullanıcı sorgusunun IR normalizer, deterministik zırh, çözücüler, tool resolver ve ana LLM katmanlarından geçişi; belirsizlik ve arıza fallback yolları.</desc>
+<defs><marker id="arw" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+
+<!-- Lane headers -->
+<g class="c-gray"><rect x="15" y="28" width="90" height="58" rx="8" stroke-width="1"/>
+<text class="th" x="60" y="57" text-anchor="middle" dominant-baseline="central">Kullanıcı</text></g>
+<g class="c-gray"><rect x="133" y="28" width="124" height="58" rx="8" stroke-width="1"/>
+<text class="th" x="195" y="49" text-anchor="middle" dominant-baseline="central">Turn Pipeline</text>
+<text class="ts" x="195" y="69" text-anchor="middle" dominant-baseline="central">stage 00–14</text></g>
+<g class="c-purple"><rect x="273" y="28" width="124" height="58" rx="8" stroke-width="1"/>
+<text class="th" x="335" y="49" text-anchor="middle" dominant-baseline="central">IR Normalizer</text>
+<text class="ts" x="335" y="69" text-anchor="middle" dominant-baseline="central">LLM · stage 03</text></g>
+<g class="c-teal"><rect x="413" y="28" width="124" height="58" rx="8" stroke-width="1"/>
+<text class="th" x="475" y="49" text-anchor="middle" dominant-baseline="central">Zırh</text>
+<text class="ts" x="475" y="69" text-anchor="middle" dominant-baseline="central">deterministik</text></g>
+<g class="c-teal"><rect x="553" y="28" width="124" height="58" rx="8" stroke-width="1"/>
+<text class="th" x="615" y="49" text-anchor="middle" dominant-baseline="central">Çözücüler</text>
+<text class="ts" x="615" y="69" text-anchor="middle" dominant-baseline="central">alias + zaman</text></g>
+<g class="c-teal"><rect x="693" y="28" width="124" height="58" rx="8" stroke-width="1"/>
+<text class="th" x="755" y="49" text-anchor="middle" dominant-baseline="central">Tool Resolver</text>
+<text class="ts" x="755" y="69" text-anchor="middle" dominant-baseline="central">tablo · stage 07</text></g>
+<g class="c-purple"><rect x="833" y="28" width="104" height="58" rx="8" stroke-width="1"/>
+<text class="th" x="885" y="49" text-anchor="middle" dominant-baseline="central">Ana LLM</text>
+<text class="ts" x="885" y="69" text-anchor="middle" dominant-baseline="central">+ ARMES MCP</text></g>
+
+<!-- Lifelines -->
+<g stroke="#2A3330" stroke-width="0.6" stroke-dasharray="4 4" opacity="0.45">
+<line x1="60" y1="86" x2="60" y2="1000"/><line x1="195" y1="86" x2="195" y2="1000"/>
+<line x1="335" y1="86" x2="335" y2="1000"/><line x1="475" y1="86" x2="475" y2="1000"/>
+<line x1="615" y1="86" x2="615" y2="1000"/><line x1="755" y1="86" x2="755" y2="1000"/>
+<line x1="885" y1="86" x2="885" y2="1000"/></g>
+
+<!-- 1 U→P -->
+<text class="ts" x="127" y="118" text-anchor="middle">"fırınaltı dün gece niye durdu"</text>
+<line x1="60" y1="130" x2="189" y2="130" class="arr" marker-end="url(#arw)"/>
+<circle cx="72" cy="130" r="9" fill="#FFFFFF" stroke="#2A3330" stroke-width="1"/><text class="ts" x="72" y="131" text-anchor="middle" dominant-baseline="central">1</text>
+
+<!-- 2 P→N -->
+<text class="ts" x="265" y="173" text-anchor="middle">mesaj + N bağlam turu + glossary</text>
+<line x1="195" y1="185" x2="329" y2="185" class="arr" marker-end="url(#arw)"/>
+<circle cx="207" cy="185" r="9" fill="#FFFFFF" stroke="#2A3330" stroke-width="1"/><text class="ts" x="207" y="186" text-anchor="middle" dominant-baseline="central">2</text>
+
+<!-- N self note -->
+<g class="c-purple"><rect x="285" y="205" width="240" height="34" rx="6" stroke-width="1" opacity="0.95"/>
+<text class="ts" x="405" y="222" text-anchor="middle" dominant-baseline="central">sonsuz Türkçe → kapalı sözlük (temp 0, JSON)</text></g>
+
+<!-- 3 N→Z -->
+<text class="ts" x="405" y="262" text-anchor="middle">ham frame (güvenilmez çıktı)</text>
+<line x1="335" y1="274" x2="469" y2="274" class="arr" marker-end="url(#arw)"/>
+<circle cx="347" cy="274" r="9" fill="#FFFFFF" stroke="#2A3330" stroke-width="1"/><text class="ts" x="347" y="275" text-anchor="middle" dominant-baseline="central">3</text>
+
+<!-- Z self note -->
+<g class="c-teal"><rect x="400" y="294" width="290" height="34" rx="6" stroke-width="1" opacity="0.95"/>
+<text class="ts" x="545" y="311" text-anchor="middle" dominant-baseline="central">parse → Zod → enum filtresi (action/object) → cap</text></g>
+
+<!-- 4 Z→C -->
+<text class="ts" x="545" y="351" text-anchor="middle">entity_ref:"fırınaltı" · time:"dün gece"</text>
+<line x1="475" y1="363" x2="609" y2="363" class="arr" marker-end="url(#arw)"/>
+<circle cx="487" cy="363" r="9" fill="#FFFFFF" stroke="#2A3330" stroke-width="1"/><text class="ts" x="487" y="364" text-anchor="middle" dominant-baseline="central">4</text>
+
+<!-- C self note -->
+<g class="c-teal"><rect x="500" y="383" width="300" height="50" rx="6" stroke-width="1" opacity="0.95"/>
+<text class="ts" x="650" y="399" text-anchor="middle" dominant-baseline="central">alias tablosu: "fırınaltı" → FIRINALT-01 (tenant verisi)</text>
+<text class="ts" x="650" y="417" text-anchor="middle" dominant-baseline="central">zaman parser: "dün gece" → 18 Tem 22:00–06:00</text></g>
+
+<!-- 5 C→R -->
+<text class="ts" x="685" y="456" text-anchor="middle">doğrulanmış frame: QUERY_DOWNTIME × KILN</text>
+<line x1="615" y1="468" x2="749" y2="468" class="arr" marker-end="url(#arw)"/>
+<circle cx="627" cy="468" r="9" fill="#FFFFFF" stroke="#2A3330" stroke-width="1"/><text class="ts" x="627" y="469" text-anchor="middle" dominant-baseline="central">5</text>
+
+<!-- R self note -->
+<g class="c-teal"><rect x="640" y="488" width="290" height="34" rx="6" stroke-width="1" opacity="0.95"/>
+<text class="ts" x="785" y="505" text-anchor="middle" dominant-baseline="central">(action×object) → tool tablosu ∪ ALWAYS_INCLUDE</text></g>
+
+<!-- 6 R→P return -->
+<text class="ts" x="475" y="545" text-anchor="middle">aday tool seti + çözülmüş slotlar (ID, zaman aralığı)</text>
+<line x1="755" y1="557" x2="201" y2="557" class="arr" marker-end="url(#arw)" stroke-dasharray="5 3"/>
+<circle cx="743" cy="557" r="9" fill="#FFFFFF" stroke="#2A3330" stroke-width="1"/><text class="ts" x="743" y="558" text-anchor="middle" dominant-baseline="central">6</text>
+
+<!-- 7 P→L -->
+<text class="ts" x="540" y="595" text-anchor="middle">stage 09: prompt = aday set + slotlar + bilgi dilimi</text>
+<line x1="195" y1="607" x2="879" y2="607" class="arr" marker-end="url(#arw)"/>
+<circle cx="207" cy="607" r="9" fill="#FFFFFF" stroke="#2A3330" stroke-width="1"/><text class="ts" x="207" y="608" text-anchor="middle" dominant-baseline="central">7</text>
+
+<!-- L self note -->
+<g class="c-purple"><rect x="680" y="627" width="250" height="34" rx="6" stroke-width="1" opacity="0.95"/>
+<text class="ts" x="805" y="644" text-anchor="middle" dominant-baseline="central">list_downtime_events(FIRINALT-01, aralık)</text></g>
+
+<!-- 8 L→P -->
+<text class="ts" x="540" y="684" text-anchor="middle">cevap + raw_tool_results (callId + args kayıtlı)</text>
+<line x1="885" y1="696" x2="201" y2="696" class="arr" marker-end="url(#arw)" stroke-dasharray="5 3"/>
+<circle cx="873" cy="696" r="9" fill="#FFFFFF" stroke="#2A3330" stroke-width="1"/><text class="ts" x="873" y="697" text-anchor="middle" dominant-baseline="central">8</text>
+
+<!-- P self note -->
+<g class="c-gray"><rect x="120" y="716" width="290" height="34" rx="6" stroke-width="1" opacity="0.95"/>
+<text class="ts" x="265" y="733" text-anchor="middle" dominant-baseline="central">stage 12: grounding/scope doğrulama · stage 13: render</text></g>
+
+<!-- 9 P→U -->
+<text class="ts" x="127" y="773" text-anchor="middle">yanıt</text>
+<line x1="195" y1="785" x2="66" y2="785" class="arr" marker-end="url(#arw)"/>
+<circle cx="183" cy="785" r="9" fill="#FFFFFF" stroke="#2A3330" stroke-width="1"/><text class="ts" x="183" y="786" text-anchor="middle" dominant-baseline="central">9</text>
+
+<!-- ALT A -->
+<g class="c-amber"><rect x="20" y="820" width="915" height="80" rx="8" stroke-width="1" fill-opacity="0.35"/>
+<text class="th" x="36" y="840">ALT — Belirsizlik (IR-3'te aktif)</text></g>
+<text class="ts" x="337" y="862" text-anchor="middle">confidence: AMBIGUOUS veya alias çözülemedi → tahmin YOK</text>
+<line x1="615" y1="878" x2="66" y2="878" class="arr" marker-end="url(#arw)"/>
+<text class="ts" x="337" y="893" text-anchor="middle">"Hangi fırını kastediyorsun?" — netleştirme sorusu</text>
+
+<!-- ALT B -->
+<g class="c-red"><rect x="20" y="915" width="915" height="80" rx="8" stroke-width="1" fill-opacity="0.30"/>
+<text class="th" x="36" y="935">ALT — Normalizer arızası (timeout / parse / enum-dışı)</text></g>
+<text class="ts" x="615" y="957" text-anchor="middle">floor merdiveni: SR1 kategori seçimi → o da düşerse keyword katmanı</text>
+<line x1="475" y1="973" x2="749" y2="973" class="arr" marker-end="url(#arw)" stroke-dasharray="3 3"/>
+<text class="ts" x="615" y="988" text-anchor="middle">her basamakta ∪ ALWAYS_INCLUDE — sistem asla kör kalmaz</text>
+
+<!-- Legend -->
+<g class="c-purple"><rect x="20" y="1020" width="14" height="14" rx="3"/></g>
+<text class="ts" x="42" y="1027" dominant-baseline="central">LLM — belirsizlik taşıyan tek katman tipi (2 dar görev: çeviri + araç kullanımı)</text>
+<g class="c-teal"><rect x="20" y="1044" width="14" height="14" rx="3"/></g>
+<text class="ts" x="42" y="1051" dominant-baseline="central">Deterministik — test edilebilir, model-bağımsız (zırh, alias, zaman, tablo)</text>
+<g class="c-gray"><rect x="20" y="1068" width="14" height="14" rx="3"/></g>
+<text class="ts" x="42" y="1075" dominant-baseline="central">Pipeline — mevcut 00–14 aşama omurgası (değişmiyor)</text>
+<text class="ts" x="20" y="1105">Kesikli oklar = dönüş/veri akışı · Numaralar = işlem sırası</text>
+
+<!-- Phase tags -->
+<g class="c-gray"><rect x="20" y="1130" width="915" height="90" rx="8" stroke-width="1" fill-opacity="0.55"/>
+<text class="th" x="36" y="1152">Hangi fazda inşa ediliyor?</text>
+<text class="ts" x="36" y="1176">IR-1: Normalizer'ın frame çıktısı + Zırh'ın enum filtreleri (observe-only) · IR-2: Çözücüler (alias + zaman) + netleştirme kontratı</text>
+<text class="ts" x="36" y="1196">IR-3: Tool Resolver tablosu birincil olur + ALT-A netleştirme canlıya alınır · Bugün canlı: Pipeline, Ana LLM, floor merdiveninin alt iki basamağı</text></g>
+</svg>
+</div>
+
+<div class="note">Okuma anahtarı: <b>mor iki ada arasındaki her şey teal.</b> Sorgu LLM'e iki kez dokunur,
+ikisinde de görev dardır — ③'te "sonsuz dili kapalı sözlüğe çevir", ⑧'de "önüne konmuş dar aday setiyle aracı kullan".
+Aradaki dört durak tamamen deterministiktir: kalite tavanını belirleyen zincirin çoğu test edilebilir koddur, model değil.
+Model-agnostiklik iddiasının resmi budur. İkinci kritik nokta 6 numaralı dönüş okudur: pipeline'a yalnız aday tool seti değil,
+<b>çözülmüş slotlar</b> da döner (FIRINALT-01, somut zaman aralığı) — "dün gece" yorumu bir kez, deterministik parser'da yapılır.</div>
+
+<div class="frame">// IR frame — kapalı sözlüklü ara temsil (IR-0'da ratifiye edilecek)
+{
+  "action":     "QUERY_DOWNTIME",          // kapalı enum (6–10 eylem)
+  "object":     "KILN",                    // kapalı enum (8–12 varlık tipi)
+  "entity_ref": "fırınaltı",               // ham geçen ifade — çözümü ⑤'te
+  "metrics":    ["AVAILABILITY"],
+  "time":       { "type": "RELATIVE", "expr": "dün gece" },
+  "confidence": "HIGH",                    // HIGH | AMBIGUOUS
+  "language":   "tr"                       // netleştirme sorusunun dili
+}</div>
+</section>
+
+<!-- ══════════════════ §2 · TWEAK TAKSONOMİSİ ══════════════════ -->
+<section>
+<h2><span class="sn">§2</span>Tweak Taksonomisi</h2>
+<div class="chips">
+  <div class="chip">🗄️ <b>Governed veri</b> — admin panel + eval-gate'li publish · karar İNSANDA</div>
+  <div class="chip">🧱 <b>Kod</b> — deploy gerektirir · İNSAN</div>
+  <div class="chip">🔬 <b>Lab / session</b> — sessionTweakable parametreler, deneme alanı</div>
+  <div class="chip">🤖 <b>Makine sinyali</b> — canlı trafikten gözlem + ÖNERİ üretir; asla doğrudan yazmaz</div>
+</div>
+<div class="note"><b>Tek meşru self-learning şekli:</b> 🤖 makine sinyal toplar → öneri ledger'ına yazar →
+🗄️ insan onayı + eval-gate → sistem bir sonraki turn'de daha akıllı. Kendi kendine yazan tek katman yok;
+buna karşılık insanın elle keşfetmesi gereken tek boşluk da yok — makine boşlukları getirir, kalem insanda kalır.</div>
+</section>
+
+<!-- ══════════════════ §3 · ADIM ADIM LOGIC ══════════════════ -->
+<section>
+<h2><span class="sn">§3</span>Adım Adım Logic — Görev · Girdi · Çıktı · Mekanizma · Tweak</h2>
+
+<!-- ① -->
+<div class="card gr">
+  <div class="head"><div class="num">①</div><h3>Kullanıcı → Pipeline · Turn açılışı</h3>
+    <span class="tag gr">stage 00–01</span><span class="tag ph">bugün canlı</span></div>
+  <div class="rows">
+    <div class="row"><div class="k">GÖREV</div><div class="v">Mesajı kabul et, kimliği ve yetkiyi bağla, bütçeyi rezerve et.</div></div>
+    <div class="row"><div class="k">GİRDİ</div><div class="v">Ham mesaj + oturum kimliği.</div></div>
+    <div class="row"><div class="k">ÇIKTI</div><div class="v">Doğrulanmış turn bağlamı: userId, rol, backend scope, quota rezervi.</div></div>
+    <div class="row"><div class="k">MEKANİZMA</div><div class="v">Tamamen deterministik — quota gate parametre okur, RBAC scope bağlar, mesaj kaydedilir.</div></div>
+  </div>
+  <div class="tweak"><span class="k">TWEAK</span>🗄️ <code>quota.*</code> tavanları, kullanıcı/rol atamaları — insan.
+  Öğrenen hiçbir şey yok, olmamalı da: <b>kapı bekçisi öğrenmez.</b></div>
+</div>
+
+<!-- ② -->
+<div class="card gr">
+  <div class="head"><div class="num">②</div><h3>Pipeline → Normalizer · Bağlam paketleme</h3>
+    <span class="tag gr">deterministik derleme</span><span class="tag ph">IR-1</span></div>
+  <div class="rows">
+    <div class="row"><div class="k">GÖREV</div><div class="v">Normalizer çağrısının girdisini derle.</div></div>
+    <div class="row"><div class="k">GİRDİ</div><div class="v">Mesaj + son N kullanıcı turu (<code>router.contextTurns</code>) + glossary alwaysInject terimleri + governed <code>router.prompt</code> şablonu.</div></div>
+    <div class="row"><div class="k">ÇIKTI</div><div class="v">Tek bir normalizer prompt'u.</div></div>
+    <div class="row"><div class="k">MEKANİZMA</div><div class="v">Deterministik derleme — şablon DB'den (publish edilmişse), yoksa kod floor'u; bağlam turları sabit kurala göre kırpılır.</div></div>
+  </div>
+  <div class="tweak"><span class="k">TWEAK</span>🗄️ contextTurns · 🗄️ prompt şablon versiyonu · 🗄️ glossary satırları — üçü de insan.
+  Bu paketin içeriği ③'ün kalitesini doğrudan belirler: <b>"tune edilecek yer neresi" sorusunun bir numaralı cevabı burasıdır.</b></div>
+</div>
+
+<!-- ③ -->
+<div class="card pu">
+  <div class="head"><div class="num">③</div><h3>Normalizer → Zırh · Ham frame üretimi</h3>
+    <span class="tag pu">LLM · belirsizlik noktası 1</span><span class="tag ph">IR-1</span></div>
+  <div class="rows">
+    <div class="row"><div class="k">GÖREV</div><div class="v">Sonsuz Türkçe/İngilizce yüzeyini kapalı sözlüğe indirge.</div></div>
+    <div class="row"><div class="k">GİRDİ</div><div class="v">②'nin paketi.</div></div>
+    <div class="row"><div class="k">ÇIKTI</div><div class="v">Ham JSON frame <code>{action, object, entity_ref, metrics, time, confidence, language}</code> — henüz güvenilmez, "iddia" statüsünde.</div></div>
+    <div class="row"><div class="k">MEKANİZMA</div><div class="v">Temp-0, düşük token tavanlı, JSON'a zorlanmış küçük LLM çağrısı; provider registry üzerinden herhangi bir model (model-agnostik).</div></div>
+  </div>
+  <div class="tweak"><span class="k">TWEAK — en zengin yüzey, üç kanal</span>
+  🗄️ şablon + few-shot örnekleri (insan, eval-gate) · 🗄️ model seçimi (insan) ·
+  🤖→🗄️ <b>yarı-self-learning:</b> yanlış frame'lenen gerçek turn'ler düzeltilmiş etiketle few-shot havuzuna ADAY olur —
+  makine adayı üretir, insan onaylar, gate mühürler (SR1-W2 proposals deseninin frame'e uyarlanmışı).
+  <b>Model asla kendi prompt'unu yazmaz.</b></div>
+</div>
+
+<!-- ④ -->
+<div class="card te">
+  <div class="head"><div class="num">④</div><h3>Zırh · Doğrulama</h3>
+    <span class="tag te">deterministik</span><span class="tag ph">IR-1</span></div>
+  <div class="rows">
+    <div class="row"><div class="k">GÖREV</div><div class="v">③'ün iddiasını güvenli hale getir ya da reddet.</div></div>
+    <div class="row"><div class="k">GİRDİ</div><div class="v">Ham JSON string.</div></div>
+    <div class="row"><div class="k">ÇIKTI</div><div class="v">Ya geçerli frame ya ALT-B sinyali — <b>üçüncü ihtimal yok.</b></div></div>
+    <div class="row"><div class="k">MEKANİZMA</div><div class="v">Sıralı mekanik hat: parse → Zod şema → enum whitelist (action/object ratifiye listede mi; değilse düşür ve SAY) → cap.</div></div>
+  </div>
+  <div class="tweak"><span class="k">TWEAK</span>🧱 zırh mantığı kod, neredeyse hiç değişmez · 🗄️ enum listesi (taksonomi) governed veri ama her satır insan ratifikasyonundan geçer.
+  <b>Self-learning bilinçli olarak YASAK:</b> zırh veriden öğrenirse zehirlenebilir — polarity law'un ta kendisi.
+  Zırhın tek "ayarı" taksonomiyi büyütmektir, davranışını değil.</div>
+</div>
+
+<!-- ⑤ -->
+<div class="card te">
+  <div class="head"><div class="num">⑤</div><h3>Çözücüler · Alias + Zaman</h3>
+    <span class="tag te">deterministik</span><span class="tag ph">IR-2</span></div>
+  <div class="rows">
+    <div class="row"><div class="k">GÖREV</div><div class="v">Ham referansları kanonik gerçekliğe bağla.</div></div>
+    <div class="row"><div class="k">GİRDİ</div><div class="v"><code>entity_ref:"fırınaltı"</code> · <code>time:"dün gece"</code> · tenant kimliği.</div></div>
+    <div class="row"><div class="k">ÇIKTI</div><div class="v"><code>FIRINALT-01</code> + <code>18 Tem 22:00–06:00</code>, ya da dürüst <code>unresolved</code>.</div></div>
+    <div class="row"><div class="k">MEKANİZMA</div><div class="v">Alias = tenant-scoped governed tablo bakışı (yeni tenant = yeni tablo, kod sıfır). Zaman = kod içi TR/EN kural parser'ı; vardiya sınırları governed veriden — "dün gece"nin saat aralığı tenant politikasıdır, model yorumu değil.</div></div>
+  </div>
+  <div class="tweak"><span class="k">TWEAK</span>🗄️ alias satırları (insan) · 🧱 zaman kuralları (insan) · 🗄️ vardiya tanımları (insan) ·
+  🤖 her <code>unresolved</code> ledger'a düşer: "şu ifade 7 kez geçti, alias'ı yok" önerisi makineden gelir, satırı tek onayla insan açar.
+  <b>Sistem senin fabrikandan öğrenir ama yazma kalemi hep sende.</b></div>
+</div>
+
+<!-- ⑥ -->
+<div class="card te">
+  <div class="head"><div class="num">⑥</div><h3>Tool Resolver → Pipeline · Aday set + slotlar</h3>
+    <span class="tag te">deterministik</span><span class="tag ph">IR-3</span></div>
+  <div class="rows">
+    <div class="row"><div class="k">GÖREV</div><div class="v">Frame'i araç adaylarına çevir.</div></div>
+    <div class="row"><div class="k">GİRDİ</div><div class="v">Doğrulanmış frame.</div></div>
+    <div class="row"><div class="k">ÇIKTI</div><div class="v"><code>(action×object)</code> tablosundan tool listesi ∪ ALWAYS_INCLUDE + çözülmüş slotlar.</div></div>
+    <div class="row"><div class="k">MEKANİZMA</div><div class="v">Saf tablo bakışı — skor yok, eşik yok, fuzzy yok. Yeni tool eklemek = tabloya satır eklemek.</div></div>
+  </div>
+  <div class="tweak"><span class="k">TWEAK</span>🗄️ tablo satırları (insan) ·
+  🤖 07-vs-11 offered/called mismatch telemetrisi buranın öğrenme kaynağı: "bu frame'de sunulmayan tool çağrılmaya çalışıldı" gözlemi tablo-boşluğu önerisi üretir.
+  <b>Bugünkü learned map'ten kritik fark:</b> mevcut sistemde makine haritaya doğrudan yazıyor; IR'da makine yalnız ÖNERİR, satır eval-gate'li publish ile girer.</div>
+</div>
+
+<!-- ⑦ -->
+<div class="card gr">
+  <div class="head"><div class="num">⑦</div><h3>Pipeline → Ana LLM · Stage-09 prompt derleme</h3>
+    <span class="tag gr">deterministik derleme</span><span class="tag ph">IR-3 (slot enjeksiyonu)</span></div>
+  <div class="rows">
+    <div class="row"><div class="k">GÖREV</div><div class="v">Nihai çağrıyı kur.</div></div>
+    <div class="row"><div class="k">GİRDİ</div><div class="v">Aday tool şemaları + ⑤'in çözülmüş slotları + bilgi dilimi + 20 governed prompt segmenti.</div></div>
+    <div class="row"><div class="k">ÇIKTI</div><div class="v">Ana turn çağrısı (stage-09 prompt).</div></div>
+    <div class="row"><div class="k">MEKANİZMA</div><div class="v">Deterministik derleme (<code>buildSystemPrompt</code>) — slotların "önceden çözülmüş gerçek" olarak prompt'a girmesi bu adımın IR'la kazandığı yeniliktir.</div></div>
+  </div>
+  <div class="tweak"><span class="k">TWEAK</span>🗄️ prompt segmentleri (insan, eval-gate) · 🗄️ <code>agent.*</code> parametreleri (temperature, historyWindowN, maxToolRounds — insan) ·
+  🔬 sessionTweakable olanlar lab'da denenebilir. Öğrenme yok; <b>derleyici derler.</b></div>
+</div>
+
+<!-- ⑧ -->
+<div class="card pu">
+  <div class="head"><div class="num">⑧</div><h3>Ana LLM · Araç kullanımı</h3>
+    <span class="tag pu">LLM · belirsizlik noktası 2</span><span class="tag ph">bugün canlı</span></div>
+  <div class="rows">
+    <div class="row"><div class="k">GÖREV</div><div class="v">Dar aday setiyle gerçek MCP çağrılarını yap, cevabı üret.</div></div>
+    <div class="row"><div class="k">GİRDİ</div><div class="v">⑦'nin prompt'u + tool şemaları.</div></div>
+    <div class="row"><div class="k">ÇIKTI</div><div class="v">Cevap metni + <code>raw_tool_results</code> (callId + args ile — VIZ-BIND kaydı).</div></div>
+    <div class="row"><div class="k">MEKANİZMA</div><div class="v">ReAct döngüsü, <code>maxToolRounds</code> tavanı, MCP gateway üzerinden.</div></div>
+  </div>
+  <div class="tweak"><span class="k">TWEAK</span>🗄️ model + parametreler (insan). Serbestlik derecesi IR sayesinde zaten kısılmıştır —
+  <b>iyi ayarın çoğu artık ⑥ ve ⑦'de yapılmış olur.</b></div>
+</div>
+
+<!-- ⑨ -->
+<div class="card gr">
+  <div class="head"><div class="num">⑨</div><h3>Pipeline → Kullanıcı · Doğrulama + render</h3>
+    <span class="tag gr">stage 12–13</span><span class="tag ph">bugün canlı</span></div>
+  <div class="rows">
+    <div class="row"><div class="k">GÖREV</div><div class="v">Cevabın veriye sadakatini denetle, dürüst render et.</div></div>
+    <div class="row"><div class="k">GİRDİ</div><div class="v">Cevap + tool sonuçları.</div></div>
+    <div class="row"><div class="k">ÇIKTI</div><div class="v">Kullanıcı yanıtı + telemetry/span kayıtları.</div></div>
+    <div class="row"><div class="k">MEKANİZMA</div><div class="v">Deterministik A1/A3 validator'ları (grounding, scope-authority) + empty≠zero dört-yol ayrımı + render binding.</div></div>
+  </div>
+  <div class="tweak"><span class="k">TWEAK</span>🧱 validator kuralları kod — ve <b>ASLA öğrenen veya governed olmaz:</b>
+  yalancı backend'i zararsızlaştıran katman veriden beslenirse anlamını yitirir (ADR-001). 🗄️ backend authority tier'ları insan kararı.</div>
+</div>
+
+<!-- ALT A -->
+<div class="card am">
+  <div class="head"><div class="num">A</div><h3>ALT-A · Netleştirme</h3>
+    <span class="tag gr">tetik: deterministik</span><span class="tag ph">IR-2 kontrat · IR-3 canlı</span></div>
+  <div class="rows">
+    <div class="row"><div class="k">GİRDİ</div><div class="v"><code>confidence:AMBIGUOUS</code> veya <code>unresolved</code> alias (④/⑤'ten gelir).</div></div>
+    <div class="row"><div class="k">ÇIKTI</div><div class="v">Kullanıcının dilinde TEK netleştirme sorusu; tahmin asla.</div></div>
+    <div class="row"><div class="k">MEKANİZMA</div><div class="v">Tetik deterministik; sorunun cümlesi LLM'den. "Yanlış cevap yerine soru soran sistem, fabrikada güvenin ta kendisidir."</div></div>
+  </div>
+  <div class="tweak"><span class="k">TWEAK</span>🗄️ tetik eşiği/politikası insan ("hangi belirsizlikler soru doğurur" ürün kararıdır) ·
+  🤖 sık tekrarlayan netleştirmeler, alias veya few-shot eksiğinin haritasıdır.</div>
+</div>
+
+<!-- ALT B -->
+<div class="card rd">
+  <div class="head"><div class="num">B</div><h3>ALT-B · Floor merdiveni</h3>
+    <span class="tag gr">deterministik düşüş</span><span class="tag ph">alt 2 basamak bugün canlı</span></div>
+  <div class="rows">
+    <div class="row"><div class="k">GİRDİ</div><div class="v">Normalizer timeout / parse hatası / enum-dışı çıktı.</div></div>
+    <div class="row"><div class="k">ÇIKTI</div><div class="v">SR1 kategorileri → o da düşerse keyword katmanı → her basamakta ∪ ALWAYS_INCLUDE.</div></div>
+    <div class="row"><div class="k">MEKANİZMA</div><div class="v">Deterministik düşüş; sıra 🧱 sabittir, hiçbir basamak sökülmez. Her arıza yalnız DEVRE DIŞI bırakabilir, asla yanlışlıkla açamaz (fail-safe polarity).</div></div>
+  </div>
+  <div class="tweak"><span class="k">TWEAK</span>🗄️ <code>router.timeoutMs</code> · 🗄️ <code>router.frameEnabled</code> (insan).
+  Öğrenme yok — <b>paraşüt öğrenmez, açılır.</b></div>
+</div>
+</section>
+
+<!-- ══════════════════ §4 · SENTEZ ══════════════════ -->
+<section>
+<h2><span class="sn">§4</span>Sentez — Governed Self-Improvement</h2>
+<div class="note">Üç öneri ledger'ı vardır ve üçünde akış aynıdır:
+<b>③ frame düzeltmeleri</b> (yanlış frame → düzeltilmiş few-shot adayı) ·
+<b>⑤ çözülemeyen alias'lar</b> (unresolved sayacı → alias satırı önerisi) ·
+<b>⑥ tablo boşlukları</b> (07-vs-11 mismatch → routing satırı önerisi).
+Her birinde: 🤖 makine canlı trafikten sinyal toplar → öneri üretir → 🗄️ insan onayı + eval-gate → sistem bir sonraki
+turn'de daha akıllı. Kendi kendini yazan tek katman yok; insanın elle keşfetmesi gereken tek boşluk da yok.
+Deterministic-trust felsefesinin öğrenmeye uygulanmış hali — CWF'nin <b>"governed self-improvement"</b> ayırt edici hikayesi buradan çıkar.</div>
+</section>
+
+<!-- ══════════════════ §5 · DİL BAĞIMSIZLIĞI ══════════════════ -->
+<section>
+<h2><span class="sn">§5</span>Dil Bağımsızlığı — IR-0 Kabul Kriteri</h2>
+<div class="note">İngilizce (veya code-switching) sorgu geldiğinde mimari <b>şekil değiştirmez</b>; yalnız üç dar yüzey genişler:
+<b>(1)</b> ⑤'in zaman parser'ına EN kural seti (dile duyarlı tek kod bileşeni),
+<b>(2)</b> alias tablosuna yeni satırlar ("the lower kiln" → FIRINALT-01 — veri, kod değil),
+<b>(3)</b> netleştirme sorusunun dili (frame'deki <code>language</code> alanı).
+Normalizer için yeni dil = sıfır iş; frame zaten dil-nötr kanonik terimlerdir.
+<b>Kabul kriteri (IR-0'a yazılacak):</b> her deterministik bileşen ya dil-nötrdür ya da dil desteği VERİ/KURAL ekleyerek
+genişler — asla kod mimarisine dokunarak değil.</div>
+</section>
+
+</main>
+
+<footer>
+END · cwf-ir-sequence-logic-v1 · rev 1 · 2026-07-19 · companion: cwf-ir-architecture-roadmap-v1.md ·
+amendments mint v1_2 / rev 1.2 — never in-place
+</footer>
+
+</body>
+</html>

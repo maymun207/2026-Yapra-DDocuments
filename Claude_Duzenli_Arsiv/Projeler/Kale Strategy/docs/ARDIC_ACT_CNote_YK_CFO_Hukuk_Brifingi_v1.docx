@@ -1,0 +1,252 @@
+**GİZLİ — HİZMETE ÖZEL**	ACT / C-Note Brifingi · 12.06.2026
+
+**ARDIÇ A.Ş.**
+
+**ACT FUND / C-NOTE DOSYASI**
+
+Durum Tespiti · Risk Haritası · Davranış Protokolü
+
+*Yönetim Kurulu Üyeleri, CFO ve Hukuk Müşaviri Brifingi · 12 Haziran 2026*
+
+| **DAĞITIM VE KULLANIM KURALLARI** **Yalnızca muhataplar içindir:** YK üyeleri (A Grubu), CFO, hukuk müşaviri. Kopyalanmaz, iletilmez, yazdırılıp bırakılmaz. **Observer kanalına girmez.** Bu belge ve içeriği YK karar dosyalarına, observer bilgi akışına veya ACT çevresine hiçbir biçimde dahil edilmez. **Hukuki mütalaa değildir.** İç stratejik çalışma ürünüdür; tüm hukuki tespitler hukuk müşavirinin teyidine tabidir. **Pazarlık/fiyat bölgesi bu belgeye bilinçli olarak yazılmamıştır;** sözlü brifing konusudur. **Simetri varsayımı:** Karşı tarafın da ileri analitik/yapay zekâ araçlarıyla hazırlandığı varsayılır. Bu nedenle hiçbir iddia belgesiz kurulmaz ve hiçbir belge “sızmaz” varsayımıyla yazılmaz. |
+| --- |
+
+# 1. Yönetici Özeti
+
+ACT Fund Coöperatief U.A. (pay oranı %24,000002; toplam nakit yatırımı EUR 2.725.000: özsermaye 2.325.000 + dönüştürülebilir borç 400.000), 2025 yıl sonu resmi finansallarını ve detay mizanı talep edip teslim almış; Q1 2026 gayriresmî finansallarını istemiş ve **sözlü olarak** 28.12.2017 tarihli dönüştürülebilir borcun (C-Note, EUR 400.000, vadesi 28.12.2018'de dolmuş) paya dönüştürülmesi üzerinde çalıştığını iletmiştir. **Resmî yazılı bildirim henüz yoktur; sözleşmesel süreç başlamamıştır.**
+
+Bu belge, tüm sözleşme setinin (ISHA + tadiller, Subscription Agreement, C-Note Protokolü, Amendment Protocol No.2), tescilli esas sözleşmenin (TTSG kayıtları) ve 2023–2025 yasal finansal kayıtların satır bazında incelenmesine dayanır. Beş ana sonuç:
+
+- **TTK 376 testi üç yıl üst üste temizdir.** Özkaynak 213,1M TL (2025); eşik 3,24M TL. ACT'nin teknik iflasa bağlı “TRY 1'e çıkış + tasfiye tercihini kuruculardan şahsen talep” opsiyonu (ISHA 11.5) bugünkü bilançoda çalışmaz.
+
+- **Dönüşüm yalnızca genel kurul kararıyla mümkündür.** Esas sözleşmede şarta bağlı sermaye yoktur; sermaye artırımı esas sözleşme m.10.8(a) uyarınca %85 toplantı/karar nisabı + B Grubu çoğunluğunun olumlu oyunu gerektirir.
+
+- **Ancak düz ret de seçenek değildir.** C-Note m.5.1–5.2 ile tüm ortaklar dönüşüm hâlinde sermaye artırımını, tescili ve rüçhan feragatini peşinen taahhüt etmiştir; Amendment No.2 bu taahhütlerin ihlalini açıkça Bad Leaver saymıştır. Yol, ret değil; usul, tutar tespiti ve müzakeredir.
+
+- **Dönüşüm tutarının iki bileşeni ihtilaflıdır:** kur tarihi (sözleşme sessiz; temerrüt hükümleri karşı tarafın güncel-kur okumasını güçlendirir) ve faiz (şirket kayıtları 8 yıldır yalnızca anapara taşımaktadır ve bu kayıtlar ACT'ye düzenli raporlanmış, itiraz edilmemiştir). Faiz cephesi şirket lehine güçlüdür ve dosyanın merkezindedir.
+
+- **Kurucu alacakları defterlerde belgelidir:** yalnızca T.M. Kahveci'nin cari hesap + ücret tahakkuku ~30,2M TL olup ACT'nin not bakiyesinin (~20,2M TL) yaklaşık 1,5 katıdır. Dönüşüm tartışması açıldığında alacaklar arası eşit işlem (simetri) meşru ve güçlü bir müzakere zeminidir.
+
+Net stratejik okuma: ACT'nin dönüşüm arayışı bir güç hamlesinden çok seçenek daralmasının sonucudur (tahsilat fiilen imkânsız, 11.5 opsiyonu ölü). Dönüşüm gerçekleşse dahi ACT'nin rasyonel devamı işletmek değil, sürükleme (drag, 0,6× taban) ile satmaktır. Her senaryo, tarafları kapsamlı bir paket müzakeresine taşımaktadır; şirketin görevi bu masaya hazırlıklı, belgeli ve hatasız oturmaktır.
+
+# 2. Olgu Seti — Belgeyle Doğrulanmış Tespitler
+
+## 2.1 Sözleşme mimarisi
+
+- ISHA 15.01.2016 → Amendment No.1 21.03.2017 (pre-money EUR 8.125.040,63; Deemed Liquidation eşiği EUR 8.825.040,63) → Subscription Agreement 21.03.2017 (EUR 400K + 300K; her dilim GK onaylı sermaye artırımıyla) → **C-Note Protokolü 28.12.2017** → **Amendment Protocol No.2 28.12.2017** (drag tabanı 0,6× Base Price — 01.07.2018'den itibaren; Bad Leaver genişlemesi). Tüm uyuşmazlıklar: ICC tahkimi, İstanbul, Türkçe, 3 hakem.
+
+## 2.2 C-Note'un kritik hükümleri
+
+- **m.2.3 Faiz:** %8/yıl anapara faizi + %16/yıl temerrüt faizi; anapara üzerinden, “ödenene veya dönüştürülene kadar” işler (sözleşme metni).
+
+- **m.3.1 Dönüşüm:** Vade sonrası ACT, şirkete yazılı bildirimle, dilediği an (i) anapara + birikmiş ödenmemiş faizi TRY 1/pay nominal değerden (primsiz) yeni B Grubu paya çevirebilir veya (ii) tek seferde geri ödeme isteyebilir.
+
+- **m.3.2:** Bildirimden itibaren tarafların gerekli işlemleri 5 iş günü içinde yapması öngörülmüştür.
+
+- **m.4.1 Sıralama (subordinasyon):** Yalnızca imza tarihinde mevcut A/C grubu ortak borçlarını ve yalnızca vadeden sonraki üç aya kadar (28.03.2019) kapsıyordu; **bugün yürürlükte değildir.** 2019 ve sonrası kurucu nakit girişleri bu hükmün hiç kapsamına girmemiştir.
+
+- **m.4.2 Banka kredileri:** Ek-2'deki taksitler dışında ACT'nin yazılı onayı olmadan bankalara geri ödeme yapılmaması taahhüdü; ihlali Bad Leaver sayılır.
+
+- **m.4.3 Gider tavanı:** Tüm işletme giderleri (maaş, vergi, kredi taksidi, ofis dâhil) için aylık azami EUR 60.000; ihlali Bad Leaver sayılır. (m.4.4 gelir taahhüdü ise açıkça Bad Leaver dışıdır.)
+
+- **m.5.1–5.2 İşbirliği ve feragat:** Tüm ortaklar ve şirket, dönüşüm hâlinde sermaye artırım kararının alınması, tescili dâhil gerekli tüm işlemleri yapmayı ve yasal/sözleşmesel rüçhan haklarından feragati **peşinen taahhüt etmiştir.** Amendment No.2 m.1.3: “m.4.1, 4.2, 4.3 ve m.5 ihlali” ISHA 11.6.1'e Bad Leaver hâli olarak eklenmiştir.
+
+- **m.6.4:** Protokol kapsamındaki tüm hesaplama ve ödemeler EUR'dur. **Dönüşümde uygulanacak kur ve kur tarihi sözleşmede düzenlenmemiştir.**
+
+## 2.3 Esas sözleşme ve tescil durumu
+
+- TTSG 25.04.2017/9313 tam tadil metni incelendi: **şarta bağlı sermaye hükmü yoktur**; m.6 sabit sermaye (bugün 6.485.562 TL / 6.485.562 nama yazılı pay: A 3.021.000, B 1.556.535, C 1.908.027 — mizanla birebir uyumlu).
+
+- **m.10.8(a):** Sermayenin artırılması/azaltılması, %85 nisap + B Grubu çoğunluğunun lehte oyu şartına bağlıdır (saklı konu). B+C toplamı %53,4 olduğundan A Grubu katılmadan nisap matematiksel olarak kurulamaz.
+
+- 22.10.2025 tarihli GK (2022–2024 olağan toplantıları birleşik): gündemde sermaye maddesi yoktur; yeni YK seçimi yapılmıştır. Gündeme bağlılık ilkesi gereği gündemde olmayan sermaye konusu görüşülemez.
+
+- Esas sözleşme m.18 tasfiye imtiyazı eşiği EUR 8.125.040,63 olarak tescillidir; SHA'daki 8.825.040,63 ile fark vardır (ikincil; paket müzakeresinde netleştirilecek).
+
+## 2.4 Finansal tespitler (yasal kayıtlar)
+
+| **Kalem (TL)** | **2023** | **2024** | **2025** |
+| --- | --- | --- | --- |
+| Özkaynak | 195.520.048 | 238.475.482 | 213.112.984 |
+| TTK 376 eşiği (sermaye+kanuni yedek)/2 | 3.242.781 | 3.242.781 | 3.242.781 |
+| Dönem net sonucu | ~0 | -12.816.161 | -25.362.498 |
+| Ortaklara borçlar (431, UV) | 18.833.076 | 26.931.060 | 48.408.890 |
+| Banka kredileri (KV) | 591.705 | 2.748.609 | 4.121.271 |
+
+- **TTK 376:** Üç yılda da tetiklenmemiştir; borca batıklık yoktur (2025: aktif 293,6M > yabancı kaynak 80,5M). ISHA 11.5 opsiyonu bugünkü bilançoda çalışmaz.
+
+- **431 dağılımı (31.12.2025):** T.M. Kahveci 28.115.428; ACT Fund Coöperatief U.A. 20.180.145; M. Aksayan 113.318. Ayrıca 335.03 yönetim ücret tahakkukları: H.K. Kahveci 1.815.853; T.M. Kahveci 2.113.606; M. Aksayan 222.330. 436: Y.P. Tan 3.428.984; Li Nuo Xin 1.284.969; M. Aksayan 2.663.654.
+
+- **ACT bakiyesi yalnızca anaparadır:** 20.180.145 TL ≈ EUR 400.000'in kur karşılığı; %8/%16 faiz işletilseydi bakiye ~45M TL düzeyinde olurdu. Bu kayıt politikası yıllardır uygulanmakta ve ACT'ye raporlanmaktadır.
+
+- **2025 zararının anatomisi:** Faaliyet zararı yalnızca -2,9M TL; net zararı büyüten kalemler vergi/SGK gecikme cezaları (689: 15,5M), kambiyo zararı (5,7M) ve finansman gideridir (1,9M). Çekirdek operasyon başabaşa yakındır.
+
+## 2.5 Raporlama geçmişi (kanıt değeri yüksek)
+
+- 2025'in üç çeyrek raporu + 2025Q4–2026Q1 raporu ve aylık P&L/nakit akış tabloları ACT'ye iletilmiştir. İçerikte maaş ödeme gecikmeleri, banka kredi koşulları, ana müşteri bütçe kesintisi (%50) ve gider yapısı açıkça yer almaktadır. **Bu set, m.4.2/4.3 türü iddialara karşı “bilerek ve itirazsız izleme” (TMK m.2) savunmasının belgesel temelidir.** Eksik halka: gönderim e-postalarının (tarih/alıcı) arşivlenmesi.
+
+## 2.6 İmza sayfası tespiti
+
+- C-Note ve Amendment No.2'de Creative Master Co. (vekâleten T.M. Kahveci) ve Yalın Yatan (vekâleten M. Aksayan) “vekâletname imzadan sonra ibraz edilecektir” el notlarıyla imzalanmıştır. Vekâletnamelerin ibraz edilip edilmediği arşivden teyit edilecek; sonuç hukuk müşavirince değerlendirilecektir. Konu üçüncü kişilerle paylaşılmaz.
+
+# 3. Hukuki Değerlendirme Çerçevesi (avukat teyidine tabi)
+
+## 3.1 Dönüşüm matrisi — tutarın iki bilinmeyeni
+
+Yeni pay adedi = dönüştürülen EUR alacağın TL karşılığı (TRY 1 nominal/pay). Mevcut 6.485.562 pay; ACT 1.556.535 (%24).
+
+| **Senaryo** | **EUR alacak** | **Yeni pay (~)** | **ACT oranı (~)** |
+| --- | --- | --- | --- |
+| Faizsiz + 2017 kuru (~4,6) | 400.000 | 1,84M | %41 |
+| Faizli + 2017 kuru | ~909.000 | 4,2M | %54 |
+| Faizsiz + güncel kur (~50*) | 400.000 | 20,0M | %81 |
+| Faizli + güncel kur | ~909.000 | 45,5M | %91 |
+
+*(*) Kur değerleri yaklaşık olup işlem gününde teyit edilir. Faizli tutar, sözleşmedeki %8 + %16 basit faiz varsayımıyla hesaplanmıştır.*
+
+## 3.2 Kur tarihi sorusu
+
+Sözleşme dönüşüm kurunu düzenlememiştir. Yabancı para borçlarında temerrüt hâlinde alacaklının vade günü veya fiilî ödeme günü kurundan yükseğini seçebilmesi (TBK m.99/3) karşı tarafın güncel-kur okumasını güçlendirir. **Bu cephe kazanılacak bir dava olarak değil, usul ve müzakere sürtünmesi olarak yönetilir.** Hukuk müşavirinden, dönüşümün “ödeme” mi yoksa ayrı nitelikte bir yenileme/sermaye işlemi mi sayılacağına dair görüş istenmiştir (bkz. H1).
+
+## 3.3 Faiz sorusu — şirketin güçlü cephesi
+
+- Defterler 8 yıldır yalnızca anapara taşımakta; bu kayıtlar ACT'ye düzenli raporlanmış ve itiraz edilmemiştir.
+
+- Tarafların faiz işletilmemesi yönündeki yazışmaları (vergisel gerekçeli) mevcuttur; arşivlenmesi 1 numaralı aksiyondur.
+
+- Sonuç: ACT faiz dâhil tutar bildirirse, kendi itirazsız izlediği kayıt seti ve yazışmalarla çelişir (TMK m.2 — çelişkili davranış yasağı). Faiz düşerse ihtilaflı alacak 909K değil 400K EUR'dur; bu, hem dönüşüm oranını hem olası paket bedelini doğrudan küçültür.
+
+## 3.4 Usul basamakları — “5 iş günü” neden panik sebebi değildir
+
+- Alacağın sermayeye ilavesi, tutarın YMM/SMMM raporu (veya mahkemece atanan bilirkişi) ile tespitini gerektirir; tutar ihtilaflıysa tespit süreci meşru zemindir.
+
+- GK çağrı süresi asgari iki haftadır (TTK m.414). Çağrısız GK (TTK m.416) tüm pay sahiplerinin katılımını gerektirir; **katılım = nisap** — davet hâlinde hukuk görüşü olmadan katılım kararı verilmez.
+
+- Dolayısıyla m.3.2'deki 5 iş günü, kanunî süreçlerle fiilen bağdaşmaz; iyi niyetli ve belgeli bir usul yönetimi ihlal oluşturmaz. Buna karşılık **kasıtlı engelleme veya düz ret, m.5 ihlali = Bad Leaver iddiasına doğrudan zemin verir.**
+
+## 3.5 Bad Leaver risk haritası
+
+| **Tetik** | **Durum** | **Risk** | **Savunma / Yönetim** |
+| --- | --- | --- | --- |
+| m.4.1 sıralama | Hüküm 28.03.2019'da sona erdi; 2019+ girişler kapsam dışı | Düşük | 2018–19 döneminde ortak borcu ödenmediğinin teyidi (F6) |
+| m.4.2 banka kredileri | Ek-2 dışı yeni krediler/ödemeler mevcut (Akbank/İşbank/Eximbank) | Orta | Tam şeffaf raporlama + yıllarca itirazsızlık (TMK 2); konu bizden açılmaz |
+| m.4.3 EUR 60K/ay | Fiilî gider tabanı tavanın katbekat üzerinde | Orta | Aynı savunma + ölçek değişimi; raporlarda gider yapısı açık |
+| m.5 işbirliği | Düz ret / kasıtlı engelleme hâlinde | Yüksek | İHLAL ETMEYİN: usul + tutar tespiti + müzakere hattı izlenir |
+| ISHA 11.5 (TTK 376) | Üç yıl üst üste tetiklenmiyor | Yok | Bilanço seti dosyalandı; defter politikası korunur |
+| ISHA m.14 oy anlaşması | GK'da SHA'ya aykırı oy | Yüksek | Oy davranışı önceden hukuk müşaviriyle planlanır |
+
+## 3.6 Sönen veya bulunmayan riskler
+
+- ISHA 11.5 (TRY 1 + tercih şahsî talebi): bugünkü bilançoda çalışmaz.
+
+- m.4.1 subordinasyonu: yürürlükte değil; kurucu alacakları sözleşmesel olarak sıralanmış değildir.
+
+- m.4.4 gelir taahhüdü: ihlali açıkça Bad Leaver dışıdır.
+
+# 4. Stratejik Okuma — Karşı Tarafın Olası Oyun Planı
+
+Vadesi 7,5 yıl önce dolmuş bir alacağı bugün hatırlamanın rasyonel açıklaması sınırlıdır: (i) tahsilat fiilen imkânsızdır; (ii) 11.5 opsiyonu ölmüştür; (iii) fonun yaşı itibarıyla dağıtım (DPI) baskısı yüksektir. Kalan tek değer hamlesi dönüşümdür ve dönüşüm sonrası rasyonel devam işletmek değil, **sürükleme hakkıyla (drag, 0,6× Base Price tabanı) şirketin tamamını bir alıcıya satmaktır.** Böyle bir satışta tasfiye imtiyazı şelalesi (önce EUR 2,325M + %4/yıl) kurucu tarafın payını daha da inceltir.
+
+**Sonuç:** Dönüşüm talebi, kapsamlı bir çözüm müzakeresinin fiilî davetiyesi olarak okunmalıdır. Şirketin pozisyonu: işbirliğine açık, usule bağlı, tutarı belgeyle tespit ettiren ve tüm alacaklılar arasında eşit işlem isteyen taraf olmak. Alacaklar arası simetri (kurucu cari hesapları ~38–40M TL toplamıyla aynı masada) hem adil hem matematiksel olarak güçlü bir çerçevedir; karşılıklı onay gereklilikleri her senaryoyu müzakere masasına taşır.
+
+*Not: Bu bölümdeki değerlendirmeler iç çalışma niteliğindedir; üçüncü kişilerle ve özellikle müşteri ekosistemiyle paylaşılmaz. Yatırımcı tabanı ile müşteri ekosistemi arasındaki olası bağlantılar, çapraz bilgi hijyenini zorunlu kılar.*
+
+# 5. Dikkat Edilecekler — Davranış Protokolü
+
+## 5.1 Herkes için geçerli kurallar
+
+- **Sözlü tek cümle kuralı:** ACT veya temsilcileri dönüşümü sözlü açarsa verilecek tek yanıt: “Öngördüğünüz tutarı, faiz hesabını, esas aldığınız kuru ve mekanizmayı yazılı paylaşır mısınız; süreci ona göre planlayalım.” Sözlü teyit, taahhüt, tahmin, yorum verilmez.
+
+- **Proaktif yazılı temas yok:** Şirket, resmî bildirimi davet edecek hiçbir yazı göndermez. Mevcut bilgi yükümlülükleri (m.15) olağan akışta yerine getirilir.
+
+- **Bildirim gelirse:** Aynı gün hukuk müşavirine iletilir; önceden hazırlanmış cevap şablonu (H5) avukat onayıyla çıkar. 5 iş günü ibaresi panik sebebi değildir (bkz. 3.4); panik kaynaklı hiçbir imza/onay verilmez.
+
+- **Yazışma dili:** Tüm iç ve dış yazışmalar tahkimde okunabilecekmiş gibi yazılır. “İhlal, kusur, batık, suç” gibi nitelendirmeler kullanılmaz; olgular yazılır, sıfatlar yazılmaz.
+
+- **Delil koruma:** Hiçbir e-posta, rapor, dekont veya yazışma silinmez/değiştirilmez. Arşivler güvenli ve erişimi kayıtlı tutulur.
+
+- **Belge dolaşımı:** Bu belge ve strateji içerikleri observer akışına, YK karar metinlerine ve üçüncü kişilere girmez. Toplantılarda dağıtılan kopyalar toplantı sonunda toplanır.
+
+- **Sıfır blöf ilkesi:** Karşı tarafın ileri analitik araçlar kullandığı varsayılır. Belgeyle desteklenmeyen hiçbir iddia — içeride dahi — dile getirilmez; zayıf argümanlar güçlüymüş gibi sunulmaz.
+
+- **Toplantı disiplini:** ACT tarafıyla her temasta en az iki şirket temsilcisi bulunur; aynı gün tarih/katılımcı/özet içeren iç not yazılır.
+
+## 5.2 CFO ve finans ekibi için
+
+- **Defter politikası dokunulmazdır:** 431 hesabındaki ACT bakiyesine faiz işletilmez; mevcut (anapara + kur değerlemesi) uygulama aynen sürdürülür. Mali müşavire bu yönde açık talimat verilir; politika değişikliği önerisi gelirse uygulanmadan önce hukuk onayı alınır.
+
+- **Teslim hijyeni:** ACT'ye giden her finansal set “denetlenmemiş / taslak / değişebilir” kapak notuyla, yorumsuz ve e-posta üzerinden (iz bırakacak şekilde) gönderilir.
+
+- **Ortak/yönetici cari ödemeleri:** Sözleşmesel engel kalmamış olsa da, hukuk görüşü alınmadan ortaklara veya yönetime cari hesap/ücret ödemesi yapılmaz (algı ve iddia riski).
+
+- **Banka işlemleri:** Yeni kredi, yapılandırma veya erken kapama öncesi m.4.2 lensiyle hukuk görüşü alınır.
+
+- **Raporlama tutarlılığı:** ACT'ye giden rapor formatı ve kapsamı değiştirilmez; süreklilik, itirazsız-izleme savunmasının gücüdür.
+
+- **Teyit görevleri:** (a) 431 ACT bakiyesinin hesap dökümü (hangi kur, hangi tarih, faiz var mı yok mu) yazılı alınır; (b) 2018–2019 döneminde ortak borcu ödemesi yapılmadığı teyit edilir; (c) kurucu nakit girişlerinin tam dekont listesi (tarih/tutar/IBAN) çıkarılır; (d) H.K. Kahveci alacağındaki beyan-defter farkı mutabakata bağlanır.
+
+- **YMM hazırlığı:** Olası alacak-tespit raporu için YMM ile ön görüşme yapılır; hem ACT alacağı hem kurucu alacakları için aynı standardın uygulanacağı prensip olarak konuşulur.
+
+## 5.3 Hukuk müşavirinden istenen iş ve görüşler
+
+- **Kur görüşü:** Dönüşümde uygulanacak kur ve tarih — TBK m.99 analizi; dönüşümün “ödeme” sayılıp sayılmayacağı.
+
+- **Tespit usulü görüşü:** Alacağın sermayeye ilavesinde YMM/SMMM raporu veya bilirkişi gerekliliği, süre ve usul; ihtilaflı tutarın tespit sürecine etkisi.
+
+- **m.5 sınır görüşü:** Hangi davranışlar “işbirliği yükümlülüğünün ihlali” sayılır; usulî sorular, tutar itirazı ve kanunî sürelerin kullanımı ihlal midir — yazılı çerçeve.
+
+- **Vekâlet incelemesi:** Creative Master Co. ve Y. Yatan vekâletnamelerinin ibraz durumu ve protokollerin bu taraflara etkisi (gizli tutulur).
+
+- **Cevap şablonu:** Resmî bildirim geldiğinde aynı gün çıkacak yanıt metninin finalize edilmesi (alındı teyidi + tutar/faiz/kur dökümü talebi + tespit ve GK usul çerçevesi; ikrarsız, nazik, işbirlikçi ton).
+
+- **Paket altyapısı:** Olası kapsamlı çözüm için fesih + tam karşılıklı ibra + rekabet yasağı (ISHA m.17 — fesihten sonra da yaşar) açık feragati + Deemed Liquidation (13.3) yazılı muvafakati + pay/ledger temizliği başlıklarının taslak iskeleti.
+
+- **Tahkim dosya iskeleti:** Kanıt klasörleri (çeyrek raporlar, gönderim e-postaları, faiz yazışmaları, mizanlar, dekontlar) için saklama ve indeks düzeni.
+
+## 5.4 YK üyeleri için
+
+- **Gündem disiplini:** Hiçbir GK gündemine sermaye maddesi, YK kararı ve hukuk onayı olmadan yazılmaz; gündem metinleri stratejik değerlendirme içermez.
+
+- **Çağrısız GK uyarısı:** Çağrısız toplantı daveti gelirse katılım kararı tek başına verilmez; katılım nisap doğurur.
+
+- **Oy davranışı:** Sermaye konulu herhangi bir GK'da oy, önceden hukuk müşaviriyle yazılı olarak planlanır; doğaçlama ret veya kabul yoktur.
+
+- **Observer dengesi:** Olağan iş kararlarının observer akışı aksatılmaz (özen borcu); stratejik içerik ise YK karar metinlerinden ve observer setinden ayrı tutulur.
+
+- **Rekabet yasağı farkındalığı:** ISHA m.17 ortaklıktan çıkıştan sonra da 2 yıl yaşar ve fesihten etkilenmez; ekip veya yapı planlamaları hukuk süzgecinden geçmeden konuşulmaz.
+
+- **Tek ses kuralı:** ACT tarafına şirket adına yalnızca belirlenen sözcü(ler) konuşur; diğer üyeler soru gelirse 5.1-G1 cümlesine yönlendirir.
+
+# 6. Acil Aksiyon Listesi
+
+| **#** | **Aksiyon** | **Sorumlu** | **Termin** |
+| --- | --- | --- | --- |
+| 1 | Faiz yazışma zincirinin (işletme/vergi konulu) arşivlenmesi — dosyanın 1 numaralı kanıtı | T.M. Kahveci | 7 gün |
+| 2 | Çeyrek rapor/finansal gönderim e-postalarının örneklemle arşivlenmesi (2019–2026) | CFO | 7 gün |
+| 3 | 431-ACT bakiye dökümünün mali müşavirden yazılı teyidi (kur/tarih/faiz) | CFO | 7 gün |
+| 4 | Creative Master ve Y. Yatan vekâletnamelerinin arşiv kontrolü (gizli) | T.M.K. / Hukuk | 7 gün |
+| 5 | Kurucu nakit girişleri dekont seti (tarih/tutar/IBAN) | CFO | 14 gün |
+| 6 | 2018–2019 döneminde ortak borcu ödemesi yapılmadığının teyidi (m.4.1) | CFO | 14 gün |
+| 7 | H.K. Kahveci alacak mutabakatı (beyan–defter farkı) | CFO | 14 gün |
+| 8 | Çekmece cevap şablonunun finalize edilmesi | Hukuk | 14 gün |
+| 9 | Kur / tespit usulü / m.5 sınırı yazılı görüşleri | Hukuk | 21 gün |
+| 10 | YMM ön görüşmesi (alacak tespit raporu hazırlığı) | CFO | 21 gün |
+
+# 7. Eksik Belgeler ve Açık Sorular
+
+- İmzalı nihaî ISHA 15.01.2016 metni (elimizde 13.01.2016 redline mevcut; fark kontrolü ikincil önceliklidir).
+
+- Aralık 2017 ikinci kapanış sermaye artırımının (+166.535 pay) tescil gazetesi ve varsa 2018–2025 arası diğer tadiller (konsolide güncel esas sözleşme metni).
+
+- C-Note Ek-2 (izin verilen banka kredi taksit listesi) — okunaklı kopya.
+
+- ACT'nin dönüşüm niyetini ileten iletişimin yazılı kaydı (kim, ne zaman, hangi ifadeyle).
+
+- ACT fonunun vintage/kapanış takvimi ve LP yapısına dair açık-kaynak bilgisi (müzakere zamanlaması için).
+
+| **Kapanış notu — pozisyonun özeti tek paragrafta:** Şirket, sözleşmelerine saygılı, defterleri düzenli, yatırımcısına yıllardır tam şeffaf raporlama yapmış ve kuruculardan önemli ölçüde finansman almış bir taraftır. Karşı tarafın dönüşüm arayışı meşru bir sözleşmesel haktır; şirketin yanıtı engelleme değil, tutarın belgeyle tespiti, kanunî usulün eksiksiz işletilmesi ve tüm alacaklılar arasında eşit işlemdir. Bu çerçevede yürütülen her adım hem hukuken savunulabilir hem de kapsamlı bir çözüm müzakeresi için en güçlü zemindir. |
+| --- |
+
+*— Belge sonu · GİZLİ — HİZMETE ÖZEL · Hukuki mütalaa değildir —*
+
+Sayfa  /

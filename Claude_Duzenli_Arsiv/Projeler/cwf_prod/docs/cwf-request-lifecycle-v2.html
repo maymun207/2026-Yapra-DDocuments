@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CWF — Request Lifecycle + Functional Overlay · v2</title>
+<style>
+  :root{
+    --bg:#0a0e14; --panel:#111a26; --panel2:#0f1722;
+    --line:#1f2d3d; --line2:#2a3b4f;
+    --ink:#dbe6f0; --ink-dim:#8aa0b6; --ink-faint:#5c7186;
+    --cyan:#34d6e6;
+    /* trust edges */
+    --jwt:#34d6e6; --rls:#3ad29f; --priv:#f5b942; --mcp:#8a7dff; --llm:#d07bff; --meta:#7fe1a8;
+    /* functional categories */
+    --fn-ui:#7fb2ff; --fn-authz:#ff6b7a; --fn-qh:#34d6e6; --fn-time:#9aa8bd;
+    --fn-tool:#8a7dff; --fn-router:#f5a742; --fn-know:#3ad29f; --fn-llm:#d07bff;
+    --fn-ground:#2dd4bf; --fn-persist:#d6b24a; --fn-render:#7fb2ff;
+    /* db */
+    --read:#5fa8ff; --write:#e0a93b;
+    --danger:#ff6b7a;
+    --mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+    --sans:ui-sans-serif,system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:
+      radial-gradient(1100px 560px at 80% -8%, #10202c 0%, transparent 60%),
+      radial-gradient(820px 460px at -8% 16%, #121a14 0%, transparent 55%),
+      var(--bg); color:var(--ink); font-family:var(--sans);
+      -webkit-font-smoothing:antialiased; padding:26px 18px 60px}
+  .wrap{max-width:1120px;margin:0 auto}
+
+  header.top{border:1px solid var(--line);border-radius:14px;padding:20px 22px;
+    background:linear-gradient(180deg,var(--panel),var(--panel2));position:relative;overflow:hidden}
+  header.top::after{content:"";position:absolute;inset:0;
+    background:repeating-linear-gradient(90deg,transparent 0 38px, rgba(52,214,230,.025) 38px 39px);pointer-events:none}
+  .kick{font-family:var(--mono);font-size:11px;letter-spacing:.32em;text-transform:uppercase;color:var(--cyan);margin:0 0 8px}
+  h1{font-size:25px;margin:0;letter-spacing:-.01em;font-weight:680}
+  h1 .sub{color:var(--ink-dim);font-weight:400}
+  .tagline{color:var(--ink-dim);margin:11px 0 0;max-width:90ch;font-size:13.5px;line-height:1.6}
+  .stamp{position:absolute;top:18px;right:20px;font-family:var(--mono);font-size:10.5px;color:var(--ink-faint);text-align:right;line-height:1.75}
+  .stamp b{color:var(--rls)}
+  .ex{margin-top:14px;display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;
+    color:var(--ink);background:#0c1620;border:1px solid var(--line2);border-radius:9px;padding:7px 12px}
+  .ex .lbl{color:var(--cyan);font-size:10px;letter-spacing:.16em;text-transform:uppercase}
+
+  h2.sec{font-size:13px;font-family:var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--cyan);
+    margin:30px 4px 12px;display:flex;align-items:center;gap:10px}
+  h2.sec::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line2),transparent)}
+
+  /* legends */
+  .legends{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+  @media(max-width:760px){.legends{grid-template-columns:1fr}}
+  .legend{border:1px solid var(--line);border-radius:11px;padding:11px 13px;background:#0c141d}
+  .legend .lh{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:8px}
+  .legend .items{display:flex;flex-wrap:wrap;gap:6px 13px;font-family:var(--mono);font-size:11px;color:var(--ink-dim)}
+  .legend .items span{display:inline-flex;align-items:center;gap:6px}
+  .dot{width:10px;height:10px;border-radius:3px;display:inline-block}
+  .swatch{width:11px;height:11px;border-radius:3px;display:inline-block;border:1px solid rgba(255,255,255,.15)}
+
+  /* agent anatomy grid */
+  .anatomy{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}
+  @media(max-width:880px){.anatomy{grid-template-columns:1fr 1fr}}
+  @media(max-width:560px){.anatomy{grid-template-columns:1fr}}
+  .acard{border:1px solid var(--line2);border-radius:11px;padding:12px 13px;background:linear-gradient(180deg,var(--panel),var(--panel2));
+    border-top:3px solid var(--line2)}
+  .acard h4{margin:0 0 4px;font-size:13px;color:var(--ink)}
+  .acard .k{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint)}
+  .acard p{margin:6px 0 0;font-size:11.6px;color:var(--ink-dim);line-height:1.5}
+  .acard code{font-family:var(--mono);font-size:10.5px;background:#0b141d;border:1px solid var(--line);border-radius:5px;padding:1px 5px;color:#cfe0ef}
+
+  /* agents map */
+  .agents{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:11px}
+  @media(max-width:880px){.agents{grid-template-columns:1fr}}
+  .agent{border:1px solid var(--line2);border-radius:11px;padding:13px 15px;background:#0c141d}
+  .agent.primary{border-left:3px solid var(--fn-llm)}
+  .agent.aux{border-left:3px solid var(--fn-router)}
+  .agent.notagent{border-left:3px solid var(--fn-ground)}
+  .agent h4{margin:0 0 3px;font-size:13.5px}
+  .agent .tagm{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint)}
+  .agent p{margin:7px 0 0;font-size:11.8px;color:var(--ink-dim);line-height:1.5}
+  .agent code{font-family:var(--mono);font-size:10.5px;color:#cfe0ef}
+
+  /* zone band */
+  .zone{margin-top:14px;border:1px solid var(--line);border-radius:14px;overflow:hidden;
+    background:linear-gradient(180deg,var(--panel),var(--panel2))}
+  .zone-h{display:flex;align-items:center;gap:12px;padding:13px 18px;border-bottom:1px solid var(--line);background:#0c141d}
+  .zone-h .zn{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;font-weight:700}
+  .zone-h .zd{font-size:12px;color:var(--ink-dim)}
+  .zone-h .zt{margin-left:auto;font-family:var(--mono);font-size:10.5px;color:var(--ink-faint)}
+  .zbar{width:4px;align-self:stretch;border-radius:3px}
+  .zone-body{padding:8px 16px 16px}
+
+  /* step card with functional accent */
+  .step{position:relative;display:grid;grid-template-columns:42px 1fr;gap:13px;padding:12px 0 12px 10px;border-left:3px solid var(--line2);margin-left:2px}
+  .step + .step{border-top:1px dashed var(--line)}
+  .num{font-family:var(--mono);font-weight:700;font-size:14px;color:var(--bg);
+    width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-top:1px}
+  .mod{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+  .mod b{font-size:14px;font-weight:680;color:var(--ink)}
+  .mod .path{font-family:var(--mono);font-size:10.5px;color:var(--ink-faint)}
+  .fnbadge{font-family:var(--mono);font-size:9px;letter-spacing:.07em;text-transform:uppercase;font-weight:700;
+    padding:2px 8px;border-radius:6px;color:var(--bg)}
+  .rows{margin-top:7px;display:grid;grid-template-columns:auto 1fr;gap:3px 11px;font-size:12.4px;line-height:1.48}
+  .rk{font-family:var(--mono);font-size:9px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-faint);padding-top:2px;white-space:nowrap}
+  .rv{color:var(--ink-dim)}
+  .rv b{color:var(--ink);font-weight:600}
+  .rv code{font-family:var(--mono);font-size:11px;background:#0b141d;border:1px solid var(--line);border-radius:5px;padding:1px 5px;color:#cfe0ef}
+  .nx{color:var(--ink);font-weight:600}.arrow{color:var(--ink-faint)}
+
+  /* chips */
+  .chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px;align-items:center}
+  .edge{font-family:var(--mono);font-size:8.5px;letter-spacing:.05em;text-transform:uppercase;padding:2px 6px;border-radius:5px;font-weight:700}
+  .e-jwt{background:rgba(52,214,230,.12);color:var(--jwt);border:1px solid rgba(52,214,230,.4)}
+  .e-rls{background:rgba(58,210,159,.12);color:var(--rls);border:1px solid rgba(58,210,159,.4)}
+  .e-priv{background:rgba(245,185,66,.12);color:var(--priv);border:1px solid rgba(245,185,66,.4)}
+  .e-mcp{background:rgba(138,125,255,.14);color:#a99dff;border:1px solid rgba(138,125,255,.45)}
+  .e-llm{background:rgba(208,123,255,.14);color:#df9bff;border:1px solid rgba(208,123,255,.45)}
+  .e-meta{background:rgba(127,225,168,.12);color:var(--meta);border:1px solid rgba(127,225,168,.4)}
+  .db{font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:5px;display:inline-flex;gap:5px;align-items:center}
+  .db .rw{font-weight:700}
+  .db.r{background:rgba(95,168,255,.1);border:1px solid rgba(95,168,255,.4);color:#a9cdff}.db.r .rw{color:var(--read)}
+  .db.w{background:rgba(224,169,59,.1);border:1px solid rgba(224,169,59,.4);color:#f0d49a}.db.w .rw{color:var(--write)}
+  .llmcall{font-family:var(--mono);font-size:9px;font-weight:700;padding:2px 7px;border-radius:5px;
+    background:rgba(208,123,255,.16);color:#e7b6ff;border:1px solid rgba(208,123,255,.5)}
+
+  /* callout */
+  .note{margin:9px 0 4px;border:1px solid var(--line2);border-left:3px solid var(--priv);border-radius:10px;padding:9px 13px;background:linear-gradient(180deg,#19150b,#12100a)}
+  .note.trap{border-left-color:var(--danger);background:linear-gradient(180deg,#1c1012,#140d0e)}
+  .note.fact{border-left-color:var(--cyan);background:linear-gradient(180deg,#0c1a20,#0b1318)}
+  .note h4{margin:0 0 4px;font-size:11px;font-family:var(--mono);letter-spacing:.04em;text-transform:uppercase}
+  .note h4{color:#ffe6ad}.note.trap h4{color:#ffb3bc}.note.fact h4{color:#9fe9f3}
+  .note p{margin:0;font-size:12px;color:var(--ink-dim);line-height:1.55}
+  .note code{font-family:var(--mono);font-size:10.5px;color:#cfe0ef}
+
+  /* matrix */
+  table.mx{width:100%;border-collapse:collapse;font-size:12px;margin-top:4px}
+  table.mx th,table.mx td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
+  table.mx th{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);background:#0c141d}
+  table.mx td code{font-family:var(--mono);font-size:11px;color:#cfe0ef}
+  table.mx tr:hover td{background:rgba(52,214,230,.03)}
+  .mono{font-family:var(--mono);font-size:11px}
+  .rr{color:var(--read);font-weight:700}.ww{color:var(--write);font-weight:700}
+  .adm{color:var(--fn-router);font-weight:700}
+
+  .seam{margin:16px 2px 0;font-size:11.5px;color:var(--ink-dim);font-family:var(--mono);text-align:center}
+  footer{margin-top:26px;font-family:var(--mono);font-size:10.5px;color:var(--ink-faint);text-align:center;line-height:1.8}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <p class="kick">CWF · EAIP — request lifecycle + functional overlay</p>
+    <h1>First query → screen <span class="sub">· module-by-module · agent anatomy · DB read/write · governance</span></h1>
+    <div class="stamp">rev 2 · 2026-06-28<br>HEAD <b>a8bd531</b><br>supersedes v1</div>
+    <p class="tagline">v1's 30-step spine, now overlaid with: (1) which of the 12 DB tables each step reads/writes, (2) a functional-category frame per step (authz · query-handler · tool/MCP · router · agent-loop · knowledge · grounding · persistence · render), (3) the admin governance lane and the tables it mutates, and (4) the classic agent anatomy (LLM interface · tool interface · persona · system prompts · memory) mapped onto our modules — plus how many agents actually exist.</p>
+    <div class="ex"><span class="lbl">worked example</span> "KB7 OEE this week"</div>
+  </header>
+
+  <div class="legends">
+    <div class="legend"><div class="lh">functional category (left frame + badge)</div>
+      <div class="items">
+        <span><i class="swatch" style="background:var(--fn-ui)"></i>UI / transport</span>
+        <span><i class="swatch" style="background:var(--fn-authz)"></i>authorization</span>
+        <span><i class="swatch" style="background:var(--fn-qh)"></i>query-handler</span>
+        <span><i class="swatch" style="background:var(--fn-router)"></i>router</span>
+        <span><i class="swatch" style="background:var(--fn-tool)"></i>tool / MCP</span>
+        <span><i class="swatch" style="background:var(--fn-llm)"></i>LLM / agent-loop</span>
+        <span><i class="swatch" style="background:var(--fn-know)"></i>knowledge / prompt</span>
+        <span><i class="swatch" style="background:var(--fn-ground)"></i>grounding / trust</span>
+        <span><i class="swatch" style="background:var(--fn-persist)"></i>persistence</span>
+        <span><i class="swatch" style="background:var(--fn-time)"></i>time</span>
+      </div>
+    </div>
+    <div class="legend"><div class="lh">edges (trust boundary) · DB · LLM</div>
+      <div class="items">
+        <span><i class="dot" style="background:var(--jwt)"></i>JWT</span>
+        <span><i class="dot" style="background:var(--rls)"></i>RLS owner</span>
+        <span><i class="dot" style="background:var(--priv)"></i>service-role</span>
+        <span><i class="dot" style="background:var(--mcp)"></i>MCP</span>
+        <span><i class="dot" style="background:var(--llm)"></i>LLM provider</span>
+        <span><span class="db r"><span class="rw">R</span>table</span> read</span>
+        <span><span class="db w"><span class="rw">W</span>table</span> write</span>
+        <span><span class="llmcall">⚡ LLM</span> provider call</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ AGENT ANATOMY OVERLAY ════════════ -->
+  <h2 class="sec">Agent anatomy · where the canonical parts live</h2>
+  <div class="anatomy">
+    <div class="acard" style="border-top-color:var(--fn-llm)">
+      <div class="k">LLM interface</div><h4>The model call seam</h4>
+      <p><code>_lib/llm/gateway.ts</code> — one <code>streamChat → streamText</code> call site (all providers, no per-provider path) + <code>llm/config.ts</code> (models, cost). <b>Second, off-gateway LLM:</b> the tool router (<code>gemini-2.5-flash-lite</code> via <code>@google/genai</code>) — a consolidation candidate.</p>
+    </div>
+    <div class="acard" style="border-top-color:var(--fn-tool)">
+      <div class="k">tool interface</div><h4>MCP adapter + meta-tools</h4>
+      <p><code>executeMCPTool</code> · <code>connectMcp</code> · <code>discoverMcpTools</code> (chat.ts) + <code>scopeTools.ts</code> + meta-tools <code>resolve_time_range</code>, <code>aggregate_records</code>, <code>query_records</code>, <code>resultStore.ts</code>. ARMES = flat tools; Superset = search/call gateway.</p>
+    </div>
+    <div class="acard" style="border-top-color:var(--fn-router)">
+      <div class="k">router / planner</div><h4>Two layers</h4>
+      <p>Pre-selection: <code>filterToolsByMessage</code> (keyword cache → router LLM on miss). True planning: the <b>streamText multi-step loop itself</b> — the model plans by choosing a tool each step, observing, repeating.</p>
+    </div>
+    <div class="acard" style="border-top-color:var(--fn-know)">
+      <div class="k">persona</div><h4>Per-backend voice</h4>
+      <p>Domain-pack <code>personaText</code> (armes / superset) + core <code>identity</code>, composed by the assembler. Not a free-text blob — it's a governed module.</p>
+    </div>
+    <div class="acard" style="border-top-color:var(--fn-know)">
+      <div class="k">system prompt</div><h4>Composed, not hard-coded</h4>
+      <p><code>prompt/assemble.ts</code> = core modules (identity · safety · time · toolProtocol · grounding · outputFormat) + domain packs, assembled per active backend. → future Prompt Store (Langfuse).</p>
+    </div>
+    <div class="acard" style="border-top-color:var(--fn-persist)">
+      <div class="k">memory · 3 kinds</div><h4>Distinct, not one bag</h4>
+      <p><b>Conversational:</b> last-N <code>conversationHistory</code> + <code>conversations/messages</code> tables. <b>Knowledge (governed, not learned):</b> <code>DbKnowledgeProvider</code> over <code>rule_kinds/domain_rules</code>. <b>Procedural (the only self-learning):</b> <code>tool_category_cache</code> — router mappings, advisory.</p>
+    </div>
+    <div class="acard" style="border-top-color:var(--fn-ground)">
+      <div class="k">guardrails</div><h4>Deterministic, never the LLM</h4>
+      <p><code>groundingCheck.ts</code> (empty≠zero · scope-divergence) + <code>trustRegistry.ts</code> (authority ceiling) + envelope provenance. Code, not a model judge/score.</p>
+    </div>
+    <div class="acard" style="border-top-color:var(--fn-time)">
+      <div class="k">clock</div><h4>Tools-of-record</h4>
+      <p><code>networkTime.ts</code> (NTP "now") + <code>resolve_time_range</code> (TZ-aware). The model is forbidden to compute epochs itself.</p>
+    </div>
+    <div class="acard" style="border-top-color:var(--fn-authz)">
+      <div class="k">identity / authz</div><h4>Server-trusted only</h4>
+      <p><code>auth.ts</code> (JWT verify) + <code>RolesRepository</code> (role + per-backend scopes) + <code>resolveActiveBackends</code>. No client-claimed role is trusted.</p>
+    </div>
+  </div>
+
+  <!-- ════════════ HOW MANY AGENTS ════════════ -->
+  <h2 class="sec">How many agents — the honest map</h2>
+  <div class="agents">
+    <div class="agent primary">
+      <div class="tagm">primary · the only true agent</div>
+      <h4>Chat agentic loop</h4>
+      <p>Gateway <code>streamText</code> with <code>stepCountIs</code>. Perceives (tool results) → plans (next tool) → acts → observes → repeats. One query = <b>multiple</b> provider round-trips (1 + 1 per tool result). Owns persona, system prompt, all MCP tools.</p>
+    </div>
+    <div class="agent aux">
+      <div class="tagm">auxiliary · single-shot LLM</div>
+      <h4>Tool router</h4>
+      <p><code>routerSelectCategories</code> — <code>gemini-2.5-flash-lite</code>, <b>off-gateway</b>, fires only on a <code>tool_category_cache</code> miss (non-Anthropic). A classifier, not a loop. Result is learned so next time it's skipped. Not a full agent.</p>
+    </div>
+    <div class="agent notagent">
+      <div class="tagm">NOT agents · deterministic services</div>
+      <h4>Grounding · trust · time · gate</h4>
+      <p>By design these are <b>code, never an LLM</b>: groundingCheck, trustRegistry, networkTime/resolve_time_range, the publish eval-gate, provenance. The correctness floor must not depend on a model.</p>
+    </div>
+  </div>
+  <div class="note fact"><h4>◆ today: 1 agent + 1 auxiliary router LLM</h4>
+    <p>The EAIP roadmap (LangGraph Shape-B) would later orchestrate multiple agents — but as of HEAD a8bd531 there is exactly one agentic loop plus one off-gateway classifier LLM. Everything else that "decides" is deterministic code.</p></div>
+
+  <!-- ════════════ THE 30-STEP SPINE ════════════ -->
+  <h2 class="sec">The lifecycle · 30 steps · annotated</h2>
+
+  <!-- ZONE 1 -->
+  <section class="zone">
+    <div class="zone-h"><span class="zbar" style="background:var(--jwt)"></span>
+      <span class="zn" style="color:var(--jwt)">Zone 1 · Browser</span>
+      <span class="zd">React SPA — keystroke leaves token-free</span><span class="zt">src/…</span></div>
+    <div class="zone-body">
+
+      <div class="step" style="border-left-color:var(--fn-ui)"><div class="num" style="background:var(--fn-ui)">1</div>
+        <div><div class="mod"><b>ChatShell</b> <span class="path">ui/ChatShell.tsx</span> <span class="fnbadge" style="background:var(--fn-ui)">UI</span></div>
+          <div class="rows"><div class="rk">did</div><div class="rv">Enter (no Shift) → <code>handleSend()</code> trims, guards <code>isLoading</code>.</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> <span class="nx">cwfStore.sendMessage</span></div></div></div></div>
+
+      <div class="step" style="border-left-color:var(--fn-ui)"><div class="num" style="background:var(--fn-ui)">2</div>
+        <div><div class="mod"><b>cwfStore.sendMessage</b> <span class="path">store/cwfStore.ts</span> <span class="fnbadge" style="background:var(--fn-ui)">state</span></div>
+          <div class="rows"><div class="rk">did</div><div class="rv">Ensures <b>activeConversationId</b> (lazy <code>randomUUID</code>); optimistic user msg + streaming placeholder; history = last 10 non-system.</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> <span class="nx">cwfApiCall(req, onChunk)</span></div></div></div></div>
+
+      <div class="step" style="border-left-color:var(--fn-ui)"><div class="num" style="background:var(--fn-ui)">3</div>
+        <div><div class="mod"><b>cwfApiCall</b> <span class="path">lib/cwfService.ts</span> <span class="fnbadge" style="background:var(--fn-ui)">transport</span></div>
+          <div class="rows"><div class="rk">did</div><div class="rv">Reads Supabase JWT; <code>POST /api/cwf/chat</code> body <code>{message, history, language, forceProvider, conversationId}</code>. <b>No MCP token leaves the browser.</b> Consumes SSE.</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> <span class="nx">chat.ts handler</span></div></div>
+          <div class="chips"><span class="edge e-jwt">POST · JWT</span></div></div></div>
+    </div>
+  </section>
+
+  <p class="seam">⇣ HTTPS POST · user JWT only ⇣</p>
+
+  <!-- ZONE 2 -->
+  <section class="zone">
+    <div class="zone-h"><span class="zbar" style="background:var(--cyan)"></span>
+      <span class="zn" style="color:var(--cyan)">Zone 2 · Vercel serverless</span>
+      <span class="zd">api/cwf/chat.ts — one streaming fn · single Node event-loop</span><span class="zt">api/cwf/…</span></div>
+    <div class="zone-body">
+
+      <div class="step" style="border-left-color:var(--fn-authz)"><div class="num" style="background:var(--fn-authz)">4</div>
+        <div><div class="mod"><b>getAuthContext</b> <span class="path">_lib/auth.ts · RolesRepository</span> <span class="fnbadge" style="background:var(--fn-authz)">authz</span></div>
+          <div class="rows"><div class="rk">did</div><div class="rv">Verify Bearer JWT vs Supabase Auth → <b>userId + role + per-backend scopes</b>. Missing → <code>401</code>. No client role trusted.</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> identity + pre-mint</div></div>
+          <div class="chips"><span class="edge e-rls">verify JWT</span><span class="db r"><span class="rw">R</span>user_roles</span><span class="db r"><span class="rw">R</span>user_backend_scopes</span></div></div></div>
+
+      <div class="step" style="border-left-color:var(--fn-qh)"><div class="num" style="background:var(--fn-qh)">5</div>
+        <div><div class="mod"><b>identity &amp; pre-mint</b> <span class="path">chat.ts</span> <span class="fnbadge" style="background:var(--fn-qh)">query-handler</span></div>
+          <div class="rows"><div class="rk">did</div><div class="rv">Validate <code>message</code> (400 if empty); resolve <b>conversationId</b>; pre-mint <b>assistantMessageId</b> for client reconcile.</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> networkTime</div></div></div></div>
+
+      <div class="step" style="border-left-color:var(--fn-time)"><div class="num" style="background:var(--fn-time)">6</div>
+        <div><div class="mod"><b>getNetworkTime</b> <span class="path">_lib/networkTime.ts</span> <span class="fnbadge" style="background:var(--fn-time)">time</span></div>
+          <div class="rows"><div class="rk">did</div><div class="rv">Authoritative NTP "now" → <code>epochMs</code> (basis for "this week"). Model may not invent now.</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> MCP resolution</div></div>
+          <div class="chips"><span class="edge e-meta">NTP</span></div></div></div>
+
+      <div class="step" style="border-left-color:var(--fn-persist)"><div class="num" style="background:var(--fn-persist)">7</div>
+        <div><div class="mod"><b>loadUserMcpServers</b> <span class="path">McpSettingsRepository</span> <span class="fnbadge" style="background:var(--fn-persist)">config</span></div>
+          <div class="rows"><div class="rk">did</div><div class="rv"><code>getByUserId</code> reads owner-only MCP config (incl. ARMES URL+token), keeps enabled. <b>Token never reaches the browser.</b></div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> discovery</div></div>
+          <div class="chips"><span class="edge e-priv">service-role</span><span class="db r"><span class="rw">R</span>mcp_settings</span></div></div></div>
+
+      <div class="step" style="border-left-color:var(--fn-tool)"><div class="num" style="background:var(--fn-tool)">8</div>
+        <div><div class="mod"><b>discoverMcpTools</b> <span class="path">chat.ts · connectMcp/listTools</span> <span class="fnbadge" style="background:var(--fn-tool)">tool · discovery</span></div>
+          <div class="rows"><div class="rk">did</div><div class="rv">Per server: connect (transport order) + <code>listTools()</code>; <b>warm-cached in-memory per signature</b> (TTL). Unified tool list.</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> active backends</div></div>
+          <div class="chips"><span class="edge e-mcp">connect · listTools</span></div></div></div>
+
+      <div class="step" style="border-left-color:var(--fn-authz)"><div class="num" style="background:var(--fn-authz)">9</div>
+        <div><div class="mod"><b>resolveActiveBackends</b> <span class="path">backends/resolveActiveBackends.ts</span> <span class="fnbadge" style="background:var(--fn-authz)">policy</span></div>
+          <div class="rows"><div class="rk">did</div><div class="rv">Enabled servers → <code>backend_id</code>, ∩ RBAC scopes (super_admin bypass). Empty → byte-identical core.</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> scaffold</div></div></div></div>
+
+      <div class="step" style="border-left-color:var(--fn-qh)"><div class="num" style="background:var(--fn-qh)">10</div>
+        <div><div class="mod"><b>turn scaffold</b> <span class="path">ResultStore · TelemetryRepository</span> <span class="fnbadge" style="background:var(--fn-qh)">query-handler</span></div>
+          <div class="rows"><div class="rk">did</div><div class="rv">Per-request ResultStore, grounding ledger, fire-and-forget telemetry/persistence queues. Emits <code>message</code> event (no PII).</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> ownership guard</div></div>
+          <div class="chips"><span class="db w"><span class="rw">W</span>telemetry_events</span></div></div></div>
+
+      <div class="step" style="border-left-color:var(--fn-persist)"><div class="num" style="background:var(--fn-persist)">11</div>
+        <div><div class="mod"><b>ConversationRepository</b> · open <span class="path">persistence/…</span> <span class="fnbadge" style="background:var(--fn-persist)">persist</span></div>
+          <div class="rows"><div class="rk">did</div><div class="rv"><code>assertOwned</code> (code defense vs RLS). New → <code>upsert</code> (deterministic title, never LLM); enqueue <b>user message</b>. Foreign id → stream, persist nothing.</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> prompt &amp; tools</div></div>
+          <div class="chips"><span class="edge e-priv">service-role</span><span class="db r"><span class="rw">R</span>conversations</span><span class="db w"><span class="rw">W</span>conversations</span><span class="db w"><span class="rw">W</span>messages</span></div></div></div>
+
+      <div class="step" style="border-left-color:var(--fn-time)"><div class="num" style="background:var(--fn-time)">12</div>
+        <div><div class="mod"><b>buildTimeContext</b> <span class="path">prompt/core/time.ts</span> <span class="fnbadge" style="background:var(--fn-time)">time</span></div>
+          <div class="rows"><div class="rk">did</div><div class="rv">Time block from networkTime+epochMs. <b>Rides on the user message, not the cached system prefix</b> (preserves Anthropic prefix cache).</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> tool registration</div></div></div></div>
+
+      <div class="step" style="border-left-color:var(--fn-router)"><div class="num" style="background:var(--fn-router)">13</div>
+        <div><div class="mod"><b>scopeTools + filterToolsByMessage</b> <span class="path">backends/scopeTools.ts · toolCategories.ts</span> <span class="fnbadge" style="background:var(--fn-router)">router</span></div>
+          <div class="rows"><div class="rk">did</div><div class="rv">Drop tools whose backend ∉ active. <b>Anthropic</b> → full sorted set (cache-stable). <b>Others</b> → relevance filter; keyword cache miss → <b>router LLM</b>.</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> wrap tools</div></div>
+          <div class="chips"><span class="db r"><span class="rw">R</span>tool_category_cache</span><span class="llmcall">⚡ router LLM · conditional · off-gateway</span></div></div></div>
+
+      <div class="step" style="border-left-color:var(--fn-tool)"><div class="num" style="background:var(--fn-tool)">14</div>
+        <div><div class="mod"><b>tool wrapping</b> <span class="path">chat.ts · ai.tool()</span> <span class="fnbadge" style="background:var(--fn-tool)">tool-iface</span></div>
+          <div class="rows"><div class="rk">did</div><div class="rv">Register each MCP tool's <code>execute</code> closure + deterministic meta-tools (<code>resolve_time_range</code>, <code>aggregate_records</code>, <code>query_records</code>). Bodies run only when the model calls them.</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> knowledge warm</div></div></div></div>
+
+      <div class="step" style="border-left-color:var(--fn-know)"><div class="num" style="background:var(--fn-know)">15</div>
+        <div><div class="mod"><b>dbKnowledgeProvider.warm</b> <span class="path">knowledge/DbKnowledgeProvider.ts</span> <span class="fnbadge" style="background:var(--fn-know)">knowledge</span></div>
+          <div class="rows"><div class="rk">did</div><div class="rv">Async-read <b>published</b> rules for active backends into cache <b>before</b> the sync assembler. DB-down/empty → <b>transparent code-floor</b> (empty≠zero survives outage).</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> buildSystemPrompt</div></div>
+          <div class="chips"><span class="edge e-priv">DB read</span><span class="db r"><span class="rw">R</span>rule_kinds</span><span class="db r"><span class="rw">R</span>domain_rules</span></div></div></div>
+
+      <div class="step" style="border-left-color:var(--fn-know)"><div class="num" style="background:var(--fn-know)">16</div>
+        <div><div class="mod"><b>buildSystemPrompt</b> <span class="path">prompt/assemble.ts</span> <span class="fnbadge" style="background:var(--fn-know)">prompt · persona</span></div>
+          <div class="rows"><div class="rk">did</div><div class="rv">Core modules (identity·safety·time·toolProtocol·grounding·outputFormat) + per-backend domain packs (persona + knowledge: canonical OEE tool, IKINCILUST blind-spot) → one system string.</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> trust warm</div></div></div></div>
+
+      <div class="step" style="border-left-color:var(--fn-ground)"><div class="num" style="background:var(--fn-ground)">17</div>
+        <div><div class="mod"><b>trustRegistry.warm</b> <span class="path">backends/trustRegistry.ts</span> <span class="fnbadge" style="background:var(--fn-ground)">trust</span></div>
+          <div class="rows"><div class="rk">did</div><div class="rv">Load tier/scope + authority metrics → <code>backendAuthority</code> (ARMES = system-of-record; Superset = reporting-mirror, []). <b>Feeds step 23 only — not the prompt/stream.</b></div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> open SSE + stream</div></div>
+          <div class="chips"><span class="edge e-priv">DB read</span><span class="db r"><span class="rw">R</span>backends</span><span class="db r"><span class="rw">R</span>backend_authority</span></div></div></div>
+
+      <div class="step" style="border-left-color:var(--fn-llm)"><div class="num" style="background:var(--fn-llm)">18</div>
+        <div><div class="mod"><b>streamChat → streamText</b> <span class="path">_lib/llm/gateway.ts</span> <span class="fnbadge" style="background:var(--fn-llm)">LLM-iface · agent-loop</span></div>
+          <div class="rows"><div class="rk">did</div><div class="rv">The single LLM call site. <code>streamText</code> + <code>stepCountIs</code> = <b>multi-step tool loop</b>. <code>onFinish</code> emits <code>llm_call</code> telemetry (tokens/latency/cost — no content).</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> model emits tool calls / text</div></div>
+          <div class="chips"><span class="edge e-llm">provider call</span><span class="llmcall">⚡ LLM · main loop · ×(1 + tools)</span><span class="db w"><span class="rw">W</span>telemetry_events</span></div></div></div>
+
+      <div class="note fact"><h4>◆ Q3 answer — who calls the MCP tool</h4>
+        <p>The <b>model decides which tool + args</b> (it emits a tool-call request). Our <b>Zone-2 process executes it</b> via the registered <code>execute</code> closure inside this loop. Sequence per step: streamText → LLM [net] → tool-call request → our <code>execute</code> [in-process] → MCP backend [net] → result → back to LLM [net] → next step. Sequential awaits, one event-loop. <b>The model never picks a Supabase table</b> — those are read by our code at fixed steps; the model only picks external MCP tools.</p></div>
+
+      <div class="step" style="border-left-color:var(--fn-time)"><div class="num" style="background:var(--fn-time)">19</div>
+        <div><div class="mod"><b>resolve_time_range</b> <span class="path">_lib/timeTools.ts</span> <span class="fnbadge" style="background:var(--fn-time)">meta · deterministic</span></div>
+          <div class="rows"><div class="rk">did</div><div class="rv">Model calls it; TZ-aware code → <code>{startMs,endMs,interpretation}</code>; streamed as <code>tool-result-raw</code>. No epoch math left to the model.</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> model calls a data tool</div></div>
+          <div class="chips"><span class="edge e-meta">in-process</span></div></div></div>
+
+      <div class="step" style="border-left-color:var(--fn-llm)"><div class="num" style="background:var(--fn-llm)">20</div>
+        <div><div class="mod"><b>tool decision</b> getFactoryLines → getOeeValuesForZones <span class="path">model-invoked</span> <span class="fnbadge" style="background:var(--fn-llm)">agent decision</span></div>
+          <div class="rows"><div class="rk">did</div><div class="rv">Model resolves KB7 → zone ids, then per-zone hourly OEE — guided by the domain-pack tool-graph in the prompt, picked by the model.</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> executeMCPTool</div></div></div></div>
+
+      <div class="step" style="border-left-color:var(--fn-tool)"><div class="num" style="background:var(--fn-tool)">21</div>
+        <div><div class="mod"><b>executeMCPTool</b> + format <span class="path">chat.ts · toolResult · resultStore · grounding</span> <span class="fnbadge" style="background:var(--fn-tool)">tool · transport</span></div>
+          <div class="rows"><div class="rk">did</div><div class="rv">Connect + <code>callTool</code> (retry/timeout). Emit <code>tool_call</code> (no args/result). <code>learnToolMapping</code>. <b>Stream capped raw to client</b> (zero output tokens) + buffer. <code>formatToolResult</code> (whole records, true count, ResultStore handle). <code>parseToolResultMeta</code> stamps <b>envelope provenance from server config (unforgeable)</b>.</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> back into the loop (18)</div></div>
+          <div class="chips"><span class="edge e-mcp">callTool</span><span class="edge e-jwt">SSE raw</span><span class="db w"><span class="rw">W</span>telemetry_events</span><span class="db w"><span class="rw">W</span>tool_category_cache</span></div></div></div>
+
+      <div class="step" style="border-left-color:var(--fn-qh)"><div class="num" style="background:var(--fn-qh)">22</div>
+        <div><div class="mod"><b>textStream loop</b> <span class="path">chat.ts</span> <span class="fnbadge" style="background:var(--fn-qh)">stream</span></div>
+          <div class="rows"><div class="rk">did</div><div class="rv">Final prose chunks → <code>fullText +=</code> + <code>res.write(text-delta)</code>. 15s heartbeat across silent tool gaps.</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> grounding</div></div>
+          <div class="chips"><span class="edge e-jwt">SSE text-delta</span></div></div></div>
+
+      <div class="note trap"><h4>⚠ blank-bubble path (the test's "No response generated")</h4>
+        <p>Tool calls then <b>zero text deltas</b> → <code>fullText===''</code>; chat.ts has no fallback, so the client renders <code>'No response generated.'</code>. A UI render, not a backend message — the parked <b>Phase F</b> guaranteed-final-message item.</p></div>
+
+      <div class="step" style="border-left-color:var(--fn-ground)"><div class="num" style="background:var(--fn-ground)">23</div>
+        <div><div class="mod"><b>runGroundingCheck</b> <span class="path">grounding/groundingCheck.ts</span> <span class="fnbadge" style="background:var(--fn-ground)">grounding · advisory</span></div>
+          <div class="rows"><div class="rk">did</div><div class="rv">Mode-A deterministic check on the complete answer + metas + authority, <b>no tool re-run</b>: empty≠zero / count / scope-divergence. Never an LLM judge. Violation → emit <code>error</code> (counts only).</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> scope notice</div></div>
+          <div class="chips"><span class="db w"><span class="rw">W</span>telemetry_events</span> <span class="rk" style="padding:0">on violation</span></div></div></div>
+
+      <div class="step" style="border-left-color:var(--fn-ground)"><div class="num" style="background:var(--fn-ground)">24</div>
+        <div><div class="mod"><b>scopeDivergenceNotice</b> (C) <span class="path">chat.ts · grounding</span> <span class="fnbadge" style="background:var(--fn-ground)">correction</span></div>
+          <div class="rows"><div class="rk">did</div><div class="rv">On <code>scope_divergence</code>, deterministically <b>append</b> a correction after the streamed text and stream it. Corrects the record; can't un-paint what streamed.</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> persist assistant + done</div></div>
+          <div class="chips"><span class="edge e-jwt">SSE text-delta</span></div></div></div>
+
+      <div class="step" style="border-left-color:var(--fn-persist)"><div class="num" style="background:var(--fn-persist)">25</div>
+        <div><div class="mod"><b>MessageRepository.insert</b> <span class="path">persistence/…</span> <span class="fnbadge" style="background:var(--fn-persist)">persist</span></div>
+          <div class="rows"><div class="rk">did</div><div class="rv">Enqueue the <b>assistant message</b> (finalText, toolCallCount, capped raw, error flag) under the pre-minted id. Null service client → silent no-op.</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> done event</div></div>
+          <div class="chips"><span class="edge e-priv">service-role</span><span class="db w"><span class="rw">W</span>messages</span></div></div></div>
+
+      <div class="step" style="border-left-color:var(--fn-qh)"><div class="num" style="background:var(--fn-qh)">26</div>
+        <div><div class="mod"><b>done event</b> <span class="path">chat.ts</span> <span class="fnbadge" style="background:var(--fn-qh)">terminal</span></div>
+          <div class="rows"><div class="rk">did</div><div class="rv">Terminal <code>done</code> SSE: <code>{text, toolCallCount, model, grounding, conversationId, messageId}</code>. Error path → note + <code>done(error)</code> so the socket never dangles.</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> flush</div></div>
+          <div class="chips"><span class="edge e-jwt">SSE done</span></div></div></div>
+
+      <div class="step" style="border-left-color:var(--fn-persist)"><div class="num" style="background:var(--fn-persist)">27</div>
+        <div><div class="mod"><b>finally — flush</b> <span class="path">chat.ts · Promise.allSettled</span> <span class="fnbadge" style="background:var(--fn-persist)">serverless</span></div>
+          <div class="rows"><div class="rk">did</div><div class="rv">Clear heartbeat; <code>allSettled([...telemetryWrites, ...persistenceWrites])</code> lands every queued write before <code>res.end()</code>. The OTel trace must force-flush <b>here too</b>.</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> stream closes</div></div>
+          <div class="chips"><span class="edge e-priv">flush writes</span><span class="db w"><span class="rw">W</span>telemetry_events</span><span class="db w"><span class="rw">W</span>conversations</span><span class="db w"><span class="rw">W</span>messages</span></div></div></div>
+    </div>
+  </section>
+
+  <p class="seam">⇡ SSE stream (text-delta · tool-result-raw · done) ⇡</p>
+
+  <!-- ZONE 3 -->
+  <section class="zone">
+    <div class="zone-h"><span class="zbar" style="background:var(--rls)"></span>
+      <span class="zn" style="color:var(--rls)">Zone 3 · Browser render</span>
+      <span class="zd">stream → answer on screen</span><span class="zt">src/…</span></div>
+    <div class="zone-body">
+
+      <div class="step" style="border-left-color:var(--fn-render)"><div class="num" style="background:var(--fn-render)">28</div>
+        <div><div class="mod"><b>onChunk → placeholder</b> <span class="path">cwfService ↔ cwfStore</span> <span class="fnbadge" style="background:var(--fn-render)">typewriter</span></div>
+          <div class="rows"><div class="rk">did</div><div class="rv">Each <code>text-delta</code> appends to the streaming placeholder (live typewriter); <code>tool-result-raw</code> events accumulate into <code>rawToolResults[]</code>.</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> on <code>done</code>: finalize</div></div></div></div>
+
+      <div class="step" style="border-left-color:var(--fn-render)"><div class="num" style="background:var(--fn-render)">29</div>
+        <div><div class="mod"><b>finalize + reconcile</b> <span class="path">cwfStore.sendMessage</span> <span class="fnbadge" style="background:var(--fn-render)">state</span></div>
+          <div class="rows"><div class="rk">did</div><div class="rv">Empty → <code>CWF_FALLBACK_RESPONSE</code>. Replace placeholder (content, toolCallCount, rawToolResults, isStreaming:false); adopt server id; <code>refreshConversations()</code>.</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> re-render bubble</div></div>
+          <div class="chips"><span class="edge e-rls">RLS owner read</span><span class="db r"><span class="rw">R</span>conversations</span><span class="db r"><span class="rw">R</span>messages</span></div></div></div>
+
+      <div class="step" style="border-left-color:var(--fn-render)"><div class="num" style="background:var(--fn-render)">30</div>
+        <div><div class="mod"><b>MessageChartContent + RawToolResults</b> <span class="path">ui/cwf/… · chatParser.ts</span> <span class="fnbadge" style="background:var(--fn-render)">render</span></div>
+          <div class="rows"><div class="rk">did</div><div class="rv"><code>chatParser</code> extracts chart/table/table-from-tool macros; <code>RawToolResults</code> renders the collapsible raw blocks. <b>Tables-from-tool render straight from raw</b> — no lossy LLM regeneration.</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">✓</span> <span class="nx">user sees KB7 OEE — per-zone, Glazur1 "veri dönmedi" (≠0), IKINCILUST blind-spot honored.</span></div></div></div></div>
+    </div>
+  </section>
+
+  <!-- ════════════ DB TABLE ACCESS MATRIX ════════════ -->
+  <h2 class="sec">DB access · all 12 tables · who reads / writes / who may mutate</h2>
+  <section class="zone"><div class="zone-body" style="padding:14px 16px">
+    <table class="mx">
+      <thead><tr><th>#</th><th>table</th><th>chat path — <span class="rr">read</span></th><th>chat path — <span class="ww">write</span></th><th>admin / governance — <span class="adm">mutate</span></th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><code>mcp_settings</code></td><td class="mono">step 7 (config load)</td><td class="mono">—</td><td class="mono">MCP settings panel (owner)</td></tr>
+        <tr><td>2</td><td><code>tool_category_cache</code></td><td class="mono">step 13 (router cache)</td><td class="mono">step 21 (learnToolMapping)</td><td class="mono">self-learning only · advisory</td></tr>
+        <tr><td>3</td><td><code>telemetry_events</code></td><td class="mono">—</td><td class="mono">steps 10·18·21·23·27</td><td class="mono">Telemetry tab (read-only)</td></tr>
+        <tr><td>4</td><td><code>user_roles</code></td><td class="mono">step 4 (RBAC)</td><td class="mono">—</td><td class="mono">Users tab → <code>/api/admin/roles</code></td></tr>
+        <tr><td>5</td><td><code>user_backend_scopes</code></td><td class="mono">step 4 · 9 (scopes)</td><td class="mono">—</td><td class="mono">Users tab → <code>/api/admin/roles</code></td></tr>
+        <tr><td>6</td><td><code>rule_kinds</code></td><td class="mono">step 15 (structure)</td><td class="mono">—</td><td class="mono">Kinds tab → <code>/api/admin/kinds</code> · seed</td></tr>
+        <tr><td>7</td><td><code>domain_rules</code></td><td class="mono">step 15 (published)</td><td class="mono">—</td><td class="mono">Rules tab → gated publish · reset</td></tr>
+        <tr><td>8</td><td><code>rule_versions</code></td><td class="mono">—</td><td class="mono">—</td><td class="mono">written by publish (history)</td></tr>
+        <tr><td>9</td><td><code>rule_audit</code></td><td class="mono">—</td><td class="mono">—</td><td class="mono">written by publish/rollback/archive</td></tr>
+        <tr><td>10</td><td><code>backends</code></td><td class="mono">step 9 · 17 (active+trust)</td><td class="mono">—</td><td class="mono">registry (row = a backend)</td></tr>
+        <tr><td>11</td><td><code>conversations</code></td><td class="mono">step 11 · 29</td><td class="mono">step 11 · 27</td><td class="mono">owner CRUD (RLS)</td></tr>
+        <tr><td>12</td><td><code>messages</code></td><td class="mono">step 29 (history)</td><td class="mono">step 11 · 25 · 27</td><td class="mono">server-written only (service-role)</td></tr>
+      </tbody>
+    </table>
+    <div class="note fact" style="margin-top:12px"><h4>◆ the model touches none of these</h4>
+      <p>Every Supabase table above is read/written by <b>our code at fixed steps</b> — deterministic, never a model decision. The model's only "data choice" is which external <b>MCP tool</b> to call. <code>rule_versions</code> / <code>rule_audit</code> never appear in the chat path: they exist purely so governance is traceable.</p></div>
+  </div></section>
+
+  <!-- ════════════ ADMIN GOVERNANCE LANE ════════════ -->
+  <h2 class="sec">Admin governance lane · the only write path into knowledge</h2>
+  <section class="zone">
+    <div class="zone-h"><span class="zbar" style="background:var(--fn-router)"></span>
+      <span class="zn" style="color:var(--fn-router)">Admin panel</span>
+      <span class="zd">src/components/admin/* → /api/admin/* (RLS denies direct client publish · 42501)</span><span class="zt">super_admin / domain_editor</span></div>
+    <div class="zone-body">
+
+      <div class="step" style="border-left-color:var(--fn-router)"><div class="num" style="background:var(--fn-router)">A1</div>
+        <div><div class="mod"><b>RulesTab</b> → draft CRUD <span class="path">/api/admin/rules · /rules/[id]</span> <span class="fnbadge" style="background:var(--fn-router)">governance</span></div>
+          <div class="rows"><div class="rk">did</div><div class="rv">Create/patch a <b>draft</b> rule. Drafts are harmless — they are never served until published.</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> publish (A2)</div></div>
+          <div class="chips"><span class="db w"><span class="rw">W</span>domain_rules (draft)</span></div></div></div>
+
+      <div class="step" style="border-left-color:var(--fn-ground)"><div class="num" style="background:var(--fn-ground)">A2</div>
+        <div><div class="mod"><b>publish → eval-gate</b> <span class="path">/api/admin/rules/[id] · gate/evalGate.ts</span> <span class="fnbadge" style="background:var(--fn-ground)">eval-gate</span></div>
+          <div class="rows"><div class="rk">did</div><div class="rv"><b>Unbypassable</b>: <code>runGate</code> runs schema → referential → behavioral checks. Poisoned rule (e.g. IKINCILUST barcoded / scrap=0) → <b>rejected</b>. Only on pass does <code>status='published'</code> get set — server-side; RLS denies any direct client publish.</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> version + audit + activate</div></div>
+          <div class="chips"><span class="db w"><span class="rw">W</span>domain_rules (published)</span><span class="db w"><span class="rw">W</span>rule_versions</span><span class="db w"><span class="rw">W</span>rule_audit</span></div></div></div>
+
+      <div class="step" style="border-left-color:var(--fn-know)"><div class="num" style="background:var(--fn-know)">A3</div>
+        <div><div class="mod"><b>KindsTab</b> + reset <span class="path">/api/admin/kinds · /api/admin/reset</span> <span class="fnbadge" style="background:var(--fn-know)">structure</span></div>
+          <div class="rows"><div class="rk">did</div><div class="rv"><b>SOFT</b> kinds: field-spec extensible. <b>CORE</b> kinds: shape field-locked to code Zod (un-poisonable). Reset → re-seeds <code>domain_rules</code> to the code reference as a <b>new published version</b> (history intact).</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> next chat <code>warm</code> (step 15) serves it</div></div>
+          <div class="chips"><span class="db w"><span class="rw">W</span>rule_kinds</span><span class="db w"><span class="rw">W</span>domain_rules</span><span class="db w"><span class="rw">W</span>rule_versions</span></div></div></div>
+
+      <div class="step" style="border-left-color:var(--fn-authz)"><div class="num" style="background:var(--fn-authz)">A4</div>
+        <div><div class="mod"><b>UsersTab</b> <span class="path">/api/admin/roles</span> <span class="fnbadge" style="background:var(--fn-authz)">RBAC</span></div>
+          <div class="rows"><div class="rk">did</div><div class="rv">Assign role (<code>super_admin</code> / per-backend <code>domain_editor</code> / <code>user</code>) + backend scopes — exactly what step 4/9 reads each turn.</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> takes effect next request</div></div>
+          <div class="chips"><span class="db w"><span class="rw">W</span>user_roles</span><span class="db w"><span class="rw">W</span>user_backend_scopes</span></div></div></div>
+
+      <div class="step" style="border-left-color:var(--fn-persist)"><div class="num" style="background:var(--fn-persist)">A5</div>
+        <div><div class="mod"><b>TelemetryTab + MCPSettings</b> <span class="path">direct supabase (RLS) · mcp_settings</span> <span class="fnbadge" style="background:var(--fn-persist)">read / config</span></div>
+          <div class="rows"><div class="rk">did</div><div class="rv">Telemetry = <b>read-only</b> view of the business ledger (RLS role-scoped). MCP settings = owner edits their server configs/tokens.</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> consumed at steps 3·7·18·21</div></div>
+          <div class="chips"><span class="db r"><span class="rw">R</span>telemetry_events</span><span class="db w"><span class="rw">W</span>mcp_settings</span></div></div></div>
+
+      <div class="note"><h4>governance invariant</h4>
+        <p>The chat path (steps 1–30) <b>only reads</b> <code>rule_kinds</code>/<code>domain_rules</code>/<code>backends</code> and only at the published version. The admin lane is the <b>sole writer</b>, and the eval-gate (A2) is the single chokepoint — there is no other way to set <code>published</code>. This is why a poisoned rule can be drafted but never served.</p></div>
+    </div>
+  </section>
+
+  <footer>
+    CWF · EAIP — request lifecycle + functional overlay · rev 2 · 2026-06-28 · grounded against HEAD a8bd531<br>
+    adds over v1: DB read/write per step · functional-category frames · agent anatomy · multi-agent map · admin governance lane + table-mutation map<br>
+    companion: cwf-runtime-topology-v2 (static topology) · cwf-architecture-map-v6 (layered map)
+  </footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARDIÇ · SCL Pencere Saati v2 — İÇSEL</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root{
+    --navy:#1F3864; --teal:#13A89E; --amber:#D98E04; --red:#C0392B; --redL:#E08A76;
+    --ink:#1B2430; --muted:#6B7280; --line:#D9DEE7; --bg:#F4F6F9; --card:#FFFFFF; --well:#F0F3F7;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:Calibri,'Segoe UI',Arial,sans-serif; background:var(--bg); color:var(--ink); padding:0 0 34px;}
+  .band{background:var(--navy); color:#fff; padding:22px 28px 20px;}
+  .band h1{font-size:21px; font-weight:700; letter-spacing:0.2px;}
+  .band .sub{font-size:12.5px; color:#B9C6DE; margin-top:4px;}
+  .band .tag{display:inline-block; margin-top:10px; font-size:10.5px; font-weight:700; letter-spacing:1px; color:var(--navy); background:#F0B429; border-radius:4px; padding:3px 9px;}
+  .wrap{max-width:980px; margin:0 auto; padding:18px 16px 0; display:flex; flex-direction:column; gap:16px;}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:20px 22px; box-shadow:0 1px 3px rgba(31,56,100,0.06);}
+  .card h2{font-size:16px; color:var(--navy); font-weight:700;}
+  .card .cap{font-size:12px; color:var(--muted); margin:3px 0 16px;}
+  .prog{margin-bottom:13px;}
+  .prog .lbl{display:flex; justify-content:space-between; font-size:12.5px; margin-bottom:5px;}
+  .prog .lbl .name{color:var(--ink); font-weight:600;}
+  .prog .lbl .name small{color:var(--muted); font-weight:400;}
+  .prog .track{height:10px; background:var(--well); border:1px solid var(--line); border-radius:6px; overflow:hidden;}
+  .prog .fill{height:100%; border-radius:6px;}
+  .kpis{display:flex; gap:10px; margin-top:16px; flex-wrap:wrap;}
+  .kpi{flex:1; min-width:130px; background:var(--well); border:1px solid var(--line); border-radius:10px; padding:11px 13px;}
+  .kpi .v{font-size:19px; font-weight:700;}
+  .kpi .d{font-size:10.5px; color:var(--muted); margin-top:3px; line-height:1.35;}
+  .legend{display:flex; flex-wrap:wrap; gap:14px; margin-bottom:14px; font-size:11.5px; color:var(--muted);}
+  .legend span{display:flex; align-items:center; gap:6px;}
+  .sw{width:15px; height:9px; border-radius:2px; display:inline-block;}
+  .gantt{display:flex;}
+  .glabels{width:172px; flex-shrink:0;}
+  .glabels .gl{height:44px; display:flex; flex-direction:column; justify-content:center; padding-right:8px;}
+  .glabels .gl .n{font-size:11.5px; font-weight:600; color:var(--ink); line-height:1.15;}
+  .glabels .gl .t{font-size:9.5px; margin-top:2px; line-height:1.2;}
+  .gtracks{flex:1; position:relative;}
+  .grow{height:44px; position:relative;}
+  .gyear{position:absolute; top:0; bottom:0; width:1px; background:var(--line);}
+  .gtoday{position:absolute; top:-6px; bottom:-2px; width:2px; background:var(--amber); border-radius:1px; z-index:3;}
+  .bplan{position:absolute; top:10px; height:9px; background:rgba(31,56,100,0.16); border:1px solid var(--navy); border-radius:3px;}
+  .bplan2{position:absolute; top:10px; height:9px; background:rgba(217,142,4,0.16); border:1px solid var(--amber); border-radius:3px;}
+  .bact{position:absolute; top:25px; height:9px; background:var(--teal); border-radius:3px;}
+  .bstab{position:absolute; top:25px; height:9px; background:rgba(19,168,158,0.18); border:1px solid var(--teal); border-radius:3px;}
+  .bmiss{position:absolute; top:25px; height:9px; border:1.6px dashed var(--red); border-radius:3px;}
+  .gaxis{position:relative; height:18px; font-size:10px; color:var(--muted);}
+  .gaxis span{position:absolute; transform:translateX(-50%);}
+  .gnote{font-size:11.5px; color:var(--muted); margin-top:12px; line-height:1.55;}
+  .gnote b{color:var(--ink); font-weight:600;}
+  .chartbox{position:relative; width:100%; height:290px;}
+  footer{max-width:980px; margin:16px auto 0; padding:0 16px; font-size:10.5px; color:var(--muted); line-height:1.6;}
+  footer code{font-family:Consolas,monospace; font-size:10px; background:var(--well); padding:1px 4px; border-radius:3px;}
+  @media (max-width:560px){ .glabels{width:128px;} .glabels .gl .n{font-size:10px;} .glabels .gl .t{font-size:8px;} }
+</style>
+</head>
+<body>
+
+<div class="band">
+  <h1>SCL Pencere Saati v2 — zaman, para ve lisansın asenkron tükenişi</h1>
+  <div class="sub">Yaygınlaştırma Çerçeve Sözleşmesi · imza 15.08.2024 · 3 yıl, yenilenmez (md.2.3) · durum: 02.07.2026 · v2: KB3/YK-Masse ödendi-bekliyor · Faz4 çift-plan izi · ArMES geçişi · Granit tek-kalem lisansı</div>
+  <span class="tag">İÇSEL · YK — DIŞARI ÇIKMAZ</span>
+</div>
+
+<div class="wrap">
+
+  <!-- ============ PANEL 1 ============ -->
+  <div class="card">
+    <h2>1 · Üç sayaç — pencere 15.08.2024 → 14.08.2027 (36 ay)</h2>
+    <div class="cap">bugün: ay 22,6 / 36 — sabit pencerede zaman, NRE ve lisans farklı hızlarda akıyor</div>
+
+    <div class="prog">
+      <div class="lbl"><span class="name">Zaman tükendi</span><span style="color:var(--amber); font-weight:700;">%63</span></div>
+      <div class="track"><div class="fill" style="width:63%; background:var(--amber);"></div></div>
+    </div>
+    <div class="prog">
+      <div class="lbl"><span class="name">Yaygın NRE faturalandı <small>($980.879 / $2.250.000 · Faz4-gömülü olası kısım dahil)</small></span><span style="color:var(--navy); font-weight:700;">%44</span></div>
+      <div class="track"><div class="fill" style="width:44%; background:var(--navy);"></div></div>
+    </div>
+    <div class="prog" style="margin-bottom:0;">
+      <div class="lbl"><span class="name">Lisans gerçekleşti <small>($98.698 / $688.385 plan 2025-26)</small></span><span style="color:var(--red); font-weight:700;">%14</span></div>
+      <div class="track"><div class="fill" style="width:14%; background:var(--red);"></div></div>
+    </div>
+
+    <div class="kpis">
+      <div class="kpi"><div class="v" style="color:var(--ink);">13,4 ay</div><div class="d">kalan pencere (yenilenmez)</div></div>
+      <div class="kpi"><div class="v" style="color:var(--amber);">~$336K</div><div class="d">KB3 + YK Masse: 2025'te ödendi, tesis hâlâ kurulamadı (Kale altyapısı) — atıl sermaye</div></div>
+      <div class="kpi"><div class="v" style="color:var(--red);">−%25</div><div class="d">Granit tek-kalem lisansının kesilemeyen bölümü (Faz4 işi tamamlanmadı)</div></div>
+      <div class="kpi"><div class="v" style="color:var(--teal);">~$87K/ay</div><div class="d">tam-rollout lisans değeri — her kayıp ay bu kadar (46,2M TL/yıl ≈ $1,04M)</div></div>
+    </div>
+  </div>
+
+  <!-- ============ PANEL 2 ============ -->
+  <div class="card">
+    <h2>2 · Akış zamanlaması — kontrat/revize planı vs gerçek</h2>
+    <div class="cap">SCL Tablo-4/5 + ReSCH revize tesis-satırları (ay-eşlemeli) vs fatura defteri · dikey amber çizgi = bugün</div>
+    <div class="legend">
+      <span><span class="sw" style="background:rgba(31,56,100,0.16); border:1px solid var(--navy);"></span>Kontrat / orijinal plan</span>
+      <span><span class="sw" style="background:rgba(217,142,4,0.16); border:1px solid var(--amber);"></span>Revize plan (Eki-24)</span>
+      <span><span class="sw" style="background:var(--teal);"></span>Fiili / ödendi</span>
+      <span><span class="sw" style="background:rgba(19,168,158,0.18); border:1px solid var(--teal);"></span>Stabilizasyon (3 ay, sözleşmesel)</span>
+      <span><span class="sw" style="border:1.6px dashed var(--red);"></span>Gerçekleşmedi / bekliyor</span>
+    </div>
+
+    <div class="gantt">
+      <div class="glabels">
+        <div class="gl"><span class="n">Yaygın · ön ödeme $261K</span><span class="t" style="color:var(--teal);">✓ planında (%98, Eyl-24)</span></div>
+        <div class="gl"><span class="n">KB7 (2cil dahil) $242K</span><span class="t" style="color:var(--teal);">✓ Ara-24 $194K + 2025 kuyruk</span></div>
+        <div class="gl"><span class="n">KB3 (2cil dahil) $225K</span><span class="t" style="color:var(--amber);">₺ 2025'te ödendi · kurulum bekliyor</span></div>
+        <div class="gl"><span class="n">YK Masse $111K</span><span class="t" style="color:var(--amber);">₺ 2025'te ödendi · kurulum bekliyor</span></div>
+        <div class="gl"><span class="n">Faz4 · 2.İşlemler $110K</span><span class="t" style="color:var(--red);">para: KB7-şemsiye/2025-içi (T2) · iş: YOK → Granit −%25</span></div>
+        <div class="gl"><span class="n">ArMES geçişi (GCP→ArCloud)</span><span class="t" style="color:var(--teal);">✓ Eyl–Eki 25 · +3 ay → Oca-26</span></div>
+        <div class="gl"><span class="n">Granit lisansı (Faz1-4 tek kalem)</span><span class="t" style="color:var(--amber);">Oca-26 canlı · ~3/4 kesiliyor</span></div>
+        <div class="gl"><span class="n">Yaygın · kalan ~$1,27M</span><span class="t" style="color:var(--red);">2027+ ötelenen · 13,4 aya sığmalı</span></div>
+      </div>
+      <div class="gtracks">
+        <div class="gyear" style="left:17.9%;"></div>
+        <div class="gyear" style="left:48.7%;"></div>
+        <div class="gyear" style="left:79.5%;"></div>
+        <div class="gtoday" style="left:64.2%;"></div>
+
+        <!-- 1 ön ödeme: plan Haz-Ağu24 / fiili Eyl-24 -->
+        <div class="grow">
+          <div class="bplan" style="left:0%; width:7.7%;"></div>
+          <div class="bact" style="left:7.7%; width:2.6%; min-width:8px;"></div>
+        </div>
+        <!-- 2 KB7: plan Eyl24-May25 / fiili Ara24-May25 -->
+        <div class="grow">
+          <div class="bplan" style="left:7.7%; width:23.1%;"></div>
+          <div class="bact" style="left:15.4%; width:15.4%;"></div>
+        </div>
+        <!-- 3 KB3: plan Haz-Ara25 / ödendi aynı / kurulum yok -->
+        <div class="grow">
+          <div class="bplan2" style="left:30.8%; width:17.9%;"></div>
+          <div class="bact" style="left:30.8%; width:17.9%;"></div>
+          <div class="bmiss" style="left:48.7%; width:15.5%;"></div>
+        </div>
+        <!-- 4 YK Masse: plan Ağu-Ara25 / ödendi / kurulum yok -->
+        <div class="grow">
+          <div class="bplan2" style="left:35.9%; width:12.8%;"></div>
+          <div class="bact" style="left:35.9%; width:12.8%;"></div>
+          <div class="bmiss" style="left:48.7%; width:15.5%;"></div>
+        </div>
+        <!-- 5 Faz4: kontrat Tem-Eki24 / revize Eyl-Ara25 / iş yok -->
+        <div class="grow">
+          <div class="bplan" style="left:2.6%; width:10.3%;"></div>
+          <div class="bplan2" style="left:38.5%; width:10.3%;"></div>
+          <div class="bmiss" style="left:48.7%; width:15.5%;"></div>
+        </div>
+        <!-- 6 ArMES geçişi: fiili Eyl-Eki25 + stabilizasyon Kas25-Oca26 -->
+        <div class="grow">
+          <div class="bact" style="left:38.5%; width:5.1%;"></div>
+          <div class="bstab" style="left:43.6%; width:7.7%;"></div>
+        </div>
+        <!-- 7 Granit lisansı: plan Oca25→pencere / fiili Oca26→bugün (3/4) -->
+        <div class="grow">
+          <div class="bplan" style="left:17.9%; width:80.8%;"></div>
+          <div class="bact" style="left:48.7%; width:15.5%;"></div>
+        </div>
+        <!-- 8 kalan yaygın: bugün→pencere -->
+        <div class="grow">
+          <div class="bmiss" style="left:64.2%; width:34.5%;"></div>
+        </div>
+
+        <div class="gaxis">
+          <span style="left:17.9%;">2025</span>
+          <span style="left:48.7%;">2026</span>
+          <span style="left:64.2%; color:var(--amber); font-weight:700;">bugün</span>
+          <span style="left:79.5%;">2027</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="gnote"><b>Rev-1 2025 bütçesi ($578.414) dört akışa birebir ayrışır:</b> KB7 kuyruğu $132.250 + KB3 $225.227 + YK Masse $110.935 + Faz4 $110.000 (ReSCH r71/72/85/65). Fiili $531.425 = %92. <b>KB3 + YK Masse (~$336K) ödendi ama Kale altyapısı yüzünden kurulamadı</b> — atıl sermaye. <b>Faz4 deseni (30/20/20/40K)</b> kontratta Tem–Eki 24; Rev-1'de hem KB7-satırı Eyl–Ara 24'te hem Faz4-Core Eyl–Ara 25'te — para büyük olasılıkla bu kanallardan aktı (T2, hakediş kaydıyla T1'e çıkar); <b>işin kendisi tamamlanmadı → Granit tek-kalem lisansının 1/4'ü kesilemiyor</b> (T1). ArMES geçişi = Faz1/1.5 servislerinin GCP→ArCloud taşınması; eski model (IoT-Ignite ayrı lisans + Faz1/1.5 bakım ~%20-22 + GCP) 2025 boyunca sürdü, defterde birebir görünür.</div>
+  </div>
+
+  <!-- ============ PANEL 3 ============ -->
+  <div class="card">
+    <h2>3 · Lisans kaybının anatomisi — 2025-26 (USD)</h2>
+    <div class="cap">planlı $688K → fiili $99K · kayıp −$590K, katman katman · Granit tek-kalem yapısı dahil</div>
+    <div class="chartbox"><canvas id="wf"></canvas></div>
+    <div class="kpis">
+      <div class="kpi"><div class="v" style="color:var(--red);">−$212K</div><div class="d">2025: 5 tesis planlıydı, sıfır go-live (KS5/6/7 kapandı; KB7/KB3/Masse donanım bekledi)</div></div>
+      <div class="kpi"><div class="v" style="color:var(--red);">−$92,5K</div><div class="d">2026 skop-nötr erime — %56'sı tek başına Slab/Faz3 (−$51,7K)</div></div>
+      <div class="kpi"><div class="v" style="color:var(--redL);">−$285K</div><div class="d">2026 saha gecikmesi + yıl-içi kısmilik (fiili = Oca–May) — içinde Granit'in kesilemeyen 1/4'ü</div></div>
+    </div>
+    <div class="gnote"><b>Granit (Faz1-4) tek-kalem lisansı:</b> Tablo-8 ₺443.407/ay (Ağu-24 bazı) → TÜFE'li tam ~₺740K/ay; 2026 fiili kesim ₺534K→₺595K = <b>~%72–80 ≈ 3/4</b>. Kesilemeyen 1/4 = Faz4 ikincil-işlemler eksik (Kale altyapı gecikmesi). Tek kalemin içeriği: ArCloud hosting (GCP yerine) + IoT-Ignite + Faz1/1.5 bakım + Faz4 ikincil + andon/LED + tablet MDM.</div>
+  </div>
+
+</div>
+
+<footer>
+Kaynak (T1): imzalı SCL (Tablo-2/3/4/5 · md.2.3 · md.3.4 · s.3 ARMES–Faz4 kilidi) · <code>ReSCH_20242026_Project_Revisions.xlsx / Kale Final Öneri (2)</code> — Rev-1 2025 dekompozisyonu r71 (KB7) + r72 (KB3) + r85 (YK Masse) + r65 (Faz4-Core), ay-başlıkları r62 · <code>Ftr_Kale_fatura_rapor_20222026_tk_v4.xlsx</code> · <code>ARDIC_SCL_Lisans_Yillik_Plan_vs_Fiili.xlsx / GoLive_Takvim r5 "Granit (Faz1-4)" ₺443.407 · Lisans_Yillik · Tesis_Detay</code> · Mind Map v10 §8/§21/§25. Pencere: 22,6/36 ay · yaygın $980.879/$2.250.000 · lisans $98.698/$688.385. T2 (hakediş kaydıyla T1'e çıkar): Faz4 ödemesinin KB7-şemsiyesi/2025-içi akışı · ArMES geçiş ayları (Eyl–Eki 25, kurucu beyanı; Faz2 go-live 2025-10 T1-uyumlu). Tüm tutarlar KDV-hariç USD. <b>İÇSEL analiz — owner/Kale-facing belgeye girmez.</b>
+</footer>
+
+<script>
+(function(){
+  var vals=[[0,688.4],[476.1,688.4],[383.6,476.1],[98.7,383.6],[0,98.7]];
+  var labs=['$688K','−$212K','−$92,5K','−$285K','$99K'];
+  var topCols=['#1F3864','#C0392B','#C0392B','#E08A76','#13A89E'];
+  var wfPlugin={ id:'wfL', afterDatasetsDraw:function(ch){
+    var ctx=ch.ctx; ctx.save();
+    ctx.textAlign='center'; ctx.font='700 12px Calibri, sans-serif';
+    ch.getDatasetMeta(0).data.forEach(function(bar,i){
+      ctx.fillStyle=topCols[i];
+      ctx.fillText(labs[i], bar.x, Math.min(bar.y,bar.base)-7);
+    });
+    ctx.restore();
+  }};
+  new Chart(document.getElementById('wf'),{ type:'bar',
+    data:{ labels:[['Planlı','2025-26'],['2025','sıfır go-live'],['2026','plan erimesi'],['2026 saha','+kısmi yıl'],['Fiili','Oca–May 26']],
+      datasets:[{ data:vals, backgroundColor:topCols, borderRadius:4, borderSkipped:false, maxBarThickness:56, categoryPercentage:0.8, barPercentage:0.92 }]},
+    options:{ responsive:true, maintainAspectRatio:false, layout:{padding:{top:22}},
+      plugins:{ legend:{display:false},
+        tooltip:{ callbacks:{ label:function(c){ var v=c.raw; return '$'+Math.round(v[0])+'K → $'+Math.round(v[1])+'K'; } } } },
+      scales:{ x:{ grid:{display:false}, border:{color:'#D9DEE7'}, ticks:{ color:'#1B2430', font:{family:'Calibri', size:11.5, weight:'600'} } },
+        y:{ beginAtZero:true, suggestedMax:775, grid:{color:'#E7EBF1', drawTicks:false}, border:{display:false},
+            ticks:{ color:'#6B7280', font:{family:'Calibri', size:11}, maxTicksLimit:5, callback:function(v){ return '$'+v+'K'; } } } } },
+    plugins:[wfPlugin]
+  });
+})();
+</script>
+</body>
+</html>

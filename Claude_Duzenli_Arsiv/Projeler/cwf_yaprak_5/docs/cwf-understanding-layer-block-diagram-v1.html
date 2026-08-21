@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CWF/EAIP · Anlama Katmanı — Blok Diyagram · v1</title>
+<!-- cwf-understanding-layer-block-diagram-v1 · rev 1.0 · 2026-07-25 · Architect-authored.
+     KAYNAK (tek): cwf-understanding-layer-architecture-v1_2 (rev 1.2, BAĞLAYICI).
+     Anchor: origin/master 194f6a8 (rev 142) — kaynak belgeyle aynı çapa.
+     BU BELGE YENİ KARAR İÇERMEZ. v1_2'nin YAPISAL görünümüdür:
+       v1_2 §2  = AKIŞ görünümü (tur zaman içinde nasıl akar)
+       bu belge = BLOK görünümü (kutu · sözleşme · doğa · dikiş · yetki)
+     Herhangi bir kutu/kısıt v1_2 ile çelişirse BAĞLAYICI OLAN v1_2'DİR;
+     çelişki bulunursa bu belge v1_1 olarak yeniden basılır (S37-1: yerinde
+     düzeltme yok). Renk sözleşmesi v1_2'den birebir taşındı — renk burada
+     dekorasyon değil, DOĞA bildirimidir.
+     STATUS: TARGET-STATE VIEW · kod ölçüm kapısına bağlı (S62-2) · build order
+     v1_2 §9'dadır ve burada yalnızca kutulara EŞLENİR, yeniden sıralanmaz. -->
+<style>
+  :root{
+    --ink:#1C2422; --paper:#F5F6F3; --card:#FFFFFF; --line:#2A3330;
+    --mut:#5C6662;
+    --pu:#6D4FC4; --pu-f:#EFEAFB;
+    --te:#0E6B54; --te-f:#E3F1EB;
+    --gr:#667080; --gr-f:#ECEFF1;
+    --am:#A8620A; --am-f:#FBF3E4;
+    --bl:#1D5FA8; --bl-f:#E6EFF9;
+    --rd:#B3261E; --rd-f:#FBEAE8;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--paper);color:var(--ink);
+    font-family:"Avenir Next","Segoe UI",system-ui,sans-serif;
+    font-size:15px;line-height:1.55;padding:0 0 64px}
+  header{border-bottom:2px solid var(--line);background:var(--card);padding:26px 34px 20px}
+  header .docid{font-family:ui-monospace,monospace;font-size:12px;color:var(--mut);letter-spacing:.04em}
+  header h1{font-size:25px;font-weight:600;margin:6px 0 4px}
+  header p.sub{color:var(--mut);max-width:940px}
+  .status{display:inline-block;margin-top:10px;background:var(--te-f);border:1px solid var(--te);
+    color:#0A5240;border-radius:6px;padding:4px 12px;font-family:ui-monospace,monospace;font-size:12px}
+  main{max-width:1280px;margin:0 auto;padding:0 20px}
+  section{margin-top:34px}
+  h2{font-size:19px;font-weight:600;border-left:4px solid var(--line);padding-left:12px;margin-bottom:14px}
+  h2 .sn{font-family:ui-monospace,monospace;font-size:12px;color:var(--mut);margin-right:8px}
+  p{margin:10px 0}
+  .note{background:var(--card);border:1px solid #D8DDD9;border-radius:8px;padding:14px 18px;margin:12px 0}
+  .note.am{background:var(--am-f);border-color:var(--am)}
+  .note.bl{background:var(--bl-f);border-color:var(--bl)}
+  .diagwrap{background:var(--card);border:1px solid #D8DDD9;border-radius:10px;padding:14px 12px}
+  .diagwrap svg{display:block;width:100%;height:auto}
+  svg text{fill:var(--ink)}
+  svg .th{font:600 13.5px "Avenir Next","Segoe UI",sans-serif}
+  svg .ts{font:11.5px "Avenir Next","Segoe UI",sans-serif}
+  svg .tm{font:600 10.5px ui-monospace,monospace;fill:#5C6662}
+  svg .tw{font:600 10.5px ui-monospace,monospace;fill:#FFFFFF}
+  svg .arr{stroke:var(--line);stroke-width:1.4;fill:none}
+  svg .arrflow{stroke:var(--te);stroke-width:1.1;fill:none;stroke-dasharray:4 4}
+  svg .arrgov{stroke:var(--am);stroke-width:1.1;fill:none;stroke-dasharray:5 4}
+  svg .arrp3{stroke:var(--bl);stroke-width:1.4;fill:none;stroke-dasharray:6 4}
+  .legend{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:12px;font-size:13px;color:var(--mut)}
+  .legend span{display:flex;align-items:center;gap:7px}
+  .sw{width:14px;height:14px;border-radius:3px;border:1px solid}
+  table{width:100%;border-collapse:collapse;background:var(--card);
+    border:1px solid #D8DDD9;border-radius:10px;overflow:hidden;font-size:13.5px}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid #E4E8E5;vertical-align:top}
+  th{background:#EEF1EE;font-weight:600;font-size:12.5px}
+  tr:last-child td{border-bottom:none}
+  code{font-family:ui-monospace,monospace;font-size:12.5px;background:#EDF0ED;
+    border-radius:4px;padding:1px 5px}
+  .num{font-family:ui-monospace,monospace;font-weight:700}
+  footer{max-width:1280px;margin:44px auto 0;padding:16px 20px 0;border-top:1px solid #D8DDD9;
+    color:var(--mut);font-size:12.5px;font-family:ui-monospace,monospace;line-height:1.8}
+  @media (max-width:900px){ .diagwrap{overflow-x:auto} .diagwrap svg{min-width:900px} }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="docid">cwf-understanding-layer-block-diagram-v1 · rev 1.0 · 2026-07-25 · anchor 194f6a8 (rev 142)</div>
+  <h1>Anlama Katmanı — Blok Diyagram</h1>
+  <p class="sub">
+    <strong>cwf-understanding-layer-architecture-v1_2</strong>'nin yapısal görünümü. Kaynak belgenin §2'si
+    turu <em>zaman içinde</em> gösterir; bu diyagram aynı mimariyi <em>kutu · sözleşme · doğa · dikiş · yetki</em>
+    olarak gösterir — yani neyin inşa edileceğini, neyin yönetilen satır olduğunu ve genişlemenin hangi
+    noktadan satır eklenerek olacağını. Yeni karar yok; kayıt var.
+  </p>
+  <div class="status">BAĞLAYICI OLAN v1_2'DİR · bu belge türetilmiş görünümdür · çelişki ⇒ v1_1 basılır</div>
+</header>
+
+<main>
+
+<section>
+  <h2><span class="sn">§1</span>Blok görünümü</h2>
+  <div class="diagwrap">
+  <svg viewBox="0 0 1240 1520" xmlns="http://www.w3.org/2000/svg" role="img"
+       aria-label="Anlama katmanı blok diyagramı: turn_context omurgası, dokuz işlem bloğu, yönetilen satır kayıtları ve ölçüm çapası">
+    <defs>
+      <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="#2A3330"/>
+      </marker>
+      <marker id="ahT" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="#0E6B54"/>
+      </marker>
+      <marker id="ahA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="#A8620A"/>
+      </marker>
+      <marker id="ahB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="#1D5FA8"/>
+      </marker>
+    </defs>
+
+    <!-- ============ OMURGA · turn_context ============ -->
+    <rect x="24" y="150" width="120" height="1180" rx="10" fill="#E3F1EB" stroke="#0E6B54" stroke-width="1.6"/>
+    <text class="th" x="84" y="180" text-anchor="middle" fill="#0A5240">turn_context</text>
+    <line x1="40" y1="192" x2="128" y2="192" stroke="#0E6B54" stroke-width="1"/>
+    <text class="ts" x="84" y="212" text-anchor="middle">append-only</text>
+    <text class="ts" x="84" y="228" text-anchor="middle">tipli · atıflı</text>
+    <text class="ts" x="84" y="244" text-anchor="middle">güven taşır</text>
+    <line x1="40" y1="258" x2="128" y2="258" stroke="#0E6B54" stroke-width="1" stroke-dasharray="3 3"/>
+    <text class="tm" x="84" y="278" text-anchor="middle">KATKI ÜÇLÜSÜ</text>
+    <text class="ts" x="84" y="296" text-anchor="middle">değer</text>
+    <text class="ts" x="84" y="312" text-anchor="middle">güven</text>
+    <text class="ts" x="84" y="328" text-anchor="middle">üretici</text>
+    <line x1="40" y1="342" x2="128" y2="342" stroke="#0E6B54" stroke-width="1" stroke-dasharray="3 3"/>
+    <text class="ts" x="84" y="362" text-anchor="middle">ağırlık =</text>
+    <text class="ts" x="84" y="378" text-anchor="middle">tüketicinin</text>
+    <text class="ts" x="84" y="394" text-anchor="middle">BAĞIMSIZ eşiği</text>
+    <text class="ts" x="84" y="414" text-anchor="middle">tüketici ağırlığını</text>
+    <text class="ts" x="84" y="430" text-anchor="middle">akışa BEYAN eder</text>
+    <line x1="40" y1="444" x2="128" y2="444" stroke="#0E6B54" stroke-width="1" stroke-dasharray="3 3"/>
+    <text class="ts" x="84" y="464" text-anchor="middle">kimse kimsenin</text>
+    <text class="ts" x="84" y="480" text-anchor="middle">katkısını</text>
+    <text class="ts" x="84" y="496" text-anchor="middle">SİLEMEZ</text>
+    <line x1="40" y1="510" x2="128" y2="510" stroke="#0E6B54" stroke-width="1" stroke-dasharray="3 3"/>
+    <text class="ts" x="84" y="530" text-anchor="middle">güven-çürümesi:</text>
+    <text class="ts" x="84" y="546" text-anchor="middle">en zayıf halkayı</text>
+    <text class="ts" x="84" y="562" text-anchor="middle">AŞAMAZ</text>
+    <line x1="40" y1="576" x2="128" y2="576" stroke="#0E6B54" stroke-width="1" stroke-dasharray="3 3"/>
+    <text class="ts" x="84" y="596" text-anchor="middle">seyreklik kısıtı:</text>
+    <text class="ts" x="84" y="612" text-anchor="middle">ağırlıklar seyrek</text>
+    <text class="ts" x="84" y="628" text-anchor="middle">kalır (tasarım)</text>
+    <line x1="40" y1="642" x2="128" y2="642" stroke="#0E6B54" stroke-width="1" stroke-dasharray="3 3"/>
+    <text class="ts" x="84" y="662" text-anchor="middle">sert kararlar</text>
+    <text class="ts" x="84" y="678" text-anchor="middle">akışta yumuşamaz</text>
+    <text class="ts" x="84" y="694" text-anchor="middle">(softmax ⇏ yönetişim)</text>
+    <line x1="40" y1="1240" x2="128" y2="1240" stroke="#0E6B54" stroke-width="1"/>
+    <text class="tm" x="84" y="1262" text-anchor="middle">TUR BİTİNCE</text>
+    <text class="ts" x="84" y="1282" text-anchor="middle">akış = tam</text>
+    <text class="ts" x="84" y="1298" text-anchor="middle">telemetri kaydı</text>
+    <text class="ts" x="84" y="1316" text-anchor="middle">tek turn id · RULE-28</text>
+
+    <!-- omurga ↔ blok bağları (oku+yazar) -->
+    <line class="arrflow" x1="144" y1="231"  x2="200" y2="231"  marker-start="url(#ahT)" marker-end="url(#ahT)"/>
+    <line class="arrflow" x1="144" y1="373"  x2="200" y2="373"  marker-start="url(#ahT)" marker-end="url(#ahT)"/>
+    <line class="arrflow" x1="144" y1="521"  x2="200" y2="521"  marker-start="url(#ahT)" marker-end="url(#ahT)"/>
+    <line class="arrflow" x1="144" y1="690"  x2="200" y2="690"  marker-start="url(#ahT)" marker-end="url(#ahT)"/>
+    <line class="arrflow" x1="144" y1="878"  x2="200" y2="878"  marker-start="url(#ahT)" marker-end="url(#ahT)"/>
+    <line class="arrflow" x1="144" y1="1044" x2="200" y2="1044" marker-start="url(#ahT)" marker-end="url(#ahT)"/>
+    <line class="arrflow" x1="144" y1="1170" x2="200" y2="1170" marker-start="url(#ahT)" marker-end="url(#ahT)"/>
+    <line class="arrflow" x1="144" y1="1286" x2="200" y2="1286" marker-start="url(#ahT)" marker-end="url(#ahT)"/>
+
+    <!-- ============ ① KULLANICI ============ -->
+    <rect x="200" y="90" width="620" height="54" rx="9" fill="#ECEFF1" stroke="#667080" stroke-width="1.4"/>
+    <text class="th" x="216" y="114">① Kullanıcı</text>
+    <text class="ts" x="216" y="134">«Ganit fabrikasında sırlama 3-4-5 hattının fire ortalaması»</text>
+
+    <!-- ============ ② NORMALIZER ============ -->
+    <line class="arr" x1="510" y1="144" x2="510" y2="164" marker-end="url(#ah)"/>
+    <rect x="200" y="168" width="620" height="126" rx="9" fill="#EFEAFB" stroke="#6D4FC4" stroke-width="1.6"/>
+    <text class="th" x="216" y="192">② Normalizer / IR Router</text>
+    <rect x="700" y="176" width="112" height="20" rx="5" fill="#6D4FC4"/>
+    <text class="tw" x="756" y="190" text-anchor="middle">LLM · 1 / 2</text>
+    <text class="ts" x="216" y="214">doğa: yüzeyi YAKALAR — yorumlamaz, tip ATAMAZ</text>
+    <text class="ts" x="216" y="230">yazar: frame{ action · object · entity_ref[] · metric · time-surface }</text>
+    <text class="ts" x="216" y="246">+ HER SLOTA GÜVEN (düşük güven bir hata değil, bir katkıdır)</text>
+    <text class="tm" x="216" y="266">A-1 · router tip YAYINLAMAZ — turu etkileyen sınıflandırma LLM yargısı olamaz</text>
+    <text class="tm" x="216" y="282">router sözleşmesi + prompt.segment DEĞİŞMEZ ⇒ GOLDEN FREEZE'e temas yok</text>
+
+    <!-- ============ ③ TYPER ============ -->
+    <line class="arr" x1="510" y1="294" x2="510" y2="314" marker-end="url(#ah)"/>
+    <rect x="200" y="318" width="620" height="110" rx="9" fill="#E3F1EB" stroke="#0E6B54" stroke-width="1.6"/>
+    <text class="th" x="216" y="342">③ Mention Typer</text>
+    <rect x="672" y="326" width="140" height="20" rx="5" fill="#0E6B54"/>
+    <text class="tw" x="742" y="340" text-anchor="middle">DETERMİNİSTİK</text>
+    <text class="ts" x="216" y="364">NEGATİF sınıflandırıcı: «4-12 vardiyası» = shift ✗ · «ortalama» = kapsam-sinyali</text>
+    <text class="ts" x="216" y="380">⇒ entity_ref'e girmez, sayıma girmez (frame'in aşırı-çıkarımı burada durur)</text>
+    <text class="tm" x="216" y="400">A-2 · pozitif taksonomi çözümlemenin ÇIKTISIDIR; tanınmayan mention NIL'e düşer</text>
+    <text class="tm" x="216" y="416">kodda regex sabiti YOK — desenler yönetilen satır</text>
+
+    <!-- ============ ④ RESOLVE ============ -->
+    <line class="arr" x1="510" y1="428" x2="510" y2="448" marker-end="url(#ah)"/>
+    <rect x="200" y="452" width="620" height="138" rx="9" fill="#E3F1EB" stroke="#0E6B54" stroke-width="1.6"/>
+    <text class="th" x="216" y="476">④ Resolve — iki kanal + füzyon</text>
+    <rect x="672" y="460" width="140" height="20" rx="5" fill="#0E6B54"/>
+    <text class="tw" x="742" y="474" text-anchor="middle">DETERMİNİSTİK</text>
+    <text class="ts" x="216" y="498">kanal-1 · TR-fold + prefix + DL≤2 → yazım hatası: «Ganit» → «Granit» (mesafe 1)</text>
+    <text class="ts" x="216" y="514">kanal-2 · BM25 ad+alias → çok-token: «sırlama 3-4-5» → «Sırlama Hattı 3»</text>
+    <text class="ts" x="216" y="530">füzyon · RRF → normalize s₁ ≥ s₂ ≥ …</text>
+    <text class="ts" x="216" y="546">arama uzayı = DOLU ÇAPALARIN KAPSAMI (kapsama-grafı arayüzünden okunur)</text>
+    <text class="tm" x="216" y="566">A-7 · τ/β yalnız-DL üstüne kurulmaz — çok-token yüzeyler skor uzayına girmeden</text>
+    <text class="tm" x="216" y="582">sessiz NIL'e düşer ve τ ayarı bunu DÜZELTEMEZ</text>
+
+    <!-- ============ ⑤ TEŞHİS ============ -->
+    <line class="arr" x1="510" y1="590" x2="510" y2="610" marker-end="url(#ah)"/>
+    <rect x="200" y="614" width="620" height="152" rx="9" fill="#FBF3E4" stroke="#A8620A" stroke-width="1.6"/>
+    <text class="th" x="216" y="638">⑤ Teşhis — belirsizliğin durum raporu</text>
+    <rect x="656" y="622" width="156" height="20" rx="5" fill="#A8620A"/>
+    <text class="tw" x="734" y="636" text-anchor="middle">KARAR DEĞİL</text>
+    <text class="ts" x="216" y="660">varlık · s₁ &lt; τ → NIL (epistemik) · (s₁−s₂) ≥ β → LINK · else → AMBIGUOUS (aleatorik)</text>
+    <text class="ts" x="216" y="676">çapa · ayrımlayıcı kök boş? → action'a bak: tekil = BOŞLUK · RANK/AGG = TÜMÜ</text>
+    <text class="ts" x="216" y="692">kapsam kökü · açık → oku · sinyal → çıkar · yok → SOR-adayı</text>
+    <text class="ts" x="216" y="708">taşıyıcılık = YAPISAL: çapası çözülmeden anlamı tamamlanmayan mention taşıyıcıdır</text>
+    <text class="ts" x="216" y="724">yazar: her mention/kök için teşhis + skorlar + adaylar</text>
+    <text class="tm" x="216" y="744" fill="#8A4E06">YETKİSİ OLMAYAN · hiçbir şeyi iptal edemez · soru soramaz · yorum üretemez</text>
+    <text class="tm" x="216" y="760" fill="#8A4E06">τ ve β kodda sabit değildir — yönetilen satır (A-6)</text>
+
+    <!-- ============ ⑥ YÜRÜTME ============ -->
+    <line class="arr" x1="510" y1="766" x2="510" y2="786" marker-end="url(#ah)"/>
+    <rect x="200" y="790" width="620" height="176" rx="9" fill="#E6EFF9" stroke="#1D5FA8" stroke-width="2"/>
+    <text class="th" x="216" y="814">⑥ Yürütme Kararı</text>
+    <rect x="626" y="798" width="186" height="20" rx="5" fill="#1D5FA8"/>
+    <text class="tw" x="719" y="812" text-anchor="middle">v1'DE YOKTU · YENİ MERCİ</text>
+    <text class="ts" x="216" y="836">LINK → çöz; kanonik id + ATIF akışa → devam</text>
+    <text class="ts" x="216" y="852">AMBIGUOUS + taşıyıcı → modeli ÇAĞIRMA; seçenek sun — seçenekler ÇAPADAN türer</text>
+    <text class="ts" x="216" y="868">AMBIGUOUS + taşıyıcı-değil → en iyi adayla devam; belirsizlik akışa ETİKETLİ</text>
+    <text class="ts" x="216" y="884">NIL + taşıyıcı → modeli ÇAĞIRMA; BİLDİR (soru değil) — liste çağıranın kapsamıyla</text>
+    <text class="ts" x="216" y="900">NIL + taşıyıcı-değil → mention'ı düşür; düşürme akışta GÖRÜNÜR</text>
+    <text class="ts" x="216" y="916">kapsam kapısı → açık/sinyalli: kullan + ATIFLA · ikisi de yok: SOR (24s / hafta / ay)</text>
+    <text class="tm" x="216" y="936" fill="#164C86">TEK İPTAL BİÇİMİ: «modeli çağırmamak» — hazırlanmış iş hiçbir dalda İMHA EDİLMEZ</text>
+    <text class="tm" x="216" y="952" fill="#164C86">A-5 · NIL listesi çağıranın kapsamıyla sınırlı (EAIP Sınıf C sızıntı vektörü)</text>
+
+    <!-- ============ ⑦ ARAÇ ============ -->
+    <line class="arr" x1="510" y1="966" x2="510" y2="986" marker-end="url(#ah)"/>
+    <rect x="200" y="990" width="620" height="108" rx="9" fill="#ECEFF1" stroke="#667080" stroke-width="1.4"/>
+    <text class="th" x="216" y="1014">⑦ Araç getirimi</text>
+    <rect x="666" y="998" width="146" height="20" rx="5" fill="#667080"/>
+    <text class="tw" x="739" y="1012" text-anchor="middle">MEVCUT · DEĞİŞMEZ</text>
+    <text class="ts" x="216" y="1036">Yol A · (action × object) sembolik tablo — BUGÜN</text>
+    <text class="ts" x="216" y="1052">Yol B · hybrid retrieval — IR-4 sözleşmesi (anlama katmanı ÖN KOŞULUDUR)</text>
+    <text class="tm" x="216" y="1072">ölçü: Recall@k (routerAbLens hesaplıyor · tetiği F129)</text>
+    <text class="tm" x="216" y="1088">bekçi: sunulan set genişliği — E1: tek metrik yalan söyler</text>
+
+    <!-- ============ ⑧ ANA LLM ============ -->
+    <line class="arr" x1="510" y1="1098" x2="510" y2="1118" marker-end="url(#ah)"/>
+    <rect x="200" y="1122" width="620" height="96" rx="9" fill="#EFEAFB" stroke="#6D4FC4" stroke-width="1.6"/>
+    <text class="th" x="216" y="1146">⑧ Ana LLM — cevaplama</text>
+    <rect x="700" y="1130" width="112" height="20" rx="5" fill="#6D4FC4"/>
+    <text class="tw" x="756" y="1144" text-anchor="middle">LLM · 2 / 2</text>
+    <text class="ts" x="216" y="1168">ÇÖZÜLMÜŞ veri + ETİKETLİ belirsizlik üstünde dil üretir</text>
+    <text class="tm" x="216" y="1188" fill="#4B33A0">YETKİSİ OLMAYAN · varlık bağlayamaz · kapsam seçemez · atıf yazamaz · güven uyduramaz</text>
+    <text class="tm" x="216" y="1204" fill="#4B33A0">güven-çürümesi: cevabın güveni zincirin EN ZAYIF halkasını aşamaz (ADR-001'in tur-içi hâli)</text>
+
+    <!-- ============ ⑨ GROUNDING + RENDER ============ -->
+    <line class="arr" x1="510" y1="1218" x2="510" y2="1238" marker-end="url(#ah)"/>
+    <rect x="200" y="1242" width="620" height="88" rx="9" fill="#ECEFF1" stroke="#667080" stroke-width="1.4"/>
+    <text class="th" x="216" y="1266">⑨ Grounding + Render</text>
+    <text class="ts" x="216" y="1288">atıflar AKIŞTAN okunur, model YAZMAZ (A-3): «Granit olarak yorumladım» ·</text>
+    <text class="ts" x="216" y="1304">«son 3 ay ortalaması olarak yorumladım» — varlık ve kapsam AYNI beyan sınıfı</text>
+    <text class="tm" x="216" y="1322">yapısal kayıt: mention → canonical_id → skor → yöntem</text>
+
+    <!-- ============ P3c geri besleme ============ -->
+    <path class="arrp3" d="M260,1330 L260,1348 L172,1348 L172,912 L200,912" marker-end="url(#ahB)"/>
+    <text class="tm" x="166" y="1120" fill="#1D5FA8" transform="rotate(-90 166 1120)" text-anchor="middle">P3c · «hayır, KB7» → TEK turda ⑥'ya döner</text>
+
+    <!-- ============ YÖNETİLEN SATIR KAYITLARI ============ -->
+    <text class="tm" x="860" y="300" fill="#A8620A">YÖNETİLEN SATIR — genişleme buradan SATIR EKLEYEREK olur</text>
+
+    <rect x="860" y="320" width="356" height="48" rx="8" fill="#FBF3E4" stroke="#A8620A" stroke-width="1.3"/>
+    <text class="th" x="874" y="340" fill="#7A4A08">D1 · tür kaydı</text>
+    <text class="ts" x="874" y="358">kök ve mention tipleri profil satırı — «17» kodda değil (A-9)</text>
+    <line class="arrgov" x1="860" y1="344" x2="820" y2="344" marker-end="url(#ahA)"/>
+
+    <rect x="860" y="376" width="356" height="48" rx="8" fill="#FBF3E4" stroke="#A8620A" stroke-width="1.3"/>
+    <text class="th" x="874" y="396" fill="#7A4A08">D3 · desen kaydı</text>
+    <text class="ts" x="874" y="414">typer desenleri — profil kapsamlı, yayınlı, geri alınabilir</text>
+    <line class="arrgov" x1="860" y1="400" x2="820" y2="400" marker-end="url(#ahA)"/>
+
+    <rect x="860" y="476" width="356" height="48" rx="8" fill="#FBF3E4" stroke="#A8620A" stroke-width="1.3"/>
+    <text class="th" x="874" y="496" fill="#7A4A08">D2 · kanal kaydı</text>
+    <text class="ts" x="874" y="514">gömme / graf-komşuluk = migration satırı, ameliyat değil</text>
+    <line class="arrgov" x1="860" y1="500" x2="820" y2="500" marker-end="url(#ahA)"/>
+
+    <rect x="860" y="534" width="356" height="110" rx="8" fill="#ECEFF1" stroke="#667080" stroke-width="1.4"/>
+    <text class="th" x="874" y="554">D4 · kapsama-grafı ARAYÜZÜ</text>
+    <text class="ts" x="874" y="574">SÖZLEŞME · dört sorgu: ancestors · children · roots · in_scope</text>
+    <text class="ts" x="874" y="590">BUGÜN · Postgres + recursive CTE — yeni motor YOK</text>
+    <text class="ts" x="874" y="606">YARIN · Neo4j / Apache AGE; ⑤–⑥ kodu DEĞİŞMEZ</text>
+    <text class="tm" x="874" y="626">TETİK (alarmlı raf): çok-ebeveynli graf (federasyon) VEYA</text>
+    <text class="tm" x="874" y="640">in_scope kritik yolda ms-bütçesini aşarsa — «iyi olurdu» tetik değil</text>
+    <line class="arrgov" x1="860" y1="560" x2="820" y2="560" marker-end="url(#ahA)"/>
+
+    <rect x="860" y="652" width="356" height="64" rx="8" fill="#FBF3E4" stroke="#A8620A" stroke-width="1.3"/>
+    <text class="th" x="874" y="672" fill="#7A4A08">A-6 · τ · β · sinyal tablosu</text>
+    <text class="ts" x="874" y="690">«ortalama|genelde» → geniş · «zirve|şu an» → dar · ÇAKIŞMA → SOR</text>
+    <text class="tm" x="874" y="708">yayınlı · ledger'a damgalı · geri alınabilir — öncelik tablosu YOK</text>
+    <line class="arrgov" x1="860" y1="668" x2="820" y2="668" marker-end="url(#ahA)"/>
+    <path class="arrgov" d="M860,706 L842,706 L842,850 L820,850" marker-end="url(#ahA)"/>
+
+    <rect x="860" y="880" width="356" height="110" rx="8" fill="#FBF3E4" stroke="#A8620A" stroke-width="1.6"/>
+    <text class="th" x="874" y="900" fill="#7A4A08">D5 · L5 entity-miss ledger</text>
+    <text class="ts" x="874" y="920">⑤ ve ⑥'nın her NIL ve AMBIGUOUS olayı buraya düşer:</text>
+    <text class="ts" x="874" y="936">mention · s₁ · s₂ · adaylar · turn id</text>
+    <text class="tm" x="874" y="958">Sistem etiketli veriyi KENDİSİ üretir —</text>
+    <text class="tm" x="874" y="974">ayrı bir etiketleme programı gerekmez</text>
+    <path class="arrgov" d="M820,745 L848,745 L848,908 L860,908" marker-end="url(#ahA)"/>
+    <line class="arrgov" x1="820" y1="944" x2="860" y2="944" marker-end="url(#ahA)"/>
+
+    <rect x="860" y="1010" width="356" height="64" rx="8" fill="#ECEFF1" stroke="#667080" stroke-width="1.4"/>
+    <text class="th" x="874" y="1030">öneri → insan + eval-gate → yayın</text>
+    <text class="ts" x="874" y="1050">alias · τ-β ayarı · sinyal satırı — yönetilen knowledge ÖĞRENİR,</text>
+    <text class="ts" x="874" y="1066">kapılar İNSANDA kalır (D5 · kendi-kendine öğrenme buradadır)</text>
+    <line class="arrgov" x1="1038" y1="990" x2="1038" y2="1006" marker-end="url(#ahA)"/>
+
+    <!-- ============ ÖLÇÜM BANDI ============ -->
+    <rect x="24" y="1370" width="1192" height="120" rx="10" fill="#FFFFFF" stroke="#2A3330" stroke-width="1.6"/>
+    <text class="th" x="44" y="1396">ÖLÇÜM ANAYASASI — her kutu bir «oda»dır; oda kartı dolduramıyorsa oda TANIMLI DEĞİLDİR, kod başlamaz</text>
+    <text class="ts" x="44" y="1420">oda kartı · 8 satır: SÖZLEŞME · METRİK+BEKÇİ · TABAN ÇİZGİSİ · CANLILIK KANITI · KARAR BAĞI · DİKİŞLER · KOMŞU SÖZLEŞMESİ · KATKI</text>
+    <text class="ts" x="44" y="1440">üçlü kanıt: ① oda metriği yükseldi + ② komşu sözleşmesi bozulmadı + ③ faydalı-tur oranı yükseldi — ① yükselip ③ düşerse iyileştirme SAHTEDİR, geri alınır</text>
+    <text class="ts" x="44" y="1460">sistem çapası: FAYDALI-TUR ORANI (tur; araç verisine dayalı, atıflı, duvara çarpmayan cevapla bitti mi) · bekçileri: tur maliyeti/gecikmesi + atıf ihlali sayısı</text>
+    <text class="tm" x="44" y="1480">bir oda KENDİ çıktısını puanlayamaz — onu TÜKETİCİSİ puanlar (yaşandı: frame-primary flip P1'i iyileştirdi, P2'yi kapattı)</text>
+  </svg>
+  </div>
+
+  <div class="legend">
+    <span><i class="sw" style="background:#EFEAFB;border-color:#6D4FC4"></i> mor · LLM (hâlâ İKİ çağrı: ② ve ⑧ — sayı artmadı)</span>
+    <span><i class="sw" style="background:#E3F1EB;border-color:#0E6B54"></i> yeşil · deterministik anlama + akış</span>
+    <span><i class="sw" style="background:#FBF3E4;border-color:#A8620A"></i> amber · teşhis / ledger / yönetilen satır</span>
+    <span><i class="sw" style="background:#E6EFF9;border-color:#1D5FA8"></i> mavi · kullanıcı etkileşimi + ⑥</span>
+    <span><i class="sw" style="background:#ECEFF1;border-color:#667080"></i> gri · mevcut, değişmeyen</span>
+  </div>
+</section>
+
+<section>
+  <h2><span class="sn">§2</span>Okuma anahtarı — bu diyagramda görülmesi gereken üç şey</h2>
+  <div class="note bl">
+    <strong>1 · İptal yetkisi tek bir kutudadır.</strong> ⑤ teşhis koyar ama hiçbir şeyi durduramaz; ⑥ durdurabilir
+    ama yalnız <em>«modeli çağırmama»</em> biçiminde. Bugünkü sistemin arızası tam buydu: tek sert kapı
+    (<code>stageClarify.ts:97</code>) hem teşhisi hem kararı veriyor ve hazırlanmış ~60 aracı imha ediyordu.
+  </div>
+  <div class="note am">
+    <strong>2 · Amber olan her şey satırdır, kod değildir.</strong> τ, β, sinyal tablosu, desenler, kanallar, tipler —
+    hepsi yayınlanan, ledger'a damgalanan, geri alınabilen yönetilen satırlar. Genişleme <em>ameliyat</em> değil,
+    <em>satır ekleme</em>. Bu, sistemin ürün-koşullu dallanmadan (EAIP S2) korunma biçimi.
+  </div>
+  <div class="note">
+    <strong>3 · Sol şerit bir kutu değil, anayasadır.</strong> <code>turn_context</code> yalnız veri taşımaz; güven taşır
+    ve tüketici okuduğu katkıya verdiği ağırlığı akışa geri yazar. Bu yüzden «2. oda 1. odanın katkısına ~0 ağırlık
+    veriyor» cümlesi <em>deney yapmadan</em> okunabilir — kablolama zaten enstrümandır.
+  </div>
+</section>
+
+<section>
+  <h2><span class="sn">§3</span>Blok → sözleşme → dikiş → v1_2 §9 build adımı</h2>
+  <p>Sıra v1_2 §9'undur; burada yalnızca kutulara eşlenir. Yeniden sıralama YOK.</p>
+  <table>
+    <tr><th style="width:150px">Blok</th><th>Kararı / sözleşmesi</th><th style="width:130px">Dikiş</th><th style="width:210px">§9 adımı</th></tr>
+    <tr><td><span class="num">②</span> Normalizer</td><td>yüzeyi yakalar; frame + slot güveni yazar</td><td>—</td><td>değişmiyor (A-1)</td></tr>
+    <tr><td><span class="num">③</span> Typer</td><td>negatif sınıflandırma; entity_ref'i temizler</td><td>D1 · D3</td><td>4 — typer + BM25</td></tr>
+    <tr><td><span class="num">④</span> Resolve</td><td>iki kanal + RRF; skor uzayı üretir</td><td>D2 · D4</td><td>4 — typer + BM25</td></tr>
+    <tr><td><span class="num">⑤</span> Teşhis</td><td>NIL / LINK / AMBIGUOUS + çapa + taşıyıcılık</td><td>A-6 (τ/β)</td><td><strong>3 — ⑤+⑥ (Aşama C ✓)</strong></td></tr>
+    <tr><td><span class="num">⑥</span> Yürütme</td><td>«model çağrılır mı, neyle»; tek iptal biçimi</td><td>A-6 · D4</td><td><strong>3 — ⑤+⑥ (Aşama C ✓)</strong></td></tr>
+    <tr><td><span class="num">⑦</span> Araç</td><td>Recall@k + set-genişliği bekçisi</td><td>—</td><td>1 — ÖLÇ (F129 · F174)</td></tr>
+    <tr><td><span class="num">⑧</span> Ana LLM</td><td>çözülmüş veri + etiketli belirsizlik üstünde dil</td><td>—</td><td>değişmiyor</td></tr>
+    <tr><td><span class="num">⑨</span> Render</td><td>atıfı akıştan okur; model yazmaz</td><td>—</td><td>3 (atıf) · 7 (ölçüm)</td></tr>
+    <tr><td>omurga</td><td><code>turn_context</code>: katkı üçlüsü + ağırlık beyanı</td><td>—</td><td>2 — iskelet</td></tr>
+    <tr><td>D5 ledger</td><td>NIL/AMBIGUOUS → öneri → eval-gate → yayın</td><td>D5</td><td>5 — L5 + τ/β döngüsü</td></tr>
+  </table>
+</section>
+
+<footer>
+  cwf-understanding-layer-block-diagram-v1 · rev 1.0 · 2026-07-25 · anchor 194f6a8 (rev 142)<br>
+  KAYNAK: cwf-understanding-layer-architecture-v1_2 (BAĞLAYICI) · bu belge türetilmiş YAPISAL görünümdür, yeni karar içermez<br>
+  S37-1: sunulan artifact değişmez — düzeltme v1_1 olarak basılır, yerinde değil
+</footer>
+
+</main>
+</body>
+</html>

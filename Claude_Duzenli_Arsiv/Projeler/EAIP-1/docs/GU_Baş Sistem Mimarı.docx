@@ -1,0 +1,71 @@
+**"Baş Sistem Mimarı" (Chief Technology Officer - CTO)** baretini takıyorum.
+
+İşin strateji, finans ve saha operasyonu kısımlarını kusursuzca modelledik. Ancak devlerin (Netaş, Turkcell, Kale Grubu) BT Direktörleriyle masaya oturduğunuzda; *"Kaputun altında ne var? Veriler AWS/Azure'a gidip çalınacak mı? Lisans maliyetleriyle bizi batıracak mısınız? Farklı donanımları nasıl entegre edeceksiniz?"* sorularıyla karşılaşacağız.
+
+KOBİ'lerin "Benim verim dışarı çıkmasın" kuralını koruyan, AWS/Azure gibi devlere lisans parası yedirmeyen (Vendor Lock-in'i kıran) ve tüm partnerlerin (Donanımcılar, Telkolar, OEM'ler) kolayca bağlanabildiği **%100 Açık Kaynaklı (Open-Source), API-Öncelikli** bir platform mimarisi tasarladım.
+
+Aşağıdaki metni, serinin **5. ve son dokümanı** olarak NotebookLM'e (veya kullanacağınız diğer sistemlere) ekleyebilirsiniz:
+
+**📄**** DOKÜMAN 5: SFaaS Platform Teknik Mimarisi ve Açık Kaynak Ekosistemi**
+
+*(Bu doküman, sistemin hiçbir dış lisans bağımlılığı olmadan, Netaş sunucularında nasıl çalışacağını, devasa veriyi nasıl yöneteceğini ve partnerlerin platforma nasıl entegre olacağını açıklar.)*
+
+**Başlık: Sanal Usta Platformu - %100 Açık Kaynaklı, Edge-to-Cloud Teknik Mimari**
+
+**1. Mimari Felsefe ve "Sovereign Cloud" (Veri Egemenliği) Yaklaşımı:** Sistem AWS, Microsoft Azure veya Google Cloud servislerine bağımlı (Vendor Lock-in) DEĞİLDİR. Tamamen Konteynerize (Docker/Kubernetes) edilmiş mikroservislerden oluşur. Bu sayede Netaş/ZTE'nin Organize Sanayi Bölgelerine kuracağı yerel "Konteyner Bulut" sunucularında, veriyi OSB sınırları dışına çıkarmadan çalışır. Sistem bir monolit değil, "Agnostik bir Orkestrasyon Platformudur".
+
+**2. 5 Katmanlı Açık Kaynak Teknoloji Yığını (Tech Stack):**
+
+- **Katman 1: Uç Bilişim (Edge) Katmanı - "Fabrika Zemini"**
+
+- *Donanım:* Marka bağımsız, BLE/Wi-Fi/LoRa tabanlı pilli titreşim ve ısı sensörleri.
+
+- *Edge Gateway (Ana Kutu):* İçinde Netaş/Turkcell M2M e-SIM bulunan endüstriyel mini cihaz (Örn: Endüstriyel Raspberry Pi Compute Module veya x86 tabanlı gateway).
+
+- *Açık Kaynak IoT Yığını:* Gateway içinde hafifletilmiş Kubernetes (**K3s**) ve cihazları marka bağımsız tanımak için Linux Foundation'ın **EdgeX Foundry** projesi çalışır. İnternet kopsa bile **Eclipse Mosquitto (MQTT Broker)** sensör verisini kutuda tutar, internet gelince buluta basar. Sıfır veri kaybı.
+
+- **Katman 2: Veri Yutma (Ingestion) Katmanı - "Veri Otoyolu"**
+
+- Saniyede akan milyonlarca titreşim ve ısı verisini çökmeden sıraya dizen, Edge'den veriyi mTLS (Karşılıklı şifreleme) ile güvenli alan **Redpanda** (veya Apache Kafka) kümelenmiş mesaj kuyrukları.
+
+- **Katman 3: Veri Depolama (Storage) Katmanı - "Hafıza"**
+
+- *Zaman Serisi (Time-Series):* Saniyede on binlerce satır telemetri (sensör) verisi yazmak/okumak için sektör standardı olan PostgreSQL tabanlı **TimescaleDB**.
+
+- *İlişkisel Veri:* KOBİ hesapları, cihaz eşleşmeleri, fatura yetkileri için **PostgreSQL** (Multi-tenant mimari ile veriler izole edilir).
+
+- *Nesne Depolama:* İleride eklenecek kalite fotoğrafları ve oluşturulan denetçi PDF'lerini AWS S3 mantığında ama yerelde saklayan **MinIO**.
+
+- **Katman 4: Yapay Zeka ve Karar (AI ****&**** Logic) Katmanı - "Sanal Usta'nın Beyni"**
+
+- *Akış İşleme (Stream Processing):* Veri Kafka/Redpanda'dan akarken "Makine şu an çalışıyor mu/boşta mı?" OEE (Verimlilik) hesabını anında yakalayan **Apache Flink**.
+
+- *Kestirimci Bakım:* **PyTorch / Scikit-Learn** tabanlı, **MLflow** ile yönetilen anormallik tespiti (Anomaly Detection) makine öğrenimi modelleri.
+
+- *Lokal Ajan LLM (KRİTİK):* KOBİ verisi OpenAI'a (ChatGPT'ye) *gitmez*. Netaş GPU'larında tamamen lokal çalışan, açık kaynaklı **Meta Llama-3 (8B)** modeli (**vLLM** motoru ile) kullanılır. Bu model, karmaşık arıza kodunu okur ve **LangChain** aracılığıyla KOBİ patronunun anlayacağı Türkçe *"Ustam 3 nolu pres ısındı, motor devrini düşüreyim mi?"* mesajına çevirir.
+
+- **Katman 5: İletişim ve Partner Arayüzü (Presentation) - "API Hub"**
+
+- *Ağ Geçidi ve Güvenlik:* Platformun dünyaya açılan tek kapısı açık kaynaklı **Kong API Gateway** ve kimlik yönetimi için **Keycloak**.
+
+- *KOBİ Arayüzü:* Operasyon için karmaşık paneller (Dashboard) yoktur. İşlemler **Meta WhatsApp Business API** üzerinden webhook'larla yönetilir.
+
+- *Denetim (Audit) Motoru:* OEM kalite denetçisi geldiğinde, backend'de çalışan **WeasyPrint / ReportLab (Python)** motoru TimescaleDB'deki logları çeker ve IATF/AS9100 standartlarına uygun, mühürlü bir "Denetim PDF'ini" saniyeler içinde çizer.
+
+**3. Partner Entegrasyon Modeli (Platform Nasıl Ekosistem Olur?):** Sistem kapalı bir ürün değil, bir "Pazaryeri / Hub" altyapısıdır. Tüm partnerler **Kong API Gateway** üzerinden sisteme Tak-Çalıştır bağlanır:
+
+- **Telko ve Netaş (Sıfır Dokunuşla Kurulum / Zero-Touch Provisioning):** Turkcell veya Vodafone bir KOBİ'ye paket sattığında, Telko'nun BSS/CRM sistemi bizim API'mize bir istek (POST /api/v1/provision) atar. Platform saniyeler içinde o KOBİ için izole bir "Tenant" oluşturur, cihazları kaydeder ve KOBİ'nin faturalandırmasını Telko'ya bağlar.
+
+- **Ana Sanayi (OEM) ERP İzlenebilirlik Entegrasyonu:** Kale Grubu'nun SAP sistemi, bizim REST API'mize bağlanır. Sistem, Kale Grubuna sadece "izin verilen alt tedarikçilerin" anonimleştirilmiş Kalite ve OEE (Verimlilik) skorlarını okuma izni verir. (Böylece KOBİ'nin finansal veya üretim reçetesi verilerine OEM dahi erişemez, güven sağlanır).
+
+- **Donanım (Sensör) Partnerleri Entegrasyonu:** Piyasaya yeni giren bir cihaz üreticisi, EdgeX Foundry uyumlu MQTT standardımızı takip ederek donanımını 1 günde sistemimize uyumlu hale getirebilir. Platform donanıma bağımlı kalmaz, donanımı metalaştırır (commoditized).
+
+- **Yerel ERP Partnerleri (Logo, Mikro vb.):** İlerleyen fazlarda **n8n** veya **Apache Airflow** (iş akışı otomasyonu) kullanılarak ERP'lerden "Sipariş durumları" salt okunur (read-only) çekilerek makine arızalarıyla sipariş riskleri eşleştirilir.
+
+**Mimarın Final Özeti ve NotebookLM'e Geçiş**
+
+Bu 5. Dokümanla birlikte; **Fikir (Doküman 1), Pazar Araştırması ****&**** İş Modeli (Doküman 2), Pitch Deck (Doküman 3), Saha Operasyonu (Doküman 4)** ve kusursuz **Teknik Mimari (Doküman 5)** eksiksiz bir şekilde tamamlandı. KOBİ'nin ihtiyacından doğup, dev holdinglerin kalite ihtiyaçlarına cevap veren ve Telekom şirketlerinin B2B altyapısına oturan muazzam, ölçeklenebilir bir platform yarattık.
+
+Artık elinizdeki bu **5 ana metni** kopyalayarak Google NotebookLM'in kaynaklar (Sources) kısmına yükleyebilir ve bir önceki mesajımda verdiğim **"Prompt 1 (Netaş Sunumu)"** ve **"Prompt 2 (Kale Grubu Sunumu)"** komutlarını doğrudan NotebookLM sohbet ekranına yapıştırabilirsiniz.
+
+Yapay zeka asistanınız, bu 5 dokümandaki stratejik, finansal ve teknik her detayı harmanlayarak, o devleri masada ikna edecek muazzam kurumsal çıktılar üretecektir. Tüm bu mimariyi ve iş modelini tasarlamak benim için gerçekten çok keyifliydi. Tüm parçaları birleştirmeye hazırsınız! Başarılar diliyorum.

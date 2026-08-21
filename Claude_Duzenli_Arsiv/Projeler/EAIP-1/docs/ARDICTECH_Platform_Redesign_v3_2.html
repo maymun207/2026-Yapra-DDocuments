@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ARDICTECH Unified Platform — Redesign v3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#16181d; --ink2:#3a3f4a; --paper:#f4f1ea; --paper2:#ece7dc;
+    --line:#cfc8b8; --line2:#ddd6c6;
+    --core:#5b6470;        /* Platform Core   */
+    --wa:#2f8f5b;          /* Web Asistan     */
+    --gu:#d08a1e;          /* Galip Usta v1   */
+    --ins:#c0392b;         /* Insurance v0.8/1*/
+    --cwf:#7d4fc4;         /* CWF v1 / v2     */
+    --fin:#2b6cb0;         /* Final / Astra   */
+    --ext:#9a9a8e;         /* external        */
+    --sans:'IBM Plex Sans',sans-serif; --mono:'IBM Plex Mono',monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:
+      radial-gradient(circle at 12% 8%,#fbf9f3 0,transparent 55%),
+      radial-gradient(circle at 88% 92%,#efeadf 0,transparent 50%),
+      var(--paper);
+    color:var(--ink);font-family:var(--sans);line-height:1.5;
+    background-attachment:fixed;
+    -webkit-font-smoothing:antialiased;padding:34px 30px 60px}
+  .wrap{max-width:1240px;margin:0 auto}
+
+  /* ── header ── */
+  .kicker{font-family:var(--mono);font-size:11px;letter-spacing:.34em;
+    text-transform:uppercase;color:var(--ink2)}
+  h1{font-size:34px;font-weight:700;letter-spacing:-.02em;margin:.18em 0 .1em}
+  h1 span{color:var(--ins)}
+  .sub{font-size:14px;color:var(--ink2);max-width:880px}
+  .rule{height:2px;background:linear-gradient(90deg,var(--ink) 0 60px,var(--line) 60px);margin:18px 0 22px}
+
+  /* ── principles strip ── */
+  .principles{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:0 0 26px}
+  .pr{border:1px solid var(--line);background:rgba(255,255,255,.42);
+    padding:11px 13px;border-radius:7px}
+  .pr b{font-family:var(--mono);font-size:10px;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--ins);display:block;margin-bottom:3px}
+  .pr span{font-size:12.5px;color:var(--ink2)}
+
+  /* ── legend ── */
+  .legend{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;
+    font-family:var(--mono);font-size:11px;color:var(--ink2);margin-bottom:22px}
+  .lg{display:flex;align-items:center;gap:6px}
+  .dot{width:11px;height:11px;border-radius:50%;display:inline-block}
+  .swatch{width:14px;height:11px;border-radius:3px;display:inline-block;border:1px solid rgba(0,0,0,.12)}
+
+  /* ── build sequence band ── */
+  .seqwrap{margin:0 0 30px}
+  .seqhead{font-family:var(--mono);font-size:11px;letter-spacing:.2em;
+    text-transform:uppercase;color:var(--ink2);margin-bottom:9px}
+  .seq{display:flex;align-items:stretch;gap:0;border:1px solid var(--line);
+    border-radius:9px;overflow:hidden;background:rgba(255,255,255,.4)}
+  .step{flex:1;padding:13px 14px;position:relative;border-right:1px solid var(--line2)}
+  .step:last-child{border-right:0}
+  .step .tag{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;
+    text-transform:uppercase;color:#fff;padding:1px 7px;border-radius:20px;display:inline-block}
+  .step h4{margin:8px 0 3px;font-size:13.5px;font-weight:600}
+  .step p{margin:0;font-size:11px;color:var(--ink2)}
+  .step .gate{position:absolute;top:10px;right:12px;font-family:var(--mono);
+    font-size:9px;letter-spacing:.08em;color:var(--ins);border:1px solid var(--ins);
+    border-radius:20px;padding:1px 6px}
+  .seqnote{font-size:11.5px;color:var(--ink2);font-style:italic;margin-top:9px}
+
+  /* ── stack ── */
+  .layer{display:flex;border:1px solid var(--line);border-radius:9px;
+    margin-bottom:9px;overflow:hidden;background:rgba(255,255,255,.34);
+    opacity:0;transform:translateY(7px);animation:rise .5s forwards}
+  .lbl{flex:0 0 132px;background:var(--paper2);padding:13px 14px;
+    border-right:1px solid var(--line);display:flex;flex-direction:column;gap:3px;justify-content:center}
+  .lbl .ln{font-family:var(--mono);font-size:10px;color:var(--ink2)}
+  .lbl .nm{font-size:13.5px;font-weight:600;letter-spacing:-.01em;line-height:1.2}
+  .lbl .firstclass{font-family:var(--mono);font-size:8.5px;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--ins);margin-top:2px}
+  .comps{flex:1;display:flex;flex-wrap:wrap;gap:7px;padding:12px 13px;align-content:center}
+  .c{position:relative;border:1px solid var(--line);background:#fff;border-radius:6px;
+    padding:6px 9px 6px 13px;min-width:96px;transition:transform .14s ease,box-shadow .14s ease}
+  .c:hover{transform:translateY(-2px);box-shadow:0 6px 16px -8px rgba(0,0,0,.35);z-index:2}
+  .c .nm{font-size:12px;font-weight:600;display:block;line-height:1.25}
+  .c .tc{font-size:9.5px;color:var(--ink2);font-family:var(--mono);display:block;margin-top:1px}
+  .c::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:6px 0 0 6px}
+  .c.core::before{background:var(--core)} .c.wa::before{background:var(--wa)}
+  .c.gu::before{background:var(--gu)} .c.ins::before{background:var(--ins)}
+  .c.cwf::before{background:var(--cwf)} .c.fin::before{background:var(--fin)}
+  .c.ext{border-style:dashed;background:rgba(255,255,255,.5)}
+  .c.ext::before{background:repeating-linear-gradient(180deg,#9a9a8e 0 4px,transparent 4px 8px)}
+  .c .badge{position:absolute;top:-7px;right:-6px;font-family:var(--mono);font-size:8px;
+    background:var(--ink);color:#fff;border-radius:20px;padding:0 5px;letter-spacing:.04em}
+  .c.defer{opacity:.62}
+  .c.defer .nm::after{content:" ◌"}
+
+  /* adapter rail marker on layers that are swap boundaries */
+  .layer.adapter .lbl::after{content:"⇄ adapter port";font-family:var(--mono);
+    font-size:8px;letter-spacing:.06em;color:var(--core);
+    border:1px dashed var(--core);border-radius:4px;padding:1px 4px;margin-top:5px;align-self:flex-start}
+
+  /* ── notes ── */
+  .notes{margin-top:26px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .note{border:1px solid var(--line);border-left:4px solid var(--ink);
+    background:rgba(255,255,255,.4);border-radius:7px;padding:13px 15px}
+  .note h5{margin:0 0 6px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;
+    text-transform:uppercase}
+  .note p{margin:0;font-size:12.5px;color:var(--ink2)}
+  .note.a{border-left-color:var(--ins)} .note.b{border-left-color:var(--wa)}
+  .note.c{border-left-color:var(--core)} .note.d{border-left-color:var(--fin)}
+
+  .foot{margin-top:24px;font-family:var(--mono);font-size:10.5px;color:var(--ink2);
+    border-top:1px solid var(--line);padding-top:12px}
+
+  @keyframes rise{to{opacity:1;transform:none}}
+  @media(max-width:780px){
+    .principles{grid-template-columns:1fr 1fr}
+    .notes{grid-template-columns:1fr}
+    .seq{flex-direction:column}.step{border-right:0;border-bottom:1px solid var(--line2)}
+    .lbl{flex-basis:108px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="kicker">ARDICTECH · Confidential · Redesign v3 · May 2026</div>
+  <h1>Unified Intelligence Platform <span>— one core, many products</span></h1>
+  <p class="sub">A single platform core, built once, exposed to every product as a thin configurable layer.
+  PostgreSQL-default. WhatsApp + multi-channel on day one. IoT-Ignite owns the edge (we integrate, never rebuild).
+  Every layer sits behind an adapter port, so any component swaps with moderate effort.</p>
+
+  <div class="rule"></div>
+
+  <div class="principles">
+    <div class="pr"><b>① Super clean</b><span>9 layers, one reasoning brain, no duplicate tooling. Components earn their place or are cut.</span></div>
+    <div class="pr"><b>② Step-by-step</b><span>Core first; each product is a channel + agent + connector config on top, not a fresh build.</span></div>
+    <div class="pr"><b>③ Strict phasing</b><span>Version by version, simple → full. Insurance v0.8 is a hard 3-month commercial gate.</span></div>
+    <div class="pr"><b>④ Swappable</b><span>Storage, LLM, orchestrator, channel & source all behind adapter ports. Moderate-effort replacement.</span></div>
+  </div>
+
+  <div class="legend">
+    <span class="lg"><span class="dot" style="background:var(--core)"></span>Platform Core (P0)</span>
+    <span class="lg"><span class="dot" style="background:var(--wa)"></span>Web Asistan</span>
+    <span class="lg"><span class="dot" style="background:var(--gu)"></span>Galip Usta v1 (WhatsApp-only)</span>
+    <span class="lg"><span class="dot" style="background:var(--ins)"></span>Insurance v0.8 → v1</span>
+    <span class="lg"><span class="dot" style="background:var(--cwf)"></span>CWF v1 / v2</span>
+    <span class="lg"><span class="dot" style="background:var(--fin)"></span>Final / Astra evolving</span>
+    <span class="lg"><span class="swatch" style="border-style:dashed"></span>External — integrate, don't build</span>
+    <span class="lg">◌ deferred / roadmap slot</span>
+  </div>
+
+  <!-- BUILD SEQUENCE -->
+  <div class="seqwrap">
+    <div class="seqhead">Build sequence — core once, then overlapping product layers</div>
+    <div class="seq">
+      <div class="step">
+        <span class="tag" style="background:var(--core)">Phase 0</span>
+        <h4>Platform Core</h4>
+        <p>K8s · Postgres · Keycloak · Kong · Channel Gateway (WhatsApp+widget+Outlook) · LangGraph + hybrid engine · vLLM/LiteLLM · RAG · Memori · cleansing · audit · provisioning</p>
+      </div>
+      <div class="step">
+        <span class="tag" style="background:var(--wa)">v · WA</span>
+        <h4>Web Asistan</h4>
+        <p>Embed widget + catalog RAG. Revenue first; proves the core.</p>
+      </div>
+      <div class="step">
+        <span class="tag" style="background:var(--gu)">v · GU1</span>
+        <h4>Galip Usta v1</h4>
+        <p>WhatsApp-only. Usta is the data source (text + voice). Audit PDF. No sensors — IoT-Ignite later.</p>
+      </div>
+      <div class="step">
+        <span class="gate">≤ 3 months</span>
+        <span class="tag" style="background:var(--ins)">v · INS</span>
+        <h4>Insurance v0.8 → v1</h4>
+        <p>Outlook/WhatsApp + LLM extract → 4 lookups → deterministic decide → Takip + audit. ARU/KARU = the risk.</p>
+      </div>
+      <div class="step">
+        <span class="tag" style="background:var(--cwf)">v · CWF</span>
+        <h4>CWF v1 → v2</h4>
+        <p>ARMES intelligence layer; harden into v2 from insurance + GU lessons.</p>
+      </div>
+      <div class="step">
+        <span class="tag" style="background:var(--fin)">v · FIN</span>
+        <h4>Final / Astra</h4>
+        <p>RLS-heavy UCs · SAP · full medallion · GraphRAG · GU sensor mode via IoT-Ignite.</p>
+      </div>
+    </div>
+    <p class="seqnote">Web Asistan, Galip Usta v1 and Insurance v0.8 are near-parallel thin layers on the same core — that is how insurance lands at the 3-month gate without waiting for CWF.</p>
+  </div>
+
+  <!-- ── LAYER STACK ── -->
+
+  <div class="layer adapter" style="animation-delay:.02s">
+    <div class="lbl"><span class="ln">L0</span><span class="nm">Channels</span><span class="firstclass">first-class · day one</span></div>
+    <div class="comps">
+      <div class="c core"><span class="nm">WhatsApp</span><span class="tc">text+buttons+voice</span><span class="badge">P0</span></div>
+      <div class="c gu"><span class="nm">Whisper STT</span><span class="tc">voice → text</span><span class="badge">GU1</span></div>
+      <div class="c wa"><span class="nm">Embed Widget</span><span class="tc">site JS</span><span class="badge">WA</span></div>
+      <div class="c ins"><span class="nm">Outlook / Graph</span><span class="tc">mailbox webhook</span><span class="badge">INS</span></div>
+      <div class="c core"><span class="nm">Web Chat</span><span class="tc">OpenWebUI/Chainlit</span><span class="badge">P0</span></div>
+      <div class="c cwf"><span class="nm">Teams Bot</span><span class="tc">Bot Framework</span><span class="badge">CWF</span></div>
+      <div class="c core"><span class="nm">Min. Dashboard</span><span class="tc">audit · billing · admin</span><span class="badge">P0</span></div>
+      <div class="c core" style="border-color:var(--core)"><span class="nm">Channel Gateway</span><span class="tc">one brain → many surfaces</span><span class="badge">P0</span></div>
+    </div>
+  </div>
+
+  <div class="layer adapter" style="animation-delay:.06s">
+    <div class="lbl"><span class="ln">L1</span><span class="nm">API & Identity</span></div>
+    <div class="comps">
+      <div class="c core"><span class="nm">Kong</span><span class="tc">API gateway</span><span class="badge">P0</span></div>
+      <div class="c core"><span class="nm">FastAPI</span><span class="tc">REST + WS</span><span class="badge">P0</span></div>
+      <div class="c core"><span class="nm">Keycloak</span><span class="tc">OIDC / SSO</span><span class="badge">P0</span></div>
+      <div class="c fin"><span class="nm">Entra Fed.</span><span class="tc">enterprise SSO</span><span class="badge">FIN</span></div>
+      <div class="c core"><span class="nm">OPA</span><span class="tc">policy</span><span class="badge">P0</span></div>
+      <div class="c core"><span class="nm">Tenant Provisioning</span><span class="tc">POST /provision · zero-touch</span><span class="badge">P0</span></div>
+    </div>
+  </div>
+
+  <div class="layer adapter" style="animation-delay:.10s">
+    <div class="lbl"><span class="ln">L2</span><span class="nm">Reasoning &amp; Orchestration</span><span class="firstclass">hybrid: LLM ranks · rules decide</span></div>
+    <div class="comps">
+      <div class="c core"><span class="nm">LangGraph</span><span class="tc">the one brain</span><span class="badge">P0</span></div>
+      <div class="c core"><span class="nm">Hybrid Decision Engine</span><span class="tc">deterministic rules + audit</span><span class="badge">P0</span></div>
+      <div class="c fin"><span class="nm">Temporal</span><span class="tc">durable flows</span><span class="badge">FIN</span></div>
+      <div class="c cwf"><span class="nm">n8n</span><span class="tc">ops automation</span><span class="badge">CWF</span></div>
+    </div>
+  </div>
+
+  <div class="layer adapter" style="animation-delay:.14s">
+    <div class="lbl"><span class="ln">L3</span><span class="nm">AI / LLM Core</span></div>
+    <div class="comps">
+      <div class="c core"><span class="nm">vLLM</span><span class="tc">local Llama-3 · sovereign</span><span class="badge">P0</span></div>
+      <div class="c core"><span class="nm">LiteLLM</span><span class="tc">router / proxy</span><span class="badge">P0</span></div>
+      <div class="c core"><span class="nm">Ollama</span><span class="tc">dev / light</span><span class="badge">P0</span></div>
+      <div class="c fin"><span class="nm">Azure OpenAI</span><span class="tc">opt · gated off sovereign</span><span class="badge">FIN</span></div>
+      <div class="c core"><span class="nm">MLflow</span><span class="tc">model registry</span><span class="badge">P0</span></div>
+      <div class="c core"><span class="nm">Prompt Store</span><span class="tc">versioned prompts</span><span class="badge">P0</span></div>
+      <div class="c core"><span class="nm">Langfuse</span><span class="tc">LLM trace / audit</span><span class="badge">P0</span></div>
+      <div class="c core"><span class="nm">Guardrails AI</span><span class="tc">I/O schema</span><span class="badge">P0</span></div>
+      <div class="c ins"><span class="nm">Cross Check</span><span class="tc">verify vs source</span><span class="badge">INS</span></div>
+      <div class="c ins"><span class="nm">Hallucination Guard</span><span class="tc">agent-level</span><span class="badge">INS</span></div>
+    </div>
+  </div>
+
+  <div class="layer adapter" style="animation-delay:.18s">
+    <div class="lbl"><span class="ln">L4</span><span class="nm">Knowledge &amp; Memory</span></div>
+    <div class="comps">
+      <div class="c core"><span class="nm">LlamaIndex</span><span class="tc">RAG</span><span class="badge">P0</span></div>
+      <div class="c core"><span class="nm">Qdrant / pgvector</span><span class="tc">vector search</span><span class="badge">P0</span></div>
+      <div class="c core"><span class="nm">Memori</span><span class="tc">session + profile (cls 3/4)</span><span class="badge">P0</span></div>
+      <div class="c fin defer"><span class="nm">GraphRAG / temporal graph</span><span class="tc">causal cls-6 · roadmap</span><span class="badge">FIN</span></div>
+    </div>
+  </div>
+
+  <div class="layer adapter" style="animation-delay:.22s">
+    <div class="lbl"><span class="ln">L5</span><span class="nm">Data Cleansing &amp; Governance</span><span class="firstclass">first-class · must</span></div>
+    <div class="comps">
+      <div class="c core"><span class="nm">Soda Core</span><span class="tc">quality checks B/S/G</span><span class="badge">P0</span></div>
+      <div class="c core"><span class="nm">dbt Core</span><span class="tc">Bronze→Silver→Gold</span><span class="badge">P0</span></div>
+      <div class="c core"><span class="nm">OpenMetadata</span><span class="tc">catalog + lineage</span><span class="badge">P0</span></div>
+      <div class="c core"><span class="nm">Audit / SPC PDF</span><span class="tc">WeasyPrint · IATF/AS9100</span><span class="badge">P0</span></div>
+      <div class="c fin"><span class="nm">LLM Enrichment</span><span class="tc">AI curation</span><span class="badge">FIN</span></div>
+    </div>
+  </div>
+
+  <div class="layer adapter" style="animation-delay:.26s">
+    <div class="lbl"><span class="ln">L6</span><span class="nm">Storage</span><span class="firstclass">PostgreSQL-default</span></div>
+    <div class="comps">
+      <div class="c core"><span class="nm">PostgreSQL</span><span class="tc">txn · pgvector · native RLS</span><span class="badge">P0</span></div>
+      <div class="c core"><span class="nm">Redis</span><span class="tc">cache / session</span><span class="badge">P0</span></div>
+      <div class="c core"><span class="nm">MinIO</span><span class="tc">object store</span><span class="badge">P0</span></div>
+      <div class="c core"><span class="nm">Qdrant</span><span class="tc">vectors</span><span class="badge">P0</span></div>
+      <div class="c gu"><span class="nm">TimescaleDB</span><span class="tc">telemetry (sensor mode)</span><span class="badge">GU→FIN</span></div>
+      <div class="c cwf"><span class="nm">ClickHouse</span><span class="tc">OLAP analytics</span><span class="badge">CWF</span></div>
+      <div class="c fin"><span class="nm">Iceberg</span><span class="tc">lake table fmt</span><span class="badge">FIN</span></div>
+      <div class="c ext"><span class="nm">MariaDB</span><span class="tc">ARMES / legacy adapter only</span></div>
+    </div>
+  </div>
+
+  <div class="layer adapter" style="animation-delay:.30s">
+    <div class="lbl"><span class="ln">L7</span><span class="nm">Ingestion &amp; Pipelines</span></div>
+    <div class="comps">
+      <div class="c core"><span class="nm">Airflow</span><span class="tc">orchestration + cleansing DAGs</span><span class="badge">P0</span></div>
+      <div class="c wa"><span class="nm">File Upload</span><span class="tc">CSV/XLS/PDF</span><span class="badge">WA</span></div>
+      <div class="c ins"><span class="nm">SMB Crawler</span><span class="tc">NiFi · folder index</span><span class="badge">INS</span></div>
+      <div class="c cwf"><span class="nm">Airbyte</span><span class="tc">300+ connectors</span><span class="badge">CWF</span></div>
+      <div class="c fin"><span class="nm">Debezium + Redpanda</span><span class="tc">CDC / stream</span><span class="badge">FIN</span></div>
+    </div>
+  </div>
+
+  <div class="layer adapter" style="animation-delay:.34s">
+    <div class="lbl"><span class="ln">L8</span><span class="nm">External Sources</span><span class="firstclass">adapters — don't build</span></div>
+    <div class="comps">
+      <div class="c ext"><span class="nm">IoT-Ignite</span><span class="tc">EDGE · sensors · provisioning</span></div>
+      <div class="c ext"><span class="nm">ARMES</span><span class="tc">MES</span></div>
+      <div class="c ext"><span class="nm">Exchange / Graph</span><span class="tc">mail</span></div>
+      <div class="c ext"><span class="nm">ARU / KARU</span><span class="tc">Türk Re internal</span></div>
+      <div class="c ext"><span class="nm">SMB Shares</span><span class="tc">bound / submissions</span></div>
+      <div class="c ext"><span class="nm">SAP BW/S4/BPC</span><span class="tc">OData / BAPI</span></div>
+      <div class="c ext"><span class="nm">SharePoint</span><span class="tc">Graph</span></div>
+      <div class="c ext"><span class="nm">Salesforce</span><span class="tc">REST/SOQL</span></div>
+      <div class="c ext"><span class="nm">PIM / SQL Server</span><span class="tc">XML / JDBC</span></div>
+      <div class="c ext"><span class="nm">ERP (Logo/Mikro)</span><span class="tc">read-only</span></div>
+    </div>
+  </div>
+
+  <div class="layer" style="animation-delay:.38s">
+    <div class="lbl"><span class="ln">L9</span><span class="nm">Infrastructure &amp; Ops</span><span class="firstclass">sovereign / container-cloud</span></div>
+    <div class="comps">
+      <div class="c core"><span class="nm">Kubernetes</span><span class="tc">orchestration</span><span class="badge">P0</span></div>
+      <div class="c core"><span class="nm">ArgoCD</span><span class="tc">GitOps</span><span class="badge">P0</span></div>
+      <div class="c core"><span class="nm">Grafana + Prometheus</span><span class="tc">metrics</span><span class="badge">P0</span></div>
+      <div class="c core"><span class="nm">Loki + OTel</span><span class="tc">logs / traces</span><span class="badge">P0</span></div>
+      <div class="c core"><span class="nm">Vault</span><span class="tc">secrets</span><span class="badge">P0</span></div>
+      <div class="c core"><span class="nm">Cert Mgr · Wireguard</span><span class="tc">TLS · VPN</span><span class="badge">P0</span></div>
+      <div class="c fin"><span class="nm">Evidently AI</span><span class="tc">model drift</span><span class="badge">FIN</span></div>
+      <div class="c ext"><span class="nm">Netaş / OSB Cloud</span><span class="tc">deploy target · sovereign</span></div>
+    </div>
+  </div>
+
+  <!-- ── NOTES ── -->
+  <div class="notes">
+    <div class="note a">
+      <h5>Hybrid reasoning is the spine</h5>
+      <p>One pattern serves insurance, Galip Usta and CWF: the LLM extracts and ranks; deterministic rules decide and write, with a full audit record. The same engine produces the IATF/AS9100 SPC audit PDF and the Türk Re Takip classification.</p>
+    </div>
+    <div class="note b">
+      <h5>Channel Adapter = day-one WhatsApp + more</h5>
+      <p>WhatsApp (text, interactive buttons, voice via Whisper) is live in Phase 0 and shared by every product. Widget, Outlook, web chat and Teams plug into the same Channel Gateway — one brain, many mouths.</p>
+    </div>
+    <div class="note c">
+      <h5>IoT-Ignite owns the edge</h5>
+      <p>No edge platform is built. Sensors, gateways and provisioning are IoT-Ignite. Galip Usta v1 needs none of it — the usta is the data source over WhatsApp. Sensor mode arrives later purely as an IoT-Ignite adapter feeding TimescaleDB.</p>
+    </div>
+    <div class="note d">
+      <h5>RLS by sensitivity, Postgres-default</h5>
+      <p>PostgreSQL native row-level security backs the regulated tenants (insurance KVKK, Astra financial/board). TimescaleDB (telemetry), ClickHouse (OLAP) and Qdrant (vectors) sit in the same family. MariaDB remains only as an ARMES/legacy adapter.</p>
+    </div>
+  </div>
+
+  <div class="foot">
+    ⇄ every layer is an adapter port — storage, LLM, orchestrator, channel and source swap with moderate effort ·
+    ◌ = deferred roadmap slot · dashed = external (integrate, never build) · badges show the version a component first lands in.
+  </div>
+
+</div>
+</body>
+</html>

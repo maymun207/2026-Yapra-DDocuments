@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CWF — StagesDashboard Mockup · v2</title>
+<!-- cwf-stages-dashboard-mockup-v2 · rev 2 · 2026-07-11 · supersedes v1.
+     THE FINAL-GO CONTRACT for PHASE UI-STAGES-1. Adds over v1 (owner-approved S37):
+     (1) "… daha fazla" progressive-disclosure teaching blocks per stage (developer
+         onboarding depth); (2) per-stage LANGFUSE chips bound to REAL span names only
+         (observability/config.ts + turn/pipeline.ts @ 67e35d5) — reuses the client
+         ObservabilityConfig{langfuseHost,projectId} mechanism (TRACE-LINK-1), hidden
+         when unconfigured, NO chip where no distinct span exists (no fake map);
+     (3) "‹/› kodu gör" links on 🧱 sources — REAL GitHub blob URLs pinned @ 67e35d5
+         (clickable in this mockup; the real page pins to the DEPLOYED commit SHA).
+     v1 scope = everything on this page. Faded dashed chips on stage 10 = v2 (live
+     badges — NOT in this phase). -->
+<style>
+  :root{
+    --background:#ffffff; --foreground:#252525;
+    --muted:#f7f7f7; --muted-foreground:#6b6b6b;
+    --border:#e4e4e4; --card:#ffffff;
+    --primary:#343434; --primary-foreground:#fafafa;
+    --success:#177a4c; --warning:#7a5f16; --destructive:#c93a2a;
+    --session:#4f5bd5; --trace:#0e7490;
+    --radius:0.625rem; --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  body{background:var(--background);color:var(--foreground);
+    font:14px/1.55 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    -webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+
+  .mockbar{background:#1f1f1f;color:#f2f2f2;font-size:12.5px;
+    padding:8px 20px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .mockbar b{color:#ffd27a}
+  .mockbar .v2chip{border:1px dashed #8a8a8a;color:#bdbdbd;border-radius:999px;
+    padding:1px 8px;font-size:11px;white-space:nowrap}
+
+  .frame{display:flex;min-height:calc(100vh - 36px)}
+  .side{width:236px;flex:none;border-right:1px solid var(--border);
+    padding:14px 10px;background:#fcfcfc}
+  .side .brand{font-weight:700;font-size:15px;padding:4px 10px 14px;letter-spacing:.2px}
+  .side .brand span{color:var(--muted-foreground);font-weight:500}
+  .sec{font-size:10.5px;font-weight:700;letter-spacing:.12em;color:var(--muted-foreground);
+    padding:12px 10px 4px;text-transform:uppercase}
+  .nav a{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:8px;
+    color:#3a3a3a;font-size:13.5px}
+  .nav a:hover{background:var(--muted)}
+  .nav a.active{background:#ececec;color:#111;font-weight:600}
+  .nav .dot{width:6px;height:6px;border-radius:50%;background:#c9c9c9;flex:none}
+  .nav a.active .dot{background:#111}
+  .tagnew{margin-left:auto;font-size:10px;font-weight:700;color:var(--success);
+    border:1px solid currentColor;border-radius:999px;padding:0 6px}
+  .taghome{margin-left:auto;font-size:10px;font-weight:600;color:var(--muted-foreground);
+    border:1px solid var(--border);border-radius:999px;padding:0 6px;background:#fff}
+
+  .main{flex:1;min-width:0;padding:26px 30px 60px;max-width:980px}
+  h1{font-size:21px;font-weight:700;letter-spacing:-.01em}
+  .sub{color:var(--muted-foreground);margin-top:4px;font-size:13.5px;max-width:72ch}
+  .legend{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 6px}
+  .legend span{border:1px solid var(--border);background:var(--muted);border-radius:999px;
+    padding:3px 10px;font-size:12px;color:#444}
+
+  .scopebox{margin:14px 0 26px;border:1px solid var(--border);border-radius:var(--radius);
+    background:#fbfbfa;padding:12px 16px;font-size:13px;display:flex;gap:18px;flex-wrap:wrap}
+  .scopebox .col{min-width:260px;flex:1}
+  .scopebox h4{font-size:12px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px}
+  .scopebox .v1 h4{color:var(--success)} .scopebox .v2 h4{color:var(--muted-foreground)}
+  .scopebox p{color:#4a4a4a}
+
+  .pipe{position:relative;margin-left:14px}
+  .pipe::before{content:"";position:absolute;left:17px;top:8px;bottom:8px;width:2px;background:#d8d8d8}
+  .stage{position:relative;padding:0 0 22px 52px}
+  .node{position:absolute;left:0;top:2px;width:36px;height:36px;border-radius:50%;
+    background:#fff;border:2px solid #cfcfcf;display:flex;align-items:center;
+    justify-content:center;font:600 12.5px var(--mono);color:#333;z-index:1}
+  .stage.pre .node{border-style:dashed;color:var(--muted-foreground)}
+  .card{border:1px solid var(--border);border-radius:var(--radius);background:var(--card);
+    padding:16px 18px 12px;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+  .stage.pre .card{border-style:dashed;background:#fdfdfc}
+  .card h2{font-size:15.5px;font-weight:650;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+  .card h2 .roleTag{font-size:11px;font-weight:600;color:var(--muted-foreground);
+    border:1px solid var(--border);border-radius:999px;padding:1px 8px;background:var(--muted)}
+  .card h2 .heart{color:var(--destructive)}
+
+  /* Langfuse chips row — REAL spans only */
+  .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+  .lf{display:inline-flex;align-items:center;gap:6px;border:1px solid #bcd9e2;color:var(--trace);
+    background:#f2fafc;border-radius:999px;padding:2px 10px;font-size:11.5px;white-space:nowrap}
+  .lf:hover{border-color:var(--trace)}
+  .lf .sp{font-family:var(--mono);font-size:10.5px;opacity:.85}
+
+  .blk{margin-top:9px}
+  .blk .lbl{font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--muted-foreground)}
+  .blk p{margin-top:2px;color:#333;max-width:80ch}
+  .k{font-family:var(--mono);font-size:12.5px;background:var(--muted);
+    border:1px solid var(--border);border-radius:5px;padding:0 4px;white-space:nowrap}
+
+  table{width:100%;border-collapse:collapse;margin-top:6px;font-size:13px}
+  th{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-foreground);
+    text-align:left;font-weight:700;padding:6px 8px;border-bottom:1px solid var(--border)}
+  td{padding:7px 8px;border-bottom:1px solid #f0f0f0;vertical-align:top}
+  tr:last-child td{border-bottom:0}
+  td.src{white-space:nowrap;font-family:var(--mono);font-size:12.5px}
+  td.src .ic{font-family:ui-sans-serif;margin-right:5px}
+  td.role{color:#454545}
+  .code{display:inline-flex;align-items:center;gap:3px;margin-left:7px;font:600 10.5px var(--mono);
+    color:#5a5a5a;border:1px solid var(--border);border-radius:6px;padding:0 6px;background:#fff;
+    vertical-align:1px}
+  .code:hover{border-color:#8a8a8a;color:#222}
+  .go{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);
+    border-radius:999px;padding:2.5px 10px;font-size:12px;color:#2f2f2f;background:#fff;white-space:nowrap}
+  .go:hover{border-color:#9a9a9a;background:var(--muted)}
+  .go .t{font-family:var(--mono);font-size:10.5px;color:var(--muted-foreground)}
+  .go.na{border-style:dashed;color:var(--muted-foreground);cursor:default}
+  .go.sess{border-color:var(--session);color:var(--session)}
+  .writes{font-size:10px;font-weight:700;color:var(--warning);margin-left:4px}
+
+  /* "… daha fazla" — progressive disclosure */
+  details.more{margin-top:10px;border-top:1px dashed #ececec;padding-top:6px}
+  details.more summary{list-style:none;cursor:pointer;font-size:11.5px;color:var(--muted-foreground);
+    display:inline-flex;gap:6px;align-items:center;user-select:none}
+  details.more summary::-webkit-details-marker{display:none}
+  details.more summary:hover{color:#333}
+  details.more .open-l{display:none}
+  details.more[open] .open-l{display:inline}
+  details.more[open] .closed-l{display:none}
+  .deep{margin-top:8px;font-size:13px;color:#3d3d3d;max-width:80ch}
+  .deep p{margin:0 0 8px}
+  .deep .try{border-left:3px solid var(--success);background:#f4faf6;border-radius:0 8px 8px 0;
+    padding:6px 10px;margin-top:2px}
+  .deep .try b{color:var(--success)}
+  .deep .law{font-size:11px;font-weight:700;letter-spacing:.06em;color:#7a5f16;
+    text-transform:uppercase;margin-right:6px}
+
+  .v2row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center}
+  .v2badge{border:1.5px dashed #b9b9b9;color:#9a9a9a;border-radius:999px;padding:2.5px 10px;
+    font-size:12px;background:#fcfcfc;white-space:nowrap}
+  .v2badge b{font-weight:700;color:#8a8a8a}
+  .v2tag{font-size:10px;font-weight:800;letter-spacing:.08em;color:#fff;background:#b0b0b0;
+    border-radius:4px;padding:1px 6px}
+
+  .foot{margin:34px 0 0 52px;border-top:1px solid var(--border);padding-top:12px;
+    color:var(--muted-foreground);font-size:12px;max-width:80ch}
+  @media (max-width:940px){.side{display:none}.main{padding:20px 16px 60px}}
+</style>
+</head>
+<body>
+
+<div class="mockbar">
+  <b>MOCKUP v2</b> — final-go sözleşmesi. v1'e ek: <b>"… daha fazla" öğretici bloklar</b> ·
+  <b>gerçek span'li Langfuse çipleri</b> · <b>‹/› kodu gör</b> (bu mockup'ta GERÇEK tıklanabilir
+  GitHub linkleri, @67e35d5). Bu fazda olmayan tek şey:
+  <span class="v2chip">soluk kesikli rozetler = v2 (canlı durum)</span> — 10. kademede.
+</div>
+
+<div class="frame">
+  <aside class="side">
+    <div class="brand">CWF <span>· Kontrol Düzlemi</span></div>
+    <nav class="nav">
+      <div class="sec">Belgeler</div>
+      <a href="#"><span class="dot"></span>Mimari</a>
+      <a href="#" class="active"><span class="dot"></span>Aşamalar <span class="tagnew">YENİ</span></a>
+      <a href="#"><span class="dot"></span>Kılavuzlar</a>
+      <div class="sec">Bağlantı</div>
+      <a href="#"><span class="dot"></span>MCP Sunucuları</a>
+      <a href="#"><span class="dot"></span>LLM Sağlayıcıları</a>
+      <div class="sec">Yapılandırma</div>
+      <a href="#"><span class="dot"></span>Kurallar</a>
+      <a href="#"><span class="dot"></span>Türler</a>
+      <a href="#"><span class="dot"></span>Yönlendirme</a>
+      <div class="sec">Mikroskop</div>
+      <a href="#"><span class="dot"></span>İncele</a>
+      <a href="#"><span class="dot"></span>Ayarla</a>
+      <a href="#"><span class="dot"></span>Tekrar Oynat</a>
+      <div class="sec">Yönet</div>
+      <a href="#"><span class="dot"></span>Kullanıcı Yönetimi <span class="taghome">AÇILIŞ</span></a>
+      <a href="#"><span class="dot"></span>Tekrar Oynatma Kotası</a>
+      <a href="#"><span class="dot"></span>Backend Güveni</a>
+      <a href="#"><span class="dot"></span>Aşamalı Yayın</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <h1>Ajan Boru Hattı — 14 Kademe</h1>
+    <p class="sub">Bir turn'ün baştan sona geçtiği kademeler, her kademenin görevi ve <b>ayar kolları</b>.
+      Kaynak adına tıklamak seni o kolun düzenlendiği yüzeye, <span class="k">‹/›</span> tam kaynak koduna,
+      Langfuse çipi o kademenin gerçek izlerine götürür. Sayfa hiçbir şeyi kendisi DEĞİŞTİRMEZ —
+      harita + kapı + ders.</p>
+
+    <div class="legend">
+      <span>🗄️ DB tablosu / governed satır</span>
+      <span>🧱 kod — floor · mekanik · referans</span>
+      <span>🔬 oturumluk deney (Ayarla)</span>
+      <span>✍️ bu kademede yazılır</span>
+      <span style="color:var(--trace)">◔ Langfuse span'i</span>
+    </div>
+
+    <div class="scopebox">
+      <div class="col v1"><h4>v1 — bu fazda çıkar</h4>
+        <p>Bu sayfanın tamamı: 00+14 kademe kartı, kısa bloklar + "… daha fazla" öğretici
+        genişletmeler, kaynak envanteri, gerçek <span class="k">?tab=</span> derin-linkleri,
+        gerçek span adlı Langfuse çipleri, deploy-SHA'ya pinli ‹/› kod linkleri. Salt-okunur.</p></div>
+      <div class="col v2"><h4>v2 — sonraki faz (bu fazda YOK)</h4>
+        <p>Kademe başına <b>canlı durum rozetleri</b> — aktif prompt rev'i, aktif provider,
+        routing epoch, trust tier'lar; okuma uçlarından hesaplanır, asla elle yazılmaz.
+        Örneği 10. kademede soluk gösterildi.</p></div>
+    </div>
+
+    <div class="pipe">
+
+      <!-- ═══ 00 ═══ -->
+      <div class="stage pre">
+        <div class="node">00</div>
+        <div class="card">
+          <h2>Kota Kapısı <span class="roleTag">boru hattı öncesi — kodda stage '00'</span></h2>
+          <div class="blk"><span class="lbl">Ne yapar</span>
+            <p>Turn başlamadan aylık token bütçesi rezerve edilir (reserve → clamp → settle).
+            Bütçe biterse turn hiç başlamaz.</p></div>
+          <div class="blk"><span class="lbl">Nasıl ayarlanır</span>
+            <p>Üç politika parametresi governed satırdır: <span class="k">quota.chatMonthlyTokensDefault</span> ·
+            <span class="k">quota.chatMinTurnTokens</span> · <span class="k">quota.chatTurnCeiling</span>.
+            Oturum kendi bütçesini genişletemez (<span class="k">sessionTweakable:false</span>).
+            Kullanıcı bazlı sıfırlama/istisna kota panelinden.</p></div>
+          <table>
+            <tr><th>Kaynak</th><th>Rolü</th><th>Ayar yüzeyi</th></tr>
+            <tr><td class="src"><span class="ic">🗄️</span>user_quotas</td>
+                <td class="role">Kullanıcı başına bütçe durumu</td>
+                <td><a class="go" href="#">Tekrar Oynatma Kotası <span class="t">?tab=quota</span> →</a></td></tr>
+            <tr><td class="src"><span class="ic">🗄️</span>quota.* <span style="color:var(--muted-foreground)">(agent.param)</span>
+                  <a class="code" target="_blank" href="https://github.com/maymun207/cwf_yaprak/blob/67e35d5/api/cwf/_lib/knowledge/reference/agentParams.ts">‹/›</a></td>
+                <td class="role">Politika değerleri — kod default referans, DB override, reset mevcut</td>
+                <td><a class="go" href="#">Kurallar <span class="t">?tab=rules</span> →</a></td></tr>
+            <tr><td class="src"><span class="ic">🧱</span>reserve-clamp-settle</td>
+                <td class="role">Harcama motoru — mekanik kilit</td>
+                <td><span class="go na">ayar yüzeyi yok</span></td></tr>
+          </table>
+          <details class="more"><summary><span class="closed-l">… daha fazla</span><span class="open-l">▴ gizle</span></summary>
+            <div class="deep">
+              <p><span class="law">Neden boru hattı öncesi?</span> Bütçe kontrolü prompt kurulmadan,
+              tek bir token harcanmadan yapılır: önce tahmini maliyet <b>rezerve</b> edilir, gerçek
+              kullanım <b>clamp</b>'ten geçer, cevap bitince <b>settle</b> ile mahsuplaşılır. Böylece
+              "önce harca sonra say" asla yaşanmaz.</p>
+              <p><span class="law">Güvenlik felsefesi</span> <span class="k">sessionTweakable:false</span>
+              üç parametrede de bilinçlidir: bir oturumun kendi bütçesini genişletebilmesi = yetki
+              yükseltme kapısı. Kota politikası yalnız kalıcı governed satırdan değişir; kişi-bazlı
+              istisna ayrı ve audit'li bir yüzeydir (QuotaPanel).</p>
+              <p>Bu kademenin ayrı bir Langfuse span'i yoktur (kapı, turn izinin dışındadır) — izi
+              İncele'deki kota kayıtlarıdır.</p>
+              <div class="try"><b>Dene:</b> QuotaPanel'de kendi kullanıcına düşük bir aylık override ver,
+              bir turn at; İncele'de reserve→settle satırlarını gör, sonra override'ı kaldır.</div>
+            </div>
+          </details>
+        </div>
+      </div>
+
+      <!-- ═══ 01 ═══ -->
+      <div class="stage">
+        <div class="node">01</div>
+        <div class="card">
+          <h2>Kullanıcı Sorgusu</h2>
+          <div class="chips">
+            <a class="lf" href="#">◔ Langfuse <span class="sp">cwf.stage.telemetry-init</span></a>
+            <a class="lf" href="#">◔ <span class="sp">cwf.stage.lab-overlay</span></a>
+          </div>
+          <div class="blk"><span class="lbl">Ne yapar</span>
+            <p>Sorgu ve (varsa) oturumluk deney bayrakları istek gövdesiyle girer;
+            turn kaydı <span class="k">telemetry_events</span>'te başlar.</p></div>
+          <div class="blk"><span class="lbl">Nasıl ayarlanır</span>
+            <p>Kalıcı ayar yüzeyi yok — bu kademe deney bayraklarının <b>taşıyıcısı</b>dır;
+            bayraklar Ayarla'da açılır, sunucu yetkilendirir. Örn. aynı soruyu
+            <span class="k">knowledgeSource=floor</span> ile sorup DB cevabıyla karşılaştır.</p></div>
+          <table>
+            <tr><th>Kaynak</th><th>Rolü</th><th>Ayar yüzeyi</th></tr>
+            <tr><td class="src"><span class="ic">🗄️</span>telemetry_events <span class="writes">✍️</span></td>
+                <td class="role">Turn kaydı başlar — salt-okunur izleme</td>
+                <td><a class="go" href="#">İncele <span class="t">?tab=inspect</span> →</a></td></tr>
+            <tr><td class="src"><span class="ic">🔬</span>labMode bayrakları
+                  <a class="code" target="_blank" href="https://github.com/maymun207/cwf_yaprak/blob/67e35d5/api/cwf/_lib/labMode.ts">‹/›</a></td>
+                <td class="role">Oturumluk overlay girişi</td>
+                <td><a class="go sess" href="#">Ayarla <span class="t">?tab=tweak</span> →</a></td></tr>
+          </table>
+          <details class="more"><summary><span class="closed-l">… daha fazla</span><span class="open-l">▴ gizle</span></summary>
+            <div class="deep">
+              <p><span class="law">Taşıyıcı katman</span> Bu kademede karar alınmaz: bayraklar gövdeyle
+              gelir, <b>yetki sunucuda</b> doğrulanır (capability: <span class="k">LAB_TOGGLE_SESSION</span>).
+              İstemcinin "ben yetkiliyim" demesi hiçbir şey açmaz — kapı her zaman sunucu tarafındadır.</p>
+              <p><span class="law">Tek turn kimliği (RULE 28)</span> Turn'ün OTel trace id'si tek doğruluk
+              kaynağıdır: log öneki, Langfuse trace'i ve <span class="k">telemetry_events.session_id</span>
+              hepsi AYNI id'den türer. İkinci bir per-turn id basmak yasaktır — üç yüzeyde aynı olayı
+              bulabilmen bu kurala borçludur.</p>
+              <div class="try"><b>Dene:</b> Ayarla'da bir bayrak aç, bir soru sor; İncele'de turn satırını
+              bul, oradaki Langfuse linkiyle aynı turn'ün span ağacına geç — üç yüzeyde tek id.</div>
+            </div>
+          </details>
+        </div>
+      </div>
+
+      <!-- ═══ 02 ═══ -->
+      <div class="stage">
+        <div class="node">02</div>
+        <div class="card">
+          <h2>Konuşma / Durum</h2>
+          <div class="chips">
+            <a class="lf" href="#">◔ Langfuse <span class="sp">cwf.stage.persistence-init</span></a>
+          </div>
+          <div class="blk"><span class="lbl">Ne yapar</span>
+            <p>Kimlik, rol → capability çözümü, backend kapsamı ve konuşma geçmişi yüklenir.</p></div>
+          <div class="blk"><span class="lbl">Nasıl ayarlanır</span>
+            <p>Davranış değişikliği = rol/kapsam ataması. Capability <b>kapıları</b> kodda tanımlıdır
+            (<span class="k">permissions.ts</span>) — atama veridir, kapı yapıdır.</p></div>
+          <table>
+            <tr><th>Kaynak</th><th>Rolü</th><th>Ayar yüzeyi</th></tr>
+            <tr><td class="src"><span class="ic">🗄️</span>auth.users · user_roles · user_backend_scopes</td>
+                <td class="role">Kimlik · rol→capability · backend kapsamı</td>
+                <td><a class="go" href="#">Kullanıcı Yönetimi <span class="t">?tab=users</span> →</a></td></tr>
+            <tr><td class="src"><span class="ic">🗄️</span>conversations · messages</td>
+                <td class="role">Geçmiş yükleme; replay specimen kaynağı</td>
+                <td><a class="go" href="#">Tekrar Oynat <span class="t">?tab=replay</span> →</a></td></tr>
+            <tr><td class="src"><span class="ic">🧱</span>permissions.ts
+                  <a class="code" target="_blank" href="https://github.com/maymun207/cwf_yaprak/blob/67e35d5/shared/permissions.ts">‹/›</a></td>
+                <td class="role">Capability kapıları — referans</td>
+                <td><span class="go na">yapı = kod</span></td></tr>
+          </table>
+          <details class="more"><summary><span class="closed-l">… daha fazla</span><span class="open-l">▴ gizle</span></summary>
+            <div class="deep">
+              <p><span class="law">Capability-not-role</span> Kod hiçbir yerde "admin mi?" diye sormaz;
+              <span class="k">hasPermission(CAP)</span> sorar. Rol yalnızca capability paketidir
+              (<span class="k">user_roles</span> satırı). Yeni bir yetki ihtiyacı = yeni capability
+              (kod, yapı) + rol atamaları (veri) — rol adına dallanma yasaktır.</p>
+              <p><span class="law">Kapsam</span> <span class="k">user_backend_scopes</span> kullanıcının
+              hangi backend'leri görebileceğini belirler; 07'deki araç filtresi buradan beslenir.
+              <span class="k">messages</span> ise çift görevlidir: geçmiş penceresi (05) ve ham araç
+              sonuçlarıyla birlikte replay'in <b>specimen</b> kaynağı.</p>
+              <p><span class="law">Sık hata</span> "Bu kullanıcıya şu paneli açayım" diye rolü
+              genişletmek. Doğrusu: gereken capability'yi tanımla/ata; panel görünürlüğü kapıdan türesin.</p>
+            </div>
+          </details>
+        </div>
+      </div>
+
+      <!-- ═══ 03 ═══ -->
+      <div class="stage">
+        <div class="node">03</div>
+        <div class="card">
+          <h2>Niyet / Anlama</h2>
+          <div class="blk"><span class="lbl">Ne yapar</span>
+            <p>Sorgudan kategori çıkarımı: öğrenilmiş keyword→kategori eşlemesi (advisory)
+            + statik keyword tabanı.</p></div>
+          <div class="blk"><span class="lbl">Nasıl ayarlanır</span>
+            <p>Yanlış eşleme çoğunlukla <b>öğrenme</b>dir → Yönlendirme'de görüntüle;
+            Clear epoch'u tazeler, taslak→yayın akışı nokta-atışı düzeltir.
+            <span class="k">CATEGORIES</span> kod floor'udur (governance bilinçli ertelendi).</p></div>
+          <table>
+            <tr><th>Kaynak</th><th>Rolü</th><th>Ayar yüzeyi</th></tr>
+            <tr><td class="src"><span class="ic">🗄️</span>tool_category_cache</td>
+                <td class="role">Öğrenilmiş eşleme — görüntüle · Clear · taslak→yayın</td>
+                <td><a class="go" href="#">Yönlendirme <span class="t">?tab=routing</span> →</a></td></tr>
+            <tr><td class="src"><span class="ic">🧱</span>CATEGORIES
+                  <a class="code" target="_blank" href="https://github.com/maymun207/cwf_yaprak/blob/67e35d5/api/cwf/_lib/toolCategories.ts">‹/›</a></td>
+                <td class="role">Statik taban — floor / referans</td>
+                <td><span class="go na">ertelendi (governance)</span></td></tr>
+            <tr><td class="src"><span class="ic">🔬</span>routingBypass</td>
+                <td class="role">Bu katmanı oturumluk atla</td>
+                <td><a class="go sess" href="#">Ayarla <span class="t">?tab=tweak</span> →</a></td></tr>
+          </table>
+          <details class="more"><summary><span class="closed-l">… daha fazla</span><span class="open-l">▴ gizle</span></summary>
+            <div class="deep">
+              <p><span class="law">§7 yasası</span> Öğrenme yalnız <b>bulmayı</b> iyileştirir
+              (hangi araçlar aday), asla <b>bilmeyi</b> değil (doğruluk). Bu yüzden
+              <span class="k">tool_category_cache</span> advisory'dir: en kötü ihtimalle araç geç
+              bulunur; cevap YANLIŞLANMAZ.</p>
+              <p><span class="law">Epoch</span> Clear silmez, <b>epoch'u ilerletir</b>: cache anahtarı
+              epoch içerir, eski öğrenmelerin tamamı tek hamlede geçersizleşir — satır satır temizlik
+              derdi yok. Nokta-atışı düzeltme ise L4 taslak→yayın akışıdır: taslak kişiseldir, yayın
+              super yetkisi ister (sandbox-parity).</p>
+              <p><span class="law">İz</span> Bu katmanın ayrı bir span'i yoktur — çıkarım 07'nin
+              <span class="k">cwf.stage.register-tools</span> span'i içinde koşar; oradaki çipten izle.</p>
+              <div class="try"><b>Dene:</b> Yönlendirme'de bir keyword'ün öğrenilmiş eşlemesini bul;
+              Ayarla'da <span class="k">routingBypass</span> ile aynı soruyu sor ve sunulan araç setinin
+              değiştiğini Tekrar Oynat routing lens'iyle karşılaştır.</div>
+            </div>
+          </details>
+        </div>
+      </div>
+
+      <!-- ═══ 04 ═══ -->
+      <div class="stage">
+        <div class="node">04</div>
+        <div class="card">
+          <h2>Planlama / Ayrıştırma</h2>
+          <div class="blk"><span class="lbl">Ne yapar</span>
+            <p>Ayrı planlayıcı yok — planlama araç döngüsünde örtük. (LangGraph ertelendi.)</p></div>
+          <div class="blk"><span class="lbl">Nasıl ayarlanır</span>
+            <p>Bugün ayar yüzeyi yok. Planlayıcı geldiğinde şablonlar aynı desenle doğacak:
+            kod-referans + DB-versiyon + sandbox.</p></div>
+          <table>
+            <tr><th>Kaynak</th><th>Rolü</th><th>Ayar yüzeyi</th></tr>
+            <tr><td class="src">—</td><td class="role">Ertelenmiş bağlayıcı</td>
+                <td><span class="go na">—</span></td></tr>
+          </table>
+          <details class="more"><summary><span class="closed-l">… daha fazla</span><span class="open-l">▴ gizle</span></summary>
+            <div class="deep">
+              <p><span class="law">Neden boş?</span> Erken planlayıcı = erken karmaşıklık. Model,
+              araç döngüsü (11) içinde adım adım plan yapar; bugünkü görev karmaşıklığında bu yeterli
+              ve ÖLÇÜLEBİLİR (her adım span'li). Ayrı planlayıcı, gerçek bir çok-adımlı ihtiyaç
+              kanıtlanınca gelir.</p>
+              <p><span class="law">Doğum kuralı</span> Geldiği gün plan şablonları "önce kur sonra
+              yönet" DEĞİL, doğuştan governed olacak: kod-referans (floor·seed·reset) + DB-versiyonlu
+              değer + oturumluk sandbox önizleme — 06 ve 09'un bugünkü deseninin birebir kopyası.</p>
+            </div>
+          </details>
+        </div>
+      </div>
+
+      <!-- ═══ 05 ═══ -->
+      <div class="stage">
+        <div class="node">05</div>
+        <div class="card">
+          <h2>Bellek Getirme</h2>
+          <div class="blk"><span class="lbl">Ne yapar</span>
+            <p>Kısa vadeli bellek = <span class="k">messages</span> son-N penceresi.
+            Uzun vadeli kullanıcı belleği YOK (bilinen eksik; connector ertelendi).</p></div>
+          <div class="blk"><span class="lbl">Nasıl ayarlanır</span>
+            <p>N governed parametredir: <span class="k">agent.historyWindowN</span> —
+            Kurallar'da kalıcı değişir, Ayarla'da oturumluk denenir, referansa reset mevcut.
+            Örn. oturumlukta 4→12 yapıp bağlam etkisini Tekrar Oynat ile kıyasla.</p></div>
+          <table>
+            <tr><th>Kaynak</th><th>Rolü</th><th>Ayar yüzeyi</th></tr>
+            <tr><td class="src"><span class="ic">🗄️</span>agent.historyWindowN <span style="color:var(--muted-foreground)">(agent.param)</span>
+                  <a class="code" target="_blank" href="https://github.com/maymun207/cwf_yaprak/blob/67e35d5/api/cwf/_lib/knowledge/reference/agentParams.ts">‹/›</a></td>
+                <td class="role">Pencere boyu — kod default referans, DB override</td>
+                <td><a class="go" href="#">Kurallar <span class="t">?tab=rules</span> →</a></td></tr>
+            <tr><td class="src"><span class="ic">🔬</span>oturumluk N</td>
+                <td class="role">Kalıcılaştırmadan dene</td>
+                <td><a class="go sess" href="#">Ayarla <span class="t">?tab=tweak</span> →</a></td></tr>
+            <tr><td class="src"><span class="ic">🧱</span>messages son-N mekanizması</td>
+                <td class="role">Pencereyi kuran kod</td>
+                <td><span class="go na">mekanik</span></td></tr>
+          </table>
+          <details class="more"><summary><span class="closed-l">… daha fazla</span><span class="open-l">▴ gizle</span></summary>
+            <div class="deep">
+              <p><span class="law">Tek zincir, tek clamp</span> N'in çözümü her param gibi TEK yoldan
+              geçer: <b>lab &gt; DB-yayın &gt; kod floor</b>, ve HER kaynak aynı
+              <span class="k">[min,max]</span> clamp'inden. Zehirli bir DB satırı da, aşırı bir
+              oturumluk değer de aynı kapıda kırpılır — dağınık <span class="k">??</span> zincirleri
+              bu yolda yasaktır (OBS-3.1 dersi).</p>
+              <p><span class="law">Denge</span> Büyük N = daha çok bağlam + daha çok token + eski
+              konuların sızması; küçük N = ucuz ama unutkan. Doğru değer görev tipine bağlıdır —
+              bu yüzden N kodda gömülü değil, governed satırdır.</p>
+              <p><span class="law">İz</span> Ayrı span yok — pencere kurulumu model hazırlığının
+              içindedir; etkisini iki turn'ü Tekrar Oynat'ta yan yana koyarak görürsün.</p>
+              <div class="try"><b>Dene:</b> Ayarla'da N'i 4'e indir, çok-turlu bir konuşmada eski bir
+              detayı sor; sonra 12 ile tekrarla. Farkı replay'de karşılaştır.</div>
+            </div>
+          </details>
+        </div>
+      </div>
+
+      <!-- ═══ 06 ═══ -->
+      <div class="stage">
+        <div class="node">06</div>
+        <div class="card">
+          <h2>Bilgi / RAG</h2>
+          <div class="chips">
+            <a class="lf" href="#">◔ Langfuse <span class="sp">cwf.warm.knowledge</span></a>
+          </div>
+          <div class="blk"><span class="lbl">Ne yapar</span>
+            <p>Governed bilgi = runtime tek doğruluk kaynağı: <span class="k">domain_rules</span> (warm→read),
+            yapı sözleşmesi <span class="k">rule_kinds</span> (CORE Zod-kilitli / SOFT esnek),
+            kesinti tabanı <span class="k">referenceSchema</span> — DB çökse de empty≠zero ayakta.</p></div>
+          <div class="blk"><span class="lbl">Nasıl ayarlanır</span>
+            <p>Bilgi değişikliği = Kurallar'da taslak → kapı → yayın (rollback'li; kapı atlanamaz).
+            Risksiz deneme: taslağı Ayarla'da <span class="k">previewDrafts</span> ile yalnız kendi oturumunda gör.</p></div>
+          <table>
+            <tr><th>Kaynak</th><th>Rolü</th><th>Ayar yüzeyi</th></tr>
+            <tr><td class="src"><span class="ic">🗄️</span>domain_rules · rule_versions</td>
+                <td class="role">Governed bilgi — taslak→kapı→yayın→rollback</td>
+                <td><a class="go" href="#">Kurallar <span class="t">?tab=rules</span> →</a></td></tr>
+            <tr><td class="src"><span class="ic">🗄️</span>rule_kinds · kind_drafts</td>
+                <td class="role">Yapı sözleşmesi; lab önizleme taslakları</td>
+                <td><a class="go" href="#">Türler <span class="t">?tab=kinds</span> →</a></td></tr>
+            <tr><td class="src"><span class="ic">🧱</span>referenceSchema
+                  <a class="code" target="_blank" href="https://github.com/maymun207/cwf_yaprak/blob/67e35d5/api/cwf/_lib/knowledge/reference/referenceData.ts">‹/›</a></td>
+                <td class="role">Floor · seed · "referansa sıfırla" hedefi</td>
+                <td><span class="go na">reset hedefi (Türler'den)</span></td></tr>
+            <tr><td class="src"><span class="ic">🔬</span>knowledgeSource · previewDrafts</td>
+                <td class="role">Oturumluk floor/db anahtarı; taslak önizleme</td>
+                <td><a class="go sess" href="#">Ayarla <span class="t">?tab=tweak</span> →</a></td></tr>
+          </table>
+          <details class="more"><summary><span class="closed-l">… daha fazla</span><span class="open-l">▴ gizle</span></summary>
+            <div class="deep">
+              <p><span class="law">Altın desen (DB-first / code-floor)</span> Runtime tek doğruluk
+              kaynağı governed DB'dir; kod referansının tam ÜÇ rolü vardır: seed · reset hedefi ·
+              kesinti tabanı. Supabase çökse bile ajan bilgi-kör kalmaz — empty≠zero kesintiye
+              dayanır. Bu deseni tersine çevirmek (kod-primary, DB opsiyonel) YASAKTIR.</p>
+              <p><span class="law">Zehirlenme savunması</span> CORE kind'ların ŞEKLİ Zod'a kilitlidir
+              (yapı zehirlenemez); DEĞERLER DB'de ama yalnız sunucu-taraflı eval-gate'ten
+              (şema→referans→davranış) geçerek yayınlanır — RLS, istemcinin doğrudan publish'ini
+              reddeder. Yanlış giden yayın rollback'lenir; en kötü gün "referansa sıfırla" vardır.</p>
+              <p><span class="law">kind_drafts</span> yalnız lab önizlemede okunur — üretim yolu bu
+              tabloyu GÖREMEZ. Taslağın sızma riski yapısal olarak sıfırdır.</p>
+              <div class="try"><b>Dene:</b> SOFT bir kind'da taslak oluştur, Ayarla'da
+              <span class="k">previewDrafts</span> ile yalnız kendi oturumunda gör, yayınlamadan sil —
+              üretim hiçbir şey fark etmez.</div>
+            </div>
+          </details>
+        </div>
+      </div>
+
+      <!-- ═══ 07 ═══ -->
+      <div class="stage">
+        <div class="node">07</div>
+        <div class="card">
+          <h2>Araç Seçimi</h2>
+          <div class="chips">
+            <a class="lf" href="#">◔ Langfuse <span class="sp">cwf.stage.register-tools</span></a>
+            <a class="lf" href="#">◔ <span class="sp">cwf.stage.resolve-mcp</span></a>
+            <a class="lf" href="#">◔ <span class="sp">cwf.mcp.discover</span></a>
+          </div>
+          <div class="blk"><span class="lbl">Ne yapar</span>
+            <p>Kategoriden sunulan-set'e; epoch tazeliği; kullanıcı kapsam filtresi;
+            <span class="k">ALWAYS_INCLUDE</span> availability floor — boş araç seti yapısal olarak imkânsız.</p></div>
+          <div class="blk"><span class="lbl">Nasıl ayarlanır</span>
+            <p>"Araç sunulmadı" şüphesi → Yönlendirme lens'i <span class="k">calledButNotOffered</span>.
+            Bağlantı/token sorunu → MCP Sunucuları. Kapsam → Kullanıcı Yönetimi. Floor lab'da bile düşürülemez.</p></div>
+          <table>
+            <tr><th>Kaynak</th><th>Rolü</th><th>Ayar yüzeyi</th></tr>
+            <tr><td class="src"><span class="ic">🗄️</span>tool_category_cache · routing_cache_meta</td>
+                <td class="role">Sunulan-set + epoch (Clear = epoch bump)</td>
+                <td><a class="go" href="#">Yönlendirme <span class="t">?tab=routing</span> →</a></td></tr>
+            <tr><td class="src"><span class="ic">🗄️</span>mcp_settings · mcp_secrets · mcp_global_settings</td>
+                <td class="role">Backend bağlantı + token çözümü (secret maskeli)</td>
+                <td><a class="go" href="#">MCP Sunucuları <span class="t">?tab=mcp</span> →</a></td></tr>
+            <tr><td class="src"><span class="ic">🗄️</span>user_backend_scopes</td>
+                <td class="role">Kapsam filtresi (scopeTools)</td>
+                <td><a class="go" href="#">Kullanıcı Yönetimi <span class="t">?tab=users</span> →</a></td></tr>
+            <tr><td class="src"><span class="ic">🧱</span>ALWAYS_INCLUDE
+                  <a class="code" target="_blank" href="https://github.com/maymun207/cwf_yaprak/blob/67e35d5/api/cwf/_lib/toolCategories.ts">‹/›</a></td>
+                <td class="role">Availability floor — referans</td>
+                <td><span class="go na">ertelendi (union-floor)</span></td></tr>
+            <tr><td class="src"><span class="ic">🔬</span>routingBypass</td>
+                <td class="role">Tam araç seti (OEE parity)</td>
+                <td><a class="go sess" href="#">Ayarla <span class="t">?tab=tweak</span> →</a></td></tr>
+          </table>
+          <details class="more"><summary><span class="closed-l">… daha fazla</span><span class="open-l">▴ gizle</span></summary>
+            <div class="deep">
+              <p><span class="law">Sunulan-set nasıl doğar?</span> kategori adayları → kullanıcı
+              kapsam filtresi (<span class="k">scopeTools</span>) → <span class="k">ALWAYS_INCLUDE</span>
+              birleşimi. Floor'un anlamı: liste ne kadar kötü öğrenilirse öğrenilsin sunulan set asla
+              boşalamaz — güvence disiplinde değil, TASARIMDADIR (lab bile düşüremez).</p>
+              <p><span class="law">calledButNotOffered</span> Routing lens'inin en değerli sinyali:
+              model, sunulmayan bir aracı çağırmaya kalktıysa bu bir yönlendirme regresyonu KANITIDIR
+              — tahmin değil, kayıtlı turn üzerinde deterministik tespit.</p>
+              <p><span class="law">Secret disiplini</span> MCP token'ları secret-by-reference'tır:
+              UI yalnız env-adı/maske görür; değer hiçbir yüzeye, log'a, span'e yazılmaz (ADR-007).</p>
+              <div class="try"><b>Dene:</b> Yönlendirme'de Clear ile epoch'u ilerlet; aynı soruyu tekrar
+              sor ve <span class="k">cwf.stage.register-tools</span> span'inde sunulan-set farkını izle.</div>
+            </div>
+          </details>
+        </div>
+      </div>
+
+      <!-- ═══ 08 ═══ -->
+      <div class="stage">
+        <div class="node">08</div>
+        <div class="card">
+          <h2>Sıkıştırma</h2>
+          <div class="blk"><span class="lbl">Ne yapar</span>
+            <p><span class="k">resultStore</span> büyük araç sonuçlarını handle ile boşaltır;
+            ajan ham yığını değil sorgu araçlarını kullanır. Özetleme YOK — bilinçli stub.</p></div>
+          <div class="blk"><span class="lbl">Nasıl ayarlanır</span>
+            <p>Bugün governed kolu yok — eşikler kodda. Governed eşik satırları + feature-flag'li
+            özetleyici birlikte ertelendi (tetik: prod'da ilk gerçek bağlam taşması).</p></div>
+          <table>
+            <tr><th>Kaynak</th><th>Rolü</th><th>Ayar yüzeyi</th></tr>
+            <tr><td class="src"><span class="ic">🧱</span>resultStore
+                  <a class="code" target="_blank" href="https://github.com/maymun207/cwf_yaprak/blob/67e35d5/api/cwf/_lib/resultStore.ts">‹/›</a></td>
+                <td class="role">Offload mekanizması; eşikler kodda</td>
+                <td><span class="go na">ertelendi (eşikler + özetleyici)</span></td></tr>
+          </table>
+          <details class="more"><summary><span class="closed-l">… daha fazla</span><span class="open-l">▴ gizle</span></summary>
+            <div class="deep">
+              <p><span class="law">Neden özet yok?</span> Erken özetleme = sessiz bilgi kaybı riski.
+              Bunun yerine büyük sonuç bir <b>handle</b> alır; ajan
+              <span class="k">query_records</span> / <span class="k">aggregate_records</span> ile ham
+              veriye DETERMİNİSTİK erişir — "özetin doğruluğu" diye yeni bir güven sorunu doğmaz.</p>
+              <p><span class="law">Geleceğin şekli</span> Özetleyici geldiğinde feature-flag'li,
+              versiyonlu bir yetenek olacak (sessiz davranış değişikliği değil) ve eşikleri governed
+              L1 satırlarına taşınacak. İkisi birlikte ertelendi; tetik: prod'da ilk gerçek bağlam
+              taşması. Ayrı span yok — offload izleri İncele log'unda görünür.</p>
+            </div>
+          </details>
+        </div>
+      </div>
+
+      <!-- ═══ 09 ═══ -->
+      <div class="stage">
+        <div class="node">09</div>
+        <div class="card">
+          <h2>Prompt Birleştirme <span class="heart">— kalp</span></h2>
+          <div class="chips">
+            <a class="lf" href="#">◔ Langfuse <span class="sp">cwf.stage.assemble-prompt</span></a>
+            <a class="lf" href="#">◔ <span class="sp">cwf.warm.prompt</span></a>
+          </div>
+          <div class="blk"><span class="lbl">Ne yapar</span>
+            <p>20 enum-kilitli çekirdek segment (kimlik · güvenlik · format · araç-protokolü)
+            + backend domain pack'leri tek sistem promptunda birleşir. Segment <b>metni</b> governed'dır
+            (<span class="k">prompt.segment</span> satırları: taslak &gt; DB-yayın &gt; kod floor);
+            dizilim <b>motoru</b> koddur.</p></div>
+          <div class="blk"><span class="lbl">Nasıl ayarlanır</span>
+            <p>Metin değişikliği = Kurallar'da <span class="k">prompt.segment</span> taslak→yayın
+            (golden-canary korumalı, rollback'li). Yayın öncesi taslağı Ayarla'da yalnız kendi
+            oturumunda dene. Kademeli yüzde yayın → Aşamalı Yayın.</p></div>
+          <table>
+            <tr><th>Kaynak</th><th>Rolü</th><th>Ayar yüzeyi</th></tr>
+            <tr><td class="src"><span class="ic">🗄️</span>prompt.segment (20 segment)
+                  <a class="code" target="_blank" href="https://github.com/maymun207/cwf_yaprak/blob/67e35d5/api/cwf/_lib/prompt/core/segmentIds.ts">‹/›</a></td>
+                <td class="role">Kimlik/güvenlik/format/araç metinleri — versiyonlu değer</td>
+                <td><a class="go" href="#">Kurallar <span class="t">?tab=rules</span> →</a></td></tr>
+            <tr><td class="src"><span class="ic">🗄️</span>domain_rules (pack içeriği)</td>
+                <td class="role">Backend bilgi değerleri prompt'a dizilir</td>
+                <td><a class="go" href="#">Kurallar <span class="t">?tab=rules</span> →</a></td></tr>
+            <tr><td class="src"><span class="ic">🗄️</span>aday dilim yayını</td>
+                <td class="role">Segment adayını %'lik dilimle yay; guardrail korur</td>
+                <td><a class="go" href="#">Aşamalı Yayın <span class="t">?tab=rollout</span> →</a></td></tr>
+            <tr><td class="src"><span class="ic">🧱</span>dizilim motoru (assemble)
+                  <a class="code" target="_blank" href="https://github.com/maymun207/cwf_yaprak/blob/67e35d5/api/cwf/_lib/prompt/assemble.ts">‹/›</a></td>
+                <td class="role">Birleştirme motoru — mekanik</td>
+                <td><span class="go na">mekanik</span></td></tr>
+            <tr><td class="src"><span class="ic">🔬</span>previewDrafts</td>
+                <td class="role">Taslağı oturumunda önizle</td>
+                <td><a class="go sess" href="#">Ayarla <span class="t">?tab=tweak</span> →</a></td></tr>
+          </table>
+          <details class="more"><summary><span class="closed-l">… daha fazla</span><span class="open-l">▴ gizle</span></summary>
+            <div class="deep">
+              <p><span class="law">Yapı/değer ayrımı</span> Segment <b>id seti</b> yapıdır — 20 id
+              <span class="k">segmentIds.ts</span>'te enum-kilitlidir; yeni segment = kod işi. Segment
+              <b>metni</b> değerdir — DB-versiyonlu, gated, rollback'li; kod metni referans
+              (seed·floor·reset). Kimlik ve güvenlik metinleri bile bu desendedir — ama güvenlik
+              alanının "floor'un altına inememesi" eval-gate probuyla ayrıca kilitlidir.</p>
+              <p><span class="law">Golden-canary (L3)</span> Bir prompt.segment yayını, işaretli altın
+              specimen'lerde lens koşusunu geçmeden yayınlanamaz: "bu metin değişikliği hangi eski
+              doğru cevabı bozar?" sorusu yayından ÖNCE, deterministik olarak cevaplanır.</p>
+              <p><span class="law">promptRev damgası</span> Her turn hangi yayın revizyonuyla koştuğunu
+              üzerine yazar — "atıfsız yaşam döngüsü olmaz." Injection sınırı motor-kilididir: araç
+              içeriği system prompt'a ASLA girmez (yapısal test).</p>
+              <div class="try"><b>Dene:</b> Bir segment taslağı yaz, <span class="k">previewDrafts</span>
+              ile kendi oturumunda gör; sonra Aşamalı Yayın'da %0'lık aday olarak sahnele ve
+              yayınlamadan geri çek — tüm adımlar audit'te.</div>
+            </div>
+          </details>
+        </div>
+      </div>
+
+      <!-- ═══ 10 ═══ -->
+      <div class="stage">
+        <div class="node">10</div>
+        <div class="card">
+          <h2>LLM Çıkarımı</h2>
+          <div class="chips">
+            <a class="lf" href="#">◔ Langfuse <span class="sp">cwf.stage.resolve-provider</span></a>
+            <a class="lf" href="#">◔ <span class="sp">cwf.stream.attempt</span></a>
+            <a class="lf" href="#">◔ <span class="sp">cwf.warm.params</span></a>
+          </div>
+          <div class="blk"><span class="lbl">Ne yapar</span>
+            <p>TEK gateway (<span class="k">streamText</span>) — provider/model çözümü
+            <span class="k">llm_providers</span> <b>satırından</b>; model sıcaklığı governed parametre.</p></div>
+          <div class="blk"><span class="lbl">Nasıl ayarlanır</span>
+            <p>Provider ekle/değiştir = Sağlayıcılar'da satır işlemi (anahtar maskeli,
+            secret-by-reference). <span class="k">agent.temperature</span> → Kurallar'da kalıcı;
+            Ayarla'da oturumluk <span class="k">forceProvider</span> / sıcaklık denemesi.
+            Kişisel provider = Personal bölümü.</p></div>
+          <table>
+            <tr><th>Kaynak</th><th>Rolü</th><th>Ayar yüzeyi</th></tr>
+            <tr><td class="src"><span class="ic">🗄️</span>llm_providers (+personal +secrets)</td>
+                <td class="role">Provider/model satırları; anahtarlar maskeli</td>
+                <td><a class="go" href="#">LLM Sağlayıcıları <span class="t">?tab=providers</span> →</a></td></tr>
+            <tr><td class="src"><span class="ic">🗄️</span>agent.temperature <span style="color:var(--muted-foreground)">(agent.param)</span>
+                  <a class="code" target="_blank" href="https://github.com/maymun207/cwf_yaprak/blob/67e35d5/api/cwf/_lib/knowledge/reference/agentParams.ts">‹/›</a></td>
+                <td class="role">Model sıcaklığı — kod default referans, DB override</td>
+                <td><a class="go" href="#">Kurallar <span class="t">?tab=rules</span> →</a></td></tr>
+            <tr><td class="src"><span class="ic">🧱</span>tek gateway</td>
+                <td class="role">streamText tek çağrı noktası — mekanik</td>
+                <td><span class="go na">mekanik</span></td></tr>
+            <tr><td class="src"><span class="ic">🔬</span>forceProvider</td>
+                <td class="role">Oturumluk provider pin'i</td>
+                <td><a class="go sess" href="#">Ayarla <span class="t">?tab=tweak</span> →</a></td></tr>
+          </table>
+          <div class="v2row">
+            <span class="v2tag">v2 ÖRNEĞİ</span>
+            <span class="v2badge">aktif: <b>gemini · flash</b></span>
+            <span class="v2badge">temperature: <b>0.2</b> (DB override)</span>
+            <span class="v2badge">son yayın: <b>2 gün önce</b></span>
+          </div>
+          <details class="more"><summary><span class="closed-l">… daha fazla</span><span class="open-l">▴ gizle</span></summary>
+            <div class="deep">
+              <p><span class="law">Tek gateway yasası</span> <span class="k">streamText</span> TEK
+              çağrı noktasıdır: her provider aynı kapıdan geçer, telemetri yalnız orada açılır.
+              Yeni bir model eklemek migration değil, bilinen bir aile içinde governed bir SATIRDIR;
+              bilinmeyen aile kodda hata fırlatır (yapı işi).</p>
+              <p><span class="law">Boş completion floor'u</span> Boş/anormal cevap asla boş ekran
+              olmaz: dürüst mesaj + sınırlı AYNI-provider yeniden deneme. Cross-provider takas
+              yasaktır — hata anında sessizce model değiştirmek, ölçülemeyen bir davranış
+              değişikliğidir.</p>
+              <p><span class="law">Kişisel provider</span> Sahibine RLS-kilitlidir; anahtar
+              secret-by-reference. Replay, kişisel provider'la koşabilir — üretim trafiğine
+              dokunmadan A/B karşılaştırması yaparsın.</p>
+              <div class="try"><b>Dene:</b> Ayarla'da <span class="k">forceProvider</span> ile aynı
+              soruyu iki provider'a sor; iki turn'ün <span class="k">cwf.stream.attempt</span>
+              span'lerini Langfuse'da yan yana incele (token, gecikme, sonuç).</div>
+            </div>
+          </details>
+        </div>
+      </div>
+
+      <!-- ═══ 11 ═══ -->
+      <div class="stage">
+        <div class="node">11</div>
+        <div class="card">
+          <h2>Araç Döngüsü</h2>
+          <div class="chips">
+            <a class="lf" href="#">◔ Langfuse <span class="sp">cwf.mcp.tool</span></a>
+            <a class="lf" href="#">◔ <span class="sp">cwf.mcp.attempt</span></a>
+          </div>
+          <div class="blk"><span class="lbl">Ne yapar</span>
+            <p><span class="k">executeMCPTool</span> canlı ARMES/Superset çağrıları yapar —
+            cevabın asıl <b>içeriği hiçbir tabloda değildir</b>, backend'lerden canlı gelir.
+            Her çağrı telemetriye yazılır; ham sonuçlar replay için saklanır.</p></div>
+          <div class="blk"><span class="lbl">Nasıl ayarlanır</span>
+            <p>Bağlantı/token = MCP Sunucuları. İçerik ayarlanmaz — ilke: tablolar çerçeveyi verir
+            (ne bilir · neye güvenir · nasıl konuşur), backend'ler içeriği verir.</p></div>
+          <table>
+            <tr><th>Kaynak</th><th>Rolü</th><th>Ayar yüzeyi</th></tr>
+            <tr><td class="src"><span class="ic">🗄️</span>mcp_settings · mcp_secrets</td>
+                <td class="role">Bağlantı + token çözümü (server-side)</td>
+                <td><a class="go" href="#">MCP Sunucuları <span class="t">?tab=mcp</span> →</a></td></tr>
+            <tr><td class="src"><span class="ic">🗄️</span>telemetry_events <span class="writes">✍️</span></td>
+                <td class="role">tool_call kayıtları</td>
+                <td><a class="go" href="#">İncele <span class="t">?tab=inspect</span> →</a></td></tr>
+            <tr><td class="src"><span class="ic">⚡</span>canlı backend sonuçları</td>
+                <td class="role">Cevabın içeriği — tabloda değil</td>
+                <td><span class="go na">n/a</span></td></tr>
+          </table>
+          <details class="more"><summary><span class="closed-l">… daha fazla</span><span class="open-l">▴ gizle</span></summary>
+            <div class="deep">
+              <p><span class="law">Çerçeve/içerik ayrımı</span> Bu platformun kalp taşlarından biri:
+              governed tablolar ajanın NE bileceğini, NEYE güveneceğini, NASIL konuşacağını belirler;
+              ham İÇERİK her turn canlı MCP'den gelir. Bu yüzden "cevabı düzelt" diye bir tablo
+              aramazsın — çerçeveyi düzeltirsin (06/09/12), içerik backend'in sorumluluğudur.</p>
+              <p><span class="law">Replay hammaddesi</span> Her çağrının ham sonucu
+              <span class="k">messages.raw_tool_results</span>'a yazılır — replay'in girdisi HER ZAMAN
+              budur; redakte edilmiş telemetri asla girdi olmaz. Her deneme
+              <span class="k">cwf.mcp.attempt</span> span'idir: yeniden denemeler, süreler, boyutlar
+              iz ağacında tek tek görünür.</p>
+              <div class="try"><b>Dene:</b> Bir OEE sorusu sor; Langfuse'da
+              <span class="k">cwf.mcp.tool</span> span'ini aç — hangi backend, hangi araç, kaç ms,
+              sonuç boyutu. Sonra aynı turn'ü İncele'deki tool_call satırıyla eşleştir (tek id).</div>
+            </div>
+          </details>
+        </div>
+      </div>
+
+      <!-- ═══ 12 ═══ -->
+      <div class="stage">
+        <div class="node">12</div>
+        <div class="card">
+          <h2>Doğrulama</h2>
+          <div class="chips">
+            <a class="lf" href="#">◔ Langfuse <span class="sp">cwf.grounding</span></a>
+            <a class="lf" href="#">◔ <span class="sp">cwf.stage.warm-trust</span></a>
+          </div>
+          <div class="blk"><span class="lbl">Ne yapar</span>
+            <p>Deterministik motor <span class="k">groundingCheck.ts</span>:
+            empty≠zero · sayı · uydurma · kapsam-sapması (LLM-yargıç YASAK).
+            Güven katmanı: <span class="k">backends</span> (tier) +
+            <span class="k">backend_authority</span> (metrik yetki haritası); kod floor'u
+            <span class="k">backendTrust.ts</span>.</p></div>
+          <div class="blk"><span class="lbl">Nasıl ayarlanır</span>
+            <p>Tier/yetki değişikliği = Backend Güveni'nde grant/revoke (audit'li).
+            Motor mekanik kilitli — ayar yüzeyi yok; <b>ölçüm</b> yüzeyi üç lens (Tekrar Oynat).</p></div>
+          <table>
+            <tr><th>Kaynak</th><th>Rolü</th><th>Ayar yüzeyi</th></tr>
+            <tr><td class="src"><span class="ic">🗄️</span>backends · backend_authority</td>
+                <td class="role">Trust tier + yetki haritası — grant/revoke</td>
+                <td><a class="go" href="#">Backend Güveni <span class="t">?tab=trust</span> →</a></td></tr>
+            <tr><td class="src"><span class="ic">🧱</span>backendTrust.ts
+                  <a class="code" target="_blank" href="https://github.com/maymun207/cwf_yaprak/blob/67e35d5/api/cwf/_lib/knowledge/reference/backendTrust.ts">‹/›</a></td>
+                <td class="role">Trust floor · seed · reset referansı</td>
+                <td><span class="go na">referans</span></td></tr>
+            <tr><td class="src"><span class="ic">🧱</span>groundingCheck.ts
+                  <a class="code" target="_blank" href="https://github.com/maymun207/cwf_yaprak/blob/67e35d5/api/cwf/_lib/grounding/groundingCheck.ts">‹/›</a></td>
+                <td class="role">Doğrulama motoru — mekanik kilit</td>
+                <td><span class="go na">mekanik</span></td></tr>
+            <tr><td class="src"><span class="ic">🔬</span>üç lens (grounding · routing · scope)</td>
+                <td class="role">Kural değişikliğinin etkisini geçmiş turn'lerde kanıtla</td>
+                <td><a class="go sess" href="#">Tekrar Oynat <span class="t">?tab=replay</span> →</a></td></tr>
+          </table>
+          <details class="more"><summary><span class="closed-l">… daha fazla</span><span class="open-l">▴ gizle</span></summary>
+            <div class="deep">
+              <p><span class="law">Deterministik güven tezi (ADR-001)</span> Yalan söyleyen ya da
+              yanılan bir backend'i DÜRÜST yapmaya çalışmayız — <b>ZARARSIZ</b> yaparız: çıktısı
+              kontrol altında, kaynağına atıflı, gerekirse karantinada. Doğrulama asla bir modelin
+              kanaati değildir; LLM-yargıç runtime'da yasaktır.</p>
+              <p><span class="law">empty≠zero kalibrasyonu</span> İhlal, boşluğu MİKTAR SIFIR olarak
+              sunmaktır ("0 adet üretildi"); boş sonuç için "veri yok" demek İTAATTİR. Bu ayrım
+              S36'da bir gerçek hatayla bilendi: kapı, kendi önerdiği "No data was returned"
+              cümlesine ceza kesiyordu — kalibrasyon numeric-zero-only'ye çekildi.</p>
+              <p><span class="law">Üç lens ↔ üç aile</span> Grounding→<span class="k">domain_rules</span>,
+              Routing→<span class="k">tool_category_cache</span>, Scope/Authority→<span class="k">backend_authority</span>.
+              <span class="k">authorityDiff</span>, bir grant flip'inin hangi GEÇMİŞ cevapları
+              değiştireceğini token harcamadan kanıtlar.</p>
+              <div class="try"><b>Dene:</b> Tekrar Oynat'ta bir specimen seç, scope lens'ini
+              @floor ve @live eksenlerinde koştur; Backend Güveni'nde tek bir grant'i değiştirsen
+              verdiktin nasıl döneceğini <span class="k">authorityDiff</span> ile gör.</div>
+            </div>
+          </details>
+        </div>
+      </div>
+
+      <!-- ═══ 13 ═══ -->
+      <div class="stage">
+        <div class="node">13</div>
+        <div class="card">
+          <h2>Biçim / Sunum</h2>
+          <div class="blk"><span class="lbl">Ne yapar</span>
+            <p>real-0 = veri · missing = boşluk · empty = "veri yok" ayrımı + empty-guard:
+            boş cevap asla boş ekran olmaz (mekanik floor).</p></div>
+          <div class="blk"><span class="lbl">Nasıl ayarlanır</span>
+            <p><b>Davranış</b> mekanik floor'dur; kullanıcıya görünen guard/format <b>metinleri</b>
+            <span class="k">prompt.segment</span> kapsamında versiyonlu değerdir → Kurallar.</p></div>
+          <table>
+            <tr><th>Kaynak</th><th>Rolü</th><th>Ayar yüzeyi</th></tr>
+            <tr><td class="src"><span class="ic">🧱</span>outputFormat + FROM-TOOL + empty-guard
+                  <a class="code" target="_blank" href="https://github.com/maymun207/cwf_yaprak/blob/67e35d5/api/cwf/_lib/prompt/core/outputFormat.ts">‹/›</a></td>
+                <td class="role">Sunum floor'u — mekanik</td>
+                <td><span class="go na">mekanik</span></td></tr>
+            <tr><td class="src"><span class="ic">🗄️</span>guard/format metin segmentleri</td>
+                <td class="role">Kullanıcıya görünen dil — versiyonlu değer</td>
+                <td><a class="go" href="#">Kurallar <span class="t">?tab=rules</span> →</a></td></tr>
+          </table>
+          <details class="more"><summary><span class="closed-l">… daha fazla</span><span class="open-l">▴ gizle</span></summary>
+            <div class="deep">
+              <p><span class="law">Dörtlü ayrım</span> Sunum katmanı dört durumu ASLA karıştırmaz:
+              gerçek 0 = veridir (çiz) · missing = boşluktur (boş bırak) · empty = "veri yok" de ·
+              sayısal olmayan = çizilemez. Grafik makroları bu ayrımı korur; replay scorer'ı da
+              aynı ayrımı puanlar — üretimle ölçüm aynı dili konuşur.</p>
+              <p><span class="law">Davranış/dil ayrımı</span> "Boş asla boş ekran olmaz" DAVRANIŞTIR
+              (mekanik floor, dokunulmaz); kullanıcının o anda okuduğu cümle DİLDİR (governed metin,
+              versiyonlu, rollback'li). Ton değişikliği istiyorsan davranışı değil sözcükleri
+              değiştirirsin. Ayrı span yok — sunum, akış span'lerinin içindedir.</p>
+            </div>
+          </details>
+        </div>
+      </div>
+
+      <!-- ═══ 14 ═══ -->
+      <div class="stage">
+        <div class="node">14</div>
+        <div class="card">
+          <h2>Bellek Güncelleme</h2>
+          <div class="chips">
+            <a class="lf" href="#">◔ Langfuse <span class="sp">cwf.flush</span></a>
+          </div>
+          <div class="blk"><span class="lbl">Ne yapar</span>
+            <p>Turn kalıcılaşır (<span class="k">conversations</span> / <span class="k">messages</span>,
+            ham araç sonuçları dâhil — bir SONRAKİ replay'in specimen'i burada doğar).
+            Sistemin tek öğrenmesi: routing LEARN yazımı (<b>bulma</b>, asla <b>bilme</b>).
+            Kapanış telemetrisi yazılır.</p></div>
+          <div class="blk"><span class="lbl">Nasıl ayarlanır</span>
+            <p>Öğrenileni gör → düzelt → geri al = Yönlendirme (Clear nokta-atışı geri alır;
+            taslak→yayın kalıcılaştırır). Persist mekaniktir.</p></div>
+          <table>
+            <tr><th>Kaynak</th><th>Rolü</th><th>Ayar yüzeyi</th></tr>
+            <tr><td class="src"><span class="ic">🗄️</span>conversations · messages <span class="writes">✍️</span></td>
+                <td class="role">Turn persist — specimen kaynağı</td>
+                <td><a class="go" href="#">Tekrar Oynat <span class="t">?tab=replay</span> →</a></td></tr>
+            <tr><td class="src"><span class="ic">🗄️</span>tool_category_cache <span class="writes">✍️ LEARN</span></td>
+                <td class="role">Öğrenilenler — floor↔live farkı tam budur</td>
+                <td><a class="go" href="#">Yönlendirme <span class="t">?tab=routing</span> →</a></td></tr>
+            <tr><td class="src"><span class="ic">🗄️</span>telemetry_events <span class="writes">✍️</span></td>
+                <td class="role">Kapanış kayıtları</td>
+                <td><a class="go" href="#">İncele <span class="t">?tab=inspect</span> →</a></td></tr>
+          </table>
+          <details class="more"><summary><span class="closed-l">… daha fazla</span><span class="open-l">▴ gizle</span></summary>
+            <div class="deep">
+              <p><span class="law">C1 yasası</span> <span class="k">messages</span> tablosuna YALNIZ
+              canlı turn yazar; replay ve governance yolları bu tabloya ASLA yazamaz. Deney,
+              hammaddesini kirletemez — replay'in girdisi hep temiz kayıttır.</p>
+              <p><span class="law">Versiyon damgaları</span> Kapanışta turn, hangi
+              prompt-rev / param-rev / dilim ile koştuğunu üzerine yazar. Bu damgalar denetlenebilir
+              yaşam döngüsünün çekirdeğidir: bir hafta sonra "bu cevap hangi konfigürasyonun
+              ürünü?" sorusunun tek doğru cevabı buradadır.</p>
+              <p><span class="law">Tek öğrenme</span> Sistemin öğrendiği TEK şey routing eşlemesidir
+              — floor↔live farkı lens'te birebir görünür, Clear tek hamlede geri alır. "Model
+              zamanla bilgi öğrenir" diye bir mekanizma YOKTUR; bilgi yalnız 06'nın gated yolundan
+              değişir.</p>
+              <div class="try"><b>Dene:</b> Bir turn at, Yönlendirme'de az önce yazılan LEARN satırını
+              bul; Tekrar Oynat routing lens'inde floor↔live farkında aynı satırı gör, sonra Clear ile
+              geri al.</div>
+            </div>
+          </details>
+        </div>
+      </div>
+
+    </div><!-- /pipe -->
+
+    <div class="foot">
+      <b>Mockup notları:</b> Sekme kimlikleri, span adları ve dosya yolları koddan alındı
+      (<span style="font-family:var(--mono)">adminTabs.ts · observability/config.ts · turn/pipeline.ts ·
+      agentParams.ts · segmentIds.ts</span> @ 67e35d5). Gerçek sayfada: (1) her <span class="k">?tab=</span>
+      hedefi tipli — sekme silinirse link derleme hatası verir; (2) <b>‹/› kodu gör</b> linkleri
+      DEPLOY edilen commit SHA'sına pinlenir (yoksa master, etiketli) ve registry'deki her
+      <span style="font-family:var(--mono)">codePath</span> için "dosya repo'da var" testi koşar;
+      (3) <b>Langfuse çipleri</b> Inspect/Replay'in kullandığı <span style="font-family:var(--mono)">
+      ObservabilityConfig{langfuseHost, projectId}</span> mekanizmasını aynen kullanır — host
+      yapılandırılmamışsa çipler görünmez; ayrı span'i olmayan kademelerde çip YOKTUR (sahte harita
+      yok — yokluğun nedeni "daha fazla" bloğunda öğretilir); (4) açılış sekmesi bu fazla birlikte
+      <b>Kullanıcı Yönetimi</b> olur (Karar 1); (5) "… daha fazla" gerçek sayfada erişilebilir doğal
+      disclosure bileşenidir.
+      <br>cwf-stages-dashboard-mockup-v2 · rev 2 · 2026-07-11 · supersedes v1
+    </div>
+  </main>
+</div>
+
+</body>
+</html>

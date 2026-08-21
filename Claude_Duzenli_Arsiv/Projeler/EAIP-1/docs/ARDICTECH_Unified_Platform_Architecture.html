@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARDICTECH Unified Platform Architecture — CWF + Web Asistan + Astra EAIP</title>
+<style>
+  :root{--bg:#fff;--bg2:#f8fafc;--text:#0f1b2d;--text2:#6b7280;--border:#e2e8f0;--font:-apple-system,'Segoe UI','Helvetica Neue',Arial,sans-serif}
+  @media(prefers-color-scheme:dark){:root{--bg:#0f1b2d;--bg2:#1e293b;--text:#e2e8f0;--text2:#94a3b8;--border:#334155}}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--font);background:var(--bg);color:var(--text);padding:24px;max-width:1000px;margin:0 auto}
+  h1{font-size:18px;font-weight:500;margin-bottom:2px}
+  h2{font-size:13px;font-weight:400;color:var(--text2);margin-bottom:6px}
+  .ver{font-size:11px;color:var(--text2);font-style:italic;margin-bottom:14px}
+  .ctrls{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 12px}
+  .ph-btn{padding:6px 14px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;border:2px solid;transition:all .15s;user-select:none}
+  .p1on{background:#16A34A;border-color:#16A34A;color:#fff}.p1off{background:transparent;border-color:#16A34A;color:#16A34A}
+  .p2on{background:#7C3AED;border-color:#7C3AED;color:#fff}.p2off{background:transparent;border-color:#7C3AED;color:#7C3AED}
+  .p3on{background:#D97706;border-color:#D97706;color:#fff}.p3off{background:transparent;border-color:#D97706;color:#D97706}
+  .layer{display:flex;gap:5px;margin-bottom:3px;align-items:stretch}
+  .ll{width:88px;min-width:88px;display:flex;align-items:center;justify-content:center;border-radius:5px 0 0 5px;padding:3px 5px;text-align:center}
+  .ll span{font-size:9px;font-weight:500;line-height:1.2;color:#fff}
+  .lc{flex:1;display:flex;flex-wrap:wrap;gap:3px;padding:5px;border-radius:0 5px 5px 0;border:0.5px solid var(--border)}
+  .cp{padding:4px 7px;border-radius:4px;font-size:10px;line-height:1.2;border:0.5px solid;display:flex;flex-direction:column;align-items:center;text-align:center;min-width:62px;transition:opacity .2s,transform .2s}
+  .cp .nm{font-weight:500;font-size:10px}.cp .tc{font-size:7px;opacity:.6;margin-top:1px}
+  .cp .pb{font-size:6px;font-weight:500;padding:1px 4px;border-radius:2px;margin-top:2px;display:inline-block}
+  .cp.hide{opacity:.08;transform:scale(.95)}
+  .sep2{width:100%;height:0;border-top:1.5px solid var(--border);margin:4px 0 2px}
+  .leg2{display:flex;flex-wrap:wrap;gap:8px;font-size:10px;color:var(--text2);margin:4px 0 6px}
+  .leg2 span{display:flex;align-items:center;gap:3px}
+  .leg2 .sq2{width:9px;height:9px;border-radius:2px}
+  .stats{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 4px}
+  .stat{background:var(--bg2);border-radius:6px;padding:8px 12px;flex:1;min-width:100px;text-align:center}
+  .stat .sv{font-size:18px;font-weight:500}.stat .sl{font-size:10px;color:var(--text2);margin-top:2px}
+  .note{font-size:9px;color:var(--text2);margin-top:8px;line-height:1.5}
+
+  .l1 .ll{background:#1E293B}.l2 .ll{background:#6B7280}.l3 .ll{background:#7C3AED}
+  .l4 .ll{background:#2563EB}.l5 .ll{background:#0891B2}.l6 .ll{background:#DC2626}
+  .l7 .ll{background:#D97706}.l8 .ll{background:#0F172A}.l9 .ll{background:#0EA5A0}
+  .l10 .ll{background:#16A34A}
+  .c-p1{background:#F0FDF4;color:#14532D;border-color:#22C55E}
+  .c-p2{background:#F5F3FF;color:#3C3489;border-color:#8B5CF6}
+  .c-p3{background:#FFF7ED;color:#92400E;border-color:#D97706}
+  .pb1{background:#DCFCE7;color:#14532D}.pb2{background:#EDE9FE;color:#3C3489}.pb3{background:#FEF3C7;color:#92400E}
+
+  @media(prefers-color-scheme:dark){
+    .c-p1{background:#052E16;color:#86EFAC;border-color:#22C55E}
+    .c-p2{background:#2E1065;color:#C4B5FD;border-color:#8B5CF6}
+    .c-p3{background:#451A03;color:#FCD34D;border-color:#D97706}
+    .pb1{background:#14532D;color:#86EFAC}.pb2{background:#3C3489;color:#C4B5FD}.pb3{background:#92400E;color:#FCD34D}
+  }
+  @media print{body{padding:12px}.ll,.cp,.ph-btn{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+</style>
+</head>
+<body>
+<h1>ARDICTECH unified platform architecture</h1>
+<h2>Web Asistan + CWF + Astra EAIP — converged into one Lego-build platform</h2>
+<div class="ver">ARDICTECH · April 2026 · Confidential · 55 components across 10 layers</div>
+
+<div class="ctrls">
+  <div class="ph-btn p1on" id="btn1" onclick="toggle(1)">Phase 1: Web Asistan (Month 1)</div>
+  <div class="ph-btn p2on" id="btn2" onclick="toggle(2)">Phase 2: CWF (Months 2-8)</div>
+  <div class="ph-btn p3on" id="btn3" onclick="toggle(3)">Phase 3: Astra EAIP (Months 5-22)</div>
+</div>
+<div class="leg2">
+  <span><span class="sq2" style="background:#22C55E"></span>Phase 1 — bicycle, revenue day 1</span>
+  <span><span class="sq2" style="background:#8B5CF6"></span>Phase 2 — manufacturing AI</span>
+  <span><span class="sq2" style="background:#D97706"></span>Phase 3 — enterprise platform</span>
+</div>
+<div class="stats" id="stats"></div>
+
+<div class="layer l10"><div class="ll"><span>10<br>Channels<br>&amp; UI</span></div><div class="lc">
+  <div class="cp c-p1" data-p="1"><span class="nm">Widget</span><span class="tc">Embeddable JS</span><span class="pb pb1">P1</span></div>
+  <div class="cp c-p1" data-p="1"><span class="nm">Admin Panel</span><span class="tc">Content + config</span><span class="pb pb1">P1</span></div>
+  <div class="cp c-p1" data-p="1"><span class="nm">Dashboard</span><span class="tc">Analytics + ROI</span><span class="pb pb1">P1</span></div>
+  <div class="cp c-p1" data-p="1"><span class="nm">Landing Page</span><span class="tc">Marketing</span><span class="pb pb1">P1</span></div>
+  <div class="cp c-p2" data-p="2"><span class="nm">Next.js App</span><span class="tc">Full web UI</span><span class="pb pb2">P2</span></div>
+  <div class="cp c-p2" data-p="2"><span class="nm">Nginx</span><span class="tc">Reverse proxy</span><span class="pb pb2">P2</span></div>
+  <div class="cp c-p2" data-p="2"><span class="nm">Mobile</span><span class="tc">Responsive</span><span class="pb pb2">P2</span></div>
+  <div class="cp c-p2" data-p="2"><span class="nm">Superset</span><span class="tc">Visualization</span><span class="pb pb2">P2</span></div>
+  <div class="cp c-p2" data-p="2"><span class="nm">OpenWebUI</span><span class="tc">Internal chat</span><span class="pb pb2">P2</span></div>
+  <div class="cp c-p3" data-p="3"><span class="nm">B2B Portal</span><span class="tc">Sales reps</span><span class="pb pb3">P3</span></div>
+  <div class="cp c-p3" data-p="3"><span class="nm">Usta Portal</span><span class="tc">Technicians</span><span class="pb pb3">P3</span></div>
+  <div class="cp c-p3" data-p="3"><span class="nm">Teams Bot</span><span class="tc">Bot Framework</span><span class="pb pb3">P3</span></div>
+</div></div>
+
+<div class="layer l9"><div class="ll"><span>9<br>API &amp;<br>Services</span></div><div class="lc">
+  <div class="cp c-p1" data-p="1"><span class="nm">Kong</span><span class="tc">API gateway</span><span class="pb pb1">P1</span></div>
+  <div class="cp c-p1" data-p="1"><span class="nm">FastAPI</span><span class="tc">REST + WS</span><span class="pb pb1">P1</span></div>
+  <div class="cp c-p1" data-p="1"><span class="nm">WebSockets</span><span class="tc">Streaming</span><span class="pb pb1">P1</span></div>
+  <div class="cp c-p1" data-p="1"><span class="nm">Billing</span><span class="tc">iyzico / Stripe</span><span class="pb pb1">P1</span></div>
+  <div class="cp c-p2" data-p="2"><span class="nm">CWF Services</span><span class="tc">#1..#n micro</span><span class="pb pb2">P2</span></div>
+  <div class="cp c-p2" data-p="2"><span class="nm">Schema Registry</span><span class="tc">API contracts</span><span class="pb pb2">P2</span></div>
+  <div class="cp c-p3" data-p="3"><span class="nm">UC Services</span><span class="tc">Fin/Inv/Gov/Prod</span><span class="pb pb3">P3</span></div>
+</div></div>
+
+<div class="layer l8"><div class="ll"><span>8<br>Security<br>&amp; Identity</span></div><div class="lc">
+  <div class="cp c-p1" data-p="1"><span class="nm">Keycloak</span><span class="tc">OAuth2 SSO</span><span class="pb pb1">P1</span></div>
+  <div class="cp c-p1" data-p="1"><span class="nm">Tenant Isolation</span><span class="tc">K8s namespace</span><span class="pb pb1">P1</span></div>
+  <div class="cp c-p2" data-p="2"><span class="nm">OPA</span><span class="tc">Policy engine</span><span class="pb pb2">P2</span></div>
+  <div class="cp c-p2" data-p="2"><span class="nm">Halluc. Guard</span><span class="tc">Agent-level</span><span class="pb pb2">P2</span></div>
+  <div class="cp c-p2" data-p="2"><span class="nm">Vault</span><span class="tc">Secrets mgmt</span><span class="pb pb2">P2</span></div>
+  <div class="cp c-p3" data-p="3"><span class="nm">RLS Core</span><span class="tc">Row-level security</span><span class="pb pb3">P3</span></div>
+  <div class="cp c-p3" data-p="3"><span class="nm">Guardrails AI</span><span class="tc">LLM I/O safety</span><span class="pb pb3">P3</span></div>
+  <div class="cp c-p3" data-p="3"><span class="nm">Presidio</span><span class="tc">PII detection</span><span class="pb pb3">P3</span></div>
+  <div class="cp c-p3" data-p="3"><span class="nm">Entra ID Fed.</span><span class="tc">Enterprise SSO</span><span class="pb pb3">P3</span></div>
+</div></div>
+
+<div class="layer l7"><div class="ll"><span>7<br>Agent<br>Orchestration</span></div><div class="lc">
+  <div class="cp c-p1" data-p="1"><span class="nm">LlamaIndex</span><span class="tc">RAG pipeline</span><span class="pb pb1">P1</span></div>
+  <div class="cp c-p1" data-p="1"><span class="nm">Product Agent</span><span class="tc">Catalog search</span><span class="pb pb1">P1</span></div>
+  <div class="cp c-p2" data-p="2"><span class="nm">LangGraph</span><span class="tc">Multi-agent</span><span class="pb pb2">P2</span></div>
+  <div class="cp c-p2" data-p="2"><span class="nm">LangChain</span><span class="tc">Sequential</span><span class="pb pb2">P2</span></div>
+  <div class="cp c-p2" data-p="2"><span class="nm">n8n</span><span class="tc">Workflow auto</span><span class="pb pb2">P2</span></div>
+  <div class="cp c-p2" data-p="2"><span class="nm">Knowledge Base</span><span class="tc">Structured KB</span><span class="pb pb2">P2</span></div>
+  <div class="cp c-p3" data-p="3"><span class="nm">Temporal</span><span class="tc">Durable procs</span><span class="pb pb3">P3</span></div>
+  <div class="cp c-p3" data-p="3"><span class="nm">UC Agents</span><span class="tc">Fin/Inv/Gov/Prod</span><span class="pb pb3">P3</span></div>
+</div></div>
+
+<div class="layer l6"><div class="ll"><span>6<br>AI / LLM<br>Core</span></div><div class="lc">
+  <div class="cp c-p1" data-p="1"><span class="nm">LiteLLM</span><span class="tc">Unified proxy</span><span class="pb pb1">P1</span></div>
+  <div class="cp c-p1" data-p="1"><span class="nm">Ollama</span><span class="tc">Dev / light</span><span class="pb pb1">P1</span></div>
+  <div class="cp c-p2" data-p="2"><span class="nm">vLLM</span><span class="tc">Production GPU</span><span class="pb pb2">P2</span></div>
+  <div class="cp c-p2" data-p="2"><span class="nm">MLflow</span><span class="tc">Model registry</span><span class="pb pb2">P2</span></div>
+  <div class="cp c-p2" data-p="2"><span class="nm">Prompt Store</span><span class="tc">Versioned prompts</span><span class="pb pb2">P2</span></div>
+  <div class="cp c-p2" data-p="2"><span class="nm">Cross Check</span><span class="tc">Output verify</span><span class="pb pb2">P2</span></div>
+  <div class="cp c-p3" data-p="3"><span class="nm">Langfuse</span><span class="tc">LLM observability</span><span class="pb pb3">P3</span></div>
+  <div class="cp c-p3" data-p="3"><span class="nm">Evidently AI</span><span class="tc">Model drift</span><span class="pb pb3">P3</span></div>
+  <div class="cp c-p3" data-p="3"><span class="nm">Azure OpenAI</span><span class="tc">Optional fallback</span><span class="pb pb3">P3</span></div>
+</div></div>
+
+<div class="layer l5"><div class="ll"><span>5<br>MCP<br>Layer</span></div><div class="lc">
+  <div class="cp c-p2" data-p="2"><span class="nm">MariaDB MCP</span><span class="tc">SQL server</span><span class="pb pb2">P2</span></div>
+  <div class="cp c-p2" data-p="2"><span class="nm">Qdrant MCP</span><span class="tc">Vector server</span><span class="pb pb2">P2</span></div>
+  <div class="cp c-p2" data-p="2"><span class="nm">ClickHouse MCP</span><span class="tc">Analytics server</span><span class="pb pb2">P2</span></div>
+  <div class="cp c-p3" data-p="3"><span class="nm">SAP MCP</span><span class="tc">MDX/OData</span><span class="pb pb3">P3</span></div>
+  <div class="cp c-p3" data-p="3"><span class="nm">SharePoint MCP</span><span class="tc">Graph API</span><span class="pb pb3">P3</span></div>
+  <div class="cp c-p3" data-p="3"><span class="nm">Salesforce MCP</span><span class="tc">REST/SOQL</span><span class="pb pb3">P3</span></div>
+</div></div>
+
+<div class="layer l4"><div class="ll"><span>4<br>Data<br>Storage</span></div><div class="lc">
+  <div class="cp c-p1" data-p="1"><span class="nm">MariaDB</span><span class="tc">Transactional</span><span class="pb pb1">P1</span></div>
+  <div class="cp c-p1" data-p="1"><span class="nm">Qdrant</span><span class="tc">Vector search</span><span class="pb pb1">P1</span></div>
+  <div class="cp c-p1" data-p="1"><span class="nm">Redis</span><span class="tc">Cache / session</span><span class="pb pb1">P1</span></div>
+  <div class="cp c-p1" data-p="1"><span class="nm">MinIO</span><span class="tc">Object storage</span><span class="pb pb1">P1</span></div>
+  <div class="cp c-p2" data-p="2"><span class="nm">MariaDB Galera</span><span class="tc">HA cluster</span><span class="pb pb2">P2</span></div>
+  <div class="cp c-p2" data-p="2"><span class="nm">ClickHouse</span><span class="tc">Analytics</span><span class="pb pb2">P2</span></div>
+  <div class="cp c-p2" data-p="2"><span class="nm">Iceberg</span><span class="tc">Table format</span><span class="pb pb2">P2</span></div>
+  <div class="cp c-p3" data-p="3"><span class="nm">Medallion</span><span class="tc">B / S / G zones</span><span class="pb pb3">P3</span></div>
+</div></div>
+
+<div class="layer l3"><div class="ll"><span>3<br>Ingestion<br>Quality &amp;<br>Govern.</span></div><div class="lc">
+  <div class="cp c-p1" data-p="1"><span class="nm">File Upload</span><span class="tc">CSV/Excel/PDF</span><span class="pb pb1">P1</span></div>
+  <div class="cp c-p2" data-p="2"><span class="nm">Apache NiFi</span><span class="tc">Data flows</span><span class="pb pb2">P2</span></div>
+  <div class="cp c-p2" data-p="2"><span class="nm">Airbyte</span><span class="tc">300+ connectors</span><span class="pb pb2">P2</span></div>
+  <div class="cp c-p2" data-p="2"><span class="nm">Apache Spark</span><span class="tc">Processing</span><span class="pb pb2">P2</span></div>
+  <div class="cp c-p3" data-p="3"><span class="nm">Soda Core</span><span class="tc">Quality checks</span><span class="pb pb3">P3</span></div>
+  <div class="cp c-p3" data-p="3"><span class="nm">dbt Core</span><span class="tc">B-S-G transforms</span><span class="pb pb3">P3</span></div>
+  <div class="cp c-p3" data-p="3"><span class="nm">OpenMetadata</span><span class="tc">Catalog + lineage</span><span class="pb pb3">P3</span></div>
+  <div class="cp c-p3" data-p="3"><span class="nm">LLM Enrichment</span><span class="tc">AI data curation</span><span class="pb pb3">P3</span></div>
+  <div class="cp c-p3" data-p="3"><span class="nm">Redpanda</span><span class="tc">Streaming</span><span class="pb pb3">P3</span></div>
+  <div class="cp c-p3" data-p="3"><span class="nm">Debezium</span><span class="tc">CDC</span><span class="pb pb3">P3</span></div>
+</div></div>
+
+<div class="layer l2"><div class="ll"><span>2<br>Infra<br>&amp; Ops</span></div><div class="lc">
+  <div class="cp c-p1" data-p="1"><span class="nm">Kubernetes</span><span class="tc">Container orch.</span><span class="pb pb1">P1</span></div>
+  <div class="cp c-p1" data-p="1"><span class="nm">ArgoCD</span><span class="tc">GitOps deploy</span><span class="pb pb1">P1</span></div>
+  <div class="cp c-p1" data-p="1"><span class="nm">Grafana</span><span class="tc">Dashboards</span><span class="pb pb1">P1</span></div>
+  <div class="cp c-p1" data-p="1"><span class="nm">Prometheus</span><span class="tc">Metrics</span><span class="pb pb1">P1</span></div>
+  <div class="cp c-p1" data-p="1"><span class="nm">Cert Manager</span><span class="tc">TLS auto</span><span class="pb pb1">P1</span></div>
+  <div class="cp c-p2" data-p="2"><span class="nm">Loki</span><span class="tc">Log aggregation</span><span class="pb pb2">P2</span></div>
+  <div class="cp c-p2" data-p="2"><span class="nm">OpenTelemetry</span><span class="tc">Dist. tracing</span><span class="pb pb2">P2</span></div>
+  <div class="cp c-p2" data-p="2"><span class="nm">Wireguard</span><span class="tc">VPN</span><span class="pb pb2">P2</span></div>
+</div></div>
+
+<div class="sep2"></div>
+
+<div class="layer l1"><div class="ll"><span>1<br>External<br>Sources</span></div><div class="lc">
+  <div class="cp c-p1" data-p="1"><span class="nm">File Uploads</span><span class="tc">CSV/Excel/PDF</span><span class="pb pb1">P1</span></div>
+  <div class="cp c-p2" data-p="2"><span class="nm">ARMES</span><span class="tc">MES (optional)</span><span class="pb pb2">P2</span></div>
+  <div class="cp c-p2" data-p="2"><span class="nm">IoT-Ignite</span><span class="tc">Edge platform</span><span class="pb pb2">P2</span></div>
+  <div class="cp c-p3" data-p="3"><span class="nm">SAP BW/S4</span><span class="tc">MDX/OData</span><span class="pb pb3">P3</span></div>
+  <div class="cp c-p3" data-p="3"><span class="nm">SAP BPC</span><span class="tc">BAPI/API</span><span class="pb pb3">P3</span></div>
+  <div class="cp c-p3" data-p="3"><span class="nm">SharePoint</span><span class="tc">Graph API</span><span class="pb pb3">P3</span></div>
+  <div class="cp c-p3" data-p="3"><span class="nm">Salesforce</span><span class="tc">REST/SOQL</span><span class="pb pb3">P3</span></div>
+  <div class="cp c-p3" data-p="3"><span class="nm">PIM</span><span class="tc">XML feed</span><span class="pb pb3">P3</span></div>
+  <div class="cp c-p3" data-p="3"><span class="nm">SQL Server</span><span class="tc">KBY JDBC</span><span class="pb pb3">P3</span></div>
+</div></div>
+
+<div class="note">
+  <strong>Converged from 3 architectures:</strong> CWF (Chat With Factory, existing production system), Web Asistan (B2B product catalog chatbot), and Astra EAIP (Enterprise AI Platform with 4 use cases). Built as Lego: Phase 1 foundation supports Phase 2, Phase 2 supports Phase 3. Nothing gets thrown away. Every component is modular and replaceable. MariaDB Galera as primary DB. Keycloak for auth (Entra ID federation in P3). NiFi as primary orchestrator. 55 components across 10 layers.
+</div>
+<div class="note" style="margin-top:6px">
+  <strong>Timeline:</strong> Phase 1 = Month 1 (1 sprint, 5 people). Phase 2 = Months 2-8 (overlaps with Astra A0-A2). Phase 3 = Months 5-22 (Astra A3-A4 + Stage B). Total: 22 months, ~1,085 person-days, peak 10 FTE.
+</div>
+
+<script>
+var phases={1:true,2:true,3:true};
+var counts={1:0,2:0,3:0};
+document.querySelectorAll('.cp').forEach(function(c){var p=parseInt(c.getAttribute('data-p'));counts[p]++;});
+
+function updateStats(){
+  var visible=0;for(var k in phases)if(phases[k])visible+=counts[k];
+  var total=counts[1]+counts[2]+counts[3];
+  document.getElementById('stats').innerHTML=
+    '<div class="stat"><div class="sv">'+(phases[1]?counts[1]:0)+'</div><div class="sl">Phase 1 components</div></div>'+
+    '<div class="stat"><div class="sv">'+(phases[2]?counts[2]:0)+'</div><div class="sl">Phase 2 components</div></div>'+
+    '<div class="stat"><div class="sv">'+(phases[3]?counts[3]:0)+'</div><div class="sl">Phase 3 components</div></div>'+
+    '<div class="stat"><div class="sv">'+visible+' / '+total+'</div><div class="sl">Active / total</div></div>';
+}
+
+function toggle(p){
+  phases[p]=!phases[p];
+  var btn=document.getElementById('btn'+p);
+  btn.className='ph-btn p'+p+(phases[p]?'on':'off');
+  document.querySelectorAll('.cp').forEach(function(c){
+    var cp=parseInt(c.getAttribute('data-p'));
+    if(cp===p)c.classList.toggle('hide',!phases[p]);
+  });
+  updateStats();
+}
+updateStats();
+</script>
+</body>
+</html>

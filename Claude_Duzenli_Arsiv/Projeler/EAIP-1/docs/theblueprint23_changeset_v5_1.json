@@ -1,0 +1,52 @@
+{
+  "changeset": "v5.0 -> v5.1",
+  "date": "2026-06-10",
+  "decided_by": "Maymun (founder)",
+  "applies_to": "theblueprint23.dev EAIP connectivity map + SSoT data layer",
+  "invariants_after_apply": {
+    "total_hours": 12060,
+    "person_days": 1507.5,
+    "phase_hours": { "core": 2900, "wa": 740, "gu": 640, "cwf1": 1500, "ins": 1220, "cwf2": 1500, "fin": 3560 },
+    "rule": "phase.hours MUST equal sum(task.hrs) for that phase; total MUST equal sum(phase.hours). CI must reject any commit violating this."
+  },
+  "decisions": [
+    { "id": "DEC-001", "type": "sequence_lock", "value": "variant_A_logical_order", "rationale": "Customer deadline not fixed (confirmed 2026-06-10). Variant B archived; reopen only if a hard M3 gate is imposed AND ARU/KARU confirmed clean API in week 1." },
+    { "id": "DEC-002", "type": "effort_authority", "value": "SSoT PLAN_DATA is the single task decomposition. Schedule xlsx and briefing are GENERATED artifacts, never hand-edited. 12,060h is authoritative; 11,820h figures are stale (missing A4.5 +160h and core re-decomposition +80h)." },
+    { "id": "DEC-003", "type": "scope_lock", "target": "mariadb", "value": "MariaDB/Galera = ARMES replication adapter ONLY (read-only). Never a platform transactional store. Insurance instance contains NO MariaDB. PostgreSQL is the sole platform default." }
+  ],
+  "operations": [
+    { "op": "update", "path": "phases.ins", "set": { "hours": 1220, "tasks": "D1\u2013D8" } },
+    { "op": "update", "path": "phases.fin", "set": { "hours": 3560, "tasks": "G1\u2013G7" } },
+    { "op": "add", "path": "plan.ins.tasks", "task": {
+        "id": "D8",
+        "name": "Keycloak <-> customer AD / Entra ID OIDC federation - day-one identity for the isolated on-prem instance",
+        "del": "Day-one identity federation", "role": "Backend", "hrs": 60,
+        "depends_on": ["A3"], "gate": null, "owner_type": "human",
+        "acceptance_criteria": "Field expert logs into verification tool with corporate credentials; group->role mapping verified; documented in M0 discovery output",
+        "note": "Moved from FIN G1. Profile in M0: AD vs Entra, LDAP vs OIDC, app registration ownership, IdP network reachability from cluster."
+    }},
+    { "op": "update", "path": "plan.fin.tasks.G1", "set": { "hrs": 240, "name": "Keycloak RLS Core hardening + enterprise-wide Entra federation rollout (per-instance federation delivered in INS D8)" } },
+    { "op": "update", "path": "plan.cwf2.tasks.F4", "set": {
+        "gate": "Written class-6 (causal/diagnostic) requirement confirmation from Kale at CWF v1 exit review (M5). No confirmation -> defer, do not build preemptively.",
+        "status": "gated", "hrs": 420
+    }},
+    { "op": "update", "path": "plan.fin.tasks.G5", "set": { "gate": "Signed GU sensor-mode pilot commitment (IoT-Ignite scope).", "status": "gated" } },
+    { "op": "update", "path": "plan.fin.tasks.G6", "set": { "hrs": 720, "name": "Iceberg lakehouse + LLM Enrichment DAGs + final hardening (Temporal removed -> G7)", "gate": "Iceberg portion gated on confirmed Astra UC3 time-travel/board-audit requirement." } },
+    { "op": "add", "path": "plan.fin.tasks", "task": {
+        "id": "G7", "name": "Temporal durable workflows", "del": "Durable workflow engine (conditional)",
+        "role": "Backend", "hrs": 80, "status": "gated", "owner_type": "agent_with_human_review",
+        "gate": "A confirmed Astra UC requires durable multi-day HITL workflows that LangGraph Postgres checkpointing cannot survive. Default = NOT built; LangGraph checkpoints + Airflow are the standing answer."
+    }},
+    { "op": "annotate", "path": "components.mariadb", "append_desc": "v5.1 SCOPE LOCK: Galera only for ARMES replication; never any platform store; absent from insurance instance." },
+    { "op": "annotate", "path": "components.entra", "append_desc": "v5.1 SPLIT: per-instance Keycloak<->AD/Entra OIDC federation ships in INS D8; this FIN component is enterprise-wide hardening only." },
+    { "op": "annotate", "path": "components.temporal", "append_desc": "v5.1 GATED (G7). Default not built." },
+    { "op": "add", "path": "schedule.notes", "value": "M1-M3 capacity: Core+WA+GU = 4,280h / 13 weeks = ~8.3 FTE sustained vs 10 peak. Core wins resource contention; WA/GU external dates carry +2-week buffer." }
+  ],
+  "gate_register": [
+    { "task": "F4", "hours": 420, "gate_owner": "Kale class-6 confirmation @ M5" },
+    { "task": "G5", "hours": 300, "gate_owner": "GU sensor pilot signature" },
+    { "task": "G6.iceberg", "hours": 80, "gate_owner": "Astra UC3 requirement confirmation" },
+    { "task": "G7", "hours": 80, "gate_owner": "Astra UC durable-HITL requirement confirmation" }
+  ],
+  "validation_script_spec": "For Agentic SW Team v1: implement validate_blueprint.py asserting (1) invariants_after_apply sums, (2) every task with status=gated has non-null gate, (3) no component desc contains 'Galera' outside ARMES-adapter context, (4) D8 exists in ins phase. Run in CI on every PR to the blueprint repo."
+}

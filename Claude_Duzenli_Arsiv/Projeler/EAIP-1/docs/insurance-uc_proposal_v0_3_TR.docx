@@ -1,0 +1,468 @@
+**ARDICTECH**
+
+Teklif Belgesi
+
+**Yangın ve Mühendislik İhtiyari Reasürans**
+
+**Teklif Ön Değerlendirme Asistanı**
+
+*Şirket içi underwriting kullanımı için tek kiracılı (single-tenant) yerinde (on-premise) kurulum*
+
+Hazırlanan kurum:
+
+**[MÜŞTERİ ADI]**
+
+Hazırlayan:
+
+**ARDICTECH**
+
+*Taslak v0.3 — görüşme amaçlıdır*
+
+# **Yönetici Özeti**
+
+Gelen ihtiyari reasürans teklifleri, brokerlardan ve sedan şirketlerden sabit bir biçimi olmayan e-postalar aracılığıyla ulaşır. Underwriter ekibi, gününün önemli bir bölümünü her yeni teklifin gerçekten yeni bir iş mi, mevcut bağlı bir hesabın yenilenmesi mi, yoksa daha önce görülmüş bir riskin yeniden sunumu mu olduğunu belirlemekle ve ardından her birini doğru faaliyet sınıflandırması ve branş bilgisiyle zenginleştirmekle geçirir.
+
+Bu teklif, söz konusu giriş (intake) iş akışını otomatikleştiren bir sistemi tanımlar. Sistem; her gelen teklifi okur, underwriter'ın ihtiyaç duyduğu yapılandırılmış veri alanlarını çıkarır, dört yetkili iç kaynakla çapraz kontrol yapar, teklifi deterministik iş kurallarıyla sınıflandırır, saha uzmanlarının çıktıları düzeltip iyileştirmesi için bir doğrulama arayüzü içerir, ilgili ekip üyelerine bildirim gönderir ve sonucu underwriting ekibinin günlük çalışma listesi olarak kullandığı yapılandırılmış bir takip listesine yazar.
+
+Sistem tümüyle Müşteri'nin kendi altyapısı üzerinde kurulur. Hiçbir müşteri verisi Müşteri'nin ağ sınırlarının dışına çıkmaz. Kurulan uygulama, Müşteri'ye yalnızca kendi underwriting ve operasyon ekiplerinin şirket içi kullanımı için lisanslanır; çok kiracılı (multi-tenant) kurulum, beyaz etiket (white-label) kullanım, yeniden dağıtım ve üçüncü taraf barındırma bu işin kapsamı dışındadır ve lisans şartları uyarınca izin verilmez.
+
+ARDICTECH; üç müşteriye görünür kilometre taşı (3. ayda MS#1, 5. ayda MS#2, 7. ayda MS#3) etrafında düzenlenen ve teknik yürütme için altı iç ARDICTECH teslim kilometre taşıyla desteklenen, sabit kapsamlı ve kilometre taşı temelli bir çalışma önerir. Proje başlangıcından Sürüm 1 canlı ortama geçişine kadar toplam takvim süresi yedi aydır.
+
+# **1. Arka Plan ve Amaç**
+
+Müşteri'nin Yangın ve Mühendislik İhtiyari Reasürans underwriting ekibi, brokerlardan ve sedan şirketlerden teklif taleplerini e-posta yoluyla alır. Her teklif, fiyatlandırma veya kabul çalışması başlamadan önce mevcut kayıtlarla karşılaştırılarak değerlendirilmelidir. Mevcut manuel süreçte underwriter; her e-postayı ve ekli slibi okumak, sigortalı adını ve VKN'yi elle çıkarmak, geçmiş teklifler için ARU/KARU sorgulamak, ilgili yazışmalar için Outlook geçmişini aramak, eşleşen klasörler için paylaşımlı dosya sistemine göz atmak, teklifin Yeni İş mi, Yenileme mi yoksa Geçmişte Görüldü mü olduğuna karar vermek, 1.000'den fazla satırlık referans listesinden doğru Faaliyet Kodu'nu belirlemek ve teklifi ile kararı takip tablosuna kaydetmek zorundadır.
+
+Bu sıra, gelen her teklif için tekrarlanır. E-posta biçimlerindeki değişkenlik, aranacak geçmiş kayıtların hacmi ve aynı anda birden fazla kaynağı zihinde tutmanın getirdiği bilişsel yük, yapay zekâ asistanının ortadan kaldırmak üzere tasarlandığı bir sürtünme yaratır.
+
+**Proje amacı**
+
+Tümüyle Müşteri'nin altyapısı üzerinde kurulan, gelen her teklif için manuel giriş işini dakikalardan saniyelere indiren; aynı zamanda tam denetim izlenebilirliğini koruyan, saha uzmanlarının yapay zekânın çıktılarını düzeltip iyileştirmesi için bir doğrulama mekanizması sağlayan ve uygun iş akışı noktalarında ilgili ekip üyelerini bilgilendiren bir üretim sistemi teslim etmek. Sınıflandırma karar mantığı şeffaf, deterministik ve underwriting yönetimi tarafından düzenlenebilir kalır.
+
+# **2. Önerilen Çözüm**
+
+Sistemin beş işleme aşaması vardır. Her aşamanın tanımlı bir girdisi, çıktısı ve denetim kaydı bulunur. Sınıflandırma kararının kendisi deterministik ve kural tabanlıdır — yapay zekâ, karar vermek için değil, okumak ve sıralamak için kullanılır.
+
+| **Aşama** | **Ne yapar** | **Sorumlu** |
+| --- | --- | --- |
+| 1. Çıkarım (Extraction) | Gelen e-postayı ve ekleri okur; yapılandırılmış alanları üretir (sigortalı, VKN, adres, broker, tarihler) | Yapay zekâ (şema zorlamasıyla) |
+| 2. Doğrulama (Validation) | Çıkarılan alanların biçim kurallarına uygunluğunu denetler (VKN sağlama, tarih aralıkları, zorunlu alanlar) | Deterministik |
+| 3. Sorgulama (Lookup) | Dört yetkili kaynağı paralel sorgular: ARU/KARU, Outlook, Bound Accounts paylaşımı, Submissions paylaşımı. M0'da onaylanırsa iç doküman analiziyle zenginleştirilebilir. | Karma (ağırlıkla deterministik) |
+| 4. Sınıflandırma (Classification) | Sorgu sonuçlarına üç deterministik kural uygular: Yeni İş / Yenileme / Geçmişte Görüldü | Deterministik |
+| 5. Zenginleştirme (Enrichment) | Referans listesinden en olası ilk üç Faaliyet Kodu adayını önerir; saha uzmanı doğrulama aracıyla inceleyip onaylar | Yapay zekâ önerir, insan onaylar |
+
+Çıktılar üç kanaldan sunulur: underwriter'ların günlük çalışma listesi olarak kullandığı takip panosu (web arayüzü), Outlook yanıt otomasyonu (ilgili underwriter posta kutusuna geri dönen zenginleştirilmiş yanıt) ve Müşteri'nin mevcut şablon biçimine uygun Excel dışa aktarımı. Bildirimler, üzerinde mutabık kalınan iş akışı tetikleme noktalarında e-posta ve sohbet platformları (Teams veya Slack) üzerinden ilgili ekip üyelerine gönderilir.
+
+**Kurulum modeli**
+
+Sistem tümüyle Müşteri'nin kendi tesislerinde kurulur. Tüm platform bileşenleri, Müşteri'nin sağladığı altyapı üzerinde Müşteri'nin ağı içinde çalışır. Tüm müşteri verileri her zaman Müşteri'nin ortamı içinde kalır. LLM (büyük dil modeli), Müşteri'nin sağladığı GPU altyapısı üzerinde kendi kendine barındırılan bir çıkarım katmanı aracılığıyla yerinde sunulur; hiçbir çıkarım çağrısı Müşteri'nin ağ sınırlarının dışına çıkmaz. Müşteri'nin Active Directory veya Entra ID kimlik sağlayıcısıyla entegrasyon, tekil oturum açma (SSO) sağlar. ARDICTECH sistemi teslim eder, kurar, yapılandırır ve devreder; devirden sonra günlük operasyonlar Müşteri'nin sorumluluğundadır ve yıllık bir destek ve bakım anlaşmasıyla desteklenir.
+
+# **3. Kapsam**
+
+## **3.1 Kapsam dahilinde**
+
+- Microsoft Exchange (Online veya yerinde) üzerinden e-posta girişi
+
+- E-posta gövdesinden ve eklerden (PDF, Word, Excel) Türkçe ve İngilizce yapılandırılmış alan çıkarımı
+
+- Dört birincil sorgu kaynağıyla entegrasyon: ARU/KARU, Outlook araması, Bound Accounts SMB paylaşımı, Submissions SMB paylaşımı
+
+- Müşteri'nin iç prosedür dokümanları, slip şablonları ve ilgili materyallerini kullanarak sınıflandırma bağlamını zenginleştiren iç doküman analizi bileşeni. Bu bileşenin nihai kapsamı Keşif (M0) sırasında onaylanır.
+
+- Müşteri'nin prosedür dokümanında tanımlı üç kuralı uygulayan deterministik sınıflandırma motoru
+
+- Müşteri'nin referans listesini kanonik kaynak olarak kullanan, en olası ilk üç aday olarak sunulan Faaliyet Kodu önerisi
+
+- Saha uzmanları için doğrulama ve düzeltme arayüzü: yapay zekâ çıktılarını inceleme, düzeltme uygulama, gerekçe kaydetme ve düzeltmeleri gelecekteki sınıflandırmaları iyileştirmek üzere sisteme geri besleme için yapılandırılmış iş akışı
+
+- Uyarı ve bildirim sistemi: üzerinde mutabık kalınan iş akışı tetikleme noktalarında (yeni teklif alındı, inceleme için işaretlenen sınıflandırma belirsizliği, kilometre taşı olayları) e-posta ve sohbet platformları (Teams veya Slack) aracılığıyla ilgili ekip üyelerine yapılandırılabilir bildirimler
+
+- Üzerinde mutabık kalınan sütun yapısıyla tüm sınıflandırılmış teklifleri listeleyen takip panosu
+
+- Takip listesinin Müşteri'nin mevcut şablon biçiminde Excel dışa aktarımı
+
+- Outlook yanıt otomasyonu: ilgili underwriter posta kutusuna geri dönen zenginleştirilmiş yanıt
+
+- Teklif başına denetim kaydı: çıkarım, sorgu sonuçları, tetiklenen sınıflandırma kuralı, uzman düzeltmeleri ve bildirim geçmişinin tam izi
+
+- Rol tabanlı erişim kontrolü: underwriter'lar kendi portföylerini, yöneticiler tümünü görür
+
+- Platform yığınının Müşteri'nin sağladığı altyapı üzerinde tam yerinde kurulumu
+
+- Müşteri'nin kimlik sağlayıcısıyla (AD veya Entra ID) entegrasyon
+
+- Pilot underwriting ekibi, saha uzmanları ve Müşteri'nin BT operasyon ekibi için eğitim ve dokümantasyon
+
+- Operasyon işletim kılavuzu, izleme panoları ve olay müdahale prosedürleri
+
+- Canlıya geçiş sonrası, üzerinde mutabık kalınan hizmet seviyelerinde üç aylık destek
+
+## **3.2 Kapsam dışında**
+
+- Fiyatlandırma veya risk değerlendirme mantığı (sistem sınıflandırır ve zenginleştirir; fiyatlandırma yapmaz)
+
+- Trete (treaty) reasürans teklifleri (bu çalışma yalnızca ihtiyari kapsamı içerir)
+
+- Yangın ve Mühendislik İhtiyari dışındaki branşlar
+
+- Sistemin Müşteri dışındaki kurumlara hizmet vermek üzere çok kiracılı (multi-tenant) kurulumu
+
+- Sistemin üçüncü taraflara beyaz etiket, yeniden markalama veya ticari sunumu
+
+- Sistemin başka sigorta şirketleri veya herhangi bir üçüncü taraf için Hizmet olarak Yazılım (SaaS) biçiminde barındırılması
+
+- Sistemin veya bileşenlerinin yeniden dağıtımı, yeniden satışı veya alt lisanslanması
+
+- ARU/KARU veya mevcut başka herhangi bir sistemin değiştirilmesi
+
+- Geçmiş kayıtların yeni bir depolama alanına taşınması (sistem mevcut kaynakları yerinde okur)
+
+- Takip panosunun ötesinde özel underwriting analitiği veya raporlama
+
+- Broker'a dönük e-posta şablonları veya iş akışlarında değişiklik
+
+- Müşteri altyapısının (donanım, ağ, GPU kapasitesi) sağlanması veya tedariki
+
+- Mobil uygulamalar
+
+## **3.3 Sınır açıklamaları ve lisans kısıtlamaları**
+
+Aşağıdaki maddeler belirsizliği önlemek için bilinçli olarak vurgulanmıştır ve §8'deki lisans şartlarının temelini oluşturur:
+
+- Kurulan uygulama, Müşteri'ye yalnızca Müşteri kurumu içindeki kendi underwriting ve operasyon ekiplerinin kullanımı için, sadece şirket içi underwriting iş akışı amacıyla lisanslanır.
+
+- Lisans açıkça şunları kapsam dışı bırakır: sistemin veya bileşenlerinin yeniden dağıtımı ya da yeniden satışı; üçüncü taraflara beyaz etiket, yeniden markalama veya ticari sunum; çok kiracılı kurulum veya sistemin üçüncü taraflar için barındırılması; sistemin başka kurumlara SaaS olarak sunulması; ARDICTECH'in önceden yazılı onayı olmaksızın bağlı kuruluşlara, iştiraklere veya iş ortaklarına alt lisanslama.
+
+- Müşteri sistemi başka sigorta şirketlerine hizmet verecek şekilde genişletmek, beyaz etiketlemek, üçüncü taraflar için barındırmak veya SaaS olarak ticari işletmek isterse, bu faaliyetler farklı ticari şartlara sahip ayrı bir platform ortaklık anlaşmasıyla yönetilir ve Müşteri'nin talebi üzerine görüşmeye açıktır.
+
+- ARDICTECH; platform bileşenleri, kaynak kodu, model komutları (prompt), mimari varlıklar ve operasyonel bilgi birikimine ilişkin tüm fikri mülkiyet haklarını saklı tutar.
+
+- Müşteri derlenmiş yazılım çıktıları ve operasyonel dokümantasyon alır; kaynak kodu teslim edilmez. Müşteri tedarik koşulu olarak talep ederse iş sürekliliği için kaynak kod emaneti (escrow) sağlanabilir.
+
+- Pilot aşamasında sınıflandırmalar otomatik onaylanmaz. Her sınıflandırma, doğrulama aracı üzerinden underwriter veya görevli saha uzmanı tarafından incelenir. Otomatik onay eşikleri, gözlemlenen doğruluğa göre ayarlanır ve yalnızca kararlı işletim döneminden sonra Müşteri'nin takdiriyle devreye alınır.
+
+- Faaliyet Kodu, en olası ilk üç öneri olarak sunulur. Nihai kodu her zaman saha uzmanı doğrulama arayüzü üzerinden seçer.
+
+- Sistem SMB paylaşımını ve Exchange posta kutularını okur; hiçbirine yazma yapmaz.
+
+# **4. Çalışma Yapısı**
+
+Çalışma iki aşamada yapılandırılmıştır: sabit fiyatlı bir keşif aşamasının ardından, üç müşteriye görünür değer kilometre taşı etrafında düzenlenen kilometre taşı temelli teslimat.
+
+**Aşama 1: Keşif (3 hafta, sabit fiyat)**
+
+ARDICTECH; Müşteri'nin iş sahibi, ARU/KARU uygulama sahibi, altyapı ekibi ve bilgi güvenliği sorumlusuyla görüşür. Çıktılar; onaylanmış bir mimari, onaylanmış kapsam (iç doküman analizi bileşeninin nihai kapsamı dahil), onaylanmış takvim, donanım hazırlık değerlendirmesi ve yapım aşaması için onaylanmış ticari yapıdır. Keşif, işin bu teklifte varsayılandan maddi olarak daha büyük veya daha küçük olduğunu ortaya koyarsa, yapım ticari şartları taraflar taahhüde girmeden önce revize edilir. Taraflardan biri keşiften sonra devam etmemeye karar verirse, çalışma başka bir yükümlülük doğmadan sona erer.
+
+**Aşama 2: Yapım, pilot ve devir (24 hafta, üç müşteri kilometre taşı)**
+
+Üç müşteriye görünür kilometre taşı, çalışmanın kabulü ve ödemenin temelidir. Bunlar, teknik yürütme ve risk yönetimi için kullanılan altı iç ARDICTECH teslim kilometre taşıyla desteklenir; iç kilometre taşları Müşteri'nin incelemesini veya onayını gerektirmez.
+
+# **5. Müşteri Kilometre Taşları ve Takvim**
+
+Çalışma; 3., 5. ve 7. aylarda üç müşteriye görünür kilometre taşı etrafında düzenlenmiştir. Her kilometre taşı, somut ve gösterilebilir çıktılarla net bir değer teslim kontrol noktasını temsil eder.
+
+| **Kilometre Taşı** | **Takvim** | **Müşteriye görünür çıktı** |
+| --- | --- | --- |
+| **MS#1** | 3. Ay (13. Hafta) | Kavram kanıtı (PoC) gösterimi: e-posta ayrıştırma, çıkarım ve üç birincil kaynağa karşı temel teklif eşleştirme |
+| **MS#2** | 5. Ay (20. Hafta) | Şirket içi alfa başlangıcı: tam 4 kaynaklı sorgu, sınıflandırma motoru, saha uzmanları için doğrulama aracı, uyarılar. Şirket içi kullanım başlar. |
+| **MS#3** | 7. Ay (28. Hafta) | Sürüm 1 canlıya geçiş: tüm underwriter'lar canlıda, operasyonel devir tamamlanmış, 30 günlük kararlı işletim doğrulanmış |
+
+Bu üç müşteri kilometre taşı, teknik yürütmeyi düzenleyen altı iç ARDICTECH teslim kilometre taşıyla desteklenir:
+
+| **İç Kilometre Taşı** | **Haftalar** | **Katkıda bulunduğu müşteri KT** |
+| --- | --- | --- |
+| M0 — Keşif ve donanım hazırlığı | H1–H3 | MS#1 öncesi |
+| M1 — Yerinde yığın + çıkarım + doğrulama | H4–H9 | MS#1 |
+| M2 — Dosya paylaşımları ve Exchange sorgusu | H10–H14 | MS#1 (büyük kısım) → MS#2 (son) |
+| M3 — ARU/KARU entegrasyonu | H13–H18 (örtüşme) | MS#2 |
+| M4 — Sınıflandırma, arayüz, doğrulama aracı, uyarılar | H17–H20 (örtüşme) | MS#2 |
+| M5 — Pilot, üretim, operasyonel devir | H21–H28 | MS#3 |
+
+Örtüşen iç kilometre taşları (M2-M3 ve M3-M4) paralel iş akışlarını yansıtır: ARU/KARU entegrasyonu (M3), dosya paylaşımı ve Outlook çalışmasından (M2) bağımsızdır ve M2 tamamlanmadan iki hafta önce başlayabilir. Benzer şekilde, sınıflandırma motoru, pano ve doğrulama aracına ilişkin M4 çalışması, M3 hâlâ tamamlanırken taklit (mock) bir sorgu şemasına karşı başlayabilir. M4'ün son haftasındaki nihai entegrasyon testi, M3'ün tam olarak çalışır durumda olduğunu doğrular.
+
+# **6. Kilometre Taşı Teslimatları ve Kabul Kriterleri**
+
+## **6.1 MS#1 — 3. Ay: Kavram kanıtı (PoC) gösterimi**
+
+Sistemin e-postaları alabildiğini, yapılandırılmış bilgi çıkarabildiğini ve her gelen teklifi dört birincil kaynaktan üçüne karşı mevcut kayıtlarla eşleştirebildiğini gösterir. ARU/KARU entegrasyonu MS#2'de gelir.
+
+**Faaliyetler**
+
+- Yerinde platform yığınının Müşteri altyapısı üzerinde kurulumunun tamamlanması (PostgreSQL, MinIO, Qdrant, seçilen LLM ile vLLM, LangGraph çalışma zamanı, Keycloak, Kong, gözlemlenebilirlik yığını)
+
+- Keycloak'ın Müşteri'nin kimlik sağlayıcısıyla entegrasyonu
+
+- Exchange giriş bağlayıcısının (connector) inşası
+
+- Türkçe ve İngilizce teklif e-postaları için LLM çıkarım hizmetinin geliştirilmesi
+
+- Deterministik doğrulama motorunun uygulanması (VKN sağlama, tarih biçimi, zorunlu alanlar)
+
+- SMB tarayıcısının inşası ve Bound Accounts ile Submissions klasörlerinin indekslenmesi
+
+- Outlook sorgusu için yeniden sıralamalı (reranking) Microsoft Graph aramasının entegrasyonu
+
+- Üç kaynağa karşı birleşik sorgu hizmetinin inşası (bu kilometre taşı için ARU/KARU taklit edilir)
+
+- Mevcut üç kaynağı kullanan temel sınıflandırma kurallarının uygulanması
+
+- Doğruluk ölçümü için 50 ila 100 geçmiş teklif e-postasından oluşan bir test havuzunun oluşturulması
+
+**Teslimatlar**
+
+- Müşteri altyapısı üzerinde çalışır durumda yerinde platform yığını
+
+- Çalışan e-posta girişi, çıkarım ve doğrulama hizmetleri
+
+- İzlemeyle birlikte indekslenmiş Bound Accounts ve Submissions klasörleri
+
+- Çalışan Outlook arama entegrasyonu
+
+- Üç kaynağa karşı çalışan birleşik sorgu hizmeti
+
+- Üç kaynağı kullanan temel sınıflandırma (ARU/KARU entegrasyonu MS#2'ye planlanmıştır)
+
+- Canlı PoC gösterim yeteneği
+
+- Test havuzuna karşı çıkarım ve sorgu doğruluk raporları
+
+**Kabul kriterleri**
+
+- Test havuzunda zorunlu alanlarda çıkarım doğruluğunun en az %85 olması
+
+- Bu kilometre taşında mevcut üç kaynağa karşı geçmiş vakaların en az %90'ında sorgunun eşleşen kayıtları doğru biçimde belirlemesi
+
+- Güncel broker e-postalarından temsili bir örnek kullanılarak Müşteri iş sahibine başarılı uçtan uca PoC gösterimi
+
+*Katkıda bulunan iç kilometre taşları: M0 (H1–H3), M1 (H4–H9), M2 (H10–H14)*
+
+## **6.2 MS#2 — 5. Ay: Saha uzmanlarıyla şirket içi alfa başlangıcı**
+
+Tam sistem işlevselliği yerindedir. ARU/KARU entegre edilmiştir, sınıflandırma motoru tamamlanmıştır, doğrulama aracı çalışır durumdadır, uyarılar yapılandırılmıştır ve saha uzmanları sistemi günlük giriş asistanları olarak kullanmaya başlar. Bu kilometre taşı, MS#3'e kadar süren 8 haftalık şirket içi pilotun başlangıcını tetikler.
+
+**Faaliyetler**
+
+- M0'da onaylanan yaklaşıma göre ARU/KARU entegrasyonunun tamamlanması
+
+- Tam denetim kaydıyla deterministik üç kurallı sınıflandırma motorunun uygulanması
+
+- En olası ilk üç öneriyle Faaliyet Kodu eşleştiricisinin inşası
+
+- Üzerinde mutabık kalınan sütun yapısıyla takip panosunun inşası
+
+- Müşteri'nin mevcut şablonuna uygun Excel dışa aktarımının uygulanması
+
+- Outlook yanıt otomasyonunun uygulanması
+
+- Saha uzmanları için doğrulama ve düzeltme arayüzünün inşası (yapay zekâ çıktılarını inceleme, düzeltme uygulama, gerekçe kaydetme ve düzeltmeleri sisteme geri besleme iş akışı dahil)
+
+- Yapılandırılabilir tetikleyiciler ve e-posta ile sohbet platformlarına yönlendirme içeren uyarı ve bildirim sisteminin uygulanması
+
+- M0'da onaylanan kapsama göre iç doküman analizi bileşeninin uygulanması
+
+- Rol tabanlı erişim kontrolü yapılandırması
+
+- Görevli saha uzmanlarının ve pilot underwriter'ların sisteme dahil edilmesi; şirket içi kullanımın başlatılması
+
+**Teslimatlar**
+
+- ARU/KARU dahil tam dört kaynaklı sorgu
+
+- Teklif başına görünür denetim iziyle sınıflandırma motoru
+
+- En olası ilk üç öneriyle Faaliyet Kodu eşleştiricisi
+
+- Pilot underwriter'ların erişebildiği takip panosu
+
+- Saha uzmanlarının birincil iş akışı aracı olarak kullandığı doğrulama ve düzeltme arayüzü
+
+- Üzerinde mutabık kalınan iş akışı tetikleyicilerine göre yapılandırılmış uyarı ve bildirim sistemi
+
+- İç doküman analizi bileşeni (kapsam M0 onayına göre)
+
+- Excel dışa aktarımı ve Outlook yanıt otomasyonu
+
+- Underwriter'lar, saha uzmanları ve yöneticiler için yapılandırılmış RBAC
+
+- Eğitilmiş ve sistemi etkin biçimde kullanan saha uzmanları
+
+- Başlatılmış pilot aşaması
+
+**Kabul kriterleri**
+
+- 100 e-postalık kör test setinde sınıflandırmanın, vakaların en az %90'ında manuel underwriter incelemesiyle eşleşmesi
+
+- Faaliyet Kodu ilk üç önerisinin, vakaların en az %85'inde saha uzmanının seçtiği kodu içermesi
+
+- Doğrulama aracının en az üç saha uzmanı tarafından gerçek gelen e-postalarda en az bir hafta kullanılması
+
+- Uyarı sisteminin, üzerinde mutabık kalınan gecikme eşiği içinde tüm yapılandırılmış kanallara bildirim iletmesi
+
+- Pano, Excel dışa aktarımı, Outlook yanıtı ve doğrulama aracı işlevlerinin pilot ekip tarafından doğrulanması
+
+*Katkıda bulunan iç kilometre taşları: M2 son hafta (H14), M3 (H13–H18), M4 (H17–H20)*
+
+## **6.3 MS#3 — 7. Ay: Sürüm 1 canlıya geçiş**
+
+Tüm underwriting ekibi için üretime geçiş, Müşteri'nin BT operasyon ekibine operasyonel devrin tamamlanması ve 30 ardışık günlük kararlı işletimin doğrulanması. Uygulama çalışmasının resmî sonunu ve canlıya geçiş sonrası destek döneminin başlangıcını işaretler.
+
+**Faaliyetler**
+
+- Yangın ve Mühendislik İhtiyari ekibindeki tüm underwriter'lar için üretime geçiş
+
+- Alfa döneminden elde edilen gözlemlere dayalı ince ayara devam edilmesi
+
+- Müşteri'nin BT operasyon ekibi için kapsamlı eğitim: platform bileşeni işletimi, izleme, yedekleme ve geri yükleme, yaygın sorun giderme, eskalasyon prosedürleri
+
+- Pilot grubun ötesindeki geniş underwriter ekibi için eğitim
+
+- Rutin operasyonları, olay müdahalesini ve eskalasyon yollarını kapsayan operasyon işletim kılavuzunun teslimi
+
+- İlk 90 gün için ARDICTECH'e eskalasyon kanalları dahil nöbet (on-call) prosedürü devrinin tamamlanması
+
+- Mimari, tasarım kararları ve gelecekteki genişletilebilirlik üzerine nihai bilgi aktarım oturumları
+
+- Gözlemlenen doğruluğa dayalı olarak Müşteri'nin takdiriyle otomatik onay eşiklerinin ayarlanması ve devreye alınması
+
+- Canlı işletimin ilk 30 gününü kapsayan nihai doğruluk ve zaman tasarrufu raporunun üretilmesi
+
+**Teslimatlar**
+
+- Müşteri altyapısı üzerinde tam üretimde çalışan sistem
+
+- Eğitilmiş ve sistemi günlük iş akışı aracı olarak kullanan tüm underwriter'lar
+
+- Eğitilmiş ve platformu işleten Müşteri BT operasyon ekibi
+
+- Rutin operasyonları, olay müdahalesini ve eskalasyonu kapsayan operasyon işletim kılavuzu
+
+- Sistem sağlığı, doğruluk metrikleri ve ekip kullanımı için izleme panoları
+
+- Canlı işletimin ilk 30 gününü kapsayan nihai doğruluk ve zaman tasarrufu raporu
+
+- Devir onayı ve canlıya geçiş sonrası destek anlaşmasına resmî geçiş
+
+**Kabul kriterleri**
+
+- Kritik olay yaşanmadan 30 ardışık günlük üretim işletimi
+
+- Pilot underwriter'ların, sistemin tekliflerindeki giriş süresini azalttığını doğrulaması
+
+- Müşteri BT operasyon ekibinin, destek anlaşması uyarınca ARDICTECH desteğiyle sistemi kararlı durumda işletmeye hazır olduğunu doğrulaması
+
+- Otomatik onay eşiklerinin ayarlanmış ve Müşteri kararına göre ya devreye alınmış ya da ertelenmiş olması
+
+*Katkıda bulunan iç kilometre taşları: M5 (H21–H28)*
+
+# **7. Ekip ve İşletim Modeli**
+
+ARDICTECH çalışmayı; kıdemli bir çözüm mimarının liderliğinde, orta seviye mühendislerle ve yerinde kurulum aşaması için ayrılmış bir DevOps/altyapı mühendisiyle desteklenen bir teslimat ekibiyle yürütür. Ekip, iki haftalık sprintlerle, Müşteri'nin proje sahibine haftalık durum güncellemesi ve her müşteri kilometre taşının sonunda bir kilometre taşı incelemesiyle çalışır.
+
+**ARDICTECH ekibi**
+
+- Çözüm mimarı (kıdemli, kilometre taşları boyunca yarı zamanlı, M0 ve M5'te yoğun)
+
+- Proje lideri (tam zamanlı)
+
+- İki yapay zekâ ve entegrasyon mühendisi (MS#1 ve MS#2 boyunca tam zamanlı)
+
+- DevOps ve altyapı mühendisi (M1 yığın kurulumu ve M5 operasyonel devirde tam zamanlı; M2–M4 arasında yarı zamanlı)
+
+- Önyüz (frontend) mühendisi (M4 pano ve doğrulama aracı inşasına odaklı)
+
+- Kalite ve kabul mühendisi (yarı zamanlı, müşteri kilometre taşı sınırlarında yoğunlaşır)
+
+- KVKK ve güvenlik sorumlusu (yarı zamanlı, keşif ve üretim öncesinde yoğunlaşır)
+
+**Beklenen Müşteri muadil rolleri**
+
+- Underwriting operasyonlarından proje sahibi (birincil karar verici)
+
+- Underwriting ekibinden konu uzmanı ve saha uzmanları (iş kuralı açıklamaları, kabul ve MS#2'den itibaren doğrulama aracı kullanımı için)
+
+- BT altyapı irtibat kişisi (donanım tedariki, ağ, kimlik ve sürekli platform operasyonları için)
+
+- BT operasyon ekibi temsilcisi (M5 devri, eğitim ve canlıya geçiş sonrası operasyonlar için)
+
+- ARU/KARU uygulama sahibi (M0 sırasında ve M3 entegrasyon çalışmasında görevli)
+
+- Bilgi güvenliği ve KVKK irtibat kişisi (M0 sırasında ve üretim öncesinde görevli)
+
+# **8. Ticari Çerçeve**
+
+Bu teklif, çalışmanın kapsamını ve yapısını tanımlar. Tam ticari şartlar — lisans ücreti, uygulama ücreti, yıllık destek fiyatlandırması, değişiklik talebi prosedürü — M0 başlamadan önce ayrı bir ticari ekte mutabık kalınacaktır.
+
+**Ticari yapı**
+
+- Bir defaya mahsus platform lisans ücreti; Müşteri'ye, kurulan uygulamayı kendi kurumu içinde şirket içi underwriting iş akışı için kullanmasına ilişkin süresiz ve devredilemez bir lisans verir. Lisans kısıtlamaları §3.3'te tanımlandığı gibidir. ARDICTECH tüm platform fikri mülkiyetini saklı tutar.
+
+- Sabit ücretli uygulama; müşteri kilometre taşlarıyla hizalı üç dilimde ödenir (aşağıya bakınız).
+
+- Yıllık destek ve bakım aboneliği; üretime geçişte başlamak üzere yıllık olarak ödenir. Hata düzeltmeleri, güvenlik yamaları, küçük geliştirmeler ile mutabık kalınan hizmet seviyelerine göre teknik destek ve olay müdahalesini kapsar. Sektör standardı oran aralığı uygulanır (genellikle yıllık lisans ücretinin %15 ila %20'si).
+
+- Müşteri'nin tedarik politikası gerektirirse iş sürekliliği için kaynak kod emaneti (escrow) sağlanabilir.
+
+- Ana sürüm yükseltmeleri, yeni özellikler, ek entegrasyonlar ve mutabık kalınan yol haritasının ötesindeki yetenek genişletmeleri ayrı iş tanımları (SOW) olarak kapsamlandırılır ve fiyatlandırılır.
+
+**Uygulama ücreti ödeme planı**
+
+Uygulama ücreti, müşteri kilometre taşı kabulüyle hizalı üç dilimde ödenir:
+
+| **Kilometre Taşı** | **Tetikleyici** | **Önerilen pay** |
+| --- | --- | --- |
+| **MS#1 kabulü** | 3. Ay: PoC gösterimi başarıyla tamamlandı | %25 |
+| **MS#2 kabulü** | 5. Ay: Şirket içi alfa başlatıldı ve saha uzmanları sistemi kullanıyor | %45 |
+| **MS#3 kabulü** | 7. Ay: V1 canlıya geçiş ve 30 günlük kararlı işletim doğrulandı | %30 |
+
+MS#2 dilimi en büyük olandır; çünkü teknik uygulamanın büyük kısmı bu noktada teslim edilir ve doğrulanır: tam sorgu entegrasyonu, sınıflandırma motoru, doğrulama aracı, pano ve uyarılar. MS#3 dilimi; pilot aşamasını, operasyonel devri ve kararlı işletim kabul dönemini kapsar.
+
+**Ticari yapıya ilişkin önemli not**
+
+Bu ticari yapı, §3'te tanımlanan kapsama, yani yalnızca Müşteri'nin şirket içi underwriting kullanımı için tek kiracılı bir kuruluma dayanır. Müşteri sistemi çok kiracılı kuruluma, beyaz etiket ticari sunumlara, üçüncü taraflar için barındırmaya veya sistemin başka sigorta şirketlerine SaaS olarak işletilmesine genişletmek isterse, bu faaliyetler farklı bir ticari yapıya (gelir paylaşımı veya kiracı başına lisanslama modelleri dahil) sahip ayrı bir platform ortaklık anlaşmasıyla yönetilir. ARDICTECH bu görüşmeye ayrı şartlar altında açıktır; bu durum bu teklife dahil değildir ve teklifte ima edilmemektedir.
+
+# **9. Varsayımlar ve Bağımlılıklar**
+
+**Temel varsayımlar**
+
+- Müşteri, LLM çıkarımı için GPU yetenekli hesaplama dahil olmak üzere yerinde yığını çalıştırmaya yeterli donanım altyapısını sağlar. Özel boyutlandırma, seçilen LLM modeli ve beklenen iş hacmine karşı M0'da onaylanır.
+
+- Müşteri'nin donanımı M1 başlangıcında ARDICTECH mühendislerine hazır ve erişilebilir durumdadır. Donanım M1 başlangıcında hazır değilse M1 başlayamaz ve takvim buna göre kayar.
+
+- Müşteri, dört veri kaynağına zamanında erişim sağlar: ARU/KARU, Exchange posta kutuları, SMB paylaşımı ve Faaliyet Kodları referans listesi.
+
+- ARU/KARU sorgulanabilir bir arayüz sunar; geri dönüş (fallback) olarak RPA gerekirse M3 planlanan 6 haftanın ötesine uzayabilir ve MS#2 zamanlaması buna göre kayabilir.
+
+- İç doküman analizi bileşeninin nihai kapsamı M0 sırasında onaylanır. Bu bileşende önemli kapsam genişlemesi MS#2 zamanlamasını kaydırabilir.
+
+- Kurulum, §3'te tanımlandığı gibi Müşteri'nin şirket içi kullanımı için tek kiracılıdır.
+
+- Müşteri, karar vermeye yetkili bir proje sahibi belirler ve alfa ile pilot aşamalarında doğrulama aracı kullanımı için saha uzmanlarını hazır bulundurur.
+
+- Müşteri'nin BT operasyon ekibi M5 eğitimine katılır ve devirden sonra kurulan sistemin operasyonel sorumluluğunu üstlenmeye hazırdır.
+
+- KVKK ve bilgi güvenliği incelemesi teknik çalışmayla paralel yürütülebilir.
+
+**Temel bağımlılıklar**
+
+- Keşif (M0), bu teklifteki mimari, kapsam ve altyapı varsayımlarını onaylar. Maddi değişiklikler gerekirse, yapım aşamaları başlamadan önce kapsam ve takvim revize edilir.
+
+- M0 donanım hazırlık raporunda onaylandığı şekilde donanım hazırlığı.
+
+- Test seti için geçmiş e-posta havuzuna erişimin M1'in ilk iki haftası içinde sağlanması.
+
+- Müşteri'nin iç tedarik ve sözleşme takviminin önerilen takvimle uyumlu olması.
+
+# **10. Sonraki Adımlar**
+
+- Bu teklifin Müşteri'nin iş sahibi ve teknik liderliği tarafından incelenmesi
+
+- Soruları ele almak ve olası ayarlamalarda mutabık kalmak için ortak inceleme oturumu
+
+- Ticari ekin hazırlanması ve mutabık kalınması
+
+- Henüz mevcut değilse Müşteri tarafından donanım tedarikinin başlatılması
+
+- Keşif (M0) başlangıcının planlanması
+
+*Bu teklif, görüşme amaçlı bir taslaktır. ARDICTECH, teklifi Müşteri ekibiyle birlikte gözden geçirme ve ticari eki sonlandırmadan önce geri bildirime göre iyileştirme fırsatını memnuniyetle karşılar.*
+
+ARDICTECH — Gizli — Taslak v0.3 — Sayfa

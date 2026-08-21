@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARDICTECH Unified Platform — Architecture v6 · Bilingual SSoT</title>
+<style>
+:root{
+  --bg:#0D1117;--bg2:#161B22;--bg3:#21262D;--bg4:#2D333B;--border:#30363D;--border2:#444C56;
+  --text:#E6EDF3;--text2:#8B949E;--text3:#6E7681;
+  --core:#58A6FF;--wa:#3FB950;--gu:#E3B341;--cwf1:#BC8CFF;--ins:#F85149;--cwf2:#A371F7;--fin:#79C0FF;
+  --purple:#BC8CFF;--green:#3FB950;--amber:#E3B341;--blue:#58A6FF;--red:#F85149;
+  --mono:ui-monospace,'JetBrains Mono','SFMono-Regular',Menlo,monospace;
+  --sans:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);line-height:1.5;-webkit-font-smoothing:antialiased;min-height:100vh}
+::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-track{background:var(--bg2)}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+.hdr{background:linear-gradient(135deg,var(--bg2),#1C2333);border-bottom:1px solid var(--border);padding:16px 28px;position:sticky;top:0;z-index:100}
+.hdr-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.hdr h1{font-size:17px;font-weight:700;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.vb{font-family:var(--mono);font-size:9px;font-weight:700;background:rgba(88,166,255,.14);color:var(--core);border:1px solid var(--core);border-radius:20px;padding:1px 8px;letter-spacing:.06em}
+.hdr .sub{font-size:11px;color:var(--text2);font-family:var(--mono);margin-top:3px}
+.lang{display:flex;gap:4px;background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:3px;flex-shrink:0}
+.lang button{font-family:var(--mono);font-size:11px;font-weight:700;border:none;background:none;color:var(--text3);cursor:pointer;padding:3px 12px;border-radius:16px;transition:all .15s}
+.lang button.on{background:var(--core);color:#0D1117}
+.tabs{display:flex;gap:0;margin-top:12px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.tab{font-family:var(--mono);font-size:11px;font-weight:600;padding:7px 14px;border:none;background:none;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;letter-spacing:.04em}
+.tab:hover{color:var(--text2)}.tab.active{color:var(--core);border-bottom-color:var(--core)}
+.main{padding:24px 28px 80px;max-width:1240px;margin:0 auto}
+.sec{display:none}.sec.vis{display:block}
+.sect{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin:30px 0 14px;padding-bottom:7px;border-bottom:1px solid var(--border)}
+.sect:first-child{margin-top:4px}
+.lede{font-size:13px;color:var(--text2);line-height:1.65;margin-bottom:16px;max-width:860px}
+svg{width:100%;height:auto;display:block}
+.legend{display:flex;gap:16px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--text2);margin:12px 2px 0}
+.sw{display:inline-block;width:13px;height:13px;border-radius:3px;vertical-align:-2px;margin-right:6px}
+.swb{display:inline-block;width:22px;height:11px;border-radius:3px;vertical-align:-1px;margin-right:6px;border:1px solid var(--border2)}
+/* layer/system rows */
+.row{display:flex;border:1px solid var(--border);border-radius:8px;background:var(--bg2);overflow:hidden;margin-bottom:7px}
+.lbl{flex:0 0 185px;padding:12px 14px;border-right:1px solid var(--border);position:relative;background:var(--bg3)}
+.acc{position:absolute;left:0;top:0;bottom:0;width:3px}
+.ln{font-family:var(--mono);font-size:11px;color:var(--text3)}
+.lname{font-size:13.5px;font-weight:600;color:var(--text);margin-top:1px}
+.ltag{font-family:var(--mono);font-size:10.5px;color:var(--amber);margin-top:3px}
+.chips{flex:1;display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;align-content:center}
+.chip{display:inline-flex;align-items:center;gap:5px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:5px 9px;font-size:12px;color:var(--text)}
+.chip.hl{border-color:var(--green);background:rgba(63,185,80,.12);color:var(--green)}
+.chip small{font-family:var(--mono);font-size:10.5px;color:var(--text3)}
+.grp{font-family:var(--mono);font-size:11px;color:var(--text3);align-self:center;padding:2px 7px;border:1px dashed var(--border2);border-radius:10px}
+.tag{font-family:var(--mono);font-size:10.5px;border-radius:10px;padding:1px 6px;border:1px solid}
+.t-op{background:rgba(188,140,255,.14);color:var(--purple);border-color:var(--purple)}
+.t-so{background:rgba(63,185,80,.14);color:var(--green);border-color:var(--green)}
+.t-ha{background:rgba(227,179,65,.14);color:var(--amber);border-color:var(--amber)}
+.mtag{font-family:var(--mono);font-size:10.5px;border-radius:10px;padding:0 6px;border:1px solid var(--green);color:var(--green);background:rgba(63,185,80,.14)}
+/* type key */
+.tk{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:7px}
+.tki{background:var(--bg2);border:1px solid var(--border);border-radius:7px;padding:8px 10px}
+.tkb{font-family:var(--mono);font-size:10px;font-weight:700;border-radius:3px;padding:2px 6px;display:inline-block;margin-bottom:5px}
+.tkd{font-size:10.5px;color:var(--text2);line-height:1.4}
+/* filterable tables */
+.ctrl{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.in{background:var(--bg2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:7px 11px;font-size:12px;font-family:var(--mono);width:230px;outline:none}
+.in:focus{border-color:var(--core)}
+.sel{background:var(--bg2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:7px 9px;font-size:12px;font-family:var(--mono);outline:none;cursor:pointer}
+.cnt{font-family:var(--mono);font-size:11px;color:var(--text3);margin-left:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--text3);padding:8px 9px;border-bottom:1px solid var(--border2)}
+td{padding:8px 9px;border-bottom:1px solid var(--border);vertical-align:top}
+.cfrom{font-weight:600;color:var(--text);white-space:nowrap}.carr{color:var(--text3);padding:0 4px}.cto{color:var(--text);white-space:nowrap}
+.cty{font-family:var(--mono);font-size:10px;font-weight:700;border-radius:3px;padding:1px 6px;white-space:nowrap}
+.cproto{font-family:var(--mono);font-size:10.5px;color:var(--blue)}.cpu{color:var(--text2);font-size:11px}
+.cph,.cgrp{font-family:var(--mono);font-size:9.5px;border-radius:10px;padding:1px 7px;white-space:nowrap}
+.cgrp{background:var(--bg3);border:1px solid var(--border2);color:var(--text2)}
+/* plan cards */
+.pcard{border:1px solid var(--border);border-radius:10px;background:var(--bg2);margin-bottom:12px;overflow:hidden}
+.phead{display:flex;align-items:center;gap:11px;padding:12px 16px;flex-wrap:wrap;border-bottom:1px solid var(--border)}
+.pdot{width:11px;height:11px;border-radius:3px;flex-shrink:0}
+.pn{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--text3)}
+.pname{font-size:14px;font-weight:600}
+.pmeta{font-family:var(--mono);font-size:11px;color:var(--text3)}
+.phrs{margin-left:auto;font-family:var(--mono);font-size:12px;font-weight:600;color:var(--text)}
+.pb{font-family:var(--mono);font-size:10px;border-radius:10px;padding:1px 8px}
+.b-impl{background:rgba(63,185,80,.14);color:var(--green);border:1px solid var(--green)}
+.b-cal{background:rgba(227,179,65,.14);color:var(--amber);border:1px solid var(--amber)}
+.b-mix{background:rgba(88,166,255,.14);color:var(--blue);border:1px solid var(--blue)}
+.pout{padding:11px 16px;font-size:12.5px;color:var(--text2);line-height:1.55;background:var(--bg3);border-bottom:1px solid var(--border)}
+.pout b{color:var(--text);font-weight:500}
+.pbody{padding:12px 16px;font-size:12.5px;color:var(--text2);line-height:1.6}
+.pbody .o{color:var(--text)}.pbody .dep{font-family:var(--mono);font-size:11px;color:var(--text3);margin-top:6px}
+.tid{font-family:var(--mono);font-weight:700;color:var(--text);white-space:nowrap;width:46px}
+.tname{color:var(--text);font-size:12px}.tdel{color:var(--text2);font-size:11px;font-family:var(--mono);margin-top:2px}
+.trole{font-family:var(--mono);font-size:10px;border-radius:10px;padding:1px 7px;white-space:nowrap}
+.thrs{font-family:var(--mono);font-size:12px;color:var(--text);text-align:right;white-space:nowrap;width:48px}
+.gst{font-family:var(--mono);font-size:11px;color:var(--text);text-align:center}
+.gpatch{font-family:var(--mono);font-size:10px;color:var(--green);border:1px solid var(--green);background:rgba(63,185,80,.12);border-radius:10px;padding:1px 7px;white-space:nowrap}
+.gopen{font-family:var(--mono);font-size:10px;color:var(--amber);border:1px solid var(--amber);background:rgba(227,179,65,.12);border-radius:10px;padding:1px 7px;white-space:nowrap}
+.total{display:flex;align-items:center;gap:10px;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:14px 18px;margin-top:10px;font-size:14px}
+.total b{font-family:var(--mono);font-size:18px;color:var(--text)}
+.note{border-radius:0 8px 8px 0;padding:12px 15px;font-size:12.5px;line-height:1.6;margin-top:16px;max-width:900px;background:var(--bg2);border:1px solid var(--border)}
+.note.purple{border-left:3px solid var(--purple)}.note.green{border-left:3px solid var(--green)}
+.note.amber{border-left:3px solid var(--amber)}.note.red{border-left:3px solid var(--red)}
+.note b{color:var(--text);font-weight:500}
+.opens{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.open{background:var(--bg3);border:1px solid var(--border);border-left:3px solid var(--amber);border-radius:0 7px 7px 0;padding:9px 12px;font-size:12px}
+.open b{color:var(--amber);font-weight:600;font-family:var(--mono);font-size:11px}.open p{color:var(--text2);margin-top:3px;line-height:1.45}
+/* big picture */
+.hub{background:rgba(188,140,255,.14);border:1px solid var(--purple);border-radius:10px;padding:14px 18px;text-align:center;margin-bottom:8px}
+.hub b{font-size:15px;color:var(--text)}.hub span{font-family:var(--mono);font-size:11px;color:var(--text2);display:block;margin-top:4px}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px 18px}
+.card h3{font-size:14px;font-weight:600;margin-bottom:6px}.card.p h3{color:var(--purple)}.card.b h3{color:var(--blue)}
+.card p{font-size:12.5px;color:var(--text2);line-height:1.6}.card .k{font-family:var(--mono);font-size:11px;color:var(--text3);display:block;margin-top:8px}
+.bandrow{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:13px 15px;margin-top:8px}
+.bandrow .bt{font-size:13px;font-weight:600;margin-bottom:9px;display:flex;align-items:center;gap:8px}
+.cols{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.col{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:13px}
+.coltitle{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px}
+.colsub{font-family:var(--mono);font-size:10.5px;color:var(--text3);margin-bottom:10px}
+.cnode{background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:7px 10px;font-size:12px;color:var(--text);margin-bottom:2px}
+.cnode.g{border-color:var(--green);background:rgba(63,185,80,.12);color:var(--green)}
+.cnode small{display:block;font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:1px}.cnode.g small{color:var(--green)}
+.conn{text-align:center;font-family:var(--mono);font-size:10px;color:var(--text3);margin:3px 0}
+.down{text-align:center;color:var(--text3);font-family:var(--mono);font-size:11px;margin:4px 0}
+footer{max-width:1240px;margin:0 auto;padding:20px 28px;font-size:11px;color:var(--text3);font-family:var(--mono);border-top:1px solid var(--border)}
+@media(max-width:760px){.cols,.cards,.opens{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div class="hdr-top">
+    <div>
+      <h1>ARDICTECH Unified Intelligence Platform <span class="vb">ARCH v6 · BILINGUAL SSoT</span></h1>
+      <div class="sub" id="subtitle"></div>
+    </div>
+    <div class="lang">
+      <button id="btn-en" class="on" onclick="setLang('en')">EN</button>
+      <button id="btn-tr" onclick="setLang('tr')">TR</button>
+    </div>
+  </div>
+  <div class="tabs" id="tabs"></div>
+</div>
+<div class="main">
+  <section class="sec vis" id="sec-big"></section>
+  <section class="sec" id="sec-earch"></section>
+  <section class="sec" id="sec-econn"></section>
+  <section class="sec" id="sec-eplan"></section>
+  <section class="sec" id="sec-rarch"></section>
+  <section class="sec" id="sec-rconn"></section>
+  <section class="sec" id="sec-rplan"></section>
+</div>
+<footer id="footer"></footer>
+<script>
+var lang='en';
+var TABS=[['big','sec-big'],['earch','sec-earch'],['econn','sec-econn'],['eplan','sec-eplan'],['rarch','sec-rarch'],['rconn','sec-rconn'],['rplan','sec-rplan']];
+function switchTab(id){
+  document.querySelectorAll('.sec').forEach(function(s){s.classList.remove('vis')});
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  document.getElementById('sec-'+id).classList.add('vis');
+  document.getElementById('tab-'+id).classList.add('active');
+}
+var T={
+en:{
+ subtitle:'single source of truth · how we build (Revolutionize) + what we build (EAIP) · internal technical reference',
+ footer:'ARDICTECH A.Ş. · Unified Platform architecture v6 · bilingual SSoT · regenerated clean with ADR-001 (LiteLLM) + ADR-002 (MCP) + dev_schedule_patch_v1 · projection, not commitment',
+ tabs:{big:'BIG PICTURE',earch:'EAIP · ARCH',econn:'EAIP · CONNECTIVITY',eplan:'EAIP · PLAN',rarch:'REVOLUTIONIZE · ARCH',rconn:'REVOLUTIONIZE · CONNECTIVITY',rplan:'REVOLUTIONIZE · PLAN'},
+ big:{title:'How it fits together',
+  lede:'Two systems, one loop. Revolutionize is the autonomous engineering organisation: it turns intents into verified pull requests. EAIP is the product platform those PRs assemble into — Web Asistan, Galip Usta, CWF, Insurance, Astra. EAIP\u2019s production telemetry flows back as the reality feed that tells Revolutionize what to build next. Both run on the same sovereign infrastructure, so a decision made in one (LiteLLM gateway, MCP tool protocol) holds in the other.',
+  hub:'Revolutionize',hubsub:'virtual SW engineering org · how we build · conductor directs Antigravity · mesh gates every PR',
+  ships:'ships verified PRs → components',rf:'reality feed: production → vision',
+  eaip:'EAIP — ARDICTECH unified platform',eaipsub:'what we build · 10 layers · 67 components · Web Asistan · Galip Usta · CWF · Insurance · Astra',
+  substrate:'Shared sovereign substrate',substrateitems:'Keycloak · Vault · MariaDB Galera · ClickHouse · Redpanda · MinIO · Kubernetes',
+  cardph:'Revolutionize — the builder',cardpp:'An autonomous multi-agent organisation. Senior engineers act as conductors directing the execution surface (Antigravity / Claude Code); cells produce work; the verification mesh gates every change. Unit of work = one stage = one prompt = one PR.',cardpk:'v1 simulates a human team → v2 cellular intelligence',
+  cardbh:'EAIP — the product',cardbp:'The customer-facing platform built and operated through that loop. Multi-tenant, sovereign-hosted, delivered in phases A–G (Platform Core → Web Asistan → Galip Usta → CWF → Insurance → Astra) over M1–M13.',cardbk:'first tenant: Kale Seramik (CWF) · first email triage: Türk Re',
+  note:'<b>Where the patches landed.</b> The two approved ADRs (LiteLLM gateway, MCP tool protocol) only changed the Revolutionize Phase-1 backlog. EAIP already runs LiteLLM as its L3 gateway and already reaches MES, SAP, SharePoint and Salesforce over MCP — including the pre-built ARMES MCP server. The two platforms therefore share the same gateway and tool-protocol decisions, which is what makes the bridge clean.'},
+ earch:{lede:'Ten layers from customer channels (L0) down to sovereign infrastructure (L9). Multi-tenant from day one (Keycloak realm + Postgres RLS + Qdrant collection isolation). The two decisions formalised for Revolutionize are already native here: LiteLLM is the L3 model gateway, and MCP is how agents reach external enterprise systems — both highlighted in green.',
+  lg1:'platform component',lg2:'LiteLLM / MCP (shared with Revolutionize)',lg3:'amber tag = layer doctrine',
+  note:'<b>Why no patch deltas here.</b> The two ADRs only changed the Revolutionize Phase-1 backlog. EAIP already runs LiteLLM as its L3 gateway and already reaches MES, SAP, SharePoint and Salesforce over MCP — including the ARMES MCP server, which is pre-built (✓). The platforms share the same gateway and tool-protocol decisions.'},
+ econn:{t1:'Core request lifecycle — the hot path',l1:'Every customer message follows the same spine: a channel pushes it to the gateway, Kong authenticates and applies policy, FastAPI orchestrates, LangGraph reasons, and the LLM call goes through LiteLLM to vLLM. LangGraph fans out to retrieval, state, tools, and tracing on each turn.',
+  t2:'Connection-type key',t3:'Full connection reference',
+  search:'search component, protocol, purpose…',allty:'all types',allph:'all phases',
+  ch:{from:'from',to:'to',type:'type',proto:'protocol',pur:'purpose',phase:'phase'},
+  cnt:'connections'},
+ eplan:{t1:'Timeline — phases across 13 months',l1:'Phases overlap deliberately: Web Asistan and Galip Usta start while Platform Core is still finishing; CWF v1 (the Kale delivery) runs M3–M5; Insurance triage for Türk Re overlaps it. Astra is the long enterprise tail.',
+  t2:'Phase detail — tasks, outcomes, effort',total:'Total programme effort:',totalu:'engineer-hours across 7 phases · M1–M13',
+  risk:'<b style="color:var(--red)">Schedule risk — task D4 (ARU/KARU integration).</b> The integration method is unknown until a Week-1 discovery spike: if a REST API exists, ~80h; if UI-only, a Playwright scrape adds ~240h (320h total) and is fragile. This is the single largest schedule uncertainty in the Insurance phase — run the spike first and let it gate the D-phase estimate.',
+  tasks_th:'tasks'},
+ rarch:{l1:'Five primary systems form one closed loop. Value flows top-down through the four operational systems via the only three sanctioned channels; Meta-cognition observes every system and activates last (Phase 8). The two approved patches both live in the Tool Integration layer.',
+  lg1:'primary system',lg2:'cross-cutting layer',lg3:'patched (ADR-approved)',lg4:'reality feed (feedback)',
+  t2:'Per-system components — with LLM routing',routing:'Model routing:',routingnote:'resolved by the LiteLLM gateway (ADR-001); untagged = formal / non-LLM or routed at runtime',
+  note:'The three channels (intent stream · verification gate · reality feed) are the only sanctioned inter-system paths — the deliberate guard against multi-agent chat proliferation. v1 maps to human team roles for de-risking; each v1 component contains a v2 capability that emerges incrementally on the same substrate. Meta-cognition is built last because it needs 12+ months of accumulated telemetry before its outputs are reliable.'},
+ rconn:{t1:'Integration map — the three things every agent touches',l1:'The agent base class (Stage 1.5.1) is the single point where the LLM gateway (ADR-001) and MCP tooling (ADR-002) meet, and where every LLM call and tool call emits telemetry. Agents never call a provider or a tool directly — always through the wrapper or the MCP client.',
+  hub:'Agent base class',hubsub:'Stage 1.5.1 · telemetry · LLM gateway · MCP client · capability allowlist',
+  colA:'LLM gateway',colAsub:'ADR-001 · LiteLLM',colB:'External tools',colBsub:'ADR-002 · MCP (JSON-RPC)',colC:'Telemetry pipeline',colCsub:'6 layers · agent never waits',
+  chTitle:'Three channels',chTag:'Redpanda · append-only',stTitle:'Shared state & security',
+  t2:'Connection-type key',t3:'Connection reference',search:'search component, protocol…',allty:'all types',allgr:'all groups',
+  ch:{from:'from',to:'to',type:'type',proto:'protocol / call',pur:'purpose',group:'group'},cnt:'connections',
+  note:'Invariants enforced by this wiring: the agent never waits for telemetry (fire-and-forget into the mmap ring buffer); PII and secrets are redacted at emission and full prompts live only in the hash-referenced artifact store; secrets are Vault references only; capability access is allowlist (not denylist), enforced at MCP-server boot from the Keycloak JWT; and no agent has production write access by default — shadow agents are read-only.'},
+ rplan:{t1:'Timeline — 8 phases, 12–15 months (projection)',l1:'The central scheduling truth: implementation-bound phases compress 50–80% with AI assistance; calendar-bound phases (shadow validation, telemetry maturity, production canaries) compress 0%. Hatched bars are calendar-bound and will not move no matter how fast the team is. This is a projection, not a commitment — phases are completion-gated, not date-gated.',
+  lg1:'implementation-bound (compresses 50–80%)',lg2:'mixed (learning curve)',lg3:'calendar-bound (does not compress)',
+  t2:'Phase 1 detail — the patched foundation backlog',l2:'Phase 1 is the only phase with a fully decomposed stage backlog (the rest are produced just-in-time). ~42 stages, 6–8 weeks. Stage groups 1.4 and 1.7 run in parallel after 1.3, which is why the patch adds a net of +1 stage but does not move the Phase-1 calendar. Cadence: 3–5 stages/week ramping to 5–10/week. The bottleneck is human review — every PR gets ≥30 min, and verification does not compress.',
+  gh:{g:'group',n:'name',s:'stages',o:'expected outcome',c:'change'},
+  exit:'<b>Phase 1 exit gate (all five must hold):</b> telemetry flows end-to-end and is queryable; the LiteLLM gateway routes with per-agent cost attribution; MCP servers enforce the capability allowlist at boot; v1 agents ship human-reviewed PRs through the verification gate; and the first product is live in production emitting telemetry.',
+  t3:'Phases 2–8 — goals, outcomes, bound-type',l3:'Detailed stage backlogs for these phases are produced just-in-time (when the team is ready to execute), to capture learnings between stages — so they are described here at the phase level by design, not omission.',
+  why:'<b style="color:var(--red)">Why Phases 7 and 8 cannot start early.</b> Self-improvement (P7) needs cells generating real production data — it depends on P6, not the calendar. Meta-cognition (P8) genuinely needs 12+ months of accumulated telemetry from P2 onward before its outputs are reliable (the P2 → P8 dependency). Compressing either ships lower-quality v2 components.',
+  t4:'Open prerequisites — resolve before / during Phase 1',l4:'These five were unresolved at last review and remain marked OPEN here rather than assumed. Two are effectively answered by the bridge (Revolutionize builds EAIP), but still need an explicit decision.',
+  exitgate_lbl:'Exit gate:',outcome_lbl:'Outcome:'}
+},
+tr:{
+ subtitle:'tek doğruluk kaynağı · nasıl inşa ediyoruz (Revolutionize) + ne inşa ediyoruz (EAIP) · dahili teknik referans',
+ footer:'ARDICTECH A.Ş. · Birleşik Platform mimarisi v6 · iki dilli SSoT · ADR-001 (LiteLLM) + ADR-002 (MCP) + dev_schedule_patch_v1 ile temiz yeniden üretildi · taahhüt değil, projeksiyon',
+ tabs:{big:'BÜYÜK RESİM',earch:'EAIP · MİMARİ',econn:'EAIP · BAĞLANTILAR',eplan:'EAIP · PLAN',rarch:'REVOLUTIONIZE · MİMARİ',rconn:'REVOLUTIONIZE · BAĞLANTILAR',rplan:'REVOLUTIONIZE · PLAN'},
+ big:{title:'Hepsi birlikte nasıl çalışıyor',
+  lede:'İki sistem, tek döngü. Revolutionize otonom mühendislik organizasyonudur: niyetleri (intent) doğrulanmış pull request\u2019lere dönüştürür. EAIP ise bu PR\u2019ların birleşerek oluşturduğu ürün platformudur — Web Asistan, Galip Usta, CWF, Sigorta, Astra. EAIP\u2019nin üretim telemetrisi, Revolutionize\u2019a sırada ne inşa edileceğini söyleyen gerçeklik beslemesi (reality feed) olarak geri akar. İkisi de aynı egemen altyapı üzerinde çalışır; dolayısıyla birinde alınan bir karar (LiteLLM ağ geçidi, MCP araç protokolü) diğerinde de geçerlidir.',
+  hub:'Revolutionize',hubsub:'sanal yazılım mühendisliği org · nasıl inşa ediyoruz · orkestra şefi Antigravity\u2019yi yönlendirir · mesh her PR\u2019ı kapıdan geçirir',
+  ships:'doğrulanmış PR\u2019lar → bileşenler',rf:'gerçeklik beslemesi: üretim → vizyon',
+  eaip:'EAIP — ARDICTECH birleşik platform',eaipsub:'ne inşa ediyoruz · 10 katman · 67 bileşen · Web Asistan · Galip Usta · CWF · Sigorta · Astra',
+  substrate:'Paylaşılan egemen altyapı',substrateitems:'Keycloak · Vault · MariaDB Galera · ClickHouse · Redpanda · MinIO · Kubernetes',
+  cardph:'Revolutionize — inşa eden',cardpp:'Otonom çok-ajanlı bir organizasyon. Kıdemli mühendisler, yürütme yüzeyini (Antigravity / Claude Code) yönlendiren orkestra şefleri olarak çalışır; hücreler işi üretir; doğrulama mesh\u2019i her değişikliği kapıdan geçirir. İş birimi = bir aşama = bir prompt = bir PR.',cardpk:'v1 insan ekibini taklit eder → v2 hücresel zekâ',
+  cardbh:'EAIP — ürün',cardbp:'Bu döngü aracılığıyla inşa edilen ve işletilen müşteriye dönük platform. Çok kiracılı, egemen sunuculu, A–G fazları halinde (Çekirdek Platform → Web Asistan → Galip Usta → CWF → Sigorta → Astra) M1–M13 boyunca teslim edilir.',cardbk:'ilk kiracı: Kale Seramik (CWF) · ilk e-posta triyajı: Türk Re',
+  note:'<b>Yamalar nereye düştü.</b> Onaylanan iki ADR (LiteLLM ağ geçidi, MCP araç protokolü) yalnızca Revolutionize Faz-1 backlog\u2019unu değiştirdi. EAIP zaten LiteLLM\u2019i L3 ağ geçidi olarak çalıştırıyor ve MES, SAP, SharePoint ve Salesforce\u2019a MCP üzerinden ulaşıyor — önceden hazır ARMES MCP sunucusu dahil. Bu nedenle iki platform aynı ağ geçidi ve araç-protokolü kararlarını paylaşır; köprüyü temiz kılan da budur.'},
+ earch:{lede:'Müşteri kanallarından (L0) egemen altyapıya (L9) kadar on katman. İlk günden çok kiracılı (Keycloak realm + Postgres RLS + Qdrant koleksiyon izolasyonu). Revolutionize için resmileştirilen iki karar burada zaten yerleşik: LiteLLM L3 model ağ geçidi, MCP ise ajanların dış kurumsal sistemlere ulaşma yolu — ikisi de yeşille vurgulanmış.',
+  lg1:'platform bileşeni',lg2:'LiteLLM / MCP (Revolutionize ile paylaşılan)',lg3:'kehribar etiket = katman doktrini',
+  note:'<b>Burada neden yama farkı yok.</b> İki ADR yalnızca Revolutionize Faz-1 backlog\u2019unu değiştirdi. EAIP zaten LiteLLM\u2019i L3 ağ geçidi olarak çalıştırıyor ve MES, SAP, SharePoint, Salesforce\u2019a MCP üzerinden ulaşıyor — önceden hazır (✓) ARMES MCP sunucusu dahil. Platformlar aynı ağ geçidi ve araç-protokolü kararlarını paylaşır.'},
+ econn:{t1:'Çekirdek istek yaşam döngüsü — sıcak yol',l1:'Her müşteri mesajı aynı omurgayı izler: kanal mesajı ağ geçidine iter, Kong kimlik doğrular ve politika uygular, FastAPI orkestrasyon yapar, LangGraph akıl yürütür ve LLM çağrısı LiteLLM üzerinden vLLM\u2019e gider. LangGraph her turda erişim, durum, araçlar ve izlemeye dağılır.',
+  t2:'Bağlantı türü anahtarı',t3:'Tam bağlantı referansı',
+  search:'bileşen, protokol, amaç ara…',allty:'tüm türler',allph:'tüm fazlar',
+  ch:{from:'kaynak',to:'hedef',type:'tür',proto:'protokol',pur:'amaç',phase:'faz'},
+  cnt:'bağlantı'},
+ eplan:{t1:'Zaman çizelgesi — 13 ay boyunca fazlar',l1:'Fazlar bilinçli olarak örtüşür: Web Asistan ve Galip Usta, Çekirdek Platform henüz bitmeden başlar; CWF v1 (Kale teslimatı) M3–M5\u2019te çalışır; Türk Re için Sigorta triyajı onunla örtüşür. Astra uzun kurumsal kuyruktur.',
+  t2:'Faz detayı — görevler, çıktılar, eforlar',total:'Toplam program eforu:',totalu:'mühendis-saat · 7 faz · M1–M13',
+  risk:'<b style="color:var(--red)">Çizelge riski — görev D4 (ARU/KARU entegrasyonu).</b> Entegrasyon yöntemi bir 1. Hafta keşif denemesine (spike) kadar bilinmiyor: REST API varsa ~80s; yalnızca arayüz ise Playwright kazıma ~240s ekler (toplam 320s) ve kırılgandır. Bu, Sigorta fazındaki en büyük tek çizelge belirsizliğidir — önce spike\u2019ı çalıştırın ve D-fazı tahminini ona göre belirleyin.',
+  tasks_th:'görev'},
+ rarch:{l1:'Beş birincil sistem tek bir kapalı döngü oluşturur. Değer, yalnızca üç onaylı kanal üzerinden dört operasyonel sistem boyunca yukarıdan aşağıya akar; Meta-biliş her sistemi gözlemler ve en son etkinleşir (Faz 8). Onaylanan iki yama da Araç Entegrasyonu katmanında yer alır.',
+  lg1:'birincil sistem',lg2:'kesişen katman',lg3:'yamalı (ADR-onaylı)',lg4:'gerçeklik beslemesi (geri besleme)',
+  t2:'Sistem bazında bileşenler — LLM yönlendirmesiyle',routing:'Model yönlendirme:',routingnote:'LiteLLM ağ geçidi tarafından çözülür (ADR-001); etiketsiz = biçimsel / LLM-dışı veya çalışma anında yönlendirilen',
+  note:'Üç kanal (intent stream · verification gate · reality feed) sistemler arası tek onaylı yoldur — çok-ajanlı sohbet çoğalmasına karşı bilinçli korumadır. v1, riski azaltmak için insan ekip rollerine eşlenir; her v1 bileşeni, aynı altyapı üzerinde aşamalı olarak ortaya çıkan bir v2 yeteneği barındırır. Meta-biliş en son inşa edilir çünkü çıktılarının güvenilir olması için 12+ aylık birikmiş telemetriye ihtiyaç duyar.'},
+ rconn:{t1:'Entegrasyon haritası — her ajanın dokunduğu üç şey',l1:'Ajan temel sınıfı (Aşama 1.5.1), LLM ağ geçidi (ADR-001) ile MCP araçlarının (ADR-002) buluştuğu ve her LLM çağrısı ile her araç çağrısının telemetri ürettiği tek noktadır. Ajanlar bir sağlayıcıyı veya aracı asla doğrudan çağırmaz — daima sarmalayıcı (wrapper) veya MCP istemcisi üzerinden.',
+  hub:'Ajan temel sınıfı',hubsub:'Aşama 1.5.1 · telemetri · LLM ağ geçidi · MCP istemcisi · yetenek izin listesi',
+  colA:'LLM ağ geçidi',colAsub:'ADR-001 · LiteLLM',colB:'Dış araçlar',colBsub:'ADR-002 · MCP (JSON-RPC)',colC:'Telemetri hattı',colCsub:'6 katman · ajan asla beklemez',
+  chTitle:'Üç kanal',chTag:'Redpanda · yalnızca-ekleme',stTitle:'Paylaşılan durum & güvenlik',
+  t2:'Bağlantı türü anahtarı',t3:'Bağlantı referansı',search:'bileşen, protokol ara…',allty:'tüm türler',allgr:'tüm gruplar',
+  ch:{from:'kaynak',to:'hedef',type:'tür',proto:'protokol / çağrı',pur:'amaç',group:'grup'},cnt:'bağlantı',
+  note:'Bu kablolamanın dayattığı değişmezler: ajan telemetri için asla beklemez (mmap halka tamponuna gönder-unut); PII ve sırlar yayım anında maskelenir ve tam prompt\u2019lar yalnızca hash-referanslı yapıt deposunda yaşar; sırlar yalnızca Vault referanslarıdır; yetenek erişimi izin listesidir (engelleme listesi değil), MCP sunucusu açılışında Keycloak JWT\u2019den uygulanır; ve hiçbir ajanın varsayılan olarak üretim yazma erişimi yoktur — gölge ajanlar salt-okunurdur.'},
+ rplan:{t1:'Zaman çizelgesi — 8 faz, 12–15 ay (projeksiyon)',l1:'Temel çizelge gerçeği: uygulama-bağlı fazlar yapay zekâ desteğiyle %50–80 sıkışır; takvim-bağlı fazlar (gölge doğrulama, telemetri olgunluğu, üretim kanaryaları) %0 sıkışır. Taralı çubuklar takvim-bağlıdır ve ekip ne kadar hızlı olursa olsun kaymaz. Bu bir projeksiyondur, taahhüt değil — fazlar tarih değil, tamamlanma kapılıdır.',
+  lg1:'uygulama-bağlı (%50–80 sıkışır)',lg2:'karma (öğrenme eğrisi)',lg3:'takvim-bağlı (sıkışmaz)',
+  t2:'Faz 1 detayı — yamalı temel backlog',l2:'Faz 1, tam ayrıştırılmış aşama backlog\u2019una sahip tek fazdır (gerisi tam-zamanında üretilir). ~42 aşama, 6–8 hafta. 1.4 ve 1.7 aşama grupları 1.3\u2019ten sonra paralel çalışır; yamanın net +1 aşama eklemesine rağmen Faz-1 takvimini kaydırmamasının nedeni budur. Tempo: haftada 3–5 aşamadan 5–10\u2019a yükselir. Darboğaz insan incelemesidir — her PR ≥30 dk alır ve doğrulama sıkışmaz.',
+  gh:{g:'grup',n:'ad',s:'aşama',o:'beklenen çıktı',c:'değişiklik'},
+  exit:'<b>Faz 1 çıkış kapısı (beşi de geçerli olmalı):</b> telemetri uçtan uca akar ve sorgulanabilir; LiteLLM ağ geçidi ajan-bazlı maliyet atfıyla yönlendirir; MCP sunucuları açılışta yetenek izin listesini uygular; v1 ajanları doğrulama kapısından insan-incelemeli PR\u2019lar gönderir; ve ilk ürün üretimde canlıdır ve telemetri üretir.',
+  t3:'Faz 2–8 — hedefler, çıktılar, bağ türü',l3:'Bu fazların detaylı aşama backlog\u2019ları tam-zamanında üretilir (ekip yürütmeye hazır olduğunda), aşamalar arasındaki öğrenimleri yakalamak için — dolayısıyla burada tasarım gereği faz düzeyinde anlatılır, eksiklikten değil.',
+  why:'<b style="color:var(--red)">Faz 7 ve 8 neden erken başlayamaz.</b> Kendini iyileştirme (F7) gerçek üretim verisi üreten hücrelere ihtiyaç duyar — takvime değil, F6\u2019ya bağlıdır. Meta-biliş (F8) çıktılarının güvenilir olması için F2\u2019den itibaren 12+ aylık birikmiş telemetriye gerçekten ihtiyaç duyar (F2 → F8 bağımlılığı). İkisini de sıkıştırmak daha düşük kaliteli v2 bileşenleri üretir.',
+  t4:'Açık ön koşullar — Faz 1 öncesi / sırasında çözülmeli',l4:'Bu beşi son incelemede çözülmemişti ve varsayılmak yerine burada AÇIK olarak işaretlendi. İkisi köprü tarafından (Revolutionize EAIP\u2019yi inşa eder) fiilen yanıtlanıyor, ancak yine de açık bir karar gerekiyor.',
+  exitgate_lbl:'Çıkış kapısı:',outcome_lbl:'Çıktı:'}
+}};
+var LAYERS=[
+['L0','Channels','Kanallar','first-class · day one','birinci sınıf · ilk gün'],
+['L1','API & Identity','API & Kimlik','',''],
+['L2','Reasoning & Orchestration','Akıl Yürütme & Orkestrasyon','LLM ranks · rules decide','LLM sıralar · kurallar karar verir'],
+['L3','AI / LLM core','YZ / LLM çekirdeği','',''],
+['L4','Knowledge & Memory','Bilgi & Bellek','',''],
+['L5','Data cleansing & Governance','Veri Temizleme & Yönetişim','first-class · must-have','birinci sınıf · zorunlu'],
+['L6','Storage','Depolama','PostgreSQL-default','PostgreSQL-varsayılan'],
+['L7','Ingestion & Pipelines','Alım & Hatlar','',''],
+['L8','External sources','Dış kaynaklar',"adapters — don't build",'adaptörler — inşa etme'],
+['L9','Infrastructure & Ops','Altyapı & Operasyon','sovereign / container-cloud','egemen / konteyner-bulut']];
+var COMPS=[
+['WhatsApp','L0',''],['Whisper STT','L0',''],['Embed widget','L0',''],['Outlook / Graph','L0',''],['Web chat','L0',''],['Teams bot','L0',''],['Min. dashboard','L0',''],['Channel gateway','L0',''],
+['Kong','L1',''],['FastAPI','L1',''],['Keycloak','L1',''],['OPA','L1',''],['Tenant provisioning','L1',''],['Entra federation','L1',''],
+['LangGraph','L2',''],['Hybrid decision engine','L2',''],['n8n','L2',''],['Temporal','L2',''],
+['vLLM','L3',''],['LiteLLM','L3','gateway'],['Ollama','L3',''],['MLflow','L3',''],['Prompt store','L3',''],['Langfuse','L3',''],['Guardrails AI','L3',''],
+['LlamaIndex','L4',''],['Qdrant / pgvector','L4',''],['Memori','L4',''],['LightRAG','L4',''],['Graphiti + FalkorDB','L4',''],
+['Soda Core','L5',''],['dbt Core','L5',''],['OpenMetadata','L5',''],['Audit / SPC PDF','L5',''],['LLM enrichment','L5',''],
+['PostgreSQL','L6',''],['Redis','L6',''],['MinIO','L6',''],['Qdrant','L6',''],['ClickHouse','L6',''],['TimescaleDB','L6',''],['Iceberg','L6',''],['MariaDB','L6',''],
+['Airflow','L7',''],['File upload','L7',''],['NiFi SMB crawler','L7',''],['Airbyte','L7',''],['Debezium + Redpanda','L7',''],
+['IoT-Ignite','L8',''],['ARMES MES','L8','MCP ✓'],['Exchange / Graph','L8',''],['ARU / KARU','L8',''],['SMB shares','L8',''],['SAP','L8','MCP'],['SharePoint','L8','MCP'],['Salesforce','L8','MCP'],
+['Kubernetes','L9',''],['ArgoCD','L9',''],['OpenTofu','L9',''],['CI pipeline','L9',''],['Container registry','L9',''],['Grafana + Prometheus','L9',''],['Loki + OTel','L9',''],['Vault','L9',''],['Cert mgr + Wireguard','L9',''],['Evidently AI','L9',''],['Netaş / OSB cloud','L9','']];
+var CTYPES={
+REST:['#388BFD','Synchronous HTTP request/response. Standard service-to-service.','Eşzamanlı HTTP istek/yanıt. Standart servisler-arası.'],
+MCP:['#3FB950','AI tool-calling over JSON-RPC. Target exposed as a callable tool.','JSON-RPC üzerinden YZ araç çağrısı. Hedef çağrılabilir araç olarak sunulur.'],
+WS:['#E3B341','Persistent bidirectional socket. Real-time streaming to browser.','Kalıcı çift yönlü soket. Tarayıcıya gerçek zamanlı akış.'],
+KAFKA:['#F85149','Async event streaming via Redpanda (Kafka-compatible).','Redpanda (Kafka-uyumlu) ile asenkron olay akışı.'],
+CDC:['#BC8CFF','Debezium reads Postgres WAL. Zero-poll change capture.','Debezium Postgres WAL\u2019ı okur. Sıfır-yoklama değişiklik yakalama.'],
+OIDC:['#FF9933','Signed JWT validated against Keycloak JWKS. Enterprise SSO.','Keycloak JWKS\u2019e karşı doğrulanan imzalı JWT. Kurumsal SSO.'],
+GRPC:['#79C0FF','Binary Protobuf over HTTP/2. Low-latency, strongly typed.','HTTP/2 üzerinden ikili Protobuf. Düşük gecikme, güçlü tipli.'],
+S3:['#56D364','S3-compatible object API. MinIO implements it fully.','S3-uyumlu nesne API\u2019si. MinIO tam olarak uygular.'],
+WEBHOOK:['#FFA657','External system POSTs to our endpoint on an event. Push, not poll.','Dış sistem bir olayda uç noktamıza POST eder. Çekme değil itme.'],
+PSQL:['#8B949E','Native Postgres wire (asyncpg/psycopg2). Most efficient DB path.','Yerel Postgres protokolü (asyncpg/psycopg2). En verimli DB yolu.'],
+SDK:['#A371F7','In-process imported library. No network hop.','Süreç-içi içe aktarılan kütüphane. Ağ sıçraması yok.'],
+GRAPH:['#56D364','Redis-compatible GRAPH commands (FalkorDB). Cypher-like queries.','Redis-uyumlu GRAPH komutları (FalkorDB). Cypher-benzeri sorgular.'],
+JDBC:['#388BFD','JDBC driver. Airbyte/OpenMetadata/JVM analytics tools.','JDBC sürücüsü. Airbyte/OpenMetadata/JVM analitik araçları.'],
+OTEL:['#58A6FF','OpenTelemetry OTLP traces/metrics to collector.','Toplayıcıya OpenTelemetry OTLP izleri/metrikleri.'],
+SMB:['#6E7681','SMB/CIFS file protocol. NiFi reads Windows shares.','SMB/CIFS dosya protokolü. NiFi Windows paylaşımlarını okur.'],
+HTTP:['#FF9933','Generic HTTP (scrape / informal webhook), not a typed REST API.','Genel HTTP (kazıma / biçimsel olmayan webhook), tipli REST API değil.']};
+var EPH={core:['#58A6FF','Platform Core','Çekirdek Platform'],wa:['#3FB950','Web Asistan','Web Asistan'],gu:['#E3B341','Galip Usta','Galip Usta'],cwf1:['#BC8CFF','CWF v1','CWF v1'],ins:['#F85149','Insurance','Sigorta'],cwf2:['#A371F7','CWF v2','CWF v2'],fin:['#79C0FF','Astra','Astra']};
+var ECONN=[
+['WhatsApp','Channel gateway','WEBHOOK','HTTPS POST → /webhook (X-Hub-Signature)','Meta pushes every inbound message','Meta her gelen mesajı iter','core'],
+['Channel gateway','Whisper STT','REST','POST /transcribe','Voice note → Turkish STT','Sesli not → Türkçe STT','core'],
+['Channel gateway','LangGraph','REST','POST /invoke (MessageEnvelope)','Single entry point to agent reasoning','Ajan akıl yürütmesine tek giriş noktası','core'],
+['Channel gateway','Redis','SDK','SET/GET session:{id} (TTL 4h)','Carry context across multi-message turns','Çok-mesajlı turlarda bağlamı taşır','core'],
+['Kong','OPA','REST','POST /v1/data/authz/allow','Per-request tenant/role/flag policy','İstek başına kiracı/rol/bayrak politikası','core'],
+['Kong','FastAPI','REST','HTTP proxy → :8000','Forward after auth + policy pass','Kimlik+politika geçince iletir','core'],
+['FastAPI','LangGraph','REST','POST /invoke | /stream','Orchestrate agent execution','Ajan yürütmesini orkestre eder','core'],
+['FastAPI','Keycloak','OIDC','JWKS validate Bearer JWT (5-min cache)','Verify signature, expiry, tenant claim','İmza, son kullanma, kiracı talebini doğrular','core'],
+['FastAPI','PostgreSQL','PSQL','asyncpg pool (2–20/replica)','Transactional data: sessions, billing, state','İşlemsel veri: oturum, faturalama, durum','core'],
+['FastAPI','Redis','SDK','aioredis','Cache, sliding-window rate limit, session','Önbellek, kayan-pencere hız limiti, oturum','core'],
+['FastAPI','MinIO','S3','PUT/GET (boto3), {tenant}/ namespaced','Files, generated PDFs, artifacts','Dosyalar, üretilen PDF\u2019ler, yapıtlar','core'],
+['Keycloak','PostgreSQL','PSQL','jdbc postgresql/keycloak','Realms, users, sessions, audit','Realm\u2019ler, kullanıcılar, oturumlar, denetim','core'],
+['Tenant provisioning','PostgreSQL','PSQL','schema create + pgvector + RLS','Per-tenant data isolation','Kiracı başına veri izolasyonu','core'],
+['Tenant provisioning','Keycloak','REST','POST /admin/realms','Per-tenant realm + roles','Kiracı başına realm + roller','core'],
+['Tenant provisioning','Kubernetes','REST','K8s API: namespace + quota + netpolicy','Tenant namespace isolation','Kiracı namespace izolasyonu','core'],
+['Tenant provisioning','Qdrant','REST','PUT /collections/{tenant}_{type}','Isolated vector collections','İzole vektör koleksiyonları','core'],
+['LangGraph','LiteLLM','REST','POST /v1/chat/completions','ALL LLM calls via the proxy','TÜM LLM çağrıları proxy üzerinden','core'],
+['LangGraph','LlamaIndex','SDK','in-process index.retrieve()','RAG retrieval (embed → ANN → assemble)','RAG erişimi (göm → ANN → birleştir)','core'],
+['LangGraph','Memori','REST','GET /session/{id} + /profile/{user}','Inject session + profile memory','Oturum + profil belleğini enjekte eder','core'],
+['LangGraph','Langfuse','SDK','LangfuseCallbackHandler (async batch)','Trace every run; no latency impact','Her çalışmayı izler; gecikme etkisi yok','core'],
+['LangGraph','Guardrails AI','SDK','Guard.parse(output)','Validate output vs Rail spec','Çıktıyı Rail şemasına göre doğrular','core'],
+['LangGraph','Hybrid decision engine','SDK','engine.decide(candidates, ctx)','Deterministic YAML-rule decision','Deterministik YAML-kural kararı','core'],
+['LangGraph','PostgreSQL','PSQL','PostgresSaver checkpoint','State checkpointing, resume, replay','Durum kontrol noktası, sürdürme, tekrar','core'],
+['LangGraph','Redis','SDK','hot graph state (db 1)','Sub-ms reads during a turn','Tur içinde ms-altı okumalar','core'],
+['LangGraph','Prompt store','REST','GET /admin/prompts/{name}?lang=tr','Fetch active prompt version (cached 5m)','Aktif prompt sürümünü getirir (5dk önbellek)','core'],
+['Hybrid decision engine','PostgreSQL','PSQL','INSERT {tenant}.decisions','Immutable audit record per decision','Karar başına değişmez denetim kaydı','core'],
+['LlamaIndex','Qdrant','GRPC','http://qdrant:6334 (Protobuf)','High-throughput vector upsert + ANN','Yüksek-debili vektör ekleme + ANN','core'],
+['LlamaIndex','PostgreSQL','PSQL','embedding <#> $1 (pgvector)','Semantic + relational co-query','Anlamsal + ilişkisel ortak sorgu','core'],
+['LlamaIndex','MinIO','S3','GET {tenant}-rag-docs','Fetch source docs for re-index','Yeniden indeksleme için kaynak belgeler','core'],
+['LiteLLM','vLLM','REST','POST /v1/chat/completions','Prod inference (PagedAttention)','Üretim çıkarımı (PagedAttention)','core'],
+['LiteLLM','Ollama','REST','POST /api/chat','Dev / fallback inference','Geliştirme / yedek çıkarım','core'],
+['LiteLLM','Langfuse','SDK','usage callbacks (async)','Per-call cost, tokens, latency','Çağrı başına maliyet, token, gecikme','core'],
+['Langfuse','PostgreSQL','PSQL','jdbc postgresql/langfuse','Traces, spans, scores, sessions','İzler, span\u2019lar, skorlar, oturumlar','core'],
+['Langfuse','MinIO','S3','PUT langfuse-blobs/{trace}','Large payloads off the trace DB','Büyük yükleri iz DB\u2019sinden ayırır','core'],
+['MLflow','PostgreSQL','PSQL','jdbc postgresql/mlflow','Experiments, metrics, model registry','Deneyler, metrikler, model kaydı','core'],
+['MLflow','MinIO','S3','PUT mlflow-artifacts/','Model artifacts, eval datasets','Model yapıtları, değerlendirme veri setleri','core'],
+['Airflow','PostgreSQL','PSQL','jdbc postgresql/airflow','DAG/task state, XCom, logs','DAG/görev durumu, XCom, kayıtlar','core'],
+['Airflow','MinIO','S3','GET/PUT pipeline-artifacts/','RAG re-index inputs/outputs','RAG yeniden-indeks girdi/çıktıları','core'],
+['Airflow','OpenMetadata','REST','deploy ingestPipeline/{id}','Sync metadata + lineage after run','Çalışma sonrası metaveri + soy senkronu','core'],
+['Soda Core','PostgreSQL','PSQL','soda-core-postgres scan','Quality checks on Bronze/Silver/Gold','Bronze/Silver/Gold kalite kontrolleri','core'],
+['Soda Core','OpenMetadata','REST','POST /quality (results)','Publish scan results to catalog','Tarama sonuçlarını kataloğa yayınlar','core'],
+['dbt Core','PostgreSQL','PSQL','dbt-postgres adapter','Bronze → Silver → Gold transforms','Bronze → Silver → Gold dönüşümleri','core'],
+['OpenMetadata','PostgreSQL','PSQL','jdbc postgresql/openmetadata','Catalog metadata + lineage edges','Katalog metaverisi + soy kenarları','core'],
+['Audit / SPC PDF','PostgreSQL','PSQL','SELECT decisions WHERE period','Query audit log for the period','Dönem için denetim kaydını sorgular','core'],
+['Audit / SPC PDF','MinIO','S3','PUT audit-pdfs/ (object-lock)','Store compliance PDFs, 24h URL','Uyum PDF\u2019lerini saklar, 24s URL','core'],
+['Grafana','Prometheus','REST','PromQL /api/v1/query_range','Metrics dashboards (cluster, LLM, cost)','Metrik panoları (küme, LLM, maliyet)','core'],
+['Loki + OTel','MinIO','S3','PUT loki-chunks/','Cost-effective log chunk retention','Maliyet-etkin günlük parça saklama','core'],
+['Loki + OTel','Langfuse','OTEL','OTLP gRPC → /api/public/otel','Forward AI traces for LLM analysis','LLM analizi için YZ izlerini iletir','core'],
+['Loki + OTel','Grafana','OTEL','OTLP → Grafana Tempo','Infra distributed tracing / SLA','Altyapı dağıtık izleme / SLA','core'],
+['ArgoCD','Kubernetes','REST','sync loop every 3 min','GitOps desired-state apply','GitOps istenen-durum uygulama','core'],
+['Vault','Kubernetes','REST','K8s TokenReview + agent sidecar','Inject secrets as env at pod start','Pod başında sırları env olarak enjekte','core'],
+['Cert mgr','Kubernetes','REST','Certificate CRD (ACME / Vault PKI)','Auto TLS renew + inter-service mTLS','Otomatik TLS yenileme + servisler-arası mTLS','core'],
+['OpenTofu','Netaş / OSB cloud','REST','tofu apply (provider plugin)','Provision cluster, GPU pool, network','Küme, GPU havuzu, ağ sağlar','core'],
+['OpenTofu','MinIO','S3','s3://tofu-state (remote + lock)','Sovereign infra state + locking','Egemen altyapı durumu + kilitleme','core'],
+['CI pipeline','Container registry','REST','docker push (Trivy + Cosign)','Build → scan → sign → push image','İmge derle → tara → imzala → it','core'],
+['CI pipeline','ArgoCD','REST','git tag-bump → webhook','CI (build) → CD (deploy) handoff','CI (derleme) → CD (dağıtım) devri','core'],
+['CI pipeline','Vault','REST','AppRole fetch creds','Short-lived registry + signing creds','Kısa-ömürlü registry + imzalama kimlikleri','core'],
+['Kubernetes','Container registry','REST','image pull + Cosign verify','Only signed, scanned images run','Yalnızca imzalı, taranmış imgeler çalışır','core'],
+['Container registry','MinIO','S3','s3://harbor-images (layer blobs)','Reuse object store for image layers','İmge katmanları için nesne deposu','core'],
+['Container registry','PostgreSQL','PSQL','jdbc postgresql/harbor','Registry metadata, scans, provenance','Registry metaverisi, taramalar, köken','core'],
+['Embed widget','Kong','WS','wss /ws/chat (upgrade)','Stream LLM tokens to the browser','LLM token\u2019larını tarayıcıya akıtır','wa'],
+['Embed widget','Kong','REST','POST /api/chat','Non-streaming message submit','Akışsız mesaj gönderimi','wa'],
+['File upload','MinIO','S3','PUT raw-uploads/{hash} (SHA256 dedup)','Stage catalog files (CSV/XLS/PDF)','Katalog dosyalarını hazırlar (CSV/XLS/PDF)','wa'],
+['File upload','Airflow','REST','trigger rag_reindex DAG','Chunk → embed → upsert pipeline','Parçala → göm → ekle hattı','wa'],
+['Whisper STT','Channel gateway','REST','returns {text, language, duration}','Transcript replaces audio in envelope','Transkript zarftaki sesi değiştirir','gu'],
+['LangGraph','ARMES MES','MCP','MCP tool → armes-mcp:3001 (pre-built ✓)','get_work_orders / oee / equipment / quality','iş_emirleri / oee / ekipman / kalite','cwf1'],
+['ARMES MES','MariaDB','JDBC','read-only mysql+pymysql','Read-only MES SQL, tenant-scoped','Salt-okunur MES SQL, kiracı-kapsamlı','cwf1'],
+['LangGraph','ClickHouse','MCP','MCP NL→SQL tool','Analytics: OEE trends, quality, volume','Analitik: OEE eğilimi, kalite, hacim','cwf1'],
+['Airbyte','MariaDB','JDBC','MySQL source, 15-min incremental','Sync ARMES ops data','ARMES operasyon verisini senkronlar','cwf1'],
+['Airbyte','ClickHouse','JDBC','ClickHouse dest (ReplacingMergeTree)','Single analytical store for mfg data','Üretim verisi için tek analitik depo','cwf1'],
+['Soda Core','ClickHouse','JDBC','soda-core-clickhouse scan','Freshness/completeness on mfg tables','Üretim tablolarında tazelik/bütünlük','cwf1'],
+['dbt Core','ClickHouse','JDBC','dbt-clickhouse adapter','Silver/Gold OEE + quality models','Silver/Gold OEE + kalite modelleri','cwf1'],
+['Teams bot','Channel gateway','REST','POST /teams/message (Bot Framework)','Teams → MessageEnvelope, Adaptive Cards','Teams → MessageEnvelope, Adaptive Cards','cwf1'],
+['n8n','LangGraph','WEBHOOK','POST /n8n/trigger','n8n flow asks for an AI decision','n8n akışı bir YZ kararı ister','cwf1'],
+['LangGraph','n8n','REST','POST /webhook/{flow}','AI decision triggers an n8n action','YZ kararı bir n8n eylemini tetikler','cwf1'],
+['LightRAG','Qdrant','REST','search {tenant}_armes_docs','Multi-hop SOP / manual retrieval','Çok-adımlı SOP / kılavuz erişimi','cwf1'],
+['LightRAG','PostgreSQL','PSQL','entity/relation graph tables','Document knowledge graph store','Belge bilgi grafiği deposu','cwf1'],
+['LightRAG','MinIO','S3','GET {tenant}-armes-docs','Source docs for KG construction','BG oluşturma için kaynak belgeler','cwf1'],
+['Outlook / Graph','Channel gateway','WEBHOOK','POST /outlook/hook (Graph notification)','New insurance email → triage agent','Yeni sigorta e-postası → triyaj ajanı','ins'],
+['NiFi SMB crawler','SMB shares','SMB','GetSmbFile poll 5-min','Read insurance PDFs (bound + submissions)','Sigorta PDF\u2019lerini okur (poliçe + başvuru)','ins'],
+['NiFi SMB crawler','PostgreSQL','PSQL','PutDatabaseRecord → documents','Metadata + SHA256 dedup + audit','Metaveri + SHA256 tekilleştirme + denetim','ins'],
+['NiFi SMB crawler','Qdrant','REST','upsert {tenant}_insurance','Semantic search over historical risks','Geçmiş riskler üzerinde anlamsal arama','ins'],
+['ARU / KARU','FastAPI','HTTP','REST OR Playwright scrape ⚠ (Week-1 spike)','Prior facultative risk history lookup','Önceki fakültatif risk geçmişi sorgusu','ins'],
+['Debezium','PostgreSQL','CDC','WAL logical replication slot','Row-level change capture, zero-poll','Satır-düzeyi değişiklik yakalama, sıfır-yoklama','cwf2'],
+['Debezium','Redpanda','KAFKA','Connect sink → topics (1/table)','Change events: before/after, LSN, ts','Değişim olayları: önce/sonra, LSN, ts','cwf2'],
+['Graphiti','Redpanda','KAFKA','consumer group → public.* topics','CDC events → temporal graph facts','CDC olayları → zamansal grafik olguları','cwf2'],
+['Graphiti','FalkorDB','GRAPH','GRAPH.QUERY (Redis wire :6379)','Timestamped temporal property graph','Zaman damgalı zamansal özellik grafiği','cwf2'],
+['LangGraph','Graphiti','REST','POST /query (causal, time window)','Diagnostic mfg queries (why OEE dropped)','Tanısal üretim sorguları (OEE neden düştü)','cwf2'],
+['Evidently AI','Grafana','OTEL','prometheus remote_write','Drift + RAGAS metrics, alert on threshold','Sapma + RAGAS metrikleri, eşikte alarm','cwf2'],
+['LLM enrichment','LiteLLM','REST','POST /v1/chat/completions','Generate catalog descriptions/tags','Katalog açıklamaları/etiketleri üretir','cwf2'],
+['LLM enrichment','OpenMetadata','REST','PATCH /tables/{id}','Patch LLM metadata into catalog','LLM metaverisini kataloğa yamalar','cwf2'],
+['Entra federation','Keycloak','OIDC','IdP federation broker','Enterprise users log in with Microsoft','Kurumsal kullanıcılar Microsoft ile giriş','fin'],
+['IoT-Ignite','FastAPI','WEBHOOK','POST /iot/ingest (30s interval)','Push sensor telemetry to ingest adapter','Sensör telemetrisini alım adaptörüne iter','fin'],
+['FastAPI','TimescaleDB','PSQL','INSERT sensor_readings (hypertable)','Time-partitioned sensor data + aggregates','Zaman-bölmeli sensör verisi + toplamlar','fin'],
+['LangGraph','SAP','MCP','MCP → SAP server (OData / BAPI)','Stock, production orders, financial entries','Stok, üretim emirleri, mali kayıtlar','fin'],
+['LangGraph','SharePoint','MCP','MCP → Graph API /sites/{site}/lists','Enterprise docs, SOPs, policies','Kurumsal belgeler, SOP\u2019lar, politikalar','fin'],
+['LangGraph','Salesforce','MCP','MCP → REST/SOQL','CRM accounts, contracts, opportunities','CRM hesapları, sözleşmeler, fırsatlar','fin'],
+['Temporal','PostgreSQL','PSQL','jdbc postgresql/temporal','Durable workflow state + history','Dayanıklı iş akışı durumu + geçmiş','fin'],
+['LangGraph','Temporal','GRPC','Temporal SDK → :7233','Long-running workflows, at-most-once','Uzun-süren iş akışları, en-fazla-bir-kez','fin'],
+['Iceberg','MinIO','S3','REST catalog + Parquet/Avro','Time-travel queries for financial audit','Mali denetim için zaman-yolculuğu sorguları','fin']];
+var EROLE={'DevOps':'#79C0FF','Backend':'#58A6FF','AI Eng':'#BC8CFF','Data Eng':'#3FB950','Frontend':'#E3B341'};
+var EPLAN=[
+ {id:'core',mo:'M1–M3',hrs:2900,
+  out_en:'<b>Exit gate:</b> a tenant can be provisioned in one call (Keycloak realm + Postgres RLS + Qdrant collection), one reasoning brain (LangGraph) serves every channel through the LiteLLM gateway, RAG + data-governance + observability are operational, and GitOps deploys signed images automatically.',
+  out_tr:'<b>Çıkış kapısı:</b> bir kiracı tek çağrıyla sağlanabilir (Keycloak realm + Postgres RLS + Qdrant koleksiyonu), tek akıl yürütme beyni (LangGraph) her kanala LiteLLM ağ geçidi üzerinden hizmet verir, RAG + veri-yönetişimi + gözlemlenebilirlik çalışır ve GitOps imzalı imgeleri otomatik dağıtır.',
+  tasks:[
+   ['A1','OpenTofu IaC → K8s on Netaş/OSB + Vault + cert-manager + Wireguard','Sovereign infra foundation (IaC)','Egemen altyapı temeli (IaC)','DevOps',180],
+   ['A2','PostgreSQL 16 + pgvector + wal_level=logical (Debezium-ready)','Platform DB','Platform veritabanı','DevOps',200],
+   ['A3','Keycloak realms + OPA policies + Tenant Provisioning service','Auth & multi-tenancy','Kimlik & çok-kiracılık','Backend',280],
+   ['A4','Kong (DB-less) + FastAPI skeleton + JWT + ArgoCD GitOps','API layer + GitOps CD','API katmanı + GitOps CD','Backend',260],
+   ['A4.5','CI pipeline + Harbor registry + Trivy scan + Cosign signing','Build-test-push automation','Derle-test-it otomasyonu','DevOps',160],
+   ['A5','LiteLLM proxy + vLLM (Llama-3-8B GPU) + Ollama fallback','LLM routing layer','LLM yönlendirme katmanı','AI Eng',200],
+   ['A6','LangGraph core + Hybrid Decision Engine + Channel Gateway','One reasoning brain','Tek akıl yürütme beyni','AI Eng',480],
+   ['A7','LlamaIndex RAG + Qdrant + bge-m3 TR+EN embeddings','RAG engine','RAG motoru','AI Eng',320],
+   ['A8','Airflow + Soda + dbt + OpenMetadata + cleansing DAGs','Data governance layer','Veri yönetişim katmanı','Data Eng',480],
+   ['A9','Langfuse + MLflow + Guardrails + Prompt Store + Memori + Grafana','AI observability stack','YZ gözlemlenebilirlik yığını','AI Eng',340]]},
+ {id:'wa',mo:'M2–M3',hrs:740,
+  out_en:'<b>Exit gate:</b> a manufacturer embeds the JS widget, uploads a product catalogue that becomes searchable RAG, and is billed via iyzico/Stripe with tier enforcement.',
+  out_tr:'<b>Çıkış kapısı:</b> bir üretici JS widget\u2019ını gömer, aranabilir RAG\u2019a dönüşen bir ürün kataloğu yükler ve kademe uygulamasıyla iyzico/Stripe üzerinden faturalandırılır.',
+  tasks:[
+   ['B1','Embed widget JS (<20KB, Vite) + streaming SSE + branding','Customer chat channel','Müşteri sohbet kanalı','Frontend',200],
+   ['B2','Catalog RAG (CSV/XLS/PDF → MinIO → chunk → Qdrant) + admin','Product knowledge base','Ürün bilgi tabanı','AI Eng',240],
+   ['B3','Billing (iyzico + Stripe) + tier enforcement + invoicing','Revenue engine','Gelir motoru','Backend',180],
+   ['B4','Landing page + tenant admin UI (usage, billing, users)','Operator portal','Operatör portalı','Frontend',120]]},
+ {id:'gu',mo:'M2–M3',hrs:640,
+  out_en:'<b>Exit gate:</b> a WhatsApp text or voice query (Whisper-transcribed) returns a correct catalogue / OEE / maintenance / quality answer, with a compliance audit PDF on demand.',
+  out_tr:'<b>Çıkış kapısı:</b> bir WhatsApp metin veya ses sorgusu (Whisper ile yazıya dökülmüş) doğru katalog / OEE / bakım / kalite yanıtı döndürür ve talep üzerine bir uyum denetim PDF\u2019i üretir.',
+  tasks:[
+   ['C1','WhatsApp Business API + Meta webhook + gateway routing + voice','WhatsApp-first channel','WhatsApp-öncelikli kanal','Backend',160],
+   ['C2','Whisper STT (faster-whisper medium, Turkish, GPU-optional)','Voice transcription','Ses transkripsiyonu','AI Eng',80],
+   ['C3','Galip Usta LangGraph agent (query classes 1–4)','Usta intelligence agent','Usta zekâ ajanı','AI Eng',240],
+   ['C4','Audit PDF (WeasyPrint + Jinja2, IATF 16949 / AS9100 SPC, TR)','Compliance document','Uyum belgesi','Backend',160]]},
+ {id:'cwf1',mo:'M3–M5',hrs:1500,
+  out_en:'<b>Exit gate (contractual):</b> Kale plant managers query OEE, maintenance and quality over Teams and WhatsApp, with multi-hop retrieval over ARMES SOPs and manuals, and automated alert / ticketing flows. ARMES MCP server is pre-built (✓).',
+  out_tr:'<b>Çıkış kapısı (sözleşmesel):</b> Kale tesis yöneticileri OEE, bakım ve kaliteyi Teams ve WhatsApp üzerinden sorgular; ARMES SOP\u2019ları ve kılavuzları üzerinde çok-adımlı erişim ve otomatik alarm / talep akışlarıyla. ARMES MCP sunucusu önceden hazır (✓).',
+  tasks:[
+   ['E1','ARMES MCP wiring (pre-built ✓) — integration tests + tool registration','MES connectivity (risk eliminated)','MES bağlanırlığı (risk ortadan kalktı)','AI Eng',160],
+   ['E2','ClickHouse + Airbyte (MariaDB → ClickHouse 15-min) + dbt Silver/Gold','Manufacturing analytics store','Üretim analitik deposu','Data Eng',280],
+   ['E3','CWF mfg agents classes 1–3 (OEE, maintenance, quality trend)','Core manufacturing agents','Çekirdek üretim ajanları','AI Eng',360],
+   ['E4','LightRAG KG-RAG (class-5 multi-hop over SOPs + manuals)','Complex doc retrieval','Karmaşık belge erişimi','AI Eng',300],
+   ['E5','Teams Bot (Bot Framework + Adaptive Cards) + gateway','Teams channel','Teams kanalı','Backend',200],
+   ['E6','n8n flows (OEE alert → Teams, ticket → ARMES, summary → WhatsApp)','Ops automation layer','Operasyon otomasyon katmanı','Backend',200]]},
+ {id:'ins',mo:'M4–M5',hrs:1160,
+  out_en:'<b>Exit gate:</b> an incoming insurance email (Türk Re) is triaged as new / renewal / previously-submitted, with VKN + dates + Faaliyet code + insured extracted, prior-risk history looked up, and an immutable decision log + compliance PDF produced.',
+  out_tr:'<b>Çıkış kapısı:</b> gelen bir sigorta e-postası (Türk Re) yeni / yenileme / daha önce sunulmuş olarak triyaj edilir; VKN + tarihler + Faaliyet kodu + sigortalı çıkarılır, önceki risk geçmişi sorgulanır ve değişmez bir karar günlüğü + uyum PDF\u2019i üretilir.',
+  tasks:[
+   ['D1','Outlook / Graph webhook + full message + attachment fetch','Email triage channel','E-posta triyaj kanalı','Backend',120],
+   ['D2','NiFi SMB crawler (bound + submissions, 5-min, SHA256) + PDF extract','Document ingestion','Belge alımı','Data Eng',200],
+   ['D3','Insurance triage agent (extract VKN, dates, sektör code, name)','Extraction agent','Çıkarım ajanı','AI Eng',280],
+   ['D4','ARU/KARU integration (Week-1 spike: API 80h / UI-scrape 320h) + risk lookup','Risk history lookup','Risk geçmişi sorgusu','Backend',200,'warn'],
+   ['D5','Deterministic classifier + 4 parallel lookups + rule engine','Decision engine','Karar motoru','AI Eng',160],
+   ['D6','Guardrails rails (VKN 10-digit, dates, approved Faaliyet codes)','Output validation','Çıktı doğrulama','AI Eng',80],
+   ['D7','Takip audit trail (immutable decision log) + compliance PDF','Audit & compliance','Denetim & uyum','Backend',120]]},
+ {id:'cwf2',mo:'M6–M8',hrs:1500,
+  out_en:'<b>Exit gate:</b> causal / diagnostic queries ("why did OEE drop on Line 3?") are answered from a temporal knowledge graph fed by real-time CDC, on an HA database, with model-drift monitoring and alerting.',
+  out_tr:'<b>Çıkış kapısı:</b> nedensel / tanısal sorgular ("Hat 3\u2019te OEE neden düştü?") gerçek zamanlı CDC ile beslenen zamansal bir bilgi grafiğinden, YA bir veritabanı üzerinde, model-sapma izleme ve alarmıyla yanıtlanır.',
+  tasks:[
+   ['F1','PostgreSQL HA (Zalando operator + replicas + PgBouncer)','DB resilience','DB dayanıklılığı','DevOps',200],
+   ['F2','Full medallion Bronze/Silver/Gold for all sources (Soda + dbt)','Data lakehouse layer','Veri göl-evi katmanı','Data Eng',400],
+   ['F3','Debezium CDC + Redpanda cluster (real-time change events)','Real-time event bus','Gerçek zamanlı olay veriyolu','Data Eng',280],
+   ['F4','FalkorDB + Graphiti (CDC → temporal graph, class-6 causal)','Causal intelligence layer','Nedensel zekâ katmanı','AI Eng',420],
+   ['F5','Evidently drift (embedding + RAGAS) + Grafana alert rules','Model monitoring','Model izleme','AI Eng',200]]},
+ {id:'fin',mo:'M8–M13',hrs:3620,
+  out_en:'<b>Exit gate:</b> enterprise Astra use cases (factory intelligence, predictive maintenance, financial/board reporting, multi-channel) are live with Microsoft Entra SSO and MCP servers for SAP, SharePoint and Salesforce; sensor telemetry flows through TimescaleDB and an Iceberg lakehouse supports time-travel audit.',
+  out_tr:'<b>Çıkış kapısı:</b> kurumsal Astra kullanım senaryoları (fabrika zekâsı, kestirimci bakım, mali/yönetim kurulu raporlama, çok-kanal) Microsoft Entra SSO ve SAP, SharePoint, Salesforce için MCP sunucularıyla canlıdır; sensör telemetrisi TimescaleDB\u2019den akar ve bir Iceberg göl-evi zaman-yolculuğu denetimini destekler.',
+  tasks:[
+   ['G1','Keycloak RLS hardening + Microsoft Entra OIDC federation','Enterprise auth','Kurumsal kimlik','Backend',300],
+   ['G2','SAP MCP + SharePoint MCP + Salesforce MCP servers','Enterprise system MCPs','Kurumsal sistem MCP\u2019leri','AI Eng',720],
+   ['G3','Astra UC1 (Factory Intelligence) + UC2 (Predictive Maintenance)','Astra UC1 + UC2','Astra UC1 + UC2','AI Eng',680],
+   ['G4','Astra UC3 (Financial / board, Iceberg time-travel) + UC4 (multi-channel)','Astra UC3 + UC4','Astra UC3 + UC4','AI Eng',820],
+   ['G5','IoT-Ignite adapter + TimescaleDB hypertables + GU sensor mode','Sensor telemetry pipeline','Sensör telemetri hattı','AI Eng',300],
+   ['G6','Iceberg lakehouse (REST catalog + MinIO) + LLM Enrichment + Temporal','Enterprise data infra','Kurumsal veri altyapısı','Data Eng',800]]}];
+var MT={'Opus':'t-op','Sonnet':'t-so','Haiku':'t-ha'};
+var RSYS=[
+ {ne:'Vision engine',nt:'Vizyon motoru',te:'decide what to build',tt:'ne inşa edileceğine karar ver',
+  c:[['Founder agent','Opus'],['Empathy engine · OASIS','Sonnet'],['Market sensor','Sonnet'],['Intent synthesiser','Opus']]},
+ {ne:'Execution swarm',nt:'Yürütme sürüsü',te:'build it · v1 → v2',tt:'inşa et · v1 → v2',
+  c:[['#','v1 specialised','v1 özelleşmiş'],['Engineering manager','Opus'],['Solution architect','Opus'],['Frontend agent','Sonnet'],['Backend agent','Sonnet'],['Database agent','Sonnet'],['DevOps agent','Sonnet'],['#','v2 cellular','v2 hücresel'],['Speculation orchestrator','Opus'],['Engineering cells','Sonnet'],['Capability composer',''],['Tournament selector',''],['Cell pool manager','']]},
+ {ne:'Verification mesh',nt:'Doğrulama mesh\u2019i',te:'prove it works',tt:'çalıştığını kanıtla',
+  c:[['Spec author · TLA+/Alloy','Opus'],['Verifier · formal',''],['Code reviewer · 6-dim','Opus'],['Test generator','Sonnet'],['Security agent','Opus'],['Red team agent','Opus'],['Performance agent','Sonnet'],['Taste evaluator','']]},
+ {ne:'Reality loop',nt:'Gerçeklik döngüsü',te:'learn from production',tt:'üretimden öğren',
+  c:[['Reality observer','Sonnet'],['Support synthesiser','Haiku'],['Experiment runner',''],['Incident responder','']]},
+ {ne:'Meta-cognition',nt:'Meta-biliş',te:'improve the system · phase 8',tt:'sistemi iyileştir · faz 8',
+  c:[['System observer',''],['Bottleneck detector',''],['Architecture proposer','Opus'],['Decision auditor',''],['Prompt evolver · DSPy',''],['Parameter tuner','']]}];
+var RCTYPES={
+'IN-PROC':['#A371F7','In-process function call. No network hop, no serialization.','Süreç-içi fonksiyon çağrısı. Ağ sıçraması ve serileştirme yok.'],
+MMAP:['#E3B341','Memory-mapped ring buffer. Lock-free, crash-safe, microseconds.','Bellek-eşlemli halka tampon. Kilitsiz, çökmeye-dayanıklı, mikrosaniye.'],
+REST:['#388BFD','HTTP request/response. OpenAI-compatible for gateway/provider calls.','HTTP istek/yanıt. Ağ geçidi/sağlayıcı çağrıları için OpenAI-uyumlu.'],
+MCP:['#3FB950','JSON-RPC tool protocol. Process-isolated tool servers.','JSON-RPC araç protokolü. Süreç-izole araç sunucuları.'],
+KAFKA:['#F85149','Redpanda append-only log. Three channels + telemetry stream.','Redpanda yalnızca-ekleme günlüğü. Üç kanal + telemetri akışı.'],
+OTEL:['#58A6FF','OpenTelemetry OTLP traces to Tempo. trace_id propagated.','Tempo\u2019ya OpenTelemetry OTLP izleri. trace_id yayılır.'],
+PSQL:['#8B949E','Native Postgres wire. Agent/run state and checkpoints.','Yerel Postgres protokolü. Ajan/çalışma durumu ve kontrol noktaları.'],
+GRPC:['#79C0FF','Binary Protobuf over HTTP/2. Qdrant vector upsert / ANN.','HTTP/2 üzerinden ikili Protobuf. Qdrant vektör ekleme / ANN.'],
+S3:['#56D364','S3-compatible object store (MinIO). Artifacts + cold telemetry.','S3-uyumlu nesne deposu (MinIO). Yapıtlar + soğuk telemetri.'],
+OIDC:['#FF9933','Keycloak JWT. Service auth + MCP capability allowlist.','Keycloak JWT. Servis kimliği + MCP yetenek izin listesi.'],
+VAULT:['#BC8CFF','Secret reference resolution. Never raw values anywhere.','Sır referansı çözümleme. Hiçbir yerde ham değer yok.'],
+GIT:['#6E7681','Git operations / repo access. ADRs, skills, prompts, code.','Git işlemleri / repo erişimi. ADR\u2019ler, beceriler, prompt\u2019lar, kod.']};
+var RGROUPS={gw:['LLM gateway','LLM ağ geçidi'],mcp:['MCP tools','MCP araçları'],tel:['Telemetry','Telemetri'],ch:['Channels','Kanallar'],st:['State & security','Durum & güvenlik']};
+var RCONN=[
+['Agent base class','Gateway wrapper','IN-PROC','wrapper.complete(agent_id, messages)','All LLM calls go through the wrapper, never direct','Tüm LLM çağrıları sarmalayıcıdan geçer, asla doğrudan değil','gw'],
+['Gateway wrapper','LiteLLM','REST','POST /v1/chat/completions (OpenAI-compat)','Forward with routing decision + virtual key','Yönlendirme kararı + sanal anahtar ile iletir','gw'],
+['LiteLLM','Anthropic API','REST','messages API · Opus 4.7 / Sonnet 4.6 / Haiku 4.5','Primary provider; prefix caching passthrough','Birincil sağlayıcı; önek önbellek geçişi','gw'],
+['LiteLLM','Vertex AI','REST','Gemini 3.1 Pro','Fallback + long-context route','Yedek + uzun-bağlam rotası','gw'],
+['Gateway wrapper','Redpanda','KAFKA','telemetry event per call','model, tokens, cached, cost USD, cache-hit → attribution','model, token, önbellek, maliyet, isabet → atıf','gw'],
+['Gateway wrapper','Vault','VAULT','provider keys by reference','No raw keys in config or prompts','Konfig veya prompt\u2019larda ham anahtar yok','gw'],
+['Gateway wrapper','Keycloak','OIDC','service-to-service JWT','Authenticate gateway calls','Ağ geçidi çağrılarını doğrular','gw'],
+['Gateway wrapper','Living knowledge','REST','routing policy read','Escalate Sonnet→Opus when quality drifts','Kalite saparsa Sonnet→Opus yükseltir','gw'],
+['Agent base class','MCP client','IN-PROC','discover servers from per-agent config','Enforce allowlist; bind tools at runtime','İzin listesi uygular; araçları çalışma anında bağlar','mcp'],
+['MCP client','Filesystem MCP','MCP','fs.{read,write,list,mkdir,delete}','Sandboxed to agent home (1.7.4, ships first)','Ajan dizinine sınırlı (1.7.4, ilk teslim)','mcp'],
+['MCP client','Sandbox MCP','MCP','sandbox.execute(cmd,env,cwd,timeout,limits)','Code/test execution; Docker backend (1.7.1)','Kod/test yürütme; Docker arka uç (1.7.1)','mcp'],
+['MCP client','Git MCP','MCP','git.{clone,fetch,branch,commit,diff,push}','Per-agent repo scope from identity (1.7.2)','Kimlikten ajan-bazlı repo kapsamı (1.7.2)','mcp'],
+['MCP client','GitHub MCP','MCP','github.{pr_*, issue_*, file_*}','Read-only vs write per identity (1.7.3)','Kimliğe göre salt-okunur/yazma (1.7.3)','mcp'],
+['MCP client','Web search MCP','MCP','search.web(query,n,recency)','Brave primary / Tavily fallback (1.7.5)','Brave birincil / Tavily yedek (1.7.5)','mcp'],
+['MCP client','Docs fetch MCP','MCP','docs.fetch(url,format)','readability → markdown (1.7.6)','readability → markdown (1.7.6)','mcp'],
+['Sandbox MCP','Docker','IN-PROC','Docker socket + resource limits','CPU/mem/network-egress caps enforced','CPU/bellek/ağ-çıkış sınırları uygulanır','mcp'],
+['Git MCP','Git repositories','GIT','gitpython','SSH key via Vault reference','Vault referansıyla SSH anahtarı','mcp'],
+['GitHub MCP','GitHub Enterprise','REST','github3.py','Token via Vault reference','Vault referansıyla token','mcp'],
+['Web search MCP','Brave / Tavily','REST','search API','API keys via Vault','Vault üzerinden API anahtarları','mcp'],
+['MCP servers','Keycloak','OIDC','JWT validated at server boot','Capability allowlist (not denylist)','Yetenek izin listesi (engelleme listesi değil)','mcp'],
+['Agent','OTel emission SDK','IN-PROC','emit(event) fire-and-forget','µs latency; PII/secrets redacted at emission','µs gecikme; PII/sırlar yayımda maskelenir','tel'],
+['OTel SDK','Ring buffer','MMAP','lock-free MPSC, 10MB mmap','Crash-safe; agent never blocks','Çökmeye-dayanıklı; ajan asla bloklanmaz','tel'],
+['Ring buffer','Sidecar batcher','MMAP','separate process reads buffer','Process isolation survives agent crash','Süreç izolasyonu ajan çökmesine dayanır','tel'],
+['Sidecar batcher','Redpanda','KAFKA','zstd-3, 1000 ev / 5s; schema version per event','Pipeline rejects unknown schema versions','Hat bilinmeyen şema sürümlerini reddeder','tel'],
+['Redpanda','ClickHouse','KAFKA','ClickHouse Kafka engine','Hot tier, 30-day retention','Sıcak katman, 30 gün saklama','tel'],
+['Redpanda','Tempo','OTEL','OTLP traces','Distributed tracing across systems','Sistemler arası dağıtık izleme','tel'],
+['ClickHouse','MinIO','S3','cold tier export','365-day retention','365 gün saklama','tel'],
+['ClickHouse','Grafana','REST','SQL / PromQL dashboards','Ops + per-agent prefix-cache hit rate (1.3.4)','Operasyon + ajan-bazlı önek-önbellek isabeti (1.3.4)','tel'],
+['ClickHouse','Metabase','PSQL','analytical SQL','Cost trends per agent / feature / intent','Ajan / özellik / niyet başına maliyet eğilimi','tel'],
+['Artifact store','MinIO','S3','PUT by content hash','Full prompts/completions, access-controlled','Tam prompt\u2019lar/yanıtlar, erişim-kontrollü','tel'],
+['Vision engine','intent stream','KAFKA','produce (Redpanda topic)','Immutable prioritised intents (Gherkin ACs)','Değişmez önceliklendirilmiş niyetler (Gherkin)','ch'],
+['Execution swarm','intent stream','KAFKA','consume','Pull next intent to build','İnşa edilecek sıradaki niyeti çeker','ch'],
+['Execution swarm','verification gate','KAFKA','produce','Code diff + spec for proof','Kanıt için kod farkı + şema','ch'],
+['Verification mesh','verification gate','KAFKA','consume','Gate every change before merge','Birleştirmeden önce her değişikliği kapılar','ch'],
+['Reality loop','reality feed','KAFKA','produce','Errors → properties, friction → intents','Hatalar → özellikler, sürtünme → niyetler','ch'],
+['Vision engine + Meta-cognition','reality feed','KAFKA','consume','Reprioritise + propose improvements','Yeniden önceliklendir + iyileştirme öner','ch'],
+['Systems','PostgreSQL','PSQL','state + LangGraph-style checkpoints','Resume, debug, audit replay','Sürdürme, hata ayıklama, denetim tekrarı','st'],
+['Living knowledge','Qdrant','GRPC','vector upsert / ANN','GraphRAG codebase graph + pattern library','GraphRAG kod tabanı grafiği + desen kütüphanesi','st'],
+['Living knowledge','Git','GIT','read/write markdown','ADRs, skills, SOUL.md, prompt versions','ADR\u2019ler, beceriler, SOUL.md, prompt sürümleri','st'],
+['Platform','MariaDB Galera','PSQL','existing cluster','Reuse where existing infra fits','Mevcut altyapı uyduğunda yeniden kullan','st']];
+var RGRP_P1=[
+['1.1','Telemetry foundation','Telemetri temeli','10','Every agent action emits a schema-versioned event, fire-and-forget; pipeline rejects unknown versions.','Her ajan eylemi şema-sürümlü bir olay yayar, gönder-unut; hat bilinmeyen sürümleri reddeder.','','',''],
+['1.2','Streaming + storage','Akış + depolama','7','Redpanda → ClickHouse (hot 30d) + Tempo (traces) + MinIO (cold 365d) ingesting telemetry.','Redpanda → ClickHouse (sıcak 30g) + Tempo (izler) + MinIO (soğuk 365g) telemetri alır.','','',''],
+['1.3','Observability surface','Gözlemlenebilirlik yüzeyi','7','Grafana (ops) + Metabase (analytical) dashboards live; cost + cache-efficiency visible.','Grafana (operasyon) + Metabase (analitik) panoları canlı; maliyet + önbellek-verimi görünür.','1.3.4 expanded: + prefix-cache hit rate, alert >10% wk/wk','1.3.4 genişletildi: + önek-önbellek isabeti, haftalık >%10 alarm','patch'],
+['1.4','LLM gateway · LiteLLM','LLM ağ geçidi · LiteLLM','2','All model calls via LiteLLM + wrapper: agent-aware cost attribution, per-minute token-burst limits, cache-hit emission, Living-Knowledge routing.','Tüm model çağrıları LiteLLM + sarmalayıcı üzerinden: ajan-farkında maliyet atfı, dakika-başına token-patlama limitleri, önbellek-isabet yayımı, Living-Knowledge yönlendirme.','cut 7 → 2 (ADR-001)','7 → 2 kesildi (ADR-001)','patch'],
+['1.7','MCP tool servers','MCP araç sunucuları','6','External tool surface over MCP with allowlist at boot; filesystem (1.7.4) ships first as the calibration stage, then web/docs, git/github, sandbox.','MCP üzerinden dış araç yüzeyi, açılışta izin listesiyle; dosya sistemi (1.7.4) kalibrasyon aşaması olarak ilk teslim edilir, sonra web/belgeler, git/github, sandbox.','NEW group (ADR-002)','YENİ grup (ADR-002)','patch'],
+['1.5','First v1 agent set','İlk v1 ajan seti','10','Working specialised agents (EM, architect, FE/BE/DB/DevOps, reviewer, security) on the substrate; 1.5.1 base class integrates telemetry + gateway + MCP.','Altyapı üzerinde çalışan özelleşmiş ajanlar (EM, mimar, FE/BE/DB/DevOps, gözden geçiren, güvenlik); 1.5.1 temel sınıfı telemetri + ağ geçidi + MCP\u2019yi entegre eder.','1.5.1 prereqs → 1.4 + 1.7','1.5.1 ön koşullar → 1.4 + 1.7','patch'],
+['1.6','First product','İlk ürün','TBD','First real product live in production, generating the telemetry every later phase depends on.','İlk gerçek ürün üretimde canlı, sonraki her fazın bağlı olduğu telemetriyi üretir.','gated by OPEN #1','AÇIK #1 ile kapılı','open']];
+var RPH=[
+ {ne:'Phase 2',nt:'Faz 2',name_e:'Measurement maturity + Vision / Empathy',name_t:'Ölçüm olgunluğu + Vizyon / Empati',bound:'mix',mo:'~M2–M4',
+  ge:'Mature the measurement foundation in production, and stand up the Vision Engine (intent stream from real signals) and the Empathy Engine (OASIS personas exercising the product).',
+  gt:'Ölçüm temelini üretimde olgunlaştır ve Vizyon Motoru (gerçek sinyallerden niyet akışı) ile Empati Motoru\u2019nu (ürünü kullanan OASIS personaları) ayağa kaldır.',
+  oe:'Prioritised intents flow from OKRs + production + personas; quality scoring is live. The 12-month telemetry clock for Meta-cognition starts here.',
+  ot:'Önceliklendirilmiş niyetler OKR + üretim + personalardan akar; kalite puanlama canlıdır. Meta-biliş için 12-aylık telemetri sayacı burada başlar.',
+  de:'depends on Phase 1',dt:'Faz 1\u2019e bağlı'},
+ {ne:'Phase 3',nt:'Faz 3',name_e:'Speculation',name_t:'Spekülasyon',bound:'cal',mo:'~M4–M7',
+  ge:'Introduce v2\u2019s most important evolution: N parallel cells per intent, with the Verification Mesh selecting the winning implementation (tournament).',
+  gt:'v2\u2019nin en önemli evrimini tanıt: niyet başına N paralel hücre, kazanan uygulamayı seçen Doğrulama Mesh\u2019i (turnuva).',
+  oe:'Speculative parallel execution validated in shadow against v1 baselines before any promotion.',
+  ot:'Spekülatif paralel yürütme, herhangi bir terfiden önce gölgede v1 referanslarına karşı doğrulanır.',
+  de:'depends on Phase 2 · calendar-bound (shadow validation)',dt:'Faz 2\u2019ye bağlı · takvim-bağlı (gölge doğrulama)'},
+ {ne:'Phase 4',nt:'Faz 4',name_e:'Cells in shadow',name_t:'Gölgede hücreler',bound:'cal',mo:'~M5–M8',
+  ge:'Run generalist engineering cells alongside the v1 specialised agents silently; compare outputs before promoting anything.',
+  gt:'Genelci mühendislik hücrelerini v1 özelleşmiş ajanların yanında sessizce çalıştır; herhangi bir şeyi terfi ettirmeden önce çıktıları karşılaştır.',
+  oe:'Cell quality demonstrably matches or exceeds v1 on shadow comparison over a real validation window.',
+  ot:'Hücre kalitesi, gerçek bir doğrulama penceresinde gölge karşılaştırmasında v1\u2019e eşit veya üstün olduğunu kanıtlar.',
+  de:'depends on Phase 3 · calendar-bound (cannot compress)',dt:'Faz 3\u2019e bağlı · takvim-bağlı (sıkışamaz)'},
+ {ne:'Phase 5',nt:'Faz 5',name_e:'Formal verification',name_t:'Biçimsel doğrulama',bound:'mix',mo:'~M6–M9',
+  ge:'Harden the Verification Mesh: TLA+/Alloy specifications on critical paths (auth, accounting), with property-based testing (Hypothesis) as the pragmatic fallback elsewhere.',
+  gt:'Doğrulama Mesh\u2019ini güçlendir: kritik yollarda (kimlik, muhasebe) TLA+/Alloy şartnameleri, diğer yerlerde pragmatik yedek olarak özellik-tabanlı test (Hypothesis).',
+  oe:'Critical paths are mathematically verified; standard paths pass multi-dimensional review. Expect a steep learning curve — lean on property-based testing if formal methods stall.',
+  ot:'Kritik yollar matematiksel olarak doğrulanır; standart yollar çok-boyutlu incelemeden geçer. Dik bir öğrenme eğrisi bekleyin — biçimsel yöntemler tıkanırsa özellik-tabanlı teste yaslanın.',
+  de:'verification mesh exists from Phase 1 · mixed (cultural learning curve)',dt:'doğrulama mesh\u2019i Faz 1\u2019den beri var · karma (kültürel öğrenme eğrisi)'},
+ {ne:'Phase 6',nt:'Faz 6',name_e:'Cells in production',name_t:'Üretimde hücreler',bound:'cal',mo:'~M8–M11',
+  ge:'Promote validated cells from shadow into production, owning intents end-to-end behind canaries.',
+  gt:'Doğrulanmış hücreleri gölgeden üretime terfi ettir; kanaryaların ardında niyetleri uçtan uca sahiplenirler.',
+  oe:'Cells produce production code under the same verification gates as v1, with canary rollout.',
+  ot:'Hücreler, kanarya dağıtımıyla, v1 ile aynı doğrulama kapıları altında üretim kodu üretir.',
+  de:'depends on Phases 4 + 5 · calendar-bound (canary)',dt:'Faz 4 + 5\u2019e bağlı · takvim-bağlı (kanarya)'},
+ {ne:'Phase 7',nt:'Faz 7',name_e:'Self-improvement',name_t:'Kendini iyileştirme',bound:'cal',mo:'~M10–M14',
+  ge:'Activate DSPy-style prompt evolution and parameter tuning (speculation N, verification intensity, cell sizing) driven by production telemetry.',
+  gt:'Üretim telemetrisiyle yönlendirilen DSPy-tarzı prompt evrimi ve parametre ayarlamayı (spekülasyon N, doğrulama yoğunluğu, hücre boyutlandırma) etkinleştir.',
+  oe:'Prompts and parameters self-optimise from real outcomes, monthly per-agent.',
+  ot:'Prompt\u2019lar ve parametreler gerçek sonuçlardan, ajan başına aylık olarak kendini optimize eder.',
+  de:'depends on Phase 6 (needs production data) · calendar-bound',dt:'Faz 6\u2019ya bağlı (üretim verisi gerekir) · takvim-bağlı'},
+ {ne:'Phase 8',nt:'Faz 8',name_e:'Meta-cognition',name_t:'Meta-biliş',bound:'cal',mo:'~M12–M15',
+  ge:'The crowning capability: system observer, bottleneck detector, architecture proposer, and decision auditor — the architecture watching itself.',
+  gt:'Taçlandıran yetenek: sistem gözlemcisi, darboğaz dedektörü, mimari önerici ve karar denetçisi — mimarinin kendini izlemesi.',
+  oe:'The system proposes its own structural improvements (human-gated). Built last because it needs 12+ months of telemetry to be reliable.',
+  ot:'Sistem kendi yapısal iyileştirmelerini önerir (insan-kapılı). En son inşa edilir çünkü güvenilir olması için 12+ aylık telemetri gerekir.',
+  de:'depends on Phase 2 (12-month telemetry) + Phase 7 · calendar-bound',dt:'Faz 2 (12-aylık telemetri) + Faz 7\u2019ye bağlı · takvim-bağlı'}];
+var ROPENS=[
+ ['①','First product','İlk ürün','What the system builds first — gates Stage 1.6. The bridge suggests a CWF / EAIP component; needs explicit sign-off.','Sistemin ilk ne inşa ettiği — Aşama 1.6\u2019yı kapılar. Köprü bir CWF / EAIP bileşeni öneriyor; açık onay gerekir.'],
+ ['②','Founder for SOUL.md','SOUL.md için kurucu','Anchors the taste model in the Vision Engine (Phase 2). Hand-curated; needs a named person.','Vizyon Motoru\u2019ndaki beğeni modelini sabitler (Faz 2). El ile derlenir; isimli bir kişi gerekir.'],
+ ['③','Quarterly LLM budget','Üç aylık LLM bütçesi','Shapes routing (Opus vs Sonnet vs Haiku) and the per-minute rate caps in the gateway wrapper.','Yönlendirmeyi (Opus/Sonnet/Haiku) ve ağ geçidi sarmalayıcısındaki dakika-başına limitleri şekillendirir.'],
+ ['④','Relation to ARDICTECH platform','ARDICTECH platformuyla ilişki','Extensions vs independent products. The bridge implies Revolutionize builds EAIP — confirm the boundary.','Uzantılar mı bağımsız ürünler mi. Köprü, Revolutionize\u2019ın EAIP\u2019yi inşa ettiğini ima eder — sınırı onaylayın.'],
+ ['⑤','Biggest expertise gaps','En büyük uzmanlık boşlukları','Likely formal methods (TLA+/Alloy), agent orchestration, multi-tenant security — drives the Phase 5 risk and reading week.','Muhtemelen biçimsel yöntemler (TLA+/Alloy), ajan orkestrasyonu, çok-kiracılı güvenlik — Faz 5 riskini ve okuma haftasını belirler.']];
+var LCOL=['#58A6FF','#79C0FF','#BC8CFF','#3FB950','#56D364','#E3B341','#8B949E','#A371F7','#FF9933','#6E7681'];
+var GANTT=[['core',1,3],['wa',2,3],['gu',2,3],['cwf1',3,5],['ins',4,5],['cwf2',6,8],['fin',8,13]];
+var RGANTT=[['Phase 1','Faz 1','Foundation','Temel',1,2,'impl'],['Phase 2','Faz 2','Measure + Vision','Ölçüm + Vizyon',2,4,'mix'],['Phase 3','Faz 3','Speculation','Spekülasyon',4,7,'cal'],['Phase 4','Faz 4','Cells in shadow','Gölgede hücreler',5,8,'cal'],['Phase 5','Faz 5','Formal verification','Biçimsel doğrulama',6,9,'mix'],['Phase 6','Faz 6','Cells in production','Üretimde hücreler',8,11,'cal'],['Phase 7','Faz 7','Self-improvement','Kendini iyileştirme',10,14,'cal'],['Phase 8','Faz 8','Meta-cognition','Meta-biliş',12,15,'cal']];
+var curTab='big';
+function esc(s){return s;}
+function typeKey(obj){var i=lang==='en'?1:2;return '<div class="tk">'+Object.keys(obj).map(function(k){var v=obj[k];return '<div class="tki"><span class="tkb" style="background:'+v[0]+'22;color:'+v[0]+';border:1px solid '+v[0]+'55">'+k+'</span><div class="tkd">'+v[i]+'</div></div>';}).join('')+'</div>';}
+
+function renderBig(){var b=T[lang].big;
+ document.getElementById('sec-big').innerHTML=
+ '<div class="sect">'+b.title+'</div><div class="lede">'+b.lede+'</div>'
+ +'<div class="hub"><b>'+b.hub+'</b><span>'+b.hubsub+'</span></div>'
+ +'<div class="down">↓ '+b.ships+'<br>↑ '+b.rf+'</div>'
+ +'<div class="hub" style="background:rgba(88,166,255,.12);border-color:var(--blue)"><b>'+b.eaip+'</b><span>'+b.eaipsub+'</span></div>'
+ +'<div class="bandrow"><div class="bt">'+b.substrate+'</div><div class="chips">'+b.substrateitems.split(' · ').map(function(x){return '<span class="chip">'+x+'</span>';}).join('')+'</div></div>'
+ +'<div class="cards"><div class="card p"><h3>'+b.cardph+'</h3><p>'+b.cardpp+'</p><span class="k">'+b.cardpk+'</span></div>'
+ +'<div class="card b"><h3>'+b.cardbh+'</h3><p>'+b.cardbp+'</p><span class="k">'+b.cardbk+'</span></div></div>'
+ +'<div class="note purple">'+b.note+'</div>';}
+
+function renderEarch(){var e=T[lang].earch,ni=lang==='en'?1:2,di=lang==='en'?3:4;
+ var rows=LAYERS.map(function(L,idx){var col=LCOL[idx];
+  var comps=COMPS.filter(function(c){return c[1]===L[0];});
+  var chips=comps.map(function(c){var hl=c[2]!=='';return '<span class="chip'+(hl?' hl':'')+'">'+c[0]+(c[2]?' <small style="color:inherit">'+c[2]+'</small>':'')+'</span>';}).join('');
+  var doc=L[di]?'<div class="ltag">'+L[di]+'</div>':'';
+  return '<div class="row"><div class="lbl"><div class="acc" style="background:'+col+'"></div><div class="ln">'+L[0]+'</div><div class="lname">'+L[ni]+'</div>'+doc+'</div><div class="chips">'+chips+'</div></div>';}).join('');
+ document.getElementById('sec-earch').innerHTML='<div class="lede">'+e.lede+'</div>'+rows
+ +'<div class="legend"><span><span class="sw" style="background:var(--bg3);border:1px solid var(--border)"></span>'+e.lg1+'</span><span><span class="sw" style="background:rgba(63,185,80,.2);border:1px solid var(--green)"></span>'+e.lg2+'</span><span style="color:var(--amber)">'+e.lg3+'</span></div>'
+ +'<div class="note green">'+e.note+'</div>';}
+
+var HOTPATH='<svg viewBox="0 0 680 520"><defs><marker id="are" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#6E7681" stroke-width="1.5"/></marker></defs>'
++'<rect x="150" y="40" width="210" height="46" rx="8" fill="rgba(88,166,255,.14)" stroke="#58A6FF"/><text x="255" y="60" text-anchor="middle" fill="#E6EDF3" font-size="13" font-weight="600">Channel</text><text x="255" y="77" text-anchor="middle" fill="#8B949E" font-size="11">WhatsApp · widget · Teams</text>'
++'<rect x="150" y="106" width="210" height="46" rx="8" fill="#21262D" stroke="#30363D"/><text x="255" y="133" text-anchor="middle" fill="#E6EDF3" font-size="13" font-weight="600">Channel gateway</text>'
++'<rect x="150" y="172" width="210" height="46" rx="8" fill="#21262D" stroke="#30363D"/><text x="255" y="199" text-anchor="middle" fill="#E6EDF3" font-size="13" font-weight="600">Kong + OPA</text>'
++'<rect x="150" y="238" width="210" height="46" rx="8" fill="#21262D" stroke="#30363D"/><text x="255" y="265" text-anchor="middle" fill="#E6EDF3" font-size="13" font-weight="600">FastAPI + Keycloak</text>'
++'<rect x="150" y="304" width="210" height="46" rx="8" fill="rgba(88,166,255,.14)" stroke="#58A6FF"/><text x="255" y="331" text-anchor="middle" fill="#E6EDF3" font-size="13" font-weight="600">LangGraph</text>'
++'<rect x="150" y="392" width="210" height="46" rx="8" fill="rgba(63,185,80,.14)" stroke="#3FB950"/><text x="255" y="419" text-anchor="middle" fill="#3FB950" font-size="13" font-weight="600">LiteLLM</text>'
++'<rect x="150" y="458" width="210" height="46" rx="8" fill="#21262D" stroke="#30363D"/><text x="255" y="485" text-anchor="middle" fill="#E6EDF3" font-size="13" font-weight="600">vLLM · Llama-3-8B</text>'
++'<line x1="255" y1="86" x2="255" y2="104" stroke="#6E7681" stroke-width="1.5" marker-end="url(#are)"/><line x1="255" y1="152" x2="255" y2="170" stroke="#6E7681" stroke-width="1.5" marker-end="url(#are)"/><line x1="255" y1="218" x2="255" y2="236" stroke="#6E7681" stroke-width="1.5" marker-end="url(#are)"/><line x1="255" y1="284" x2="255" y2="302" stroke="#6E7681" stroke-width="1.5" marker-end="url(#are)"/><line x1="255" y1="350" x2="255" y2="390" stroke="#6E7681" stroke-width="1.5" marker-end="url(#are)"/><line x1="255" y1="438" x2="255" y2="456" stroke="#6E7681" stroke-width="1.5" marker-end="url(#are)"/>'
++'<text x="263" y="98" fill="#8B949E" font-size="11" font-family="monospace">webhook / ws</text><text x="263" y="164" fill="#8B949E" font-size="11" font-family="monospace">rest</text><text x="263" y="230" fill="#8B949E" font-size="11" font-family="monospace">rest + oidc</text><text x="263" y="296" fill="#8B949E" font-size="11" font-family="monospace">rest</text><text x="263" y="375" fill="#8B949E" font-size="11" font-family="monospace">rest · openai-compat</text><text x="263" y="450" fill="#8B949E" font-size="11" font-family="monospace">rest</text>'
++'<rect x="430" y="300" width="210" height="34" rx="7" fill="#21262D" stroke="#30363D"/><text x="442" y="321" fill="#E6EDF3" font-size="12">LlamaIndex → Qdrant · gRPC</text>'
++'<rect x="430" y="340" width="210" height="34" rx="7" fill="#21262D" stroke="#30363D"/><text x="442" y="361" fill="#E6EDF3" font-size="12">PostgresSaver · PSQL</text>'
++'<rect x="430" y="380" width="210" height="34" rx="7" fill="rgba(63,185,80,.14)" stroke="#3FB950"/><text x="442" y="401" fill="#3FB950" font-size="12">ARMES MCP → MariaDB · MCP</text>'
++'<rect x="430" y="420" width="210" height="34" rx="7" fill="#21262D" stroke="#30363D"/><text x="442" y="441" fill="#E6EDF3" font-size="12">Langfuse trace · SDK</text>'
++'<line x1="360" y1="327" x2="428" y2="317" stroke="#6E7681" stroke-width="1" marker-end="url(#are)"/><line x1="360" y1="327" x2="428" y2="357" stroke="#6E7681" stroke-width="1" marker-end="url(#are)"/><line x1="360" y1="327" x2="428" y2="397" stroke="#6E7681" stroke-width="1" marker-end="url(#are)"/><line x1="360" y1="327" x2="428" y2="437" stroke="#6E7681" stroke-width="1" marker-end="url(#are)"/></svg>';
+
+function renderEconn(){var e=T[lang].econn;
+ var opts1='<option value="">'+e.allty+'</option>'+Object.keys(CTYPES).map(function(k){return '<option>'+k+'</option>';}).join('');
+ var opts2='<option value="">'+e.allph+'</option>'+Object.keys(EPH).map(function(k){return '<option value="'+k+'">'+EPH[k][lang==='en'?1:2]+'</option>';}).join('');
+ document.getElementById('sec-econn').innerHTML='<div class="sect">'+e.t1+'</div><div class="lede">'+e.l1+'</div>'+HOTPATH
+ +'<div class="sect">'+e.t2+'</div>'+typeKey(CTYPES)
+ +'<div class="sect">'+e.t3+'</div><div class="ctrl"><input class="in" id="eq" placeholder="'+e.search+'" oninput="renderEconnTable()"><select class="sel" id="ety" onchange="renderEconnTable()">'+opts1+'</select><select class="sel" id="eph" onchange="renderEconnTable()">'+opts2+'</select><span class="cnt" id="ecnt"></span></div>'
+ +'<table><thead><tr><th>'+e.ch.from+'</th><th></th><th>'+e.ch.to+'</th><th>'+e.ch.type+'</th><th>'+e.ch.proto+'</th><th>'+e.ch.pur+'</th><th>'+e.ch.phase+'</th></tr></thead><tbody id="etb"></tbody></table>';
+ renderEconnTable();}
+function renderEconnTable(){var e=T[lang].econn,pu=lang==='en'?4:5;
+ var q=(document.getElementById('eq')||{}).value||'';q=q.toLowerCase();
+ var ty=(document.getElementById('ety')||{}).value||'';var ph=(document.getElementById('eph')||{}).value||'';
+ var rows=ECONN.filter(function(r){return (!ty||r[2]===ty)&&(!ph||r[6]===ph)&&(!q||(r[0]+r[1]+r[2]+r[3]+r[4]).toLowerCase().indexOf(q)>=0);});
+ document.getElementById('etb').innerHTML=rows.map(function(r){var c=CTYPES[r[2]][0],p=EPH[r[6]];
+  return '<tr><td class="cfrom">'+r[0]+'</td><td class="carr">→</td><td class="cto">'+r[1]+'</td><td><span class="cty" style="background:'+c+'22;color:'+c+';border:1px solid '+c+'55">'+r[2]+'</span></td><td class="cproto">'+r[3]+'</td><td class="cpu">'+r[pu]+'</td><td><span class="cph" style="background:'+p[0]+'22;color:'+p[0]+';border:1px solid '+p[0]+'55">'+p[lang==='en'?1:2]+'</span></td></tr>';}).join('');
+ document.getElementById('ecnt').textContent=rows.length+' / '+ECONN.length+' '+e.cnt;}
+
+function renderEplan(){var e=T[lang].eplan,ni=lang==='en'?1:2;
+ var ticks='';for(var m=1;m<=13;m++){ticks+='<text x="'+(150+(m-1)*39)+'" y="32">M'+m+'</text>';}
+ var bars=GANTT.map(function(g,i){var ph=EPH[g[0]],x=150+(g[1]-1)*39,w=(g[2]-g[1]+1)*39,y=46+i*34;
+  return '<rect x="'+x+'" y="'+y+'" width="'+w+'" height="26" rx="5" fill="'+ph[0]+'38" stroke="'+ph[0]+'"/><text x="'+(x+8)+'" y="'+(y+17)+'" fill="#E6EDF3" font-size="11" font-weight="600">'+ph[ni]+' · '+EPLAN.find(function(p){return p.id===g[0];}).hrs.toLocaleString()+'h</text>';}).join('');
+ var gantt='<svg viewBox="0 0 680 300"><line x1="150" y1="40" x2="150" y2="288" stroke="#30363D"/><g font-family="monospace" font-size="10" fill="#6E7681">'+ticks+'</g><g>'+bars+'</g></svg>';
+ var cards=EPLAN.map(function(p){var ph=EPH[p.id];
+  var trows=p.tasks.map(function(t){var del=lang==='en'?t[2]:t[3];var role=t[4],hrs=t[5],warn=t[6];var rc=EROLE[role];
+   return '<tr><td class="tid">'+t[0]+'</td><td><div class="tname">'+t[1]+'</div><div class="tdel">→ '+del+'</div></td><td><span class="trole" style="background:'+rc+'22;color:'+rc+';border:1px solid '+rc+'55">'+role+'</span></td><td class="thrs">'+hrs+'h</td></tr>';}).join('');
+  return '<div class="pcard"><div class="phead"><span class="pdot" style="background:'+ph[0]+'"></span><span class="pname">'+ph[ni]+'</span><span class="pmeta">'+p.mo+' · '+p.tasks.length+' '+e.tasks_th+'</span><span class="phrs">'+p.hrs.toLocaleString()+'h</span></div><div class="pout">'+(lang==='en'?p.out_en:p.out_tr)+'</div><table><tbody>'+trows+'</tbody></table></div>';}).join('');
+ document.getElementById('sec-eplan').innerHTML='<div class="sect">'+e.t1+'</div><div class="lede">'+e.l1+'</div>'+gantt
+ +'<div class="sect">'+e.t2+'</div>'+cards
+ +'<div class="total">'+e.total+' <b>~12,060</b> '+e.totalu+'</div><div class="note red">'+e.risk+'</div>';}
+
+function renderRarch(){var r=T[lang].rarch,ni=lang==='en'?0:1,ti=lang==='en'?2:3;
+ var sys=RSYS.map(function(s){
+  var chips=s.c.map(function(c){if(c[0]==='#'){return '<span class="grp">'+(lang==='en'?c[1]:c[2])+'</span>';}var mt=c[1]?'<span class="mtag '+MT[c[1]]+'" style="margin-left:5px">'+c[1]+'</span>':'';return '<span class="chip">'+c[0]+mt+'</span>';}).join('');
+  return '<div class="pcard"><div class="phead"><span class="pname">'+(lang==='en'?s.ne:s.nt)+'</span><span class="pmeta">'+(lang==='en'?s.te:s.tt)+'</span></div><div class="chips" style="padding:12px 16px">'+chips+'</div></div>';}).join('');
+ document.getElementById('sec-rarch').innerHTML='<div class="lede">'+r.l1+'</div>'
+ +'<div class="legend"><span><span class="sw" style="background:rgba(188,140,255,.2);border:1px solid var(--purple)"></span>'+r.lg3+'</span><span class="tag t-op">Opus 4.7</span><span class="tag t-so">Sonnet 4.6</span><span class="tag t-ha">Haiku 4.5</span><span style="color:var(--text3);font-size:11px">'+r.routingnote+'</span></div>'
+ +'<div class="sect">'+r.t2+'</div>'+sys
+ +'<div class="note purple">'+r.note+'</div>';}
+
+function renderRconn(){var r=T[lang].rconn;
+ var cols='<div class="cols">'
+ +'<div class="col"><div class="coltitle">'+r.colA+'</div><div class="colsub">'+r.colAsub+'</div><div class="cnode g">Gateway wrapper<small>~500 LOC · attribution · routing</small></div><div class="conn">↓ rest</div><div class="cnode g">LiteLLM proxy<small>multi-provider · prefix cache</small></div><div class="conn">↓ rest</div><div class="cnode">Anthropic API<small>Opus · Sonnet · Haiku</small></div><div class="cnode">Vertex AI<small>Gemini 3.1 Pro · fallback</small></div></div>'
+ +'<div class="col"><div class="coltitle">'+r.colB+'</div><div class="colsub">'+r.colBsub+'</div><div class="cnode g">MCP client<small>discover · allowlist · trace_id</small></div><div class="conn">↓ json-rpc</div><div class="cnode g">Filesystem<small>1.7.4 · ships first</small></div><div class="cnode g">Sandbox → Docker<small>1.7.1</small></div><div class="cnode g">Git · GitHub<small>1.7.2 · 1.7.3</small></div><div class="cnode g">Web search · Docs<small>1.7.5 · 1.7.6</small></div></div>'
+ +'<div class="col"><div class="coltitle">'+r.colC+'</div><div class="colsub">'+r.colCsub+'</div><div class="cnode">OTel SDK<small>in-proc · fire-and-forget</small></div><div class="conn">↓ mmap</div><div class="cnode">Ring buffer<small>lock-free · 10MB</small></div><div class="conn">↓ mmap</div><div class="cnode">Sidecar batcher<small>zstd-3 · 1000/5s</small></div><div class="conn">↓ kafka</div><div class="cnode">Redpanda → ClickHouse · Tempo<small>→ Grafana / Metabase</small></div></div></div>';
+ var bands='<div class="bandrow"><div class="bt">'+r.chTitle+' <span class="tag t-so">'+r.chTag+'</span></div><div class="chips"><span class="chip">intent stream</span><span class="chip">verification gate</span><span class="chip">reality feed</span></div></div>'
+ +'<div class="bandrow"><div class="bt">'+r.stTitle+'</div><div class="chips"><span class="chip">PostgreSQL</span><span class="chip">Qdrant</span><span class="chip">MinIO</span><span class="chip">Git</span><span class="chip">Vault</span><span class="chip">Keycloak</span><span class="chip">MariaDB Galera</span></div></div>';
+ var opts1='<option value="">'+r.allty+'</option>'+Object.keys(RCTYPES).map(function(k){return '<option>'+k+'</option>';}).join('');
+ var opts2='<option value="">'+r.allgr+'</option>'+Object.keys(RGROUPS).map(function(k){return '<option value="'+k+'">'+RGROUPS[k][lang==='en'?0:1]+'</option>';}).join('');
+ document.getElementById('sec-rconn').innerHTML='<div class="sect">'+r.t1+'</div><div class="lede">'+r.l1+'</div>'
+ +'<div class="hub"><b>'+r.hub+'</b><span>'+r.hubsub+'</span></div><div class="down">↓ ↓ ↓</div>'+cols+bands
+ +'<div class="sect">'+r.t2+'</div>'+typeKey(RCTYPES)
+ +'<div class="sect">'+r.t3+'</div><div class="ctrl"><input class="in" id="rq" placeholder="'+r.search+'" oninput="renderRconnTable()"><select class="sel" id="rty" onchange="renderRconnTable()">'+opts1+'</select><select class="sel" id="rgr" onchange="renderRconnTable()">'+opts2+'</select><span class="cnt" id="rcnt"></span></div>'
+ +'<table><thead><tr><th>'+r.ch.from+'</th><th></th><th>'+r.ch.to+'</th><th>'+r.ch.type+'</th><th>'+r.ch.proto+'</th><th>'+r.ch.pur+'</th><th>'+r.ch.group+'</th></tr></thead><tbody id="rtb"></tbody></table>'
+ +'<div class="note purple">'+r.note+'</div>';
+ renderRconnTable();}
+function renderRconnTable(){var r=T[lang].rconn,pu=lang==='en'?4:5;
+ var q=(document.getElementById('rq')||{}).value||'';q=q.toLowerCase();
+ var ty=(document.getElementById('rty')||{}).value||'';var gr=(document.getElementById('rgr')||{}).value||'';
+ var rows=RCONN.filter(function(x){return (!ty||x[2]===ty)&&(!gr||x[6]===gr)&&(!q||(x[0]+x[1]+x[2]+x[3]+x[4]).toLowerCase().indexOf(q)>=0);});
+ document.getElementById('rtb').innerHTML=rows.map(function(x){var c=RCTYPES[x[2]][0];
+  return '<tr><td class="cfrom">'+x[0]+'</td><td class="carr">→</td><td class="cto">'+x[1]+'</td><td><span class="cty" style="background:'+c+'22;color:'+c+';border:1px solid '+c+'55">'+x[2]+'</span></td><td class="cproto" style="color:var(--purple)">'+x[3]+'</td><td class="cpu">'+x[pu]+'</td><td><span class="cgrp">'+RGROUPS[x[6]][lang==='en'?0:1]+'</span></td></tr>';}).join('');
+ document.getElementById('rcnt').textContent=rows.length+' / '+RCONN.length+' '+r.cnt;}
+
+function renderRplan(){var r=T[lang].rplan;
+ var ticks='';for(var m=1;m<=15;m++){ticks+='<text x="'+(150+(m-1)*34)+'" y="32">M'+m+'</text>';}
+ var bars=RGANTT.map(function(g,i){var x=150+(g[4]-1)*34,w=(g[5]-g[4]+1)*34,y=46+i*30;
+  var fill=g[6]==='cal'?'url(#hatchv)':(g[6]==='mix'?'rgba(88,166,255,.22)':'rgba(63,185,80,.22)');
+  var stroke=g[6]==='cal'?'#E3B341':(g[6]==='mix'?'#58A6FF':'#3FB950');
+  var lbl=(lang==='en'?g[0]:g[1])+' · '+(lang==='en'?g[2]:g[3]);
+  return '<rect x="'+x+'" y="'+y+'" width="'+w+'" height="22" rx="5" fill="'+fill+'" stroke="'+stroke+'"/><text x="'+(x+7)+'" y="'+(y+15)+'" fill="#E6EDF3" font-size="10.5" font-weight="600">'+lbl+'</text>';}).join('');
+ var tl='<svg viewBox="0 0 680 300"><defs><pattern id="hatchv" patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(45)"><rect width="6" height="6" fill="rgba(227,179,65,.12)"/><line x1="0" y1="0" x2="0" y2="6" stroke="#E3B341" stroke-width="1.2"/></pattern></defs><line x1="150" y1="40" x2="150" y2="290" stroke="#30363D"/><g font-family="monospace" font-size="9.5" fill="#6E7681">'+ticks+'</g><g>'+bars+'</g></svg>';
+ var p1rows=RGRP_P1.map(function(g){var ch='';if(g[8]==='patch')ch='<span class="gpatch">'+(lang==='en'?g[6]:g[7])+'</span>';else if(g[8]==='open')ch='<span class="gopen">'+(lang==='en'?g[6]:g[7])+'</span>';
+  return '<tr><td class="tid">'+g[0]+'</td><td class="gname">'+(lang==='en'?g[1]:g[2])+'</td><td class="gst">'+g[3]+'</td><td class="gout">'+(lang==='en'?g[4]:g[5])+'</td><td>'+ch+'</td></tr>';}).join('');
+ var p1table='<table><thead><tr><th>'+r.gh.g+'</th><th>'+r.gh.n+'</th><th style="text-align:center">'+r.gh.s+'</th><th>'+r.gh.o+'</th><th>'+r.gh.c+'</th></tr></thead><tbody>'+p1rows+'</tbody></table>';
+ var BL={impl:['b-impl',r.lg1],cal:['b-cal',r.lg3],mix:['b-mix',r.lg2]};
+ var pcards=RPH.map(function(p){var b=BL[p.bound];
+  return '<div class="pcard"><div class="phead"><span class="pn">'+(lang==='en'?p.ne:p.nt)+'</span><span class="pname">'+(lang==='en'?p.name_e:p.name_t)+'</span><span class="pb '+b[0]+'">'+b[1]+'</span><span class="pmo">'+p.mo+'</span></div><div class="pbody">'+(lang==='en'?p.ge:p.gt)+'<br><span class="o">'+r.outcome_lbl+'</span> '+(lang==='en'?p.oe:p.ot)+'<div class="dep">'+(lang==='en'?p.de:p.dt)+'</div></div></div>';}).join('');
+ var opens=ROPENS.map(function(o){return '<div class="open"><b>'+o[0]+' '+(lang==='en'?o[1]:o[2])+'</b><p>'+(lang==='en'?o[3]:o[4])+'</p></div>';}).join('');
+ document.getElementById('sec-rplan').innerHTML='<div class="sect">'+r.t1+'</div><div class="lede">'+r.l1+'</div>'+tl
+ +'<div class="legend"><span><span class="swb" style="background:rgba(63,185,80,.22);border-color:#3FB950"></span>'+r.lg1+'</span><span><span class="swb" style="background:rgba(88,166,255,.22);border-color:#58A6FF"></span>'+r.lg2+'</span><span><span class="swb" style="background:repeating-linear-gradient(45deg,transparent,transparent 3px,#E3B341 3px,#E3B341 4px);border-color:#E3B341"></span>'+r.lg3+'</span></div>'
+ +'<div class="sect">'+r.t2+'</div><div class="lede">'+r.l2+'</div>'+p1table+'<div class="note green">'+r.exit+'</div>'
+ +'<div class="sect">'+r.t3+'</div><div class="lede">'+r.l3+'</div>'+pcards+'<div class="note red">'+r.why+'</div>'
+ +'<div class="sect">'+r.t4+'</div><div class="lede">'+r.l4+'</div><div class="opens">'+opens+'</div>';}
+
+function buildNav(){var t=T[lang].tabs;
+ document.getElementById('tabs').innerHTML=TABS.map(function(x){return '<button class="tab'+(x[0]===curTab?' active':'')+'" id="tab-'+x[0]+'" onclick="switchTab(\''+x[0]+'\')">'+t[x[0]]+'</button>';}).join('');}
+function switchTab(id){curTab=id;document.querySelectorAll('.sec').forEach(function(s){s.classList.remove('vis');});document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});document.getElementById('sec-'+id).classList.add('vis');document.getElementById('tab-'+id).classList.add('active');}
+function setLang(l){lang=l;document.getElementById('btn-en').classList.toggle('on',l==='en');document.getElementById('btn-tr').classList.toggle('on',l==='tr');document.documentElement.lang=l;
+ document.getElementById('subtitle').textContent=T[l].subtitle;document.getElementById('footer').textContent=T[l].footer;
+ buildNav();renderBig();renderEarch();renderEconn();renderEplan();renderRarch();renderRconn();renderRplan();}
+setLang('en');
+</script>
+</body>
+</html>

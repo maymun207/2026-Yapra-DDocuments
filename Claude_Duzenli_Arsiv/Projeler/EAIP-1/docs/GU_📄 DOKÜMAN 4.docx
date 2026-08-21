@@ -1,0 +1,27 @@
+**📄**** DOKÜMAN 4: Ürün Çerçevesi ve 90 Günlük Saha Operasyonu (MVP)**
+
+*(Bu doküman, ürünün fiziksel sınırlarını ve fabrikadaki pratik uygulama adımlarını NotebookLM'e aktarır.)*
+
+**Başlık: Ürün Mimarisi ve Pilot Fabrika 90 Günlük Canlıya Alım (MVP) Planı**
+
+**1. Ürün Çerçevesi (Mimari Sınırlar):**
+
+- *Duyular:* Arkası mıknatıslı, uzun ömürlü, pilli tak-çalıştır titreşim/ısı sensörleri.
+
+- *Sinir Sistemi:* Fabrikanın güvenilmez Wi-Fi ağına girmeyen, içinde Telekom M2M e-SIM gömülü "Edge Ağ Geçidi (Ana Kutu)".
+
+- *Beyin:* Netaş Konteyner Bulutunda (Yerelde) veriyi işleyen Orkestrasyon Karar Motoru.
+
+- *Arayüz:* KOBİ patronuyla sadece WhatsApp üzerinden insan gibi yazışan asistan ve denetçiler için PDF formatında log üreten arka uç (backend).
+
+**2. 90 Günlük MVP Planı (Örnek Vaka: Kale Grubu Alt Tedarikçisi X Makine KOBİ'si):**
+
+- **Faz 1: Gün 1 (Psikolojik Güven ****&**** Kurulum):** Ustabaşına "Bu sistem hatalarını arayan bir göz değil, senin yükünü hafifleten sanal asistanındır" mesajı verilir. 15 dakikada 5 kritik makineye sensörler takılır. Üretim durmaz.
+
+- **Faz 2: Gün 2 (İlk Havuç - OEE):** Sistem, KOBİ patronuna "Makineleriniz bugün %65 kapasiteyle çalıştı, 3 saat boşta (idle) yattı" raporunu WhatsApp'tan göndererek işletmenin gizli firesini daha ikinci günden ispatlar.
+
+- **Faz 3: Gün 28 (Büyük Kurtarış / ROI Anı):** Yapay zeka, bir preste anormal titreşim ve ısı yakalar. Gece vardiyasında WhatsApp'tan uyarı gönderir. Sadece 50 Dolarlık bir rulman değişimiyle, 5.000 dolarlık motor yanması ve Kale Grubuna gidecek siparişin gecikmesi engellenir. Sistemin faturası KOBİ nezdinde hak edilir (Vendor Lock-in başlar).
+
+- **Faz 4: Gün 70 (Sopa ve Denetim Şovu):** Kale Grubu Başdenetçisi fabrikaya gelir. Patron, sistemden geriye dönük "AS9100 Süreç Kontrol PDF'ini" indirip denetçiye sunar. KOBİ denetimi A-Grade olarak kusursuz geçer.
+
+- **Faz 5: Gün 90 (Kapanış ve Ölçekleme):** Case Study (Vaka Analizi) kanıtlanır. Kale Grubundan, bu sistemin diğer tüm tedarikçilerine "İhale/Sipariş Şartı" olarak zorunlu tutulması talep edilir. Netaş kanalıyla OSB'lerde toplu yayılım başlatılır.

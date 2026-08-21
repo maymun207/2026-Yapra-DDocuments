@@ -1,0 +1,1384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARDICTECH Unified Platform — Architecture v4 · Single Source of Truth</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0D1117;--bg2:#161B22;--bg3:#21262D;--bg4:#2D333B;
+  --border:#30363D;--border2:#444C56;
+  --text:#E6EDF3;--text2:#8B949E;--text3:#6E7681;
+  --p-core:#58A6FF;--p-core-bg:rgba(88,166,255,.14);
+  --p-wa:#3FB950;--p-wa-bg:rgba(63,185,80,.14);
+  --p-gu:#E3B341;--p-gu-bg:rgba(227,179,65,.14);
+  --p-ins:#F85149;--p-ins-bg:rgba(248,81,73,.14);
+  --p-cwf1:#BC8CFF;--p-cwf1-bg:rgba(188,140,255,.14);
+  --p-cwf2:#A371F7;--p-cwf2-bg:rgba(163,113,247,.14);
+  --p-fin:#79C0FF;--p-fin-bg:rgba(121,192,255,.14);
+  --p-ext:#6E7681;--p-ext-bg:rgba(110,118,129,.14);
+  --sans:'Sora',sans-serif;--mono:'JetBrains Mono',monospace;--r:6px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);line-height:1.5;-webkit-font-smoothing:antialiased;min-height:100vh}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:var(--bg2)}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+/* ── HEADER ── */
+.hdr{background:linear-gradient(135deg,var(--bg2) 0%,#1C2333 100%);border-bottom:1px solid var(--border);padding:16px 28px;position:sticky;top:0;z-index:100}
+.hdr-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.hdr h1{font-size:17px;font-weight:700;letter-spacing:-.02em;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.hdr h1 .v-badge{font-family:var(--mono);font-size:9px;font-weight:700;background:var(--p-core-bg);color:var(--p-core);border:1px solid var(--p-core);border-radius:20px;padding:1px 8px;letter-spacing:.06em}
+.hdr .sub{font-size:11px;color:var(--text2);font-family:var(--mono);margin-top:3px}
+.hdr-meta{font-size:10px;color:var(--text3);font-family:var(--mono);display:flex;gap:14px;align-items:center;flex-wrap:wrap;flex-shrink:0}
+.hdr-meta .dot{width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:3px}
+/* ── TABS ── */
+.tabs{display:flex;gap:0;margin-top:12px;border-bottom:1px solid var(--border)}
+.tab{font-family:var(--mono);font-size:11px;font-weight:600;padding:7px 16px;border:none;background:none;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;letter-spacing:.06em;text-transform:uppercase}
+.tab:hover{color:var(--text2)}
+.tab.active{color:var(--p-core);border-bottom-color:var(--p-core)}
+/* ── MAIN ── */
+.main{padding:24px 28px 80px;max-width:1380px;margin:0 auto}
+.sec{display:none}.sec.vis{display:block}
+/* ── LEGEND ROW ── */
+.legend-row{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:18px;align-items:center}
+.lg-item{display:flex;align-items:center;gap:6px;background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:3px 11px;font-size:10px;font-family:var(--mono);color:var(--text2);cursor:pointer;transition:all .15s;user-select:none}
+.lg-item:hover,.lg-item.on{background:var(--bg3);border-color:var(--border2);color:var(--text)}
+.lg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.lg-hrs{font-size:9px;color:var(--text3);margin-left:1px}
+/* ── SEQ BAND ── */
+.seq-band{display:flex;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:20px;background:var(--bg2)}
+.seq-step{flex:1;padding:10px 11px;border-right:1px solid var(--border);min-width:0}
+.seq-step:last-child{border-right:0}
+.seq-tag{font-family:var(--mono);font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;display:inline-block;margin-bottom:4px;padding:1px 6px;border-radius:10px}
+.seq-step h4{font-size:11.5px;font-weight:600;margin-bottom:3px;color:var(--text)}
+.seq-step p{font-size:9.5px;color:var(--text2);line-height:1.35}
+.seq-gate{font-family:var(--mono);font-size:8px;color:var(--p-ins);border:1px solid var(--p-ins);border-radius:10px;padding:1px 5px;display:inline-block;margin-top:3px}
+/* ── LAYER ROW ── */
+.layer-row{display:flex;border:1px solid var(--border);border-radius:var(--r);margin-bottom:7px;background:var(--bg2);overflow:hidden;opacity:0;transform:translateY(4px);animation:slideUp .38s forwards}
+.l-lbl{flex:0 0 125px;background:var(--bg3);border-right:1px solid var(--border);padding:10px 12px;display:flex;flex-direction:column;justify-content:center;gap:3px}
+.l-lbl .ln{font-family:var(--mono);font-size:8.5px;color:var(--text3);letter-spacing:.08em}
+.l-lbl .lnm{font-size:11.5px;font-weight:600;color:var(--text);line-height:1.2}
+.l-lbl .ltag{font-family:var(--mono);font-size:7.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--p-ins);margin-top:2px}
+.l-lbl.adapt::after{content:"⇄ adapter port";font-family:var(--mono);font-size:7px;color:var(--text3);border:1px dashed var(--border2);border-radius:3px;padding:1px 4px;margin-top:4px;align-self:flex-start}
+.comps-area{flex:1;display:flex;flex-wrap:wrap;gap:5px;padding:8px 10px;align-content:center;min-height:54px}
+/* ── COMP CARD ── */
+.comp{position:relative;background:var(--bg3);border:1px solid var(--border);border-radius:5px;padding:5px 8px 5px 12px;min-width:82px;cursor:pointer;transition:transform .12s,box-shadow .12s,border-color .12s}
+.comp:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.45);border-color:var(--border2);z-index:3}
+.comp::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:5px 0 0 5px}
+.comp .cn{font-size:11px;font-weight:600;display:block;color:var(--text);line-height:1.2}
+.comp .cs{font-size:8.5px;color:var(--text2);font-family:var(--mono);display:block;margin-top:1px;line-height:1.25}
+.comp .cbadge{position:absolute;top:-5px;right:-4px;font-family:var(--mono);font-size:7px;font-weight:700;border-radius:9px;padding:0 4px;letter-spacing:.03em;border:1px solid;white-space:nowrap}
+.comp.ext-c{border-style:dashed;background:transparent;opacity:.8}
+/* Phase borders */
+.ph-core .comp::before{background:var(--p-core)}.ph-wa .comp::before{background:var(--p-wa)}
+.ph-gu .comp::before{background:var(--p-gu)}.ph-ins .comp::before{background:var(--p-ins)}
+.ph-cwf1 .comp::before{background:var(--p-cwf1)}.ph-cwf2 .comp::before{background:var(--p-cwf2)}
+.ph-fin .comp::before{background:var(--p-fin)}.ph-ext .comp::before{background:var(--p-ext)}
+/* Phase badges */
+.ph-core .cbadge{background:var(--p-core-bg);color:var(--p-core);border-color:var(--p-core)}
+.ph-wa   .cbadge{background:var(--p-wa-bg);color:var(--p-wa);border-color:var(--p-wa)}
+.ph-gu   .cbadge{background:var(--p-gu-bg);color:var(--p-gu);border-color:var(--p-gu)}
+.ph-ins  .cbadge{background:var(--p-ins-bg);color:var(--p-ins);border-color:var(--p-ins)}
+.ph-cwf1 .cbadge{background:var(--p-cwf1-bg);color:var(--p-cwf1);border-color:var(--p-cwf1)}
+.ph-cwf2 .cbadge{background:var(--p-cwf2-bg);color:var(--p-cwf2);border-color:var(--p-cwf2)}
+.ph-fin  .cbadge{background:var(--p-fin-bg);color:var(--p-fin);border-color:var(--p-fin)}
+.ph-ext  .cbadge{background:var(--p-ext-bg);color:var(--p-ext);border-color:var(--p-ext)}
+/* ── PANEL ── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;opacity:0;pointer-events:none;transition:opacity .2s}
+.overlay.open{opacity:1;pointer-events:all}
+.panel{position:fixed;right:-520px;top:0;bottom:0;width:490px;background:var(--bg2);border-left:1px solid var(--border);z-index:201;overflow-y:auto;transition:right .25s cubic-bezier(.4,0,.2,1)}
+.panel.open{right:0}
+.ph{padding:18px 22px;border-bottom:1px solid var(--border);background:var(--bg3);position:sticky;top:0;z-index:1}
+.ph-top{display:flex;justify-content:space-between;align-items:flex-start}
+.ph-badges{display:flex;gap:5px;align-items:center;margin-bottom:7px;flex-wrap:wrap}
+.ph-layer{font-family:var(--mono);font-size:8.5px;font-weight:500;background:var(--bg);border:1px solid var(--border2);color:var(--text2);border-radius:10px;padding:1px 7px}
+.ph-phase{font-family:var(--mono);font-size:8.5px;font-weight:700;border-radius:10px;padding:1px 8px;text-transform:uppercase;letter-spacing:.06em}
+.ph h2{font-size:19px;font-weight:700;color:var(--text);letter-spacing:-.015em;line-height:1.2}
+.ph .ph-sub{font-size:11px;color:var(--text2);font-family:var(--mono);margin-top:3px}
+.ph-close{background:none;border:1px solid var(--border);color:var(--text2);border-radius:4px;padding:3px 8px;cursor:pointer;font-size:15px;transition:all .12s;margin-left:10px;flex-shrink:0}
+.ph-close:hover{background:var(--bg);color:var(--text);border-color:var(--border2)}
+.pb{padding:18px 22px}
+.ps{margin-bottom:22px}
+.ps h3{font-family:var(--mono);font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:9px;padding-bottom:5px;border-bottom:1px solid var(--border)}
+.desc{font-size:12.5px;color:var(--text2);line-height:1.6}
+.deploy-blk{background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:10px 13px;font-family:var(--mono);font-size:10.5px;line-height:1.7}
+.dk{color:var(--p-core)}.dv{color:var(--text)}
+.cfg-tbl{width:100%;border-collapse:collapse;font-size:10.5px}
+.cfg-tbl td{padding:4px 7px;border-bottom:1px solid var(--border);vertical-align:top}
+.cfg-tbl tr:last-child td{border-bottom:0}
+.cfg-k{font-family:var(--mono);color:var(--p-core);font-weight:500;width:38%}
+.cfg-v{font-family:var(--mono);color:var(--text);width:32%}
+.cfg-n{color:var(--text2);font-size:9.5px;width:30%}
+.conn-list{display:flex;flex-direction:column;gap:4px}
+.conn-item{display:flex;align-items:flex-start;gap:7px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:6px 9px;font-size:10.5px;cursor:pointer;transition:border-color .12s}
+.conn-item:hover{border-color:var(--border2)}
+.conn-dir{font-size:13px;flex-shrink:0;opacity:.7}
+.conn-tp{font-family:var(--mono);font-size:8px;font-weight:700;border-radius:3px;padding:1px 5px;flex-shrink:0;text-transform:uppercase;letter-spacing:.04em}
+.conn-target{font-weight:600;color:var(--text)}
+.conn-purp{color:var(--text2);font-size:9.5px;font-family:var(--mono);margin-top:2px;line-height:1.35}
+.notes-blk{background:var(--bg3);border:1px solid var(--border);border-left:3px solid var(--p-core);border-radius:var(--r);padding:9px 11px;font-size:11.5px;color:var(--text2);line-height:1.6}
+/* ── CONNECTIVITY ── */
+.conn-header{margin-bottom:20px}
+.conn-header h2{font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px}
+.conn-header p{font-size:12px;color:var(--text2)}
+.type-key{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:7px;margin-bottom:20px}
+.tk{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:9px 11px}
+.tk-badge{font-family:var(--mono);font-size:9px;font-weight:700;border-radius:3px;padding:2px 6px;display:inline-block;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px}
+.tk-name{font-size:11.5px;font-weight:600;color:var(--text);margin-bottom:2px}
+.tk-desc{font-size:10px;color:var(--text2);line-height:1.4}
+.ctrl-row{display:flex;gap:7px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+.search-in{background:var(--bg2);border:1px solid var(--border);color:var(--text);border-radius:var(--r);padding:6px 11px;font-size:11px;font-family:var(--mono);width:210px;outline:none;transition:border-color .15s}
+.search-in:focus{border-color:var(--p-core)}
+.search-in::placeholder{color:var(--text3)}
+.flt-sel{background:var(--bg2);border:1px solid var(--border);color:var(--text);border-radius:var(--r);padding:6px 9px;font-size:11px;font-family:var(--mono);outline:none;cursor:pointer}
+.flt-sel:focus{border-color:var(--p-core)}
+.type-filters{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:12px}
+.tf{font-family:var(--mono);font-size:9px;font-weight:700;padding:2px 8px;border-radius:4px;cursor:pointer;border:1px solid transparent;opacity:.45;transition:opacity .15s;letter-spacing:.04em;text-transform:uppercase}
+.tf.on{opacity:1;border-color:currentColor}
+.tf:hover{opacity:.8}
+.conn-count{font-family:var(--mono);font-size:10.5px;color:var(--text3);margin-bottom:7px}
+.conn-tbl{width:100%;border-collapse:collapse;font-size:11px}
+.conn-tbl thead tr{background:var(--bg3)}
+.conn-tbl th{padding:7px 11px;text-align:left;font-family:var(--mono);font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.09em;color:var(--text2);border-bottom:2px solid var(--border);white-space:nowrap}
+.conn-tbl tbody tr{border-bottom:1px solid var(--border);transition:background .1s}
+.conn-tbl tbody tr:hover{background:var(--bg3)}
+.conn-tbl td{padding:7px 11px;vertical-align:top}
+.ct-comp{font-family:var(--mono);font-weight:500;color:var(--text)}
+.ct-layer{font-size:8.5px;color:var(--text3);font-family:var(--mono)}
+.ct-badge{font-family:var(--mono);font-size:8.5px;font-weight:700;border-radius:3px;padding:2px 6px;display:inline-block;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
+.ct-purpose{font-size:10.5px;color:var(--text2);line-height:1.4;max-width:310px}
+.ct-proto{font-family:var(--mono);font-size:8.5px;color:var(--text3);margin-top:2px}
+.ct-pdot{width:7px;height:7px;border-radius:50%;display:inline-block;vertical-align:middle;margin-right:3px;flex-shrink:0}
+.sec-head{background:var(--bg3);padding:5px 11px;font-family:var(--mono);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+/* ── BUILD PLAN ── */
+.eff-top{background:linear-gradient(135deg,var(--bg2),var(--bg3));border:1px solid var(--border2);border-radius:var(--r);padding:18px 22px;margin-bottom:24px;display:flex;gap:32px;align-items:center;flex-wrap:wrap}
+.eff-stat .ev{font-family:var(--mono);font-size:34px;font-weight:700;color:var(--p-core)}
+.eff-stat .el{font-size:10px;color:var(--text2);font-family:var(--mono);margin-top:1px}
+.eff-div{width:1px;background:var(--border);align-self:stretch}
+.ph-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:10px;margin-bottom:26px}
+.pc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:14px}
+.pc-hdr{display:flex;align-items:center;gap:9px;margin-bottom:11px}
+.pc-bar{width:4px;height:38px;border-radius:2px;flex-shrink:0}
+.pc-title{font-size:13px;font-weight:700;color:var(--text)}
+.pc-meta{font-family:var(--mono);font-size:9.5px;color:var(--text2);margin-top:2px}
+.pc-hrs{font-family:var(--mono);font-size:22px;font-weight:700;margin-bottom:2px}
+.pc-hl{font-size:9px;color:var(--text3);font-family:var(--mono)}
+.tl-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:24px}
+.tl-head-row{display:grid;grid-template-columns:160px repeat(13,1fr);background:var(--bg3);border-bottom:1px solid var(--border)}
+.tl-head-cell{padding:5px 3px;font-family:var(--mono);font-size:9px;font-weight:600;text-align:center;color:var(--text3);letter-spacing:.04em}
+.tl-row{display:grid;grid-template-columns:160px repeat(13,1fr);min-height:34px;border-bottom:1px solid var(--border)}
+.tl-row:last-child{border-bottom:0}
+.tl-name{padding:7px 10px;font-size:10.5px;font-family:var(--mono);color:var(--text2);display:flex;align-items:center;border-right:1px solid var(--border)}
+.tl-cells{display:contents}
+.tl-cell{border-right:1px solid var(--border);position:relative}
+.tl-cell:last-child{border-right:0}
+.tl-blk{position:absolute;inset:4px 1px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:7px;font-weight:700;overflow:hidden;color:rgba(0,0,0,.7)}
+.var-note{background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--p-ins);border-radius:var(--r);padding:12px 14px;margin-bottom:16px;font-size:11.5px;color:var(--text2);line-height:1.6}
+.var-note strong{color:var(--text)}
+.stitle{font-family:var(--mono);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);margin-bottom:11px;margin-top:22px}
+.task-tbl{width:100%;border-collapse:collapse;font-size:11px;margin-top:4px}
+.task-tbl th{padding:5px 8px;text-align:left;font-family:var(--mono);font-size:8.5px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);border-bottom:2px solid var(--border)}
+.task-tbl td{padding:5px 8px;border-bottom:1px solid var(--border)}
+.task-tbl tr:last-child td{border-bottom:0}
+.task-id{font-family:var(--mono);color:var(--text3);width:32px}
+.task-nm{color:var(--text2);flex:1}
+.task-del{color:var(--text);font-size:10.5px}
+.task-role{font-family:var(--mono);font-size:9.5px;color:var(--text3)}
+.task-hrs{font-family:var(--mono);color:var(--text3);text-align:right}
+/* ── FOOTER ── */
+.ftr{border-top:1px solid var(--border);background:var(--bg2);padding:12px 28px;font-family:var(--mono);font-size:9.5px;color:var(--text3);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+/* ── ANIMATIONS ── */
+@keyframes slideUp{to{opacity:1;transform:none}}
+@media(max-width:860px){
+  .main{padding:16px 16px 60px}
+  .hdr{padding:12px 16px}
+  .seq-band{flex-direction:column}
+  .panel{width:100%;right:-100%}
+}
+</style>
+
+</head>
+<body>
+<!-- ══ HEADER ══ -->
+<div class="hdr">
+  <div class="hdr-top">
+    <div>
+      <h1>ARDICTECH Unified Intelligence Platform <span class="v-badge">v4 · SSoT</span></h1>
+      <div class="sub">Single Source of Truth · Developer + PM + CTO Reference · May 2026 · Confidential</div>
+    </div>
+    <div class="hdr-meta">
+      <span><span class="dot" style="background:var(--p-core)"></span>12,060h total</span>
+      <span><span class="dot" style="background:var(--p-fin)"></span>~13 months</span>
+      <span><span class="dot" style="background:var(--p-wa)"></span>7 phases</span>
+      <span><span class="dot" style="background:var(--p-cwf1)"></span>9 layers</span>
+    </div>
+  </div>
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('arch')">① Architecture</button>
+    <button class="tab" onclick="switchTab('conn')">② Connectivity</button>
+    <button class="tab" onclick="switchTab('plan')">③ Build Plan</button>
+  </div>
+</div>
+
+<!-- ══ MAIN ══ -->
+<div class="main">
+
+<!-- ════════════════════════════════════════
+     SECTION: ARCHITECTURE
+════════════════════════════════════════ -->
+<div class="sec vis" id="sec-arch">
+  <!-- Legend -->
+  <div class="legend-row" id="legend-row"></div>
+  <!-- Build sequence band -->
+  <div class="seq-band">
+    <div class="seq-step"><span class="seq-tag" style="background:var(--p-core-bg);color:var(--p-core)">M1–M3 · P0</span><h4>Platform Core</h4><p>K8s · Postgres · Keycloak · Kong · Channel Gateway · LangGraph · vLLM/LiteLLM · RAG · Memori · Cleansing · Audit · Provisioning</p></div>
+    <div class="seq-step"><span class="seq-tag" style="background:var(--p-wa-bg);color:var(--p-wa)">M2–M3 · WA</span><h4>Web Asistan</h4><p>Embed widget + catalog RAG + billing (iyzico/Stripe) + landing page. Revenue first.</p></div>
+    <div class="seq-step"><span class="seq-tag" style="background:var(--p-gu-bg);color:var(--p-gu)">M2–M3 · GU1</span><h4>Galip Usta v1</h4><p>WhatsApp-only. Usta is the data source (text + voice). IATF/AS9100 audit PDF. No sensors.</p></div>
+    <div class="seq-step"><span class="seq-tag" style="background:var(--p-cwf1-bg);color:var(--p-cwf1)">M3–M5 · CWF1</span><h4>CWF v1 + LightRAG</h4><p>ARMES MCP ✓ already done. ClickHouse · Airbyte · Mfg agents cls 1–5 · Teams · LightRAG cls-5 retrieval.</p></div>
+    <div class="seq-step"><span class="seq-tag" style="background:var(--p-ins-bg);color:var(--p-ins)">M4–M5 · INS</span><h4>Insurance v0.8→v1</h4><p>Outlook+WhatsApp → LLM extract → 4 lookups → deterministic classify → Takip audit. <span class="seq-gate">ARU/KARU ⚠ risk</span></p></div>
+    <div class="seq-step"><span class="seq-tag" style="background:var(--p-cwf2-bg);color:var(--p-cwf2)">M6–M8 · CWF2</span><h4>CWF v2 + Graphiti</h4><p>Postgres HA · full medallion · CDC (Debezium+Redpanda) · Graphiti+FalkorDB temporal graph cls-6.</p></div>
+    <div class="seq-step"><span class="seq-tag" style="background:var(--p-fin-bg);color:var(--p-fin)">M8–M13 · FIN</span><h4>Final / Astra EAIP</h4><p>RLS Core + Entra · SAP/SharePoint/Salesforce MCPs · 4 Astra UCs · GU sensor mode via IoT-Ignite · Iceberg.</p></div>
+  </div>
+  <!-- Layer rows rendered by JS -->
+  <div id="arch-layers"></div>
+  <div style="font-family:var(--mono);font-size:9.5px;color:var(--text3);margin-top:10px;border-top:1px solid var(--border);padding-top:9px">
+    ⇄ every layer is an adapter port — storage, LLM, orchestrator, channel and source swap with moderate effort &nbsp;·&nbsp; dashed border = external (integrate, never build) &nbsp;·&nbsp; click any component for deployment + configuration + connectivity detail
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     SECTION: CONNECTIVITY
+════════════════════════════════════════ -->
+<div class="sec" id="sec-conn">
+  <div class="conn-header">
+    <h2>Full Component Connectivity</h2>
+    <p>Every connection is annotated with its protocol type, transport mechanism, and architectural meaning. Click a row to filter by component.</p>
+  </div>
+  <!-- Connection type key -->
+  <div id="type-key"></div>
+  <!-- Controls -->
+  <div class="ctrl-row">
+    <input class="search-in" id="conn-search" placeholder="Search component…" oninput="filterConn()">
+    <select class="flt-sel" id="phase-flt" onchange="filterConn()">
+      <option value="">All phases</option>
+      <option value="core">Platform Core</option>
+      <option value="wa">Web Asistan</option>
+      <option value="gu">Galip Usta v1</option>
+      <option value="cwf1">CWF v1</option>
+      <option value="ins">Insurance</option>
+      <option value="cwf2">CWF v2</option>
+      <option value="fin">Final / Astra</option>
+    </select>
+  </div>
+  <div class="type-filters" id="type-filters"></div>
+  <div class="conn-count" id="conn-count"></div>
+  <div style="overflow-x:auto">
+    <table class="conn-tbl">
+      <thead><tr>
+        <th>From Component</th>
+        <th>To Component</th>
+        <th>Type</th>
+        <th>Protocol / Endpoint</th>
+        <th>Architectural Meaning</th>
+        <th>Phase</th>
+      </tr></thead>
+      <tbody id="conn-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     SECTION: BUILD PLAN
+════════════════════════════════════════ -->
+<div class="sec" id="sec-plan">
+  <!-- Effort totals -->
+  <div class="eff-top">
+    <div class="eff-stat"><div class="ev">12,060</div><div class="el">Total hours</div></div>
+    <div class="eff-div"></div>
+    <div class="eff-stat"><div class="ev">1,508</div><div class="el">Person-days</div></div>
+    <div class="eff-div"></div>
+    <div class="eff-stat"><div class="ev">~13</div><div class="el">Months (Variant A)</div></div>
+    <div class="eff-div"></div>
+    <div class="eff-stat"><div class="ev">7</div><div class="el">Phases / Products</div></div>
+    <div class="eff-div"></div>
+    <div class="eff-stat"><div class="ev">9</div><div class="el">Architecture layers</div></div>
+  </div>
+  <div class="var-note"><strong>Variant A (Recommended — Logical Order):</strong> Core → WA → GU → CWF v1 → Insurance → CWF v2 → Final. Lower risk. Each stage hardens shared capability before the next relies on it. Insurance lands at M5 on a battle-tested deterministic engine.<br><strong>Variant B (Commercial Override):</strong> Core → WA ∥ GU ∥ Insurance (M3 hard gate) → CWF v1 → CWF v2 → Final. Higher risk — ARU/KARU wildcard on critical path. Same total effort (12,060h) — only sequence differs.</div>
+  <!-- Timeline (Variant A) -->
+  <div class="stitle">Timeline — Variant A (Logical Order)</div>
+  <div class="tl-wrap" id="timeline"></div>
+  <!-- Per-phase cards with tasks -->
+  <div class="stitle">Effort by Phase & Key Tasks</div>
+  <div class="ph-grid" id="phase-cards"></div>
+</div>
+
+</div><!-- /main -->
+
+<!-- ══ DETAIL PANEL ══ -->
+<div class="overlay" id="overlay" onclick="closePanel()"></div>
+<div class="panel" id="panel">
+  <div class="ph">
+    <div class="ph-top">
+      <div>
+        <div class="ph-badges" id="ph-badges"></div>
+        <h2 id="ph-name"></h2>
+        <div class="ph-sub" id="ph-sub"></div>
+      </div>
+      <button class="ph-close" onclick="closePanel()">✕</button>
+    </div>
+  </div>
+  <div class="pb" id="panel-body"></div>
+</div>
+
+<!-- ══ FOOTER ══ -->
+<div class="ftr">
+  <span>ARDICTECH Unified Platform · Architecture v4 · May 2026 · Confidential</span>
+  <span>Single Source of Truth — Developer · PM · CTO reference</span>
+</div>
+<script>
+// ═══════════════════════════════════════════════════════════════
+// ARDICTECH UNIFIED PLATFORM — Architecture v4 · Single Source of Truth
+// All component definitions, connections, and build plan data
+// ═══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════
+// PHASE DEFINITIONS
+// ══════════════════════════════════════════════════════════
+const PHASES = {
+  core:{id:'core',label:'Platform Core',color:'var(--p-core)',bg:'var(--p-core-bg)',tasks:'A1–A9',months:'M1–M3',hours:2900,badge:'P0'},
+  wa:  {id:'wa',  label:'Web Asistan',  color:'var(--p-wa)',  bg:'var(--p-wa-bg)',  tasks:'B1–B4',months:'M2–M3',hours:740, badge:'WA'},
+  gu:  {id:'gu',  label:'Galip Usta v1',color:'var(--p-gu)',  bg:'var(--p-gu-bg)',  tasks:'C1–C4',months:'M2–M3',hours:640, badge:'GU1'},
+  cwf1:{id:'cwf1',label:'CWF v1',       color:'var(--p-cwf1)',bg:'var(--p-cwf1-bg)',tasks:'E1–E6',months:'M3–M5',hours:1500,badge:'CWF1'},
+  ins: {id:'ins', label:'Insurance v0.8→v1',color:'var(--p-ins)',bg:'var(--p-ins-bg)',tasks:'D1–D7',months:'M4–M5',hours:1160,badge:'INS'},
+  cwf2:{id:'cwf2',label:'CWF v2',       color:'var(--p-cwf2)',bg:'var(--p-cwf2-bg)',tasks:'F1–F5',months:'M6–M8',hours:1500,badge:'CWF2'},
+  fin: {id:'fin', label:'Final / Astra',color:'var(--p-fin)', bg:'var(--p-fin-bg)', tasks:'G1–G6',months:'M8–M13',hours:3620,badge:'FIN'},
+  ext: {id:'ext', label:'External',     color:'var(--p-ext)', bg:'var(--p-ext-bg)', tasks:'-',     months:'-',    hours:0,   badge:'EXT'},
+};
+
+// ══════════════════════════════════════════════════════════
+// CONNECTION TYPE DEFINITIONS
+// ══════════════════════════════════════════════════════════
+const CTYPES = {
+  REST:   {color:'#388BFD',name:'REST API',         desc:'Synchronous HTTP/HTTPS request-response. Caller sends structured HTTP request, waits for JSON response. Standard for service-to-service.'},
+  MCP:    {color:'#3FB950',name:'MCP (Model Context Protocol)', desc:'AI tool-calling interface. LangGraph treats the target as a callable "tool". Used for ARMES, Postgres, ClickHouse, Qdrant, SAP, SharePoint, Salesforce adapters.'},
+  WS:     {color:'#E3B341',name:'WebSocket',        desc:'Persistent bidirectional TCP connection. Enables real-time push from server. Used for streaming chat responses to browser.'},
+  KAFKA:  {color:'#F85149',name:'Kafka / Pub-Sub',  desc:'Async message streaming via Redpanda (Kafka-compatible). Producer writes events to topics; consumer reads independently. Decouples sender from receiver.'},
+  CDC:    {color:'#BC8CFF',name:'CDC (Change Data Capture)', desc:'Debezium reads PostgreSQL WAL (write-ahead log) via replication slot. Every INSERT/UPDATE/DELETE emits a structured change event. Zero-latency, zero-polling.'},
+  OIDC:   {color:'#FF9933',name:'OIDC / OAuth 2.0', desc:'Client presents a signed JWT access token; server validates signature against Keycloak JWKS endpoint. Standard enterprise SSO and API auth.'},
+  GRPC:   {color:'#79C0FF',name:'gRPC',             desc:'Binary Protobuf serialization over HTTP/2. Lower latency than REST, strongly typed. Used by Temporal SDK worker connections and some vector DB operations.'},
+  S3:     {color:'#56D364',name:'S3 Object Storage',desc:'S3-compatible API (PUT / GET / DELETE on buckets and objects). MinIO implements this standard fully. Used for artifacts, docs, models, PDF outputs.'},
+  WEBHOOK:{color:'#FFA657',name:'Webhook (inbound HTTP push)', desc:'External system sends HTTP POST to our registered HTTPS endpoint when an event occurs. We do not poll; the event is pushed to us in real time.'},
+  PSQL:   {color:'#8B949E',name:'PostgreSQL Wire Protocol', desc:'Native Postgres client library (asyncpg / psycopg2) sends SQL over TCP. Most efficient DB connection. All internal services with Postgres access use this.'},
+  SDK:    {color:'#A371F7',name:'SDK / In-process Library', desc:'Imported Python library. No network hop, no serialization. Function call in the same process. Fastest possible integration but creates a deployment dependency.'},
+  GRAPH:  {color:'#56D364',name:'Graph DB Protocol (Redis-compat)', desc:'FalkorDB implements the Redis GRAPH command set. Graphiti sends Cypher-like queries over the Redis wire protocol to build and query the temporal knowledge graph.'},
+  JDBC:   {color:'#388BFD',name:'JDBC',             desc:'Java Database Connectivity standard driver. Used by Airbyte connectors, OpenMetadata catalog ingestion, and some analytics tools that run on JVM.'},
+  OTEL:   {color:'#58A6FF',name:'OpenTelemetry (OTLP)', desc:'Structured trace/span/metric events sent via OTLP (gRPC or HTTP) to OTel Collector. Provides end-to-end distributed tracing across all services.'},
+  SMB:    {color:'#6E7681',name:'SMB / CIFS',        desc:'Server Message Block file protocol. NiFi SMB processor reads files from Windows network shares (insurance bound/submissions folders).'},
+  HTTP:   {color:'#FF9933',name:'HTTP (generic)',    desc:'Generic HTTP call. Not a structured REST API. May be used for HTML page scraping (ARU/KARU UI-scrape fallback) or simple webhooks without formal schema.'},
+};
+
+// ══════════════════════════════════════════════════════════
+// COMPONENT DEFINITIONS
+// ══════════════════════════════════════════════════════════
+const COMPS = [
+// ── L0 CHANNELS ──────────────────────────────────────────
+{id:'whatsapp',name:'WhatsApp',layer:'L0',lname:'Channels',phase:'core',badge:'P0',
+ sub:'text + buttons + voice',
+ desc:'Primary first-class channel across ALL products. Meta Cloud API integration. Receives inbound messages (text, interactive button replies, voice notes as audio URLs) via HTTPS webhook. Sends outbound via META Graph API /messages endpoint.',
+ deploy:{image:'Meta Cloud API — no container',install:'Direct HTTP to graph.facebook.com/v19.0',helm:'N/A',note:'Requires approved WhatsApp Business Account (WABA), a registered phone number, and an HTTPS webhook endpoint with TLS.'},
+ config:[{k:'WABA_TOKEN',v:'<Meta Token>',n:'WhatsApp Business Account bearer token'},{k:'PHONE_NUMBER_ID',v:'<num-id>',n:'Meta-assigned business phone ID'},{k:'WEBHOOK_VERIFY_TOKEN',v:'<random>',n:'Handshake verification secret'},{k:'META_API_VER',v:'v19.0',n:'Graph API version'}],
+ notes:'Meta sends ALL user messages via POST to your registered /webhook endpoint. You must respond HTTP 200 within 5s or Meta retries. Voice notes arrive as audio URLs — Channel Gateway downloads the file, passes to Whisper STT, then sends text to LangGraph.'},
+{id:'whisper',name:'Whisper STT',layer:'L0',lname:'Channels',phase:'gu',badge:'GU1',
+ sub:'voice → text transcription',
+ desc:'OpenAI Whisper speech-to-text, used to convert WhatsApp voice notes into text before passing to LangGraph. Turkish language support. Can run CPU-only (slower) or GPU (faster-whisper).',
+ deploy:{image:'custom Docker or faster-whisper',install:'pip install openai-whisper OR pip install faster-whisper',note:'Runs as a sidecar or inline function in the Channel Gateway service. GPU node preferred for <2s latency.'},
+ config:[{k:'WHISPER_MODEL',v:'medium',n:'base / medium / large based on GPU'},{k:'LANGUAGE',v:'tr',n:'Turkish — set explicitly for accuracy'},{k:'DEVICE',v:'cuda',n:'cuda (GPU) or cpu'}],
+ notes:'faster-whisper (CTranslate2 backend) is 4-8x faster than standard Whisper. For GU v1, medium model gives best TR accuracy. Audio file is fetched from Meta CDN, transcribed in-memory, text returned to Channel Gateway.'},
+{id:'widget',name:'Embed Widget',layer:'L0',lname:'Channels',phase:'wa',badge:'WA',
+ sub:'site JS embed',
+ desc:'Lightweight JavaScript widget (< 20KB) that manufacturers embed in their websites. Opens a chat UI that calls the ARDICTECH API. Configurable branding, theme, initial questions. Handles streaming responses.',
+ deploy:{image:'static JS bundle on CDN',install:'<script src="https://cdn.ardictech.com/widget.js">',note:'Build with Vite. Serve from MinIO or CDN. No iframe required.'},
+ config:[{k:'API_URL',v:'https://api.ardictech.com',n:'Kong API gateway URL'},{k:'TENANT_ID',v:'<slug>',n:'Manufacturer tenant identifier'},{k:'THEME',v:'light|dark',n:'Widget appearance'}],
+ notes:'The widget sends messages via REST to Kong → FastAPI → LangGraph. Supports streaming (Server-Sent Events). Auth is via an ephemeral session token issued on widget initialization.'},
+{id:'outlook',name:'Outlook / Graph',layer:'L0',lname:'Channels',phase:'ins',badge:'INS',
+ sub:'mailbox webhook',
+ desc:'Microsoft Graph API subscription that fires a webhook notification when a new email arrives in the Türk Re insurance mailbox. The platform processes the email content (subject, body, attachments) as a trigger for the insurance triage workflow.',
+ deploy:{image:'MS Graph API — no container',install:'Register subscription: POST /v1.0/subscriptions',note:'Requires Azure App Registration with Mail.Read permission. Subscription expires every 3 days and must be renewed.'},
+ config:[{k:'TENANT_ID',v:'<azure-tenant>',n:'Azure AD tenant'},{k:'CLIENT_ID',v:'<app-id>',n:'App registration client ID'},{k:'CLIENT_SECRET',v:'<secret>',n:'App registration secret'},{k:'WEBHOOK_URL',v:'https://api.../outlook/hook',n:'Our webhook endpoint'}],
+ notes:'Graph webhooks send a validation request first (must echo validationToken). Change notifications arrive as JSON with message ID. Platform then fetches full message via GET /messages/{id} with attachments.'},
+{id:'webchat',name:'Web Chat',layer:'L0',lname:'Channels',phase:'core',badge:'P0',
+ sub:'OpenWebUI / Chainlit',
+ desc:'Browser-based chat interface for internal teams and demos. OpenWebUI (or Chainlit) connects to FastAPI backend. Supports streaming, file upload, conversation history, and admin mode.',
+ deploy:{image:'ghcr.io/open-webui/open-webui:latest',install:'docker pull ghcr.io/open-webui/open-webui',note:'Configured to point at our FastAPI/LangGraph backend, not directly at Ollama.'},
+ config:[{k:'OPENAI_API_BASE_URL',v:'http://fastapi:8000/v1',n:'Our FastAPI OpenAI-compat endpoint'},{k:'WEBUI_SECRET_KEY',v:'<secret>',n:'Session signing key'},{k:'DEFAULT_MODELS',v:'llama-3-8b',n:'Default model selection'}],
+ notes:'OpenWebUI is used for internal access and demos. It is NOT the customer-facing product. The embedded widget is the customer channel for Web Asistan. Web Chat integrates with Keycloak for SSO.'},
+{id:'teams',name:'Teams Bot',layer:'L0',lname:'Channels',phase:'cwf1',badge:'CWF1',
+ sub:'Bot Framework SDK',
+ desc:'Microsoft Teams channel for CWF manufacturing intelligence. Receives manufacturing queries from factory teams via Teams chat, routes to Channel Gateway, and streams responses back. Adaptive Cards for rich output.',
+ deploy:{image:'mcr.microsoft.com/botframework-emulator',install:'pip install botbuilder-core botbuilder-integration-aiohttp',note:'Register in Azure Bot Service. Requires public HTTPS endpoint for Bot Framework messaging endpoint.'},
+ config:[{k:'BOT_APP_ID',v:'<azure-bot-id>',n:'Azure Bot registration app ID'},{k:'BOT_APP_PASSWORD',v:'<secret>',n:'Bot registration secret'},{k:'TEAMS_CHANNEL',v:'msteams',n:'Configured in Azure Bot Service'}],
+ notes:'The Teams bot is implemented as a FastAPI application using Bot Framework SDK. Messages are normalized to the Channel Gateway format and processed identically to other channels.'},
+{id:'dashboard',name:'Min. Dashboard',layer:'L0',lname:'Channels',phase:'core',badge:'P0',
+ sub:'audit · billing · admin',
+ desc:'Minimal administrative dashboard for tenant management, billing oversight, audit log review, and platform health. Built with Next.js or simple server-rendered UI. NOT the customer-facing product.',
+ deploy:{image:'custom Next.js or Flask + Jinja2',install:'Next.js standalone build',note:'Deployed as a K8s deployment behind Kong with admin-only JWT auth.'},
+ config:[{k:'API_BASE',v:'http://fastapi:8000',n:'Backend API URL'},{k:'KEYCLOAK_URL',v:'http://keycloak:8080',n:'OIDC auth endpoint'}],
+ notes:'Serves as the operations control panel. Shows per-tenant usage, billing invoices (iyzico/Stripe), active sessions, audit log search, and ArgoCD deployment status.'},
+{id:'gateway',name:'Channel Gateway',layer:'L0',lname:'Channels',phase:'core',badge:'P0',
+ sub:'one brain → many surfaces',
+ desc:'Central normalization and routing service. Receives messages from all channels (WhatsApp, Widget, Outlook, Teams, Web Chat), normalizes them to a standard MessageEnvelope format, and dispatches to LangGraph. One brain, many mouths.',
+ deploy:{image:'custom Python FastAPI service',install:'pip install fastapi uvicorn redis',note:'Exposes channel-specific webhook endpoints. Stateless: session context loaded from Redis.'},
+ config:[{k:'LANGGRAPH_URL',v:'http://langgraph:8001',n:'LangGraph agent service'},{k:'REDIS_URL',v:'redis://redis:6379',n:'Session state store'},{k:'WHISPER_URL',v:'http://whisper:9000',n:'Voice transcription service'}],
+ notes:'This is the single entry point for ALL user interactions. It enforces tenant isolation at the boundary, rate-limits per channel, and adds metadata (tenant, channel, session) to every message envelope before routing.'},
+// ── L1 API & IDENTITY ─────────────────────────────────────
+{id:'kong',name:'Kong',layer:'L1',lname:'API & Identity',phase:'core',badge:'P0',
+ sub:'API gateway',
+ desc:'API gateway handling all inbound traffic. Manages rate limiting, JWT authentication validation, CORS, request logging, and routing to upstream FastAPI services. Configured declaratively via kong.yaml.',
+ deploy:{image:'kong:3.7',install:'helm install kong kong/kong',note:'Runs in DB-less mode with declarative config. Two ports: 8000 (proxy) and 8001 (admin API, internal only).'},
+ config:[{k:'KONG_DATABASE',v:'off',n:'Declarative DB-less mode'},{k:'KONG_DECLARATIVE_CONFIG',v:'/etc/kong/kong.yaml',n:'Service/route/plugin config'},{k:'KONG_PLUGINS',v:'jwt,rate-limiting,cors,opa',n:'Active plugins'}],
+ notes:'Kong OPA plugin calls the OPA service for every request with policy data extracted from the JWT. This enforces multi-tenant isolation at the gateway level before any request reaches FastAPI.'},
+{id:'fastapi',name:'FastAPI',layer:'L1',lname:'API & Identity',phase:'core',badge:'P0',
+ sub:'REST + WebSocket',
+ desc:'Core application server. Handles all business logic, exposes REST endpoints for channel callbacks and admin operations, WebSocket endpoints for streaming responses, and serves as the orchestration coordinator between all services.',
+ deploy:{image:'custom Python image',install:'pip install fastapi uvicorn[standard] sqlalchemy asyncpg',note:'Runs as K8s deployment with HPA. Multiple replicas behind Kong.'},
+ config:[{k:'DATABASE_URL',v:'postgresql+asyncpg://...',n:'Async Postgres connection'},{k:'REDIS_URL',v:'redis://redis:6379/0',n:'Cache and sessions'},{k:'LANGGRAPH_URL',v:'http://langgraph-svc:8001',n:'Agent service URL'},{k:'KEYCLOAK_URL',v:'http://keycloak:8080',n:'OIDC issuer'}],
+ notes:'Each product (WA, GU, CWF, Insurance) is a FastAPI "router" mounted under a common application. This keeps code modular while sharing middleware (auth, logging, rate-limit) across all products.'},
+{id:'keycloak',name:'Keycloak',layer:'L1',lname:'API & Identity',phase:'core',badge:'P0',
+ sub:'OIDC / SSO',
+ desc:'Identity and access management. Issues JWT access tokens, manages realms per tenant, handles social login, and federates with Microsoft Entra ID for enterprise customers. Single source of auth truth.',
+ deploy:{image:'quay.io/keycloak/keycloak:24.0',install:'helm install keycloak bitnami/keycloak',note:'Requires PostgreSQL backend. Configure realm export for GitOps. Port 8080.'},
+ config:[{k:'KC_DB',v:'postgres',n:'Database type'},{k:'KC_DB_URL',v:'jdbc:postgresql://postgres:5432/keycloak',n:'DB connection'},{k:'KC_HOSTNAME',v:'auth.ardictech.com',n:'Public hostname'},{k:'KEYCLOAK_ADMIN',v:'admin',n:'Initial admin user'}],
+ notes:'Each tenant gets its own Keycloak realm provisioned automatically via Tenant Provisioning service. Realm-level isolation ensures no cross-tenant token acceptance.'},
+{id:'entra',name:'Entra Federation',layer:'L1',lname:'API & Identity',phase:'fin',badge:'FIN',
+ sub:'enterprise SSO',
+ desc:'Microsoft Entra ID (Azure AD) federation with Keycloak. Enterprise customers log in with their Microsoft credentials. Keycloak acts as a broker, mapping Entra claims to platform roles.',
+ deploy:{image:'No container — Entra is external. Config in Keycloak.',install:'Configure Identity Provider in Keycloak admin',note:'Register ARDICTECH as an app in customer Azure tenant. Configure OIDC federation in Keycloak.'},
+ config:[{k:'ENTRA_TENANT',v:'<customer-tenant-id>',n:'Customer Azure AD tenant'},{k:'CLIENT_ID',v:'<app-registration>',n:'Azure app registration'},{k:'AUTHORIZATION_URL',v:'https://login.microsoftonline.com/{tenant}/oauth2/v2.0/authorize',n:'Entra OAuth endpoint'}],
+ notes:'Required for Astra enterprise use cases where customers are Microsoft-first. Keycloak handles the OIDC broker pattern transparently — users do not see two login screens.'},
+{id:'opa',name:'OPA',layer:'L1',lname:'API & Identity',phase:'core',badge:'P0',
+ sub:'policy enforcement',
+ desc:'Open Policy Agent. Enforces fine-grained authorization policies written in Rego. Evaluates every API request: tenant isolation, role-based access, feature flags per product tier. Kong calls OPA before forwarding requests.',
+ deploy:{image:'openpolicyagent/opa:0.65',install:'helm install opa opa/opa',note:'Bundle mode: policies loaded from Git repo or bundle server. Port 8181.'},
+ config:[{k:'OPA_LOG_LEVEL',v:'error',n:'Reduce log noise in prod'},{k:'BUNDLE_URL',v:'http://bundle-server/policies.tar.gz',n:'Policy bundle location'}],
+ notes:'Rego policies check: (1) JWT tenant claim matches URL path tenant, (2) JWT role has permission for requested action, (3) product feature is enabled for this tenant tier. Decisions are cached per JWT for 30s.'},
+{id:'tenantprov',name:'Tenant Provisioning',layer:'L1',lname:'API & Identity',phase:'core',badge:'P0',
+ sub:'POST /provision · zero-touch',
+ desc:'Automated tenant onboarding service. A single POST /provision call creates a Kubernetes namespace, PostgreSQL schema, Keycloak realm, Kong routes, and Qdrant collection — all wired together. Zero manual steps.',
+ deploy:{image:'custom Python service',install:'Embedded in FastAPI as a router',note:'Must run with K8s ServiceAccount that has cluster-admin or namespace-create privileges.'},
+ config:[{k:'K8S_API',v:'https://kubernetes.default.svc',n:'In-cluster K8s API'},{k:'POSTGRES_ADMIN_URL',v:'postgresql://admin:...',n:'Admin connection for schema creation'},{k:'KEYCLOAK_ADMIN_URL',v:'http://keycloak:8080/admin',n:'Keycloak admin REST API'}],
+ notes:'Idempotent: calling /provision with the same tenant ID twice is safe. Tenant namespaces enforce resource quotas (CPU/memory) and network policies (no cross-namespace traffic).'},
+// ── L2 REASONING & ORCHESTRATION ──────────────────────────
+{id:'langgraph',name:'LangGraph',layer:'L2',lname:'Reasoning & Orchestration',phase:'core',badge:'P0',
+ sub:'the one reasoning brain',
+ desc:'The single multi-agent orchestration framework for ALL products. Each product defines a LangGraph StateGraph with nodes (RAG, tool-call, classify, decide, respond). Shared graph patterns: intent routing, tool calling, hybrid decision, response formatting.',
+ deploy:{image:'custom Python service with FastAPI',install:'pip install langgraph==0.2.x langchain-core',note:'No official Docker image. Package as custom FastAPI service. GPU not required for orchestration. Port 8001.'},
+ config:[{k:'LLM_ENDPOINT',v:'http://litellm:4000/v1',n:'LiteLLM proxy endpoint'},{k:'LANGFUSE_HOST',v:'http://langfuse:3000',n:'Tracing'},{k:'POSTGRES_URL',v:'postgresql://...',n:'State checkpointing'},{k:'REDIS_URL',v:'redis://redis:6379',n:'Short-term state'}],
+ notes:'KEY DESIGN: LangGraph is stateful. Each session has a unique thread_id. State is checkpointed to PostgreSQL (for durability) and Redis (for fast access). LLM ranks/extracts; the Hybrid Decision Engine decides. Never the reverse.'},
+{id:'hybrid',name:'Hybrid Decision Engine',layer:'L2',lname:'Reasoning & Orchestration',phase:'core',badge:'P0',
+ sub:'deterministic rules + audit log',
+ desc:'A Python module embedded within LangGraph (no separate service). The LLM extracts and ranks candidates; this engine applies deterministic rules to make the final decision and writes every decision to the PostgreSQL audit log with full reasoning trace.',
+ deploy:{image:'Embedded Python module in LangGraph service',install:'pip install pyyaml (rule YAML loader)',note:'Rules defined as YAML files in Git. Hot-reloaded on config change. The same engine serves Insurance (Yeni/Yenileme/Geçmişte), GU audit, and CWF classification.'},
+ config:[{k:'RULES_DIR',v:'/app/rules/',n:'Path to YAML rule files'},{k:'AUDIT_TABLE',v:'decisions',n:'PostgreSQL table for audit log'},{k:'MIN_CONFIDENCE',v:'0.75',n:'Minimum LLM confidence to pass to rules'}],
+ notes:'This is the architectural spine of the platform. Audit trail requirement: every decision record includes: input, LLM output, rule applied, final decision, timestamp, user_id, tenant_id. Required for IATF 16949, AS9100, KVKK compliance.'},
+{id:'n8n',name:'n8n',layer:'L2',lname:'Reasoning & Orchestration',phase:'cwf1',badge:'CWF1',
+ sub:'ops automation flows',
+ desc:'Low-code workflow automation for manufacturing operations. Triggers automated alerts, escalations, and reports. Connects to Teams, email, ARMES, and various manufacturing systems without custom code. Used by CWF for n8n-as-ops-automation.',
+ deploy:{image:'n8nio/n8n:latest',install:'docker pull n8nio/n8n',note:'Configure with PostgreSQL persistence (not default SQLite for production). Port 5678.'},
+ config:[{k:'DB_TYPE',v:'postgresdb',n:'Production: use PostgreSQL'},{k:'DB_POSTGRESDB_HOST',v:'postgres',n:'Database host'},{k:'N8N_HOST',v:'n8n.ardictech.com',n:'Public hostname'},{k:'WEBHOOK_URL',v:'https://n8n.ardictech.com/',n:'Base URL for webhook triggers'}],
+ notes:'n8n workflows are triggered by LangGraph via REST webhook POST. Manufacturing-specific flows: OEE alert → Teams notification, maintenance ticket → ARMES, daily summary → WhatsApp.'},
+{id:'temporal',name:'Temporal',layer:'L2',lname:'Reasoning & Orchestration',phase:'fin',badge:'FIN',
+ sub:'durable long-running flows',
+ desc:'Durable workflow execution engine for long-running processes that must survive service restarts, network failures, or indefinite waits. Required for Astra use cases with multi-day SLA-bound workflows (insurance processing, procurement approvals).',
+ deploy:{image:'temporalio/auto-setup:1.24',install:'helm install temporal temporalio/temporal',note:'Requires PostgreSQL for persistence. Port 7233 (gRPC). Web UI on 8080.'},
+ config:[{k:'DB',v:'postgresql',n:'Persistence backend'},{k:'DB_PORT',v:'5432',n:'PostgreSQL port'},{k:'DYNAMIC_CONFIG_FILE_PATH',v:'/etc/temporal/config.yaml',n:'Dynamic config'}],
+ notes:'LangGraph workflows that may take minutes-to-hours (e.g. waiting for a human approval step, polling an external API for status) are wrapped in Temporal Activities. This gives automatic retry, timeout, and audit trail.'},
+// ── L3 AI / LLM CORE ──────────────────────────────────────
+{id:'vllm',name:'vLLM',layer:'L3',lname:'AI / LLM Core',phase:'core',badge:'P0',
+ sub:'local Llama-3 · sovereign',
+ desc:'High-throughput LLM inference server for Llama-3-8B (and optionally 70B). OpenAI-compatible API. Runs on sovereign GPU nodes on Netaş/OSB Cloud. PagedAttention enables high concurrency with low memory.',
+ deploy:{image:'vllm/vllm-openai:latest',install:'docker pull vllm/vllm-openai',note:'Requires NVIDIA GPU K8s node. Set --tensor-parallel-size for multi-GPU. Port 8000.'},
+ config:[{k:'MODEL',v:'meta-llama/Llama-3-8B-Instruct',n:'HuggingFace model ID'},{k:'GPU_MEMORY_UTILIZATION',v:'0.90',n:'GPU VRAM fraction'},{k:'MAX_MODEL_LEN',v:'8192',n:'Max context window tokens'},{k:'--tensor-parallel-size',v:'2',n:'Multi-GPU parallelism'}],
+ notes:'vLLM is NOT called directly by LangGraph. All LLM calls go through LiteLLM proxy, which routes to vLLM. This enables seamless model switching, fallback to Ollama for dev, and future cloud model opt-in without changing agent code.'},
+{id:'litellm',name:'LiteLLM',layer:'L3',lname:'AI / LLM Core',phase:'core',badge:'P0',
+ sub:'LLM router / proxy',
+ desc:'Unified LLM proxy that translates ALL LangGraph requests to the appropriate backend (vLLM, Ollama, Azure OpenAI). Single OpenAI-compatible endpoint. Handles retries, fallback routing, cost tracking, and usage metrics.',
+ deploy:{image:'ghcr.io/berriai/litellm:main-latest',install:'pip install litellm[proxy]',note:'Configure litellm_config.yaml with model list. Port 4000. Expose only internally, never publicly.'},
+ config:[{k:'LITELLM_CONFIG',v:'/app/litellm_config.yaml',n:'Model routing config'},{k:'LITELLM_MASTER_KEY',v:'<secret>',n:'API key for callers (LangGraph)'},{k:'LANGFUSE_HOST',v:'http://langfuse:3000',n:'Usage callbacks'}],
+ notes:'litellm_config.yaml defines: model_list with each provider, fallbacks array, max_retries. This is where "gated off sovereign" is enforced: Azure OpenAI is in the config but its cost_map flag disables it unless explicitly enabled per tenant.'},
+{id:'ollama',name:'Ollama',layer:'L3',lname:'AI / LLM Core',phase:'core',badge:'P0',
+ sub:'dev / light inference',
+ desc:'Lightweight local LLM runner for development and low-latency lightweight tasks. Supports Llama 3, Mistral, Phi-3. No GPU required (uses CPU with quantization). Used in dev environments and for non-critical lightweight generations.',
+ deploy:{image:'ollama/ollama:latest',install:'docker pull ollama/ollama',note:'Port 11434. Model weights downloaded on first pull. Mount persistent volume for models.'},
+ config:[{k:'OLLAMA_MODELS',v:'/data/models',n:'Model storage path'},{k:'OLLAMA_HOST',v:'0.0.0.0:11434',n:'Listen address'}],
+ notes:'In production, vLLM is primary. Ollama is secondary/fallback in LiteLLM config. In development, Ollama serves as the sole LLM to avoid GPU requirement.'},
+{id:'mlflow',name:'MLflow',layer:'L3',lname:'AI / LLM Core',phase:'core',badge:'P0',
+ sub:'model registry',
+ desc:'ML experiment tracking and model registry. Tracks LLM evaluation runs (RAGAS scores), prompt versions, fine-tuning experiments. All production model versions must be registered here before deployment.',
+ deploy:{image:'ghcr.io/mlflow/mlflow:latest',install:'pip install mlflow',note:'Server mode: mlflow server --backend-store-uri postgresql:// --default-artifact-root s3://mlflow/ . Port 5000.'},
+ config:[{k:'BACKEND_STORE_URI',v:'postgresql://mlflow:pwd@postgres/mlflow',n:'Experiment metadata DB'},{k:'DEFAULT_ARTIFACT_ROOT',v:'s3://mlflow-artifacts/',n:'MinIO S3 bucket for artifacts'},{k:'MLFLOW_TRACKING_URI',v:'http://mlflow:5000',n:'For clients'}],
+ notes:'All RAGAS evaluation results (faithfulness, relevance, groundedness) are logged to MLflow. This creates a traceable history of model quality over time and enables A/B comparison of prompt changes.'},
+{id:'promptstore',name:'Prompt Store',layer:'L3',lname:'AI / LLM Core',phase:'core',badge:'P0',
+ sub:'versioned prompts',
+ desc:'PostgreSQL-backed prompt template registry. Stores versioned, language-parameterized prompt templates for each agent type (RAG, classification, extraction, summary). LangGraph fetches active prompts at runtime.',
+ deploy:{image:'Part of FastAPI service',install:'PostgreSQL table: prompts(id, name, version, language, template, active)',note:'No separate container. CRUD endpoints in FastAPI admin router. Templates support Jinja2 variables.'},
+ config:[{k:'PROMPT_CACHE_TTL',v:'300',n:'Redis cache TTL in seconds'},{k:'DEFAULT_LANGUAGE',v:'tr',n:'Turkish is default for GU/CWF'}],
+ notes:'Prompts are versioned. Rollback is a single SQL UPDATE. Turkish and English variants of each prompt are stored separately. Guardrails AI rail specs are also versioned here.'},
+{id:'langfuse',name:'Langfuse',layer:'L3',lname:'AI / LLM Core',phase:'core',badge:'P0',
+ sub:'LLM trace / audit',
+ desc:'LLM observability platform. Every LangGraph execution generates a Langfuse trace with all LLM calls, latencies, token counts, retrieved chunks, and final outputs. Essential for debugging, cost analysis, and quality audit.',
+ deploy:{image:'ghcr.io/langfuse/langfuse:latest',install:'helm install langfuse langfuse/langfuse',note:'Requires PostgreSQL. Configure S3 (MinIO) for media. Port 3000. Auth via Keycloak OIDC.'},
+ config:[{k:'DATABASE_URL',v:'postgresql://langfuse:pwd@postgres/langfuse',n:'Trace storage'},{k:'NEXTAUTH_URL',v:'http://langfuse:3000',n:'Self-URL for auth'},{k:'LANGFUSE_SECRET_KEY',v:'<secret>',n:'API signing key'}],
+ notes:'LangGraph integrates via LangfuseCallbackHandler (SDK, in-process). LiteLLM sends usage callbacks. Combined, every production LLM call has: trace_id, session_id, tenant_id, prompt_name, model, latency, tokens, cost estimate.'},
+{id:'guardrails',name:'Guardrails AI',layer:'L3',lname:'AI / LLM Core',phase:'core',badge:'P0',
+ sub:'I/O schema validation',
+ desc:'Validates LLM inputs and outputs against defined Rail specs. Ensures structured output format (JSON schema), detects and blocks toxic content, validates extracted fields (VKN format, date ranges, Faaliyet codes) before downstream use.',
+ deploy:{image:'Embedded Python library',install:'pip install guardrails-ai',note:'No separate service. Instantiated as GuardedLLM wrapper around LiteLLM in LangGraph nodes. Rail specs stored in Prompt Store.'},
+ config:[{k:'RAIL_SPEC_PATH',v:'loaded from Prompt Store',n:'YAML rail spec per agent type'},{k:'ON_FAIL',v:'reask',n:'reask (retry with correction) or exception'}],
+ notes:'Insurance-specific rails: VKN 10-digit validation, date format, Faaliyet sektör code in approved list. GU-specific rails: OEE value in [0,1], equipment ID matches known asset list. Cross-product: no PII in LLM output.'},
+// ── L4 KNOWLEDGE & MEMORY ────────────────────────────────
+{id:'llamaindex',name:'LlamaIndex',layer:'L4',lname:'Knowledge & Memory',phase:'core',badge:'P0',
+ sub:'RAG framework',
+ desc:'Retrieval-Augmented Generation framework. Handles document ingestion (chunking, embedding, indexing), query engines, and retrieval pipelines. All product RAG flows (catalog, ARMES docs, insurance submissions) go through LlamaIndex.',
+ deploy:{image:'Embedded Python library in LangGraph service',install:'pip install llama-index llama-index-vector-stores-qdrant',note:'No separate service. Runs in LangGraph agent process. Requires Qdrant and/or pgvector.'},
+ config:[{k:'QDRANT_URL',v:'http://qdrant:6333',n:'Vector store'},{k:'EMBED_MODEL',v:'BAAI/bge-m3',n:'Multilingual embedding (TR+EN)'},{k:'CHUNK_SIZE',v:'512',n:'Tokens per chunk'},{k:'CHUNK_OVERLAP',v:'64',n:'Overlap for context continuity'}],
+ notes:'BAAI/bge-m3 embedding model supports Turkish (critical for GU and CWF). Chunks are stored in Qdrant with metadata (tenant_id, source, doc_type). Retrieval always filters by tenant_id to prevent cross-tenant leakage.'},
+{id:'qdrant_v',name:'Qdrant / pgvector',layer:'L4',lname:'Knowledge & Memory',phase:'core',badge:'P0',
+ sub:'vector similarity search',
+ desc:'Dual-mode vector search: Qdrant for semantic similarity (dense vectors, 768-dim), pgvector for filtered SQL-native vector queries. Qdrant is the primary vector store; pgvector handles cases where vector search co-queries relational data.',
+ deploy:{image:'qdrant/qdrant:v1.9',install:'helm install qdrant qdrant/qdrant-helm',note:'Port 6333 (HTTP), 6334 (gRPC). Enable snapshots for backup. pgvector: CREATE EXTENSION vector; in PostgreSQL.'},
+ config:[{k:'QDRANT_API_KEY',v:'<secret>',n:'REST API auth'},{k:'COLLECTION_ON_DISK',v:'true',n:'Store vectors on disk for large collections'},{k:'HNSW_M',v:'16',n:'HNSW graph connections (accuracy vs speed)'}],
+ notes:'Collections are tenant-namespaced: {tenant_id}_{collection_type}. This gives hardware-level tenant isolation for vector data. pgvector is used when the query needs BOTH semantic similarity AND relational filtering (e.g., filter by date range AND semantic similarity).'},
+{id:'memori',name:'Memori',layer:'L4',lname:'Knowledge & Memory',phase:'core',badge:'P0',
+ sub:'session + profile memory (cls 3/4)',
+ desc:'Dual-layer memory system for LangGraph. Session memory: active conversation context stored in Redis (TTL=4h). Profile memory: long-term user preferences, interaction history, and learned patterns stored in PostgreSQL. Serves query classes 3 (contextual) and shallow-4 (profile-aware).',
+ deploy:{image:'Custom FastAPI microservice',install:'pip install fastapi redis asyncpg',note:'Expose as internal REST service. Session data auto-expires from Redis. Profile data partitioned by tenant_id in PostgreSQL.'},
+ config:[{k:'SESSION_TTL',v:'14400',n:'4 hours session TTL'},{k:'PROFILE_TABLE',v:'user_profiles',n:'PostgreSQL table'},{k:'MAX_SESSION_TURNS',v:'50',n:'Max conversation turns to keep'}],
+ notes:'Memory injection into LangGraph: system prompt includes last N turns (session) + top-3 relevant profile facts (profile). This avoids context-window explosion while maintaining coherent multi-turn behavior.'},
+{id:'lightrag',name:'LightRAG',layer:'L4',lname:'Knowledge & Memory',phase:'cwf1',badge:'CWF1',
+ sub:'knowledge graph RAG (cls-5)',
+ desc:'Knowledge-graph-augmented retrieval for class-5 document queries over ARMES docs, SOPs, and manuals. Builds a graph of entities and relations from documents; multi-hop retrieval answers complex "how does X relate to Y" questions that standard RAG misses.',
+ deploy:{image:'Custom service or embedded',install:'pip install lightrag',note:'Runs alongside LlamaIndex in agent service. Requires Qdrant (vector) + PostgreSQL (graph storage) + MinIO (source docs).'},
+ config:[{k:'VECTOR_STORE',v:'qdrant',n:'LightRAG vector backend'},{k:'GRAPH_STORAGE',v:'postgres',n:'Entity/relation graph storage'},{k:'WORKING_DIR',v:'/data/lightrag',n:'Processing temp dir'}],
+ notes:'LightRAG is additive to LlamaIndex: for class 1-4 queries, LlamaIndex suffices. For class-5 (complex multi-document reasoning over ARMES SOPs), LightRAG is invoked. The agent decides which retriever to use based on query classification.'},
+{id:'graphiti',name:'Graphiti + FalkorDB',layer:'L4',lname:'Knowledge & Memory',phase:'cwf2',badge:'CWF2',
+ sub:'temporal knowledge graph (cls-6)',
+ desc:'Temporal knowledge graph enabling class-6 causal/diagnostic queries: "Why did OEE drop on line 3 yesterday?" Graphiti processes CDC events from Redpanda and builds a time-aware property graph in FalkorDB. Distinct from LightRAG (which is for doc retrieval, not operational causality).',
+ deploy:{image:'falkordb/falkordb:latest + custom Graphiti service',install:'pip install graphiti-core; docker pull falkordb/falkordb',note:'FalkorDB port 6379 (Redis-compat). Graphiti runs as a consumer service reading from Redpanda. Graph is built incrementally from CDC events.'},
+ config:[{k:'FALKORDB_HOST',v:'falkordb',n:'Graph DB host'},{k:'FALKORDB_PORT',v:'6379',n:'Redis-compatible port'},{k:'REDPANDA_BROKERS',v:'redpanda:9092',n:'CDC event source'},{k:'GRAPH_TEMPORAL_DECAY',v:'0.95',n:'Older facts weighted lower'}],
+ notes:'Graphiti builds a temporal graph where facts have validity time ranges. A query "Why did OEE drop on 2026-05-01?" traverses the graph to find co-occurring events (maintenance, material change, operator shift) that correlate with the OEE drop.'},
+// ── L5 DATA CLEANSING & GOVERNANCE ───────────────────────
+{id:'soda',name:'Soda Core',layer:'L5',lname:'Data Cleansing & Governance',phase:'core',badge:'P0',
+ sub:'quality checks B/S/G',
+ desc:'Data quality framework. Runs declarative quality checks (completeness, freshness, distribution, referential integrity) on Bronze/Silver/Gold tables in PostgreSQL and ClickHouse. Quality gate: if checks fail, dbt transformations are blocked.',
+ deploy:{image:'Custom Airflow DAG tasks',install:'pip install soda-core-postgres soda-core-clickhouse',note:'No separate server. Runs as Airflow task. Check definitions in soda/ YAML files in Git.'},
+ config:[{k:'SODA_CHECKS_PATH',v:'/dags/soda/',n:'YAML check files'},{k:'DATA_SOURCE',v:'postgres_bronze',n:'Named data source in configuration.yml'},{k:'FAIL_ACTION',v:'block',n:'Block downstream or warn only'}],
+ notes:'Required for Insurance (KVKK data quality), GU (IATF 16949 audit accuracy), and Astra (financial/board audit). Scan results are published to OpenMetadata and visible in Grafana dashboard.'},
+{id:'dbt',name:'dbt Core',layer:'L5',lname:'Data Cleansing & Governance',phase:'core',badge:'P0',
+ sub:'Bronze → Silver → Gold',
+ desc:'SQL-based data transformation orchestration. Bronze (raw ingested data) → Silver (cleaned, typed, deduplicated) → Gold (business-ready aggregates). Models run in PostgreSQL and ClickHouse. Full lineage tracked in OpenMetadata.',
+ deploy:{image:'Custom Airflow DAG tasks',install:'pip install dbt-postgres dbt-clickhouse',note:'No separate server. Runs as Airflow KubernetesPodOperator. dbt profiles.yml stores connection credentials from Vault.'},
+ config:[{k:'DBT_TARGET',v:'prod',n:'Target profile (dev/staging/prod)'},{k:'DBT_MODELS',v:'+silver+',n:'Run silver and dependents'},{k:'THREADS',v:'4',n:'Parallel model threads'}],
+ notes:'CWF v2 adds full medallion (F2, +400h): all ARMES and operational data sources flow through Bronze→Silver→Gold via Soda quality gates before Graphiti or agent queries.'},
+{id:'openmetadata',name:'OpenMetadata',layer:'L5',lname:'Data Cleansing & Governance',phase:'core',badge:'P0',
+ sub:'catalog + data lineage',
+ desc:'Unified data catalog and lineage tracking. Automatically ingests metadata from PostgreSQL, ClickHouse, dbt, Soda, Airflow, and MinIO. Provides a searchable catalog of all data assets with their owners, quality scores, and end-to-end lineage.',
+ deploy:{image:'docker.getcollate.io/open-metadata/server:1.4',install:'docker compose -f docker-compose-postgres.yml up',note:'Multi-container deployment. Port 8585 (UI). Requires PostgreSQL + ElasticSearch.'},
+ config:[{k:'DB_HOST',v:'postgres',n:'Catalog DB host'},{k:'AIRFLOW_HOST',v:'http://airflow:8080',n:'Lineage from Airflow'},{k:'SECRET_KEY',v:'<secret>',n:'API signing key'}],
+ notes:'The OpenMetadata UI is the governance dashboard for data engineers and compliance officers. Policy: every Gold table must have an owner, description, and pass Soda checks before being query-accessible by agents.'},
+{id:'auditpdf',name:'Audit / SPC PDF',layer:'L5',lname:'Data Cleansing & Governance',phase:'core',badge:'P0',
+ sub:'WeasyPrint · IATF/AS9100',
+ desc:'One-click compliance PDF generation. Queries the PostgreSQL audit log, formats data into IATF 16949 / AS9100 SPC report templates (HTML + CSS), renders to PDF via WeasyPrint, and stores in MinIO. Returns download link.',
+ deploy:{image:'Custom FastAPI service',install:'pip install weasyprint jinja2',note:'WeasyPrint requires GTK/Cairo libs in Docker: use python:3.12-slim + apt-get install libpango-1.0 libcairo2'},
+ config:[{k:'TEMPLATE_DIR',v:'/app/templates/',n:'Jinja2 HTML templates'},{k:'OUTPUT_BUCKET',v:'audit-pdfs',n:'MinIO bucket'},{k:'FONT_DIR',v:'/fonts/',n:'Embed fonts for PDF (TR chars)'}],
+ notes:'Turkish character rendering requires explicit font embedding in WeasyPrint (use Noto Sans for TR). PDF metadata includes: tenant_id, generated_at, period, approval_status. Used by Galip Usta v1 for IATF audits and Insurance for Takip audit trail.'},
+{id:'llmenrich',name:'LLM Enrichment',layer:'L5',lname:'Data Cleansing & Governance',phase:'fin',badge:'FIN',
+ sub:'AI metadata curation',
+ desc:'Airflow DAGs that use LiteLLM to automatically enrich data catalog entries with AI-generated descriptions, tag suggestions, and quality annotations. Reduces manual metadata effort for enterprise-scale Astra data assets.',
+ deploy:{image:'Part of Airflow DAGs',install:'Uses LiteLLM SDK',note:'Runs as scheduled Airflow DAG, not a separate service.'},
+ config:[{k:'LLM_ENDPOINT',v:'http://litellm:4000/v1',n:'LiteLLM proxy'},{k:'ENRICHMENT_SCHEDULE',v:'0 2 * * *',n:'Run nightly at 2am'}],
+ notes:'LLM enrichment runs AFTER Soda quality checks pass. Only Gold-zone tables are enriched. Enrichment results are written to OpenMetadata via REST API.'},
+// ── L6 STORAGE ────────────────────────────────────────────
+{id:'postgres',name:'PostgreSQL',layer:'L6',lname:'Storage',phase:'core',badge:'P0',
+ sub:'txn · pgvector · native RLS',
+ desc:'Platform default database. Handles ALL transactional data, LangGraph state checkpoints, Keycloak users, MLflow experiments, Langfuse traces, Temporal workflows, dbt targets, Airflow metadata, and Audit logs. Native RLS for multi-tenant data isolation.',
+ deploy:{image:'postgres:16-alpine + pgvector ext',install:'helm install postgres bitnami/postgresql',note:'K8s: use Zalando postgres-operator for HA. Enable WAL (required for Debezium). Enable pgvector extension. CWF v2 adds HA (F1, +400h).'},
+ config:[{k:'POSTGRES_PASSWORD',v:'<strong-secret>',n:'Admin password'},{k:'max_connections',v:'200',n:'Tune per workload'},{k:'shared_buffers',v:'256MB',n:'Increase for high-load'},{k:'wal_level',v:'logical',n:'Required for Debezium CDC'}],
+ notes:'CRITICAL: wal_level=logical must be set before first data ingestion if CDC is planned (CWF v2). Changing it later requires a restart. Enable pgvector immediately: CREATE EXTENSION vector; RLS policies are provisioned by Tenant Provisioning service per schema.'},
+{id:'redis',name:'Redis',layer:'L6',lname:'Storage',phase:'core',badge:'P0',
+ sub:'cache / session',
+ desc:'In-memory key-value store. Serves three roles: (1) API response caching in FastAPI, (2) session state for Channel Gateway (active conversation context, TTL-based), (3) Celery broker if background task queue needed.',
+ deploy:{image:'redis:7-alpine',install:'helm install redis bitnami/redis',note:'Enable AOF persistence for crash safety. Sentinel mode for HA. Port 6379.'},
+ config:[{k:'maxmemory',v:'2gb',n:'Limit to prevent OOM'},{k:'maxmemory-policy',v:'allkeys-lru',n:'Evict least recently used'},{k:'appendonly',v:'yes',n:'AOF persistence'}],
+ notes:'Redis data is non-critical (cache/sessions). All important state is in PostgreSQL. Redis failure degrades performance (cache misses) but does not lose data. Recovery: restart Redis, PostgreSQL is source of truth.'},
+{id:'minio',name:'MinIO',layer:'L6',lname:'Storage',phase:'core',badge:'P0',
+ sub:'S3-compatible object store',
+ desc:'Sovereign S3-compatible object storage. Stores: ML model artifacts (MLflow), document chunks for RAG (LlamaIndex), audit PDF outputs, Airflow XCom artifacts, and uploaded files (Web Asistan). Runs inside the sovereign cloud — no data leaves.',
+ deploy:{image:'minio/minio:latest',install:'helm install minio minio/minio',note:'Port 9000 (S3 API), 9001 (Console UI). Use MinIO tenant operator for production. Enable bucket versioning for audit PDFs.'},
+ config:[{k:'MINIO_ROOT_USER',v:'admin',n:'Root access key'},{k:'MINIO_ROOT_PASSWORD',v:'<secret>',n:'Root secret key'},{k:'MINIO_VOLUMES',v:'/data',n:'Storage volume mount'}],
+ notes:'Bucket naming convention: {tenant_id}-{purpose} (e.g. acme-rag-docs, acme-audit-pdfs). Server-side encryption at rest with KMS key from Vault. Versioning enabled on audit-pdfs bucket for compliance.'},
+{id:'qdrant_s',name:'Qdrant',layer:'L6',lname:'Storage',phase:'core',badge:'P0',
+ sub:'vector database',
+ desc:'Dedicated vector database for semantic similarity search. Stores embedding vectors for all RAG collections. Separate from pgvector: Qdrant handles large-scale, high-dimensional vector search with filtering; pgvector handles smaller-scale co-queries with relational data.',
+ deploy:{image:'qdrant/qdrant:v1.9',install:'helm install qdrant qdrant/qdrant-helm',note:'Port 6333 (HTTP), 6334 (gRPC). Enable snapshots to MinIO for backup. On-disk storage recommended for >10M vectors.'},
+ config:[{k:'QDRANT__SERVICE__API_KEY',v:'<secret>',n:'REST API auth key'},{k:'QDRANT__STORAGE__ON_DISK_PAYLOAD',v:'true',n:'Payload on disk for large collections'},{k:'QDRANT__TELEMETRY_DISABLED',v:'true',n:'Disable external telemetry'}],
+ notes:'Qdrant collections are named {tenant_id}_{collection_type}: e.g. acme_catalog, acme_armes_docs. This gives collection-level tenant isolation. MCP server wraps Qdrant for LangGraph tool calls.'},
+{id:'timescale',name:'TimescaleDB',layer:'L6',lname:'Storage',phase:'fin',badge:'GU→FIN',
+ sub:'telemetry / sensor time series',
+ desc:'PostgreSQL extension for time-series data. Used for sensor telemetry when Galip Usta activates sensor mode (GU sensor mode = Final/Astra phase). IoT-Ignite pushes sensor readings; TimescaleDB handles hypertable partitioning, continuous aggregates, and compression.',
+ deploy:{image:'timescale/timescaledb:latest-pg16',install:'Extends existing PostgreSQL deployment OR separate instance',note:'Extension: CREATE EXTENSION timescaledb; Convert tables to hypertables. Can run on same PG cluster or separate for workload isolation.'},
+ config:[{k:'TIMESCALEDB_TELEMETRY',v:'off',n:'Disable telemetry'},{k:'timescaledb.license',v:'apache',n:'Use Apache-licensed version'},{k:'chunk_time_interval',v:'1 day',n:'Hypertable partition interval'}],
+ notes:'Sensor mode requires IoT-Ignite adapter (G5, +300h in Final phase). TimescaleDB continuous aggregates pre-compute OEE metrics at 5-min, 1-hour, and 1-day granularities for fast dashboard queries.'},
+{id:'clickhouse',name:'ClickHouse',layer:'L6',lname:'Storage',phase:'cwf1',badge:'CWF1',
+ sub:'OLAP analytics',
+ desc:'Columnar OLAP database for manufacturing analytics. Orders-of-magnitude faster than PostgreSQL for analytical queries over millions of rows (production data, quality records, OEE trends). Airbyte ingests ARMES data; Superset queries for dashboards.',
+ deploy:{image:'clickhouse/clickhouse-server:24.4',install:'helm install clickhouse bitnami/clickhouse',note:'Port 8123 (HTTP), 9000 (native). Configure max_memory_usage per query. Requires persistent volume for data.'},
+ config:[{k:'CLICKHOUSE_PASSWORD',v:'<secret>',n:'Admin password'},{k:'max_memory_usage',v:'10000000000',n:'10GB per query max'},{k:'default_database',v:'manufacturing',n:'Default schema'}],
+ notes:'ClickHouse MCP server exposes natural-language-to-SQL for LangGraph manufacturing agents (classes 1-3). Superset connects directly via JDBC for human-readable dashboards.'},
+{id:'iceberg',name:'Iceberg',layer:'L6',lname:'Storage',phase:'fin',badge:'FIN',
+ sub:'lake table format',
+ desc:'Apache Iceberg open table format for the data lakehouse layer. Enables ACID transactions on analytical data, time-travel queries, schema evolution, and partition pruning. Required for Astra enterprise analytics with historical audit requirements.',
+ deploy:{image:'Apache Iceberg REST Catalog',install:'helm install iceberg (various impls)',note:'Iceberg is a table format, not a query engine. Needs a catalog (REST catalog) and a compute engine (Spark, Trino) to read/write tables. Storage: MinIO.'},
+ config:[{k:'CATALOG_URI',v:'http://iceberg-rest:8181',n:'REST catalog endpoint'},{k:'WAREHOUSE',v:'s3://iceberg-warehouse/',n:'MinIO storage path'},{k:'S3_ENDPOINT',v:'http://minio:9000',n:'MinIO S3 endpoint'}],
+ notes:'Iceberg is introduced in Final phase for enterprise data lake requirements. Bronze-Silver-Gold pipeline writes Iceberg tables for Astra financial and board reporting use cases requiring time-travel (audit point-in-time queries).'},
+{id:'mariadb',name:'MariaDB',layer:'L6',lname:'Storage',phase:'ext',badge:'EXT',
+ sub:'ARMES / legacy adapter only',isExt:true,
+ desc:'EXTERNAL: MariaDB is the ARMES MES operational database. We do NOT manage it. We ONLY read from it. MariaDB is a legacy adapter — NOT a platform component. Access is read-only via Airbyte connector and the ARMES MCP server.',
+ deploy:{image:'External — managed by ARMES team',install:'N/A',note:'Connection credentials from Vault. Read-only MySQL user required.'},
+ config:[{k:'MARIADB_HOST',v:'<armes-db-host>',n:'ARMES DB hostname'},{k:'MARIADB_PORT',v:'3306',n:'MySQL/MariaDB port'},{k:'MARIADB_USER',v:'readonly_user',n:'Read-only MySQL user'}],
+ notes:'Critically: never write to MariaDB. Never alter schemas. This is a read-only integration point. The existing ARMES MCP server already handles the abstraction layer.'},
+// ── L7 INGESTION & PIPELINES ─────────────────────────────
+{id:'airflow',name:'Airflow',layer:'L7',lname:'Ingestion & Pipelines',phase:'core',badge:'P0',
+ sub:'orchestration + cleansing DAGs',
+ desc:'Workflow orchestration for all batch data pipelines. Manages: daily dbt transformation runs, Soda quality check scans, OpenMetadata ingestion, document re-indexing for RAG, and scheduled report generation. KubernetesExecutor for isolation.',
+ deploy:{image:'apache/airflow:2.9',install:'helm install airflow apache-airflow/airflow',note:'KubernetesExecutor: each task runs in its own K8s pod. Port 8080 (UI). Requires PostgreSQL for metadata.'},
+ config:[{k:'AIRFLOW__CORE__EXECUTOR',v:'KubernetesExecutor',n:'Pod-per-task isolation'},{k:'AIRFLOW__DATABASE__SQL_ALCHEMY_CONN',v:'postgresql://airflow:pwd@postgres/airflow',n:'Metadata DB'},{k:'AIRFLOW__CORE__DAGS_FOLDER',v:'/opt/airflow/dags',n:'GitSync from repo'}],
+ notes:'DAG patterns: (1) dbt_run → soda_scan → openmetadata_sync (daily pipeline), (2) rag_reindex (triggered on new doc upload), (3) audit_report (weekly, on-demand). DAGs are GitSynced — no manual upload needed.'},
+{id:'fileupload',name:'File Upload',layer:'L7',lname:'Ingestion & Pipelines',phase:'wa',badge:'WA',
+ sub:'CSV / XLS / PDF ingestion',
+ desc:'FastAPI endpoint that accepts manufacturer catalog files (CSV, XLS, PDF). Validates format, stores in MinIO, triggers an Airflow DAG to chunk, embed, and index into Qdrant for RAG retrieval. Progress streamed back to admin dashboard.',
+ deploy:{image:'Part of FastAPI service',install:'pip install python-multipart pypdf pandas openpyxl',note:'Max file size configurable. Virus scanning recommended (ClamAV sidecar).'},
+ config:[{k:'MAX_FILE_SIZE',v:'50MB',n:'Upload size limit'},{k:'ALLOWED_TYPES',v:'csv,xlsx,pdf,txt',n:'Permitted MIME types'},{k:'MINIO_BUCKET',v:'raw-uploads',n:'Staging bucket before processing'}],
+ notes:'File processing is async: upload returns immediately with a job_id. Admin dashboard polls /jobs/{job_id}/status. On success, Qdrant collection is updated and the RAG index is immediately queryable.'},
+{id:'nifi',name:'SMB Crawler (NiFi)',layer:'L7',lname:'Ingestion & Pipelines',phase:'ins',badge:'INS',
+ sub:'NiFi · folder index',
+ desc:'Apache NiFi flow that crawls Windows SMB network shares (insurance bound/submissions folders), reads new files, extracts text from PDFs, indexes document metadata into PostgreSQL, and pushes document vectors into Qdrant for fuzzy search.',
+ deploy:{image:'apache/nifi:2.0',install:'docker pull apache/nifi',note:'Port 8443 (HTTPS UI). Configure flow.xml.gz via NiFi REST API or Git. SMB processor requires NiFi SMB extension.'},
+ config:[{k:'SMB_HOST',v:'<share-host>',n:'Windows SMB server hostname'},{k:'SMB_DOMAIN',v:'TURKRE',n:'Windows domain'},{k:'SMB_USERNAME',v:'<svc-account>',n:'Service account'},{k:'CRAWL_DIR',v:'\\\\host\\Insurance\\Submissions',n:'Share path to crawl'}],
+ notes:'NiFi polls the SMB share every 5 minutes. New files trigger extraction, embedding, and indexing. Duplicate detection: SHA256 hash stored in PostgreSQL. NiFi is Insurance-specific — not a platform-wide ingestion tool.'},
+{id:'airbyte',name:'Airbyte',layer:'L7',lname:'Ingestion & Pipelines',phase:'cwf1',badge:'CWF1',
+ sub:'300+ connectors',
+ desc:'Open-source data integration platform with 300+ pre-built connectors. Primary use: sync ARMES/MariaDB operational data to ClickHouse for analytics and to PostgreSQL for operational queries. Manages incremental syncs with CDC-light (cursor-based).',
+ deploy:{image:'airbyte/airbyte (multi-container)',install:'helm install airbyte airbyte/airbyte',note:'Port 8000 (UI). K8s runner for connector pods. Requires PostgreSQL for state.'},
+ config:[{k:'AIRBYTE_VERSION',v:'0.63.x',n:'Platform version'},{k:'CONNECTOR_BUILDER_SERVER_API_HOST',v:'http://airbyte-connector-builder-server:80',n:'Custom connector server'}],
+ notes:'ARMES connector: MariaDB source → ClickHouse destination. Sync frequency: 15-minute incremental. Full refresh weekly for consistency check. Airbyte state table tracks last synced cursor per stream.'},
+{id:'debezium',name:'Debezium + Redpanda',layer:'L7',lname:'Ingestion & Pipelines',phase:'cwf2',badge:'CWF2',
+ sub:'CDC / real-time stream',
+ desc:'Change Data Capture pipeline: Debezium monitors PostgreSQL WAL (write-ahead log) and publishes every row-level change event (INSERT/UPDATE/DELETE) to Redpanda (Kafka-compatible) topics. Graphiti consumes these events to build the temporal knowledge graph.',
+ deploy:{image:'debezium/connect:3.0 + vectorized/redpanda',install:'helm install redpanda redpanda-data/redpanda',note:'Debezium: port 8083 (Kafka Connect REST). Redpanda: port 9092 (Kafka API). Both require persistent volumes.'},
+ config:[{k:'CONNECTOR_CLASS',v:'io.debezium.connector.postgresql.PostgresConnector',n:'Debezium PG connector'},{k:'DATABASE_HOSTNAME',v:'postgres',n:'Source DB host'},{k:'SLOT_NAME',v:'debezium_slot',n:'WAL replication slot name'},{k:'TOPIC_PREFIX',v:'ardictech',n:'Kafka topic prefix'}],
+ notes:'PostgreSQL must have wal_level=logical (set at Core install, A2). Replication slot accumulates WAL if consumer is down — monitor slot lag to prevent disk fill. Redpanda topics: ardictech.public.{table_name}. Graphiti subscribes to manufacturing-related tables.'},
+// ── L8 EXTERNAL SOURCES ────────────────────────────────────
+{id:'iot_ignite',name:'IoT-Ignite',layer:'L8',lname:'External Sources',phase:'ext',badge:'EXT',isExt:true,
+ sub:'EDGE · sensors · provisioning',
+ desc:'EXTERNAL platform (owned by partner). Manages all edge sensors, gateways, and device provisioning for Galip Usta sensor mode. WE DO NOT BUILD ANY IoT/edge infrastructure. We ONLY build the adapter: an HTTP REST endpoint that accepts IoT-Ignite telemetry pushes and writes to TimescaleDB.',
+ deploy:{image:'IoT-Ignite manages edge — no containers by us',install:'Adapter: custom FastAPI endpoint /iot/ingest',note:'IoT-Ignite pushes data to our endpoint. We configure the push target in the IoT-Ignite portal.'},
+ config:[{k:'IOT_PUSH_ENDPOINT',v:'https://api.ardictech.com/iot/ingest',n:'Our webhook endpoint'},{k:'IOT_API_KEY',v:'<per-gateway>',n:'Per-device authentication'}],
+ notes:'GU v1 has NO sensors. Sensor mode comes in Final/Astra phase (G5, +300h). When active: IoT-Ignite pushes telemetry every 30s → adapter validates and writes to TimescaleDB → LangGraph agents query for predictive maintenance.'},
+{id:'armes',name:'ARMES MES',layer:'L8',lname:'External Sources',phase:'ext',badge:'EXT',isExt:true,
+ sub:'Manufacturing Execution System',
+ desc:'EXTERNAL: Core manufacturing execution system. IMPORTANT: The ARMES MCP server is ALREADY DEVELOPED (confirmed fact). This eliminates the principal CWF integration risk. We connect via the existing MCP adapter — no need to build a new integration layer.',
+ deploy:{image:'External — not managed by us',install:'MCP server: ALREADY BUILT ✓',note:'ARMES MCP exposes manufacturing data (work orders, quality records, OEE, equipment status) as LangGraph tool calls.'},
+ config:[{k:'MCP_SERVER_URL',v:'http://armes-mcp:3001',n:'ARMES MCP endpoint'},{k:'ARMES_DB',v:'MariaDB read-only',n:'Underlying DB (via MCP abstraction)'}],
+ notes:'The ARMES MCP being pre-built saves 240h (E1 reduced 400h→160h). LangGraph calls ARMES data via MCP tool call exactly like calling any other tool. No direct SQL to MariaDB from agent code.'},
+{id:'exchange',name:'Exchange / Graph API',layer:'L8',lname:'External Sources',phase:'ext',badge:'EXT',isExt:true,
+ sub:'Microsoft mail',
+ desc:'EXTERNAL: Microsoft Exchange mailbox accessed via Microsoft Graph API. Used for Insurance: incoming email (new facultative submissions) triggers the triage workflow. Outgoing replies sent via Graph. NOT an internal platform — pure external integration.',
+ deploy:{image:'External — Microsoft-managed',install:'Microsoft Graph SDK: pip install msgraph-sdk',note:'App registration in Azure AD with Mail.Read + Mail.Send delegated/application permissions.'},
+ config:[{k:'GRAPH_ENDPOINT',v:'https://graph.microsoft.com/v1.0',n:'Graph API base URL'},{k:'MAILBOX',v:'sigortabot@turkre.com.tr',n:'Insurance mailbox to monitor'}],
+ notes:''},
+{id:'arukaru',name:'ARU / KARU',layer:'L8',lname:'External Sources',phase:'ext',badge:'EXT',isExt:true,
+ sub:'Türk Re internal systems',
+ desc:'EXTERNAL: Türk Reasürans internal lookup systems (Aktif Risk Ünitleri / Kabul Reddedilen Üniteleri). Used for insurance triage: check if a facultative offer has been seen before. ⚠️ BIGGEST RISK: Unknown if API is available (80h) or requires UI scraping (320h).',
+ deploy:{image:'External — Türk Re managed',install:'Week-1 spike required to determine integration method',note:'If REST API: integrate via requests. If web UI only: Playwright-based scraping (fragile, maintenance burden).'},
+ config:[{k:'ARU_URL',v:'<to-be-discovered>',n:'API or web UI URL'},{k:'ARU_CREDENTIALS',v:'<service-account>',n:'Authentication credentials'}],
+ notes:'⚠️ ARU/KARU is the single biggest risk to the insurance M3 commercial gate (Variant B). Week-1 discovery spike is MANDATORY if Variant B is chosen. If UI-scrape: add Playwright + extra 240h. If API: standard REST integration at 80h.'},
+{id:'smb_shares',name:'SMB Shares',layer:'L8',lname:'External Sources',phase:'ext',badge:'EXT',isExt:true,
+ sub:'bound / submissions',
+ desc:'EXTERNAL: Windows network file shares at Türk Re. Contains historical insurance submissions (bound folder) and current incoming submissions. NiFi SMB Crawler reads these folders. Two folders: /Submissions (incoming) and /Bound (accepted historical).',
+ deploy:{image:'External — Türk Re managed',install:'NiFi SMB Processor accesses via credentials',note:''},
+ config:[{k:'SMB_PATH_SUBMISSIONS',v:'\\\\fileserver\\Insurance\\Submissions',n:'Incoming submissions'},{k:'SMB_PATH_BOUND',v:'\\\\fileserver\\Insurance\\Bound',n:'Historical bound risks'}],
+ notes:''},
+{id:'sap',name:'SAP BW/S4/BPC',layer:'L8',lname:'External Sources',phase:'ext',badge:'EXT',isExt:true,
+ sub:'OData / BAPI / MDX',
+ desc:'EXTERNAL: SAP enterprise systems for Astra financial and inventory use cases. S/4HANA via OData services. BW/BPC via MDX queries. Exposed to LangGraph via SAP MCP server (G2, +720h in Final phase).',
+ deploy:{image:'External — customer-managed',install:'SAP MCP: build in Final phase (G2)',note:'SAP OData: /sap/opu/odata/SAP/. RFC BAPI via pyrfc or sapjco3.'},
+ config:[{k:'SAP_HOST',v:'<customer-sap>',n:'SAP system hostname'},{k:'SAP_CLIENT',v:'100',n:'SAP client/mandant'},{k:'SAP_SYSNR',v:'00',n:'SAP system number'}],
+ notes:''},
+{id:'sharepoint',name:'SharePoint',layer:'L8',lname:'External Sources',phase:'ext',badge:'EXT',isExt:true,
+ sub:'Microsoft Graph',
+ desc:'EXTERNAL: SharePoint document libraries accessed via Microsoft Graph API. Used in Astra for document-based knowledge retrieval (SOPs, policies, board documents). SharePoint MCP server built in Final phase.',
+ deploy:{image:'External — Microsoft managed',install:'SharePoint MCP: build in Final phase (G2)',note:''},
+ config:[{k:'SHAREPOINT_SITE',v:'https://tenant.sharepoint.com/sites/...',n:'Target site URL'}],
+ notes:''},
+{id:'salesforce',name:'Salesforce',layer:'L8',lname:'External Sources',phase:'ext',badge:'EXT',isExt:true,
+ sub:'REST / SOQL',
+ desc:'EXTERNAL: Salesforce CRM via REST API and SOQL queries. Used in Astra for customer/contract data in UC4 Multi-channel. Salesforce MCP server built in Final phase.',
+ deploy:{image:'External — Salesforce managed',install:'Salesforce MCP: build in Final phase (G2)',note:''},
+ config:[{k:'SF_INSTANCE_URL',v:'https://company.salesforce.com',n:'Salesforce instance'},{k:'SF_API_VERSION',v:'v59.0',n:'API version'}],
+ notes:''},
+// ── L9 INFRASTRUCTURE & OPS ───────────────────────────────
+{id:'k8s',name:'Kubernetes',layer:'L9',lname:'Infrastructure & Ops',phase:'core',badge:'P0',
+ sub:'container orchestration',
+ desc:'Container orchestration platform. All platform components run as K8s Deployments, StatefulSets, or Jobs. Tenant isolation via namespaces + NetworkPolicies. HPA for auto-scaling. Sovereign deployment on Netaş/OSB Cloud.',
+ deploy:{image:'Managed K8s on Netaş/OSB Cloud',install:'K8s cluster provisioned by cloud provider',note:'Minimum: 3 control plane nodes + 4 worker nodes (2 GPU nodes for vLLM). NetworkPolicy enabled. StorageClass for persistent volumes.'},
+ config:[{k:'CLUSTER_NAME',v:'ardictech-prod',n:'Cluster identifier'},{k:'DEFAULT_NAMESPACE',v:'ardictech-system',n:'Platform namespace'},{k:'RESOURCE_QUOTA_CPU',v:'4',n:'Per-tenant CPU quota'},{k:'RESOURCE_QUOTA_MEM',v:'8Gi',n:'Per-tenant memory quota'}],
+ notes:'Key K8s patterns: (1) Each tenant in its own namespace with ResourceQuota, (2) NetworkPolicy: pods can only reach services in their namespace + platform-system, (3) PodDisruptionBudgets on stateful services, (4) GPU nodes tainted, only vLLM tolerates.'},
+{id:'argocd',name:'ArgoCD',layer:'L9',lname:'Infrastructure & Ops',phase:'core',badge:'P0',
+ sub:'GitOps deployments',
+ desc:'GitOps continuous deployment. Platform configuration (Helm values, Kustomize overlays) lives in Git. ArgoCD watches the repo and automatically syncs K8s state to match Git. Every deployment is traceable, reversible, and auditable.',
+ deploy:{image:'quay.io/argoproj/argocd:v2.11',install:'helm install argocd argo/argo-cd',note:'Port 443 (HTTPS UI). Configure app-of-apps pattern. Webhook from Git for instant sync.'},
+ config:[{k:'ARGOCD_SERVER_INSECURE',v:'false',n:'Always use TLS'},{k:'REPO_SERVER_TIMEOUT',v:'180',n:'Seconds for large repo ops'},{k:'APP_NAMESPACE',v:'argocd',n:'ArgoCD namespace'}],
+ notes:'App-of-apps pattern: one ArgoCD Application per platform component. Parent "platform" app manages all children. Rollback: git revert + ArgoCD auto-syncs within 3 minutes.'},
+{id:'opentofu',name:'OpenTofu',layer:'L9',lname:'Infrastructure & Ops',phase:'core',badge:'P0',
+ sub:'Infra-as-Code · cluster provisioning',
+ desc:'Declarative Infrastructure-as-Code for the layer BELOW Kubernetes: provisions the sovereign K8s cluster, GPU node pools (for vLLM), object-storage backing for MinIO, network/VPC, DNS, and StorageClasses on Netaş/OSB. MPL-2.0 Linux Foundation fork of Terraform — chosen over Terraform to avoid the BUSL license question on a sovereign deployment. The entire cluster is rebuildable from Git.',
+ deploy:{image:'ghcr.io/opentofu/opentofu:latest (CI runner) — not a cluster workload',install:'tofu init && tofu plan && tofu apply',note:'Runs from the CI pipeline, not inside the cluster. State stored in MinIO S3 backend with state locking. Modules: cluster, node-pools, gpu-pool, dns, object-store.'},
+ config:[{k:'TF_BACKEND',v:'s3 (MinIO)',n:'Remote state on sovereign object storage'},{k:'TF_STATE_LOCK',v:'true',n:'Prevent concurrent applies'},{k:'CLUSTER_REGION',v:'tr-east-1',n:'Turkish datacenter region'},{k:'GPU_POOL_SIZE',v:'2',n:'vLLM inference nodes'}],
+ notes:'CRITICAL GAP CLOSED: without IaC, the cluster exists only as long as nobody touches it and cannot be rebuilt or replicated for a second sovereign tenant. OpenTofu makes A1 reproducible. Recommendation over Pulumi (avoids adding a new language surface) and Crossplane (avoids running a second control plane at single-cluster scale).'},
+{id:'ci',name:'CI Pipeline',layer:'L9',lname:'Infrastructure & Ops',phase:'core',badge:'P0',
+ sub:'GitLab CI / GitHub Actions · build-test-push',
+ desc:'Continuous Integration: the build half of the pipeline that ArgoCD assumes already exists. On every commit: lints, runs tests, builds container images, scans for vulnerabilities (Trivy), pushes to the sovereign registry, and bumps the image tag in the GitOps repo — which triggers ArgoCD to deploy. Self-hosted runner inside the sovereign cluster so build artifacts never leave Turkish jurisdiction.',
+ deploy:{image:'gitlab/gitlab-runner OR actions-runner-controller (self-hosted in-cluster)',install:'helm install gitlab-runner gitlab/gitlab-runner OR ARC for GitHub',note:'Runner deployed as K8s pods with ephemeral build executors. Registry credentials from Vault. Avoid Jenkins — maintenance burden too high for a 10-FTE team.'},
+ config:[{k:'RUNNER_EXECUTOR',v:'kubernetes',n:'Ephemeral pod-per-job'},{k:'IMAGE_SCAN',v:'trivy',n:'Vulnerability scan gate'},{k:'GITOPS_REPO',v:'platform-deploy.git',n:'Tag bump triggers ArgoCD'},{k:'CONCURRENT_JOBS',v:'4',n:'Parallel build capacity'}],
+ notes:'CRITICAL GAP CLOSED: GitOps is deployment-only — it assumes images exist in a registry and that the manifest was updated. CI is the missing build-test-push half. The flow is: commit → CI builds + tests + scans + pushes image → CI bumps tag in GitOps repo → ArgoCD syncs. Keeps everything inside the sovereign boundary. New task A4.5.'},
+{id:'registry',name:'Container Registry',layer:'L9',lname:'Infrastructure & Ops',phase:'core',badge:'P0',
+ sub:'Harbor · sovereign image store',
+ desc:'Self-hosted, sovereign container image registry. Stores all custom-built platform images (FastAPI, LangGraph, Channel Gateway, Memori, Audit PDF, MCP servers) plus cached upstream images. Harbor adds vulnerability scanning, image signing (Cosign), and replication. Required because a sovereign deployment cannot depend on a public registry as a runtime dependency.',
+ deploy:{image:'goharbor/harbor (helm chart)',install:'helm install harbor harbor/harbor',note:'Backed by MinIO for image layers and PostgreSQL for metadata. Port 443. Robot accounts for CI push and K8s pull, credentials in Vault.'},
+ config:[{k:'HARBOR_STORAGE',v:'s3 (MinIO)',n:'Image layer storage on sovereign object store'},{k:'TRIVY_ENABLED',v:'true',n:'Built-in vulnerability scanning'},{k:'COSIGN_SIGNING',v:'true',n:'Sign images, K8s verifies on pull'},{k:'GC_SCHEDULE',v:'0 3 * * 0',n:'Weekly garbage collection'}],
+ notes:'Closes the loop between CI and ArgoCD: CI pushes here, K8s pulls from here. Image signing (Cosign) + admission policy means only signed images run in production. Harbor reuses MinIO and PostgreSQL — no new datastore introduced.'},
+{id:'grafana',name:'Grafana + Prometheus',layer:'L9',lname:'Infrastructure & Ops',phase:'core',badge:'P0',
+ sub:'metrics + dashboards',
+ desc:'Metrics collection (Prometheus) and visualization (Grafana). Platform dashboards: K8s cluster health, service latencies, LLM inference throughput, token costs, data quality scores, tenant usage, and RAG hit rates.',
+ deploy:{image:'grafana/grafana:11.x + prom/prometheus:v2.52',install:'helm install kube-prometheus-stack prometheus-community/kube-prometheus-stack',note:'Includes Prometheus, Grafana, AlertManager, and node exporter. Port 3000 (Grafana).'},
+ config:[{k:'PROMETHEUS_SCRAPE_INTERVAL',v:'15s',n:'Metric collection frequency'},{k:'GRAFANA_ADMIN_PASSWORD',v:'<secret>',n:'Initial admin password'},{k:'GF_AUTH_GENERIC_OAUTH',v:'Keycloak OIDC',n:'SSO via Keycloak'}],
+ notes:'Key dashboards: (1) Platform Overview: SLA, error rates, active sessions; (2) LLM Dashboard: tokens/sec, p50/p95 latency, cost per tenant; (3) Data Quality: Soda check pass rates; (4) RAG Performance: retrieval latency, relevance scores.'},
+{id:'loki',name:'Loki + OTel Collector',layer:'L9',lname:'Infrastructure & Ops',phase:'core',badge:'P0',
+ sub:'logs + distributed traces',
+ desc:'Loki (log aggregation) + OpenTelemetry Collector (distributed tracing). Every service ships logs to Loki via FluentBit sidecar. OTel Collector receives OTLP traces from LangGraph, FastAPI, and other services, then forwards to Langfuse (AI traces) and Grafana (system traces).',
+ deploy:{image:'grafana/loki:3.0 + otel/opentelemetry-collector:0.100',install:'helm install loki grafana/loki-stack',note:'OTel Collector: deploy as DaemonSet. Loki: requires object storage (MinIO).'},
+ config:[{k:'LOKI_STORAGE',v:'s3://loki-chunks/',n:'MinIO S3 for log chunks'},{k:'OTEL_EXPORTER',v:'http://langfuse:3000/api/public/otel',n:'Forward AI traces to Langfuse'},{k:'LOG_RETENTION',v:'30d',n:'Log retention period'}],
+ notes:'OTel trace propagation: every HTTP request into the platform carries a trace_id header. LangGraph, FastAPI, and other services propagate this header. End-to-end traces are visible from user message to LLM response in both Langfuse (AI focus) and Grafana (infra focus).'},
+{id:'vault',name:'Vault',layer:'L9',lname:'Infrastructure & Ops',phase:'core',badge:'P0',
+ sub:'secrets management',
+ desc:'Centralized secrets management. ALL credentials (DB passwords, API keys, signing keys, TLS certs) are stored in Vault, never in K8s Secrets directly. K8s CSI driver injects secrets as environment variables into pods at startup.',
+ deploy:{image:'vault:1.17',install:'helm install vault hashicorp/vault',note:'HA mode: Raft storage. Port 8200. Enable K8s Auth backend. Enable KV-v2 secrets engine.'},
+ config:[{k:'VAULT_ADDR',v:'http://vault:8200',n:'Vault server address'},{k:'VAULT_TOKEN',v:'<root-token-rotate-immediately>',n:'Bootstrap only — use AppRole after'},{k:'VAULT_AUTH_METHOD',v:'kubernetes',n:'K8s service account auth'}],
+ notes:'K8s auth: pods authenticate to Vault using their K8s ServiceAccount JWT. Vault validates with K8s API and issues a short-lived token. Secrets are dynamically injected via Vault Agent Sidecar or CSI driver. No static credentials in Git or K8s Secrets.'},
+{id:'certmgr',name:'Cert Mgr + Wireguard',layer:'L9',lname:'Infrastructure & Ops',phase:'core',badge:'P0',
+ sub:'TLS · VPN',
+ desc:'cert-manager automates TLS certificate issuance and renewal (Let\'s Encrypt or internal CA via Vault PKI). Wireguard provides VPN tunnels for sovereign inter-datacenter links and for connecting external systems (ARMES, SMB shares, ARU/KARU) securely.',
+ deploy:{image:'quay.io/jetstack/cert-manager:v1.14 + linuxserver/wireguard',install:'helm install cert-manager jetstack/cert-manager --set crds.enabled=true',note:'cert-manager port: no external port. Wireguard port: 51820 UDP.'},
+ config:[{k:'CLUSTER_ISSUER',v:'letsencrypt-prod',n:'Certificate issuer name'},{k:'WG_PEERS',v:'<armes-gw>,<turkre-gw>',n:'External system VPN peers'}],
+ notes:'All inter-service communication uses mTLS. cert-manager auto-renews before expiry. Wireguard tunnels: ARMES database access, Türk Re SMB share access, ARU/KARU system access — all over VPN, never over public internet.'},
+{id:'evidently',name:'Evidently AI',layer:'L9',lname:'Infrastructure & Ops',phase:'cwf2',badge:'CWF2',
+ sub:'model drift detection',
+ desc:'ML model monitoring. Detects drift in LLM output quality (embedding drift, response length distribution, RAGAS score degradation) and data distribution shifts. Alerts Grafana when drift exceeds thresholds.',
+ deploy:{image:'Custom Airflow DAGs using evidently library',install:'pip install evidently',note:'Runs as scheduled Airflow DAG. Results pushed to Grafana via Prometheus remote_write.'},
+ config:[{k:'REFERENCE_DATASET',v:'first-week-production-evals',n:'Baseline for drift comparison'},{k:'DRIFT_THRESHOLD',v:'0.15',n:'Jensen-Shannon divergence threshold'}],
+ notes:'Drift detection is CRITICAL before CWF v2 goes live with full medallion data. Any significant drift triggers a LangGraph prompt review cycle and MLflow evaluation run.'},
+{id:'netas',name:'Netaş / OSB Cloud',layer:'L9',lname:'Infrastructure & Ops',phase:'ext',badge:'EXT',isExt:true,
+ sub:'sovereign deploy target',
+ desc:'EXTERNAL: Cloud infrastructure provider (Netaş or OSB Cloud). Provides the sovereign K8s cluster, GPU nodes for vLLM, and object storage backing for MinIO. NO data crosses Turkish jurisdiction boundaries.',
+ deploy:{image:'Cloud provider — external',install:'K8s cluster credentials via kubeconfig',note:''},
+ config:[{k:'CLOUD_REGION',v:'tr-east-1',n:'Turkish datacenter region'},{k:'GPU_NODE_TYPE',v:'GPU-optimized',n:'For vLLM inference'}],
+ notes:''},
+];
+
+// ══════════════════════════════════════════════════════════
+// LAYER DEFINITIONS
+// ══════════════════════════════════════════════════════════
+const LAYERS = [
+  {id:'L0',name:'Channels',tag:'first-class · day one',adapt:true},
+  {id:'L1',name:'API & Identity',tag:'',adapt:false},
+  {id:'L2',name:'Reasoning & Orchestration',tag:'hybrid: LLM ranks · rules decide',adapt:true},
+  {id:'L3',name:'AI / LLM Core',tag:'',adapt:true},
+  {id:'L4',name:'Knowledge & Memory',tag:'',adapt:true},
+  {id:'L5',name:'Data Cleansing & Governance',tag:'first-class · must-have',adapt:false},
+  {id:'L6',name:'Storage',tag:'PostgreSQL-default',adapt:true},
+  {id:'L7',name:'Ingestion & Pipelines',tag:'',adapt:false},
+  {id:'L8',name:'External Sources',tag:'adapters — don\'t build',adapt:false},
+  {id:'L9',name:'Infrastructure & Ops',tag:'sovereign / container-cloud',adapt:false},
+];
+
+// ══════════════════════════════════════════════════════════
+// CONNECTIONS ARRAY
+// ══════════════════════════════════════════════════════════
+const CONNECTIONS = [
+// ── PLATFORM CORE (M1–M3) ─────────────────────────────
+{from:'whatsapp',  to:'gateway',    type:'WEBHOOK', proto:'HTTPS POST graph.facebook.com → /webhook',             purpose:'Meta pushes every inbound customer message (text, buttons, voice audio URL) as a signed HTTP POST. Channel Gateway validates webhook signature (X-Hub-Signature) and routes to LangGraph.', phase:'core'},
+{from:'gateway',   to:'whisper',    type:'REST',    proto:'POST http://whisper:9000/transcribe',                  purpose:'If incoming message contains an audio URL (WhatsApp voice note), Channel Gateway downloads the file from Meta CDN and POSTs audio bytes to Whisper for Turkish STT transcription before routing to LangGraph.', phase:'core'},
+{from:'gateway',   to:'langgraph',  type:'REST',    proto:'POST http://langgraph:8001/invoke',                    purpose:'After normalization, Channel Gateway sends a structured MessageEnvelope (tenant_id, channel, session_id, content, metadata) to LangGraph as the single entry point for all agent reasoning.', phase:'core'},
+{from:'gateway',   to:'redis',      type:'SDK',     proto:'Redis SET/GET session:{session_id} (asyncio-redis)',   purpose:'Channel Gateway reads and writes active session state (last N turns, current flow state) from Redis. Session TTL=4h. Used to carry context across multi-message conversations.', phase:'core'},
+{from:'kong',      to:'opa',        type:'REST',    proto:'POST http://opa:8181/v1/data/authz/allow',             purpose:'Kong OPA plugin calls OPA synchronously for EVERY incoming API request. OPA evaluates tenant isolation, role permissions, and feature flags against the JWT payload before Kong forwards to FastAPI.', phase:'core'},
+{from:'kong',      to:'fastapi',    type:'REST',    proto:'HTTP proxy → http://fastapi:8000 (Kong upstream)',     purpose:'After auth + policy pass, Kong forwards the original HTTP request to FastAPI upstream. Kong handles TLS termination, rate limiting, CORS, and request ID injection.', phase:'core'},
+{from:'fastapi',   to:'langgraph',  type:'REST',    proto:'POST http://langgraph:8001/invoke (or /stream)',       purpose:'FastAPI orchestrates agent execution: sends the user request with session context to LangGraph, waits for (or streams) the agent response, and returns to the caller channel.', phase:'core'},
+{from:'fastapi',   to:'keycloak',   type:'OIDC',    proto:'GET http://keycloak:8080/realms/{realm}/.well-known/openid-configuration + JWKS',  purpose:'FastAPI validates every Bearer JWT by fetching the JWKS public keys from Keycloak and verifying signature, expiry, and tenant claim. Caches JWKS for 5 minutes.', phase:'core'},
+{from:'fastapi',   to:'postgres',   type:'PSQL',    proto:'postgresql+asyncpg://fastapi:***@postgres:5432/ardictech', purpose:'All transactional data access: user sessions, billing records, product state, admin config. Async with connection pooling (min=2, max=20 per replica).', phase:'core'},
+{from:'fastapi',   to:'redis',      type:'SDK',     proto:'redis://redis:6379/0 (aioredis)',                      purpose:'API response caching (TTL-based), distributed rate-limit counters (sliding window), and session invalidation on logout.', phase:'core'},
+{from:'fastapi',   to:'minio',      type:'S3',      proto:'S3 PUT/GET http://minio:9000 (boto3 / aiobotocore)',   purpose:'Store and retrieve uploaded files, generated audit PDFs, and user artifacts. Each object is namespaced under {tenant_id}/{purpose}/.', phase:'core'},
+{from:'keycloak',  to:'postgres',   type:'PSQL',    proto:'jdbc:postgresql://postgres:5432/keycloak',             purpose:'Keycloak persists all realm configurations, user accounts, group memberships, sessions, and audit events to PostgreSQL. Requires its own dedicated database schema.', phase:'core'},
+{from:'tenantprov', to:'postgres', type:'PSQL',    proto:'postgresql://admin:***@postgres:5432 (schema create)', purpose:'On POST /provision, creates a new PostgreSQL schema for the tenant, enables pgvector extension in schema, and applies Row Level Security (RLS) policies for tenant data isolation.', phase:'core'},
+{from:'tenantprov', to:'keycloak', type:'REST',    proto:'POST http://keycloak:8080/admin/realms',               purpose:'Creates a new Keycloak realm for the tenant with pre-configured OIDC settings, role definitions (admin/operator/viewer), and default security policies.', phase:'core'},
+{from:'tenantprov', to:'k8s',      type:'REST',    proto:'K8s API https://kubernetes.default.svc:443',           purpose:'Provisions tenant namespace with ResourceQuota (CPU/memory limits), NetworkPolicy (no cross-namespace traffic), and LimitRange. Uses K8s ServiceAccount with RBAC cluster-role.', phase:'core'},
+{from:'tenantprov', to:'qdrant_s', type:'REST',    proto:'PUT http://qdrant:6333/collections/{tenant_id}_{type}', purpose:'Creates isolated vector collections for the tenant (e.g. acme_catalog, acme_armes_docs). Collection-level isolation prevents cross-tenant semantic search leakage.', phase:'core'},
+{from:'langgraph', to:'litellm',    type:'REST',    proto:'POST http://litellm:4000/v1/chat/completions (OpenAI-compat)', purpose:'ALL LLM calls from LangGraph go through LiteLLM proxy. LiteLLM handles model routing (vLLM → Ollama → Azure fallback), retry, and usage tracking. LangGraph never calls vLLM directly.', phase:'core'},
+{from:'langgraph', to:'llamaindex', type:'SDK',     proto:'Python in-process: index.as_retriever().retrieve(query)', purpose:'LangGraph RAG nodes invoke LlamaIndex retrieval pipeline in-process. No network hop. LlamaIndex handles query embedding, Qdrant ANN search, and context assembly.', phase:'core'},
+{from:'langgraph', to:'memori',     type:'REST',    proto:'GET http://memori:8002/session/{session_id} + /profile/{user_id}', purpose:'At the start of every agent run, LangGraph fetches active session context (last N turns) and user profile memory from Memori service to inject into the system prompt.', phase:'core'},
+{from:'langgraph', to:'langfuse',   type:'SDK',     proto:'LangfuseCallbackHandler (in-process, async HTTP batch)', purpose:'Every LangGraph execution generates a Langfuse trace: all LLM calls, retrieved chunks, latencies, token counts, and final output. Sent asynchronously in batches — no blocking impact on response latency.', phase:'core'},
+{from:'langgraph', to:'guardrails', type:'SDK',     proto:'guardrails.Guard.parse(llm_output) (in-process)',      purpose:'After each LLM generation, GuardedLLM wrapper validates output against the Rail spec for that agent type: JSON schema conformance, field validation (VKN, dates, codes), toxic content detection.', phase:'core'},
+{from:'langgraph', to:'hybrid',     type:'SDK',     proto:'engine.decide(candidates, context) (embedded Python module)', purpose:'LangGraph passes LLM-extracted and ranked candidates to Hybrid Decision Engine. Engine applies deterministic YAML rules, selects final decision, and writes full audit record to PostgreSQL.', phase:'core'},
+{from:'langgraph', to:'postgres',   type:'PSQL',    proto:'postgresql://langgraph:***@postgres:5432 (LangGraph PostgresSaver)', purpose:'LangGraph state checkpointing: every graph execution step is persisted as a checkpoint. Enables session resume, debugging, and audit replay. Uses LangGraph built-in PostgresSaver.', phase:'core'},
+{from:'langgraph', to:'redis',      type:'SDK',     proto:'redis://redis:6379/1 (short-term graph state)',         purpose:'Hot-path state cache: active graph execution state stored in Redis for sub-millisecond reads during a single conversation turn. Spilled to PostgreSQL for durability.', phase:'core'},
+{from:'langgraph', to:'promptstore',type:'REST',    proto:'GET http://fastapi:8000/admin/prompts/{name}?lang=tr', purpose:'LangGraph fetches the current active version of each prompt template (system, RAG, extraction, classification) from Prompt Store at runtime. Templates cached in Redis for 5 min.', phase:'core'},
+{from:'hybrid',    to:'postgres',   type:'PSQL',    proto:'INSERT INTO {tenant_schema}.decisions (...)',          purpose:'Every decision record includes: input payload, LLM ranked candidates, rule file applied, final decision, confidence score, timestamp, user_id, session_id. Immutable append-only for compliance audit.', phase:'core'},
+{from:'llamaindex','to':'qdrant_s', type:'GRPC',    proto:'http://qdrant:6334 (gRPC, Protobuf)',                  purpose:'LlamaIndex uses Qdrant gRPC port for high-throughput vector upsert during indexing and ANN search during retrieval. All collections filtered by tenant_id payload field.', phase:'core'},
+{from:'llamaindex','to':'postgres', type:'PSQL',    proto:'SELECT ... WHERE embedding <#> $1 LIMIT 10 (pgvector)', purpose:'Co-queries: semantic vector similarity AND relational filters (date range, tenant, status) in a single SQL query. Used when structured metadata filtering is needed alongside semantic search.', phase:'core'},
+{from:'llamaindex','to':'minio',    type:'S3',      proto:'GET s3://{tenant}-rag-docs/{doc_id}',                  purpose:'LlamaIndex fetches source documents from MinIO during re-indexing (chunking + embedding pipeline). Source docs are stored in MinIO on upload; Qdrant stores only vectors + metadata.', phase:'core'},
+{from:'litellm',   to:'vllm',       type:'REST',    proto:'POST http://vllm:8000/v1/chat/completions (OpenAI-compat)', purpose:'Production inference route: LiteLLM proxies LLM requests to vLLM running Llama-3-8B on sovereign GPU nodes. vLLM uses PagedAttention for high-concurrency low-latency inference.', phase:'core'},
+{from:'litellm',   to:'ollama',     type:'REST',    proto:'POST http://ollama:11434/api/chat',                    purpose:'Dev/fallback inference route. LiteLLM routes to Ollama when vLLM is unavailable (dev environment) or when the fallback list is triggered. Ollama runs quantized models on CPU.', phase:'core'},
+{from:'litellm',   to:'langfuse',   type:'SDK',     proto:'LiteLLM usage callbacks (async HTTP)',                 purpose:'LiteLLM sends per-call usage data (model, tokens_in, tokens_out, latency, cost estimate) to Langfuse via callbacks. Combined with LangGraph traces for full cost attribution per tenant.', phase:'core'},
+{from:'langfuse',  to:'postgres',   type:'PSQL',    proto:'postgresql://langfuse:***@postgres:5432/langfuse',     purpose:'Langfuse persists all traces, spans, observations, scores, and session metadata to PostgreSQL. Requires dedicated schema. High write volume — consider read replica for analytics queries.', phase:'core'},
+{from:'langfuse',  to:'minio',      type:'S3',      proto:'PUT s3://langfuse-blobs/{trace_id}/{media_id}',        purpose:'Langfuse stores large binary payloads (audio files, large document blobs) as S3 objects rather than in PostgreSQL rows to avoid bloating the trace DB.', phase:'core'},
+{from:'mlflow',    to:'postgres',   type:'PSQL',    proto:'postgresql://mlflow:***@postgres:5432/mlflow',         purpose:'MLflow stores experiment metadata, run parameters, metrics (RAGAS scores), and model versions in PostgreSQL. UI queries this for experiment comparison and model registry.', phase:'core'},
+{from:'mlflow',    to:'minio',      type:'S3',      proto:'PUT s3://mlflow-artifacts/{exp_id}/{run_id}/',         purpose:'MLflow uploads model artifacts (fine-tuned weights, eval datasets, prompt configs) to MinIO S3 bucket. Artifact store configured as default_artifact_root.', phase:'core'},
+{from:'airflow',   to:'postgres',   type:'PSQL',    proto:'postgresql://airflow:***@postgres:5432/airflow',       purpose:'Airflow metadata database: DAG definitions, task instance state, XCom values, scheduler heartbeats. KubernetesExecutor also stores pod logs here.', phase:'core'},
+{from:'airflow',   to:'minio',      type:'S3',      proto:'GET/PUT s3://pipeline-artifacts/ (via custom operators)', purpose:'Airflow DAG tasks read source documents from MinIO (for RAG re-index) and write output artifacts (reports, export files) back to MinIO.', phase:'core'},
+{from:'airflow',   to:'openmetadata',type:'REST',   proto:'POST http://openmetadata:8585/api/v1/services/ingestPipelines/{id}/deploy', purpose:'After each dbt run and Soda scan, Airflow triggers OpenMetadata ingestion pipeline to sync fresh metadata, lineage, and quality scores to the catalog.', phase:'core'},
+{from:'soda',      to:'postgres',   type:'PSQL',    proto:'SQL scan via soda-core-postgres driver',              purpose:'Soda Core runs declarative quality checks (completeness, uniqueness, freshness, referential integrity) directly against Bronze/Silver/Gold PostgreSQL tables. Blocks dbt runs on failure.', phase:'core'},
+{from:'soda',      to:'openmetadata',type:'REST',   proto:'POST http://openmetadata:8585/api/v1/quality (scan results)', purpose:'Publishes Soda scan results (check name, pass/fail, observed value) to OpenMetadata quality API. Results appear in the data catalog alongside table documentation.', phase:'core'},
+{from:'dbt',       to:'postgres',   type:'PSQL',    proto:'dbt-postgres adapter: psycopg2 target profile',       purpose:'dbt Core transforms Bronze (raw ingested) → Silver (typed, cleaned, deduped) → Gold (business aggregates) via SQL models executed in PostgreSQL. Lineage tracked automatically.', phase:'core'},
+{from:'openmetadata','to':'postgres',type:'PSQL',   proto:'postgresql://openmetadata:***@postgres:5432/openmetadata', purpose:'OpenMetadata stores catalog metadata: table descriptions, column documentation, owners, tags, glossary terms, and lineage edges. High-read catalog queries served from here.', phase:'core'},
+{from:'auditpdf',  to:'postgres',   type:'PSQL',    proto:'SELECT * FROM decisions WHERE tenant_id=$1 AND period BETWEEN $2 AND $3', purpose:'Audit PDF generator queries the immutable decisions audit log for the requested period, formats data via Jinja2 HTML templates, then renders to PDF via WeasyPrint.', phase:'core'},
+{from:'auditpdf',  to:'minio',      type:'S3',      proto:'PUT s3://audit-pdfs/{tenant_id}/{report_id}.pdf',     purpose:'Generated compliance PDFs are stored in MinIO with versioning enabled. Returns a pre-signed download URL valid for 24 hours. Bucket has immutable object-lock for compliance.', phase:'core'},
+{from:'grafana',   to:'prometheus', type:'REST',    proto:'PromQL queries → http://prometheus:9090/api/v1/query_range', purpose:'Grafana queries Prometheus for all platform metrics dashboards: K8s cluster health, service latencies, LLM throughput, token cost trends, data quality scores, and RAG hit rates.', phase:'core'},
+{from:'loki',      to:'minio',      type:'S3',      proto:'PUT s3://loki-chunks/ (Loki S3 backend)',             purpose:'Loki stores log chunks in MinIO object storage for cost-effective retention. Only the Loki index (bloom filter + chunk index) is kept in local memory. Chunk retrieval on query.', phase:'core'},
+{from:'loki',   to:'langfuse',   type:'OTEL',    proto:'OTLP gRPC → http://langfuse:3000/api/public/otel',   purpose:'OTel Collector receives OTLP traces from LangGraph, FastAPI, and all instrumented services, then forwards AI-specific traces to Langfuse for LLM-focused analysis.', phase:'core'},
+{from:'loki',   to:'grafana',    type:'OTEL',    proto:'OTLP → Grafana Tempo (otlp_grpc_exporter)',          purpose:'Infrastructure traces (HTTP request spans, DB queries, queue operations) forwarded to Grafana Tempo for system-level distributed tracing and SLA analysis.', phase:'core'},
+{from:'argocd',    to:'k8s',        type:'REST',    proto:'K8s API PATCH/APPLY - sync loop every 3 min',         purpose:'ArgoCD continuously compares desired state (Git Helm values + Kustomize) with live K8s state. Automatically applies diffs. Every deployment is traceable via Git commit SHA.', phase:'core'},
+{from:'vault',     to:'k8s',        type:'REST',    proto:'K8s TokenReview API + Vault Agent Sidecar injection', purpose:'K8s pods authenticate to Vault using their ServiceAccount JWT (K8s Auth method). Vault issues short-lived token; Agent Sidecar injects secrets as env vars into pod at startup.', phase:'core'},
+{from:'certmgr',   to:'k8s',        type:'REST',    proto:'cert-manager CRD: Certificate resources in K8s API', purpose:'cert-manager watches Certificate CRDs and automatically requests/renews TLS certificates (Let\'s Encrypt ACME or Vault PKI) for all platform ingress endpoints and inter-service mTLS.', phase:'core'},
+{from:'opentofu',  to:'netas',      type:'REST',    proto:'Netaş/OSB cloud API (provider plugin) — tofu apply',  purpose:'OpenTofu provisions the foundational cloud resources declaratively: the K8s cluster itself, GPU node pools for vLLM, object-storage backing for MinIO, VPC/network, DNS, and StorageClasses. This is the layer below Kubernetes — it creates the cluster that everything else runs on.', phase:'core'},
+{from:'opentofu',  to:'minio',      type:'S3',      proto:'S3 backend: s3://tofu-state/ (remote state + locking)', purpose:'OpenTofu stores its remote state and state lock in MinIO object storage, keeping infrastructure state inside the sovereign boundary. State locking prevents concurrent applies from corrupting infrastructure definitions.', phase:'core'},
+{from:'ci',        to:'registry',   type:'REST',    proto:'docker push harbor.ardictech.com/{service}:{sha}',    purpose:'CI builds each custom service image, scans it (Trivy), signs it (Cosign), and pushes to the sovereign Harbor registry. This is the build-test-push half of the pipeline that GitOps assumes already happened.', phase:'core'},
+{from:'ci',        to:'argocd',     type:'REST',    proto:'git commit: bump image tag in platform-deploy.git → webhook',  purpose:'After pushing a new image, CI commits an image-tag bump to the GitOps repo. The commit triggers ArgoCD to sync, deploying the new image. This is the handoff that connects CI (build) to CD (deploy).', phase:'core'},
+{from:'ci',        to:'vault',      type:'REST',    proto:'Vault AppRole: fetch registry + signing credentials',  purpose:'CI runner authenticates to Vault to retrieve registry push credentials and the Cosign signing key. No static credentials stored in CI configuration — all secrets are short-lived and Vault-issued.', phase:'core'},
+{from:'k8s',       to:'registry',   type:'REST',    proto:'image pull: harbor.ardictech.com/{service}:{sha} (+ Cosign verify)',  purpose:'Kubernetes pulls all custom platform images from the sovereign Harbor registry at pod startup. Admission policy verifies the Cosign signature before allowing the image to run — only signed, scanned images reach production.', phase:'core'},
+{from:'registry',  to:'minio',      type:'S3',      proto:'S3 storage driver: s3://harbor-images/ (layer blobs)', purpose:'Harbor stores container image layer blobs in MinIO object storage and image metadata in PostgreSQL. Reuses existing platform datastores — no new storage engine introduced for the registry.', phase:'core'},
+{from:'registry',  to:'postgres',   type:'PSQL',    proto:'postgresql://harbor:***@postgres:5432/harbor',         purpose:'Harbor persists registry metadata (repositories, tags, scan results, signing records, robot accounts) in PostgreSQL. Vulnerability scan history and image provenance are queryable for compliance audit.', phase:'core'},
+// ── WEB ASISTAN (M2–M3) ──────────────────────────────
+{from:'widget',    to:'kong',       type:'WS',      proto:'wss://api.ardictech.com/ws/chat (WebSocket upgrade)',  purpose:'Embed Widget opens a persistent WebSocket to Kong for real-time streaming of LLM responses. Kong proxies the upgrade to FastAPI WebSocket handler. Tokens streamed as SSE frames.', phase:'wa'},
+{from:'widget',    to:'kong',       type:'REST',    proto:'POST https://api.ardictech.com/api/chat',             purpose:'Non-streaming message submission. Widget POSTs user message to Kong; Kong validates JWT session token, routes to FastAPI, which invokes LangGraph and returns full response.', phase:'wa'},
+{from:'fileupload','to':'minio',    type:'S3',      proto:'PUT s3://raw-uploads/{tenant}/{file_hash}/{filename}', purpose:'File Upload endpoint stores incoming catalog files (CSV, XLS, PDF) in MinIO staging bucket. SHA256 hash used as dedup key. File marked as \'pending\' until Airflow RAG pipeline completes.', phase:'wa'},
+{from:'fileupload','to':'airflow',  type:'REST',    proto:'POST http://airflow:8080/api/v1/dags/rag_reindex/dagRuns', purpose:'After successful upload, FastAPI triggers the rag_reindex Airflow DAG with file path and tenant_id as parameters. DAG runs chunk→embed→upsert pipeline. Job ID returned to caller.', phase:'wa'},
+// ── GALIP USTA v1 (M2–M3) ────────────────────────────
+{from:'whisper',   to:'gateway',    type:'REST',    proto:'Returns: {text: "transcribed...", language: "tr", duration_s: 12}', purpose:'Whisper STT returns transcribed Turkish text to Channel Gateway. Gateway substitutes the audio message with the text transcript in the MessageEnvelope before routing to LangGraph.', phase:'gu'},
+// ── CWF v1 (M3–M5) ───────────────────────────────────
+{from:'langgraph', to:'armes',      type:'MCP',     proto:'MCP tool call → http://armes-mcp:3001 (ARMES MCP Server already built ✓)', purpose:'LangGraph calls ARMES as a named tool (get_work_orders, get_oee_metrics, get_equipment_status, get_quality_records). MCP server translates tool parameters to MariaDB queries. Zero custom SQL in agent code.', phase:'cwf1'},
+{from:'armes',     to:'mariadb',    type:'JDBC',    proto:'mysql+pymysql://readonly:***@armes-db:3306/armes (read-only)', purpose:'ARMES MCP server executes read-only SQL against the live ARMES MariaDB database. Never writes. Credentials from Vault. All queries scoped to the authenticated tenant\'s plant/factory.', phase:'cwf1'},
+{from:'langgraph', to:'clickhouse', type:'MCP',     proto:'MCP tool call → ClickHouse MCP server (NL→SQL)',     purpose:'LangGraph manufacturing agents call ClickHouse via MCP for analytics queries (OEE trends, quality distributions, production volumes). MCP server handles natural-language to ClickHouse SQL translation.', phase:'cwf1'},
+{from:'airbyte',   to:'mariadb',    type:'JDBC',    proto:'JDBC source: MySQL connector → armes-db:3306 (15-min incremental)', purpose:'Airbyte syncs ARMES operational data (work orders, quality records, equipment logs) from MariaDB to ClickHouse on a 15-minute incremental cursor. Full refresh weekly.', phase:'cwf1'},
+{from:'airbyte',   to:'clickhouse', type:'JDBC',    proto:'JDBC destination: ClickHouse connector → clickhouse:8123', purpose:'Airbyte writes synced ARMES data to ClickHouse manufacturing schema. Applies deduplication via ReplacingMergeTree. ClickHouse becomes the single analytical store for all mfg data.', phase:'cwf1'},
+{from:'soda',      to:'clickhouse', type:'JDBC',    proto:'soda-core-clickhouse JDBC scan',                      purpose:'Soda Core quality scans extend to ClickHouse manufacturing tables: freshness checks (data < 30min old), completeness (no null OEE values), and distribution checks (OEE within 0–1 range).', phase:'cwf1'},
+{from:'dbt',       to:'clickhouse', type:'JDBC',    proto:'dbt-clickhouse adapter → clickhouse:8123',            purpose:'dbt Core builds Silver (cleaned, typed) and Gold (aggregated OEE, quality KPIs, production summaries) models in ClickHouse. Bronze models are raw Airbyte-synced tables.', phase:'cwf1'},
+{from:'teams',     to:'gateway',    type:'REST',    proto:'POST /teams/message (Bot Framework messaging endpoint)', purpose:'Teams Bot receives messages via Azure Bot Service delivery, normalizes them to MessageEnvelope format, and forwards to Channel Gateway. Responses are returned as Adaptive Cards.', phase:'cwf1'},
+{from:'n8n',       to:'langgraph',  type:'WEBHOOK', proto:'POST http://langgraph:8001/n8n/trigger (n8n HTTP Request node)', purpose:'n8n automation flows call LangGraph for AI-powered decisions (e.g., classify alert severity, generate maintenance report). n8n is the trigger; LangGraph is the intelligence.', phase:'cwf1'},
+{from:'langgraph', to:'n8n',        type:'REST',    proto:'POST http://n8n:5678/webhook/{flow_id} (trigger n8n workflow)', purpose:'LangGraph agent triggers n8n workflow for operational actions (send Teams notification, create ARMES ticket, escalate to supervisor). LangGraph decides WHAT to do; n8n executes HOW.', phase:'cwf1'},
+{from:'lightrag',  to:'qdrant_s',   type:'REST',    proto:'GET http://qdrant:6333/collections/{tenant}_armes_docs/points/search', purpose:'LightRAG uses Qdrant for vector search over ARMES SOP and manual document embeddings. Multi-hop retrieval: initial ANN search → entity graph traversal → secondary targeted search.', phase:'cwf1'},
+{from:'lightrag',  to:'postgres',   type:'PSQL',    proto:'postgresql:// (entity/relation graph tables)',        purpose:'LightRAG stores its document knowledge graph (entities, relationships, communities) in PostgreSQL tables. Graph is queried during multi-hop reasoning over technical documentation.', phase:'cwf1'},
+{from:'lightrag',  to:'minio',      type:'S3',      proto:'GET s3://{tenant}-armes-docs/{doc_path}',             purpose:'LightRAG fetches source ARMES technical documents from MinIO during knowledge graph construction (first-time indexing). Documents stored in MinIO by File Upload or Airflow ingestion DAG.', phase:'cwf1'},
+// ── INSURANCE v0.8→v1 (M4–M5) ────────────────────────
+{from:'outlook',   to:'gateway',    type:'WEBHOOK', proto:'POST /outlook/hook (Graph change notification)',      purpose:'Microsoft Graph fires a change notification to our registered HTTPS endpoint when a new email arrives in the insurance mailbox. Channel Gateway fetches full message + attachments via Graph API and routes to LangGraph triage agent.', phase:'ins'},
+{from:'nifi',      to:'smb_shares', type:'SMB',     proto:'NiFi GetSmbFile processor → \\\\fileserver\\Insurance\\Submissions + \\Bound', purpose:'NiFi SMB processor polls the insurance Windows file shares every 5 minutes, reads newly added PDFs (bound offers + incoming submissions), and streams file content downstream for extraction.', phase:'ins'},
+{from:'nifi',      to:'postgres',   type:'PSQL',    proto:'NiFi PutDatabaseRecord processor → documents table', purpose:'NiFi inserts document metadata (filename, SHA256, file_type, source_folder, received_at) into PostgreSQL for deduplication and audit. Duplicate check: SHA256 already in table → skip.', phase:'ins'},
+{from:'nifi',      to:'qdrant_s',   type:'REST',    proto:'POST http://qdrant:6333/collections/{tenant}_insurance/points', purpose:'NiFi upserts extracted insurance document vectors into Qdrant after text extraction and embedding. Enables fuzzy semantic search over historical bound risks for similarity-based triage decisions.', phase:'ins'},
+{from:'arukaru',   to:'fastapi',    type:'HTTP',    proto:'REST GET /api/risks/{offer_id} OR Playwright UI scrape (TBD — Week-1 spike required)', purpose:'⚠ HIGHEST RISK: ARU/KARU integration method unknown until discovery spike. If REST API available: standard HTTP call. If UI-only: Playwright browser scrape (fragile, adds 240h). Determines if facultative offer has prior history.', phase:'ins'},
+// ── CWF v2 (M6–M8) ───────────────────────────────────
+{from:'debezium',  to:'postgres',   type:'CDC',     proto:'PostgreSQL WAL replication slot: debezium_slot (wal_level=logical)', purpose:'Debezium reads every row-level change (INSERT/UPDATE/DELETE) from the PostgreSQL write-ahead log via a logical replication slot. Zero-polling, zero-latency event capture. Must be set up with wal_level=logical from Core phase.', phase:'cwf2'},
+{from:'debezium',  to:'redpanda',   type:'KAFKA',   proto:'Kafka Connect Sink → Redpanda topics: ardictech.public.{table_name}', purpose:'Debezium publishes structured change events to Redpanda (Kafka-compatible) topics. One topic per PostgreSQL table. Event includes: before/after row state, operation type, LSN position, timestamp.', phase:'cwf2'},
+{from:'graphiti',  to:'redpanda',   type:'KAFKA',   proto:'Kafka consumer group: graphiti-consumers → ardictech.public.* topics', purpose:'Graphiti service consumes CDC event stream from Redpanda for manufacturing-related tables (OEE records, quality events, maintenance logs). Converts events into temporal knowledge graph facts.', phase:'cwf2'},
+{from:'graphiti',  to:'falkordb',   type:'GRAPH',   proto:'GRAPH.QUERY ardictech "CREATE (:Event {...})-[:CAUSED]->(:Outcome {...})" (Redis wire protocol on port 6379)', purpose:'Graphiti writes and queries the temporal property graph in FalkorDB. Each CDC event becomes a timestamped graph fact. Cypher-like queries traverse the graph for causal/diagnostic reasoning.', phase:'cwf2'},
+{from:'langgraph', to:'graphiti',   type:'REST',    proto:'POST http://graphiti:8003/query {"q": "Why did OEE drop on Line 3?", "time_window": "2026-05-01"}', purpose:'LangGraph class-6 query agent calls Graphiti for causal/diagnostic manufacturing queries. Graphiti traverses the temporal graph to find co-occurring events correlating with the queried outcome.', phase:'cwf2'},
+{from:'evidently', to:'grafana',    type:'OTEL',    proto:'prometheus_remote_write → http://prometheus:9090/api/v1/write', purpose:'Evidently AI pushes drift metrics (Jensen-Shannon divergence scores per feature, RAGAS score trends) to Prometheus via remote_write. Grafana alert fires when drift exceeds configured threshold.', phase:'cwf2'},
+{from:'llmenrich', to:'litellm',    type:'REST',    proto:'POST http://litellm:4000/v1/chat/completions (description generation)', purpose:'LLM Enrichment Airflow DAG calls LiteLLM to generate human-readable descriptions, suggested tags, and quality annotations for Gold-zone data catalog entries. Runs nightly after Soda scans pass.', phase:'cwf2'},
+{from:'llmenrich', to:'openmetadata',type:'REST',   proto:'PATCH http://openmetadata:8585/api/v1/tables/{id} (update description+tags)', purpose:'LLM-generated metadata is patched into the OpenMetadata catalog via REST API. Existing descriptions are only overwritten if empty or confidence score > threshold. Human can always override.', phase:'cwf2'},
+// ── FINAL / ASTRA (M8–M13) ───────────────────────────
+{from:'entra',     to:'keycloak',   type:'OIDC',    proto:'OIDC Identity Provider federation in Keycloak: https://login.microsoftonline.com/{tenant}/v2.0', purpose:'Keycloak acts as OIDC broker: enterprise users log in with Microsoft credentials, Entra validates and returns ID token, Keycloak maps Entra claims (groups, roles) to platform RBAC roles. Transparent to end user.', phase:'fin'},
+{from:'iot_ignite','to':'fastapi',  type:'WEBHOOK', proto:'POST https://api.ardictech.com/iot/ingest (IoT-Ignite push target)', purpose:'IoT-Ignite edge platform pushes sensor telemetry (temperature, vibration, pressure, cycle counts) to our registered HTTPS endpoint at 30-second intervals. We build only the ingest adapter endpoint.', phase:'fin'},
+{from:'fastapi',   to:'timescale',  type:'PSQL',    proto:'INSERT INTO sensor_readings (sensor_id, plant_id, metric, value, ts) ... (asyncpg)', purpose:'FastAPI IoT adapter writes validated sensor readings into TimescaleDB hypertable with automatic time-based partitioning. Continuous aggregates pre-compute 5-min, 1-hour, and 1-day OEE metrics.', phase:'fin'},
+{from:'langgraph', to:'sap',        type:'MCP',     proto:'MCP tool call → SAP MCP server (G2): OData GET /sap/opu/odata/SAP/... + BAPI RFC', purpose:'LangGraph calls SAP as a named tool for financial/inventory queries (stock levels, production orders, financial entries). SAP MCP server translates tool parameters to OData or BAPI calls.', phase:'fin'},
+{from:'langgraph', to:'sharepoint', type:'MCP',     proto:'MCP tool call → SharePoint MCP server (G2): Graph API /sites/{site}/lists/{list}/items', purpose:'LangGraph retrieves enterprise documents, SOPs, and policies from SharePoint document libraries via MCP tool calls. SharePoint MCP handles Graph API auth and document extraction.', phase:'fin'},
+{from:'langgraph', to:'salesforce', type:'MCP',     proto:'MCP tool call → Salesforce MCP server (G2): REST /query?q=SELECT+...+FROM+Account WHERE ...', purpose:'LangGraph queries Salesforce CRM data (customer accounts, contracts, opportunities) via MCP tool calls for multi-channel Astra UC4 use cases.', phase:'fin'},
+{from:'temporal',  to:'postgres',   type:'PSQL',    proto:'postgresql://temporal:***@postgres:5432/temporal (Temporal persistence)', purpose:'Temporal persists all workflow execution state, activity results, timer schedules, and history events in PostgreSQL. Enables workflow recovery after any service failure — even after days/weeks.', phase:'fin'},
+{from:'langgraph', to:'temporal',   type:'GRPC',    proto:'Temporal SDK gRPC → temporal:7233 (workflow and activity calls)', purpose:'LangGraph triggers Temporal workflows for long-running processes (insurance approval wait, multi-day procurement flow, scheduled reporting). Temporal ensures at-most-once execution and automatic retry.', phase:'fin'},
+{from:'iceberg',   to:'minio',      type:'S3',      proto:'S3 GET/PUT s3://iceberg-warehouse/ (REST catalog + object files)', purpose:'Apache Iceberg writes table files (Parquet data + Avro metadata manifests) to MinIO object storage. REST catalog tracks table state. Enables time-travel queries (SELECT ... AS OF TIMESTAMP) for financial audit.', phase:'fin'},
+];
+
+// ══════════════════════════════════════════════════════════
+// BUILD PLAN DATA
+// ══════════════════════════════════════════════════════════
+const PLAN_DATA = {
+  core:{tasks:[
+    {id:'A1',name:'OpenTofu IaC (cluster + GPU pool + DNS + storage, rebuildable from Git) → K8s on Netaş/OSB + Vault + cert-manager + Wireguard VPN',del:'Sovereign infra foundation (IaC)',role:'DevOps',hrs:180},
+    {id:'A2',name:'PostgreSQL 16 + pgvector + wal_level=logical (Debezium-ready from day 1)',del:'Platform DB',role:'DevOps',hrs:200},
+    {id:'A3',name:'Keycloak realms + OPA policies + Tenant Provisioning service (one-call onboard)',del:'Auth & multi-tenancy',role:'Backend',hrs:280},
+    {id:'A4',name:'Kong API gateway (DB-less) + FastAPI skeleton + JWT middleware + ArgoCD GitOps (app-of-apps; namespaces/quotas/policies as Git-managed manifests)',del:'API layer + GitOps CD',role:'Backend',hrs:260},
+    {id:'A4.5',name:'CI pipeline (GitLab CI / GitHub Actions self-hosted in-cluster) + Harbor sovereign registry + Trivy scan + Cosign signing → tag-bump triggers ArgoCD',del:'Build-test-push automation',role:'DevOps',hrs:160},
+    {id:'A5',name:'LiteLLM proxy + vLLM (Llama-3-8B sovereign GPU) + Ollama fallback (dev)',del:'LLM routing layer',role:'AI Eng',hrs:200},
+    {id:'A6',name:'LangGraph core agent framework + Hybrid Decision Engine + Channel Gateway (all channels normalized)',del:'One reasoning brain',role:'AI Eng',hrs:480},
+    {id:'A7',name:'LlamaIndex RAG + Qdrant vector DB + BAAI/bge-m3 TR+EN embeddings',del:'RAG engine',role:'AI Eng',hrs:320},
+    {id:'A8',name:'Airflow + Soda Core + dbt Core + OpenMetadata + cleansing pipeline DAGs',del:'Data governance layer',role:'Data Eng',hrs:480},
+    {id:'A9',name:'Langfuse traces + MLflow registry + Guardrails AI + Prompt Store + Memori + Grafana/Prometheus',del:'AI observability stack',role:'AI Eng',hrs:340},
+  ]},
+  wa:{tasks:[
+    {id:'B1',name:'Embed widget JS bundle (<20KB, Vite) + streaming SSE + configurable branding',del:'Customer chat channel',role:'Frontend',hrs:200},
+    {id:'B2',name:'Catalog RAG pipeline (CSV/XLS/PDF upload → MinIO → chunk → Qdrant) + admin dashboard',del:'Product knowledge base',role:'AI Eng',hrs:240},
+    {id:'B3',name:'Billing integration (iyzico + Stripe) + subscription tier enforcement + invoicing',del:'Revenue engine',role:'Backend',hrs:180},
+    {id:'B4',name:'Landing page + tenant admin UI (usage, billing, user management)',del:'Operator portal',role:'Frontend',hrs:120},
+  ]},
+  gu:{tasks:[
+    {id:'C1',name:'WhatsApp Business API + Meta webhook + Channel Gateway routing + voice note handling',del:'WhatsApp-first channel',role:'Backend',hrs:160},
+    {id:'C2',name:'Whisper STT (faster-whisper medium model, Turkish, GPU-optional)',del:'Voice transcription',role:'AI Eng',hrs:80},
+    {id:'C3',name:'Galip Usta LangGraph agent (query classes 1–4: catalog, OEE text, maintenance, quality)',del:'Usta intelligence agent',role:'AI Eng',hrs:240},
+    {id:'C4',name:'Audit PDF generator (WeasyPrint + Jinja2, IATF 16949 / AS9100 SPC templates, TR fonts)',del:'Compliance document',role:'Backend',hrs:160},
+  ]},
+  cwf1:{tasks:[
+    {id:'E1',name:'ARMES MCP server wiring (pre-built ✓) — integration tests + LangGraph tool registration',del:'MES connectivity (risk eliminated)',role:'AI Eng',hrs:160},
+    {id:'E2',name:'ClickHouse cluster + Airbyte (MariaDB → ClickHouse, 15-min incremental) + dbt Silver/Gold mfg models',del:'Manufacturing analytics store',role:'Data Eng',hrs:280},
+    {id:'E3',name:'CWF manufacturing LangGraph agents classes 1–3 (OEE analysis, maintenance scheduling, quality trend)',del:'Core manufacturing agents',role:'AI Eng',hrs:360},
+    {id:'E4',name:'LightRAG knowledge-graph RAG (class-5 multi-hop over ARMES SOPs + technical manuals)',del:'Complex doc retrieval',role:'AI Eng',hrs:300},
+    {id:'E5',name:'Microsoft Teams Bot (Bot Framework SDK + Adaptive Cards) + Channel Gateway integration',del:'Teams channel',role:'Backend',hrs:200},
+    {id:'E6',name:'n8n automation flows (OEE alert → Teams, maintenance ticket → ARMES, daily summary → WhatsApp)',del:'Ops automation layer',role:'Backend',hrs:200},
+  ]},
+  ins:{tasks:[
+    {id:'D1',name:'Outlook/Microsoft Graph API webhook subscription + full message + attachment fetch',del:'Email triage channel',role:'Backend',hrs:120},
+    {id:'D2',name:'Apache NiFi SMB crawler (bound + submissions folders, 5-min poll, SHA256 dedup) + PDF text extraction',del:'Document ingestion',role:'Data Eng',hrs:200},
+    {id:'D3',name:'Insurance LangGraph triage agent (LLM extract: VKN, policy dates, Faaliyet sektör code, insured name)',del:'Extraction agent',role:'AI Eng',hrs:280},
+    {id:'D4',name:'ARU/KARU integration (Week-1 spike: API=80h / UI-scrape=320h) + risk lookup flow',del:'Risk history lookup ⚠',role:'Backend',hrs:200},
+    {id:'D5',name:'Deterministic classifier (Yeni / Yenileme / Geçmişte Sunulmuş) + 4 parallel lookups + rule engine',del:'Decision engine',role:'AI Eng',hrs:160},
+    {id:'D6',name:'Guardrails AI rails for insurance (VKN 10-digit, date format, approved Faaliyet codes list)',del:'Output validation',role:'AI Eng',hrs:80},
+    {id:'D7',name:'Takip audit trail (immutable decision log) + insurance compliance PDF',del:'Audit & compliance',role:'Backend',hrs:120},
+  ]},
+  cwf2:{tasks:[
+    {id:'F1',name:'PostgreSQL HA upgrade: Zalando postgres-operator + streaming replicas + connection pooler (PgBouncer)',del:'DB resilience',role:'DevOps',hrs:200},
+    {id:'F2',name:'Full medallion data pipeline: Bronze/Silver/Gold for all ARMES + operational sources via Soda+dbt',del:'Data lakehouse layer',role:'Data Eng',hrs:400},
+    {id:'F3',name:'Debezium CDC connector + Redpanda cluster (Kafka-compat) — real-time change event stream',del:'Real-time event bus',role:'Data Eng',hrs:280},
+    {id:'F4',name:'FalkorDB temporal graph DB + Graphiti service (CDC event → temporal knowledge graph, class-6 causal)',del:'Causal intelligence layer',role:'AI Eng',hrs:420},
+    {id:'F5',name:'Evidently AI drift detection (embedding drift + RAGAS degradation) + Grafana alert rules',del:'Model monitoring',role:'AI Eng',hrs:200},
+  ]},
+  fin:{tasks:[
+    {id:'G1',name:'Keycloak RLS Core hardening + Microsoft Entra ID OIDC federation for enterprise SSO',del:'Enterprise auth',role:'Backend',hrs:300},
+    {id:'G2',name:'SAP MCP server (OData/BAPI) + SharePoint MCP server (Graph API) + Salesforce MCP server (REST/SOQL)',del:'Enterprise system MCPs',role:'AI Eng',hrs:720},
+    {id:'G3',name:'Astra UC1 (Factory Intelligence full-stack) + UC2 (Predictive Maintenance with sensor data)',del:'Astra UC1 + UC2',role:'AI Eng',hrs:680},
+    {id:'G4',name:'Astra UC3 (Financial / Board reporting, Iceberg time-travel) + UC4 (Multi-channel: WhatsApp + Teams + Web)',del:'Astra UC3 + UC4',role:'AI Eng',hrs:820},
+    {id:'G5',name:'IoT-Ignite adapter (WEBHOOK ingest) + TimescaleDB hypertables + GU sensor mode activation',del:'Sensor telemetry pipeline',role:'AI Eng',hrs:300},
+    {id:'G6',name:'Iceberg lakehouse layer (REST catalog + MinIO) + LLM Enrichment DAGs + Temporal durable workflows',del:'Enterprise data infra',role:'Data Eng',hrs:800},
+  ]},
+};
+
+// Timeline: [phase_id, start_month, end_month]
+const TIMELINE = [
+  ['core',1,3],['wa',2,3],['gu',2,3],['cwf1',3,5],['ins',4,5],['cwf2',6,8],['fin',8,13]
+];
+
+// ══════════════════════════════════════════════════════════
+// HELPER UTILITIES
+// ══════════════════════════════════════════════════════════
+function compById(id){return COMPS.find(c=>c.id===id);}
+function phaseColor(pid){return PHASES[pid]?`var(--p-${pid})`:'#666';}
+function phaseBg(pid){return PHASES[pid]?`var(--p-${pid}-bg)`:'rgba(100,100,100,.14)';}
+function phaseLabel(pid){return PHASES[pid]?PHASES[pid].label:pid;}
+function ctColor(t){return CTYPES[t]?CTYPES[t].color:'#666';}
+
+function phaseBadgeHTML(pid,label){
+  const p=PHASES[pid];
+  if(!p)return '';
+  return `<span class="ph-phase" style="background:${p.bg};color:${p.color};border:1px solid ${p.color}">${label||p.badge} · ${p.label}</span>`;
+}
+
+function connBadge(type){
+  const ct=CTYPES[type]||{color:'#666',name:type};
+  return `<span class="ct-badge" style="background:${ct.color}22;color:${ct.color};border:1px solid ${ct.color}40">${type}</span>`;
+}
+
+function layerBadgeFor(comp){
+  const l=LAYERS.find(x=>x.id===comp.layer);
+  return l?`<span class="ph-layer">${comp.layer} · ${l.name}</span>`:'';
+}
+
+// ══════════════════════════════════════════════════════════
+// TAB SWITCHING
+// ══════════════════════════════════════════════════════════
+function switchTab(tab){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('vis'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('sec-'+tab).classList.add('vis');
+  const tabs=['arch','conn','plan'];
+  document.querySelectorAll('.tab')[tabs.indexOf(tab)].classList.add('active');
+}
+
+// ══════════════════════════════════════════════════════════
+// RENDER ARCHITECTURE TAB
+// ══════════════════════════════════════════════════════════
+function renderArchitecture(){
+  // Legend
+  const lr=document.getElementById('legend-row');
+  if(lr){
+    lr.innerHTML=Object.values(PHASES).map(p=>`
+      <div class="lg-item" style="border-left:3px solid ${p.color}" onclick="filterPhase('${p.id}',this)">
+        <span class="lg-dot" style="background:${p.color}"></span>
+        <span>${p.label}</span>
+        <span class="lg-hrs">${p.hours>0?p.hours.toLocaleString()+'h':''}</span>
+      </div>`).join('');
+  }
+
+  // Layer rows
+  const cont=document.getElementById('arch-layers');
+  if(!cont)return;
+  cont.innerHTML='';
+  LAYERS.forEach((layer,li)=>{
+    const comps=COMPS.filter(c=>c.layer===layer.id);
+    const row=document.createElement('div');
+    row.className='layer-row';
+    row.style.animationDelay=(li*0.045)+'s';
+    const adaptClass=layer.adapt?' adapt':'';
+    row.innerHTML=`
+      <div class="l-lbl${adaptClass}">
+        <span class="ln">${layer.id}</span>
+        <span class="lnm">${layer.name}</span>
+        ${layer.tag?`<span class="ltag">${layer.tag}</span>`:''}
+      </div>
+      <div class="comps-area" id="area-${layer.id}"></div>`;
+    cont.appendChild(row);
+    const area=document.getElementById('area-'+layer.id);
+    comps.forEach(c=>{
+      const ph=PHASES[c.phase]||PHASES.ext;
+      const ext=c.isExt?' ext-c':'';
+      const div=document.createElement('div');
+      div.className=`comp ph-${c.phase}${ext}`;
+      div.title=`${c.name} · ${ph.label} · click for details`;
+      div.innerHTML=`
+        <span class="cbadge">${c.badge}</span>
+        <span class="cn">${c.name}</span>
+        <span class="cs">${c.sub||''}</span>`;
+      div.onclick=()=>openPanel(c.id);
+      area.appendChild(div);
+    });
+  });
+}
+
+let activePhaseFilter=null;
+function filterPhase(pid,el){
+  const allItems=document.querySelectorAll('.lg-item');
+  if(activePhaseFilter===pid){
+    activePhaseFilter=null;
+    allItems.forEach(i=>i.classList.remove('on'));
+    document.querySelectorAll('.comp').forEach(c=>{c.style.opacity='';c.style.transform='';});
+    return;
+  }
+  activePhaseFilter=pid;
+  allItems.forEach(i=>i.classList.remove('on'));
+  el.classList.add('on');
+  document.querySelectorAll('.comp').forEach(c=>{
+    const isMatch=c.classList.contains('ph-'+pid);
+    c.style.opacity=isMatch?'1':'0.18';
+    c.style.transform=isMatch?'scale(1.04)':'scale(1)';
+  });
+}
+
+// ══════════════════════════════════════════════════════════
+// DETAIL PANEL
+// ══════════════════════════════════════════════════════════
+function openPanel(id){
+  const c=compById(id);
+  if(!c)return;
+  const p=PHASES[c.phase]||PHASES.ext;
+  document.getElementById('overlay').classList.add('open');
+  document.getElementById('panel').classList.add('open');
+  document.getElementById('ph-name').textContent=c.name;
+  document.getElementById('ph-sub').textContent=c.sub||'';
+  document.getElementById('ph-badges').innerHTML=layerBadgeFor(c)+phaseBadgeHTML(c.phase);
+
+  // Build panel body
+  const outConns=CONNECTIONS.filter(x=>x.from===id);
+  const inConns=CONNECTIONS.filter(x=>x.to===id);
+  let html='';
+
+  // Description
+  html+=`<div class="ps"><h3>Description</h3><p class="desc">${c.desc||''}</p></div>`;
+
+  // Deploy info
+  if(c.deploy){
+    const d=c.deploy;
+    html+=`<div class="ps"><h3>Deployment</h3>
+      <div class="deploy-blk">
+        <div><span class="dk">image</span>   <span class="dv">${d.image||'—'}</span></div>
+        <div><span class="dk">install</span>  <span class="dv">${d.install||'—'}</span></div>
+        ${d.helm?`<div><span class="dk">helm</span>    <span class="dv">${d.helm}</span></div>`:''}
+        ${d.note?`<div style="margin-top:6px;font-size:10px;color:var(--text3)">${d.note}</div>`:''}
+      </div></div>`;
+  }
+
+  // Config table
+  if(c.config&&c.config.length){
+    html+=`<div class="ps"><h3>Configuration keys</h3>
+      <table class="cfg-tbl"><tbody>`;
+    c.config.forEach(r=>{
+      html+=`<tr><td class="cfg-k">${r.k}</td><td class="cfg-v">${r.v}</td><td class="cfg-n">${r.n||''}</td></tr>`;
+    });
+    html+=`</tbody></table></div>`;
+  }
+
+  // Outbound connections
+  if(outConns.length){
+    html+=`<div class="ps"><h3>Outbound connections (${outConns.length})</h3><div class="conn-list">`;
+    outConns.forEach(conn=>{
+      const ct=CTYPES[conn.type]||{color:'#666',name:conn.type,desc:''};
+      const target=compById(conn.to);
+      html+=`<div class="conn-item" onclick="openPanel('${conn.to}')">
+        <span class="conn-dir">→</span>
+        <span class="conn-tp" style="background:${ct.color}22;color:${ct.color}">${conn.type}</span>
+        <div>
+          <div class="conn-target">${target?target.name:conn.to}</div>
+          <div class="conn-purp">${conn.proto}</div>
+          <div class="conn-purp" style="color:var(--text3);margin-top:2px">${conn.purpose}</div>
+        </div></div>`;
+    });
+    html+=`</div></div>`;
+  }
+
+  // Inbound connections
+  if(inConns.length){
+    html+=`<div class="ps"><h3>Inbound connections (${inConns.length})</h3><div class="conn-list">`;
+    inConns.forEach(conn=>{
+      const ct=CTYPES[conn.type]||{color:'#666',name:conn.type,desc:''};
+      const source=compById(conn.from);
+      html+=`<div class="conn-item" onclick="openPanel('${conn.from}')">
+        <span class="conn-dir">←</span>
+        <span class="conn-tp" style="background:${ct.color}22;color:${ct.color}">${conn.type}</span>
+        <div>
+          <div class="conn-target">${source?source.name:conn.from}</div>
+          <div class="conn-purp">${conn.proto}</div>
+          <div class="conn-purp" style="color:var(--text3);margin-top:2px">${conn.purpose}</div>
+        </div></div>`;
+    });
+    html+=`</div></div>`;
+  }
+
+  // Notes
+  if(c.notes){
+    html+=`<div class="ps"><h3>Implementation notes</h3>
+      <div class="notes-blk" style="border-left-color:${p.color}">${c.notes}</div></div>`;
+  }
+
+  document.getElementById('panel-body').innerHTML=html;
+}
+
+function closePanel(){
+  document.getElementById('overlay').classList.remove('open');
+  document.getElementById('panel').classList.remove('open');
+}
+
+// ══════════════════════════════════════════════════════════
+// RENDER CONNECTIVITY TAB
+// ══════════════════════════════════════════════════════════
+let activeTypeFilters=new Set();
+
+function renderConnectivity(){
+  // Type key
+  const tk=document.getElementById('type-key');
+  if(tk){
+    tk.className='type-key';
+    tk.innerHTML=Object.entries(CTYPES).map(([k,v])=>`
+      <div class="tk">
+        <div class="tk-badge" style="background:${v.color}22;color:${v.color}">${k}</div>
+        <div class="tk-name">${v.name}</div>
+        <div class="tk-desc">${v.desc}</div>
+      </div>`).join('');
+  }
+
+  // Type filter buttons
+  const tf=document.getElementById('type-filters');
+  if(tf){
+    tf.innerHTML=Object.entries(CTYPES).map(([k,v])=>`
+      <button class="tf on" style="background:${v.color}22;color:${v.color}" 
+        data-type="${k}" onclick="toggleTypeFilter('${k}',this)">${k}</button>`).join('');
+    Object.keys(CTYPES).forEach(k=>activeTypeFilters.add(k));
+  }
+
+  filterConn();
+}
+
+function toggleTypeFilter(type,el){
+  if(activeTypeFilters.has(type)){activeTypeFilters.delete(type);el.classList.remove('on');}
+  else{activeTypeFilters.add(type);el.classList.add('on');}
+  filterConn();
+}
+
+function filterConn(){
+  const q=(document.getElementById('conn-search')||{}).value||'';
+  const ph=(document.getElementById('phase-flt')||{}).value||'';
+  const ql=q.toLowerCase();
+
+  const filtered=CONNECTIONS.filter(c=>{
+    if(!activeTypeFilters.has(c.type))return false;
+    if(ph&&c.phase!==ph)return false;
+    if(ql){
+      const fromC=compById(c.from);const toC=compById(c.to);
+      const fromN=fromC?fromC.name.toLowerCase():c.from;
+      const toN=toC?toC.name.toLowerCase():c.to;
+      if(!fromN.includes(ql)&&!toN.includes(ql)&&!c.purpose.toLowerCase().includes(ql)&&!c.type.toLowerCase().includes(ql))return false;
+    }
+    return true;
+  });
+
+  const countEl=document.getElementById('conn-count');
+  if(countEl)countEl.textContent=`Showing ${filtered.length} of ${CONNECTIONS.length} connections`;
+
+  const tbody=document.getElementById('conn-tbody');
+  if(!tbody)return;
+
+  // Group by phase
+  const phaseOrder=['core','wa','gu','cwf1','ins','cwf2','fin'];
+  const grouped={};
+  filtered.forEach(c=>{if(!grouped[c.phase])grouped[c.phase]=[];grouped[c.phase].push(c);});
+
+  let html='';
+  phaseOrder.forEach(pid=>{
+    const rows=grouped[pid];
+    if(!rows||!rows.length)return;
+    const p=PHASES[pid];
+    if(!p)return;
+    html+=`<tr><td colspan="6" class="sec-head" style="color:${p.color}">
+      <span style="background:${p.bg};border:1px solid ${p.color};border-radius:3px;padding:1px 6px;margin-right:6px;font-size:8px">${p.badge}</span>
+      ${p.label} · ${p.tasks} · ${p.months}</td></tr>`;
+    rows.forEach(c=>{
+      const fromC=compById(c.from);const toC=compById(c.to);
+      const ct=CTYPES[c.type]||{color:'#666'};
+      html+=`<tr onclick="openPanel('${c.from}')" style="cursor:pointer">
+        <td>
+          <div class="ct-comp">${fromC?fromC.name:c.from}</div>
+          <div class="ct-layer">${fromC?fromC.layer+' · '+fromC.lname:''}</div>
+        </td>
+        <td>
+          <div class="ct-comp">${toC?toC.name:c.to}</div>
+          <div class="ct-layer">${toC?toC.layer+' · '+toC.lname:''}</div>
+        </td>
+        <td>${connBadge(c.type)}</td>
+        <td>
+          <div class="ct-purpose" style="font-family:var(--mono);font-size:9.5px;color:var(--text3)">${c.proto}</div>
+        </td>
+        <td>
+          <div class="ct-purpose">${c.purpose}</div>
+        </td>
+        <td>
+          <span style="font-family:var(--mono);font-size:8.5px;background:${p.bg};color:${p.color};border-radius:3px;padding:1px 5px">${p.badge}</span>
+        </td>
+      </tr>`;
+    });
+  });
+
+  tbody.innerHTML=html;
+}
+
+// ══════════════════════════════════════════════════════════
+// RENDER BUILD PLAN TAB
+// ══════════════════════════════════════════════════════════
+function renderBuildPlan(){
+  renderTimeline();
+  renderPhaseCards();
+}
+
+function renderTimeline(){
+  const wrap=document.getElementById('timeline');
+  if(!wrap)return;
+  const months=13;
+  const phaseOrder=['core','wa','gu','cwf1','ins','cwf2','fin'];
+  let html=`<div class="tl-head-row"><div class="tl-head-cell" style="padding-left:10px">Phase</div>`;
+  for(let m=1;m<=months;m++)html+=`<div class="tl-head-cell">M${m}</div>`;
+  html+='</div>';
+
+  phaseOrder.forEach(pid=>{
+    const p=PHASES[pid];if(!p)return;
+    const tl=TIMELINE.find(t=>t[0]===pid);
+    if(!tl)return;
+    const[,start,end]=tl;
+    html+=`<div class="tl-row"><div class="tl-name" style="color:${p.color}">${p.label}</div>`;
+    for(let m=1;m<=months;m++){
+      const active=m>=start&&m<=end;
+      const isStart=m===start;const isEnd=m===end;
+      let blk='';
+      if(active){
+        const br=isStart&&isEnd?'3px':'';
+        const brl=isStart?'3px':'0';const brr=isEnd?'3px':'0';
+        blk=`<div class="tl-blk" style="background:${p.color};border-radius:${brl} ${brr} ${brr} ${brl}"></div>`;
+      }
+      html+=`<div class="tl-cell">${blk}</div>`;
+    }
+    html+='</div>';
+  });
+  wrap.innerHTML=html;
+}
+
+function renderPhaseCards(){
+  const phaseOrder=['core','wa','gu','cwf1','ins','cwf2','fin'];
+  const grid=document.getElementById('phase-cards');
+  if(!grid)return;
+  grid.innerHTML='';
+  phaseOrder.forEach(pid=>{
+    const p=PHASES[pid];const d=PLAN_DATA[pid];
+    if(!p||!d)return;
+    const div=document.createElement('div');div.className='pc';
+    let taskRows=d.tasks.map(t=>`
+      <tr>
+        <td class="task-id">${t.id}</td>
+        <td class="task-del">${t.del}</td>
+        <td class="task-nm">${t.name}</td>
+        <td class="task-role" style="color:${p.color}">${t.role}</td>
+        <td class="task-hrs">${t.hrs}h</td>
+      </tr>`).join('');
+    div.innerHTML=`
+      <div class="pc-hdr">
+        <div class="pc-bar" style="background:${p.color}"></div>
+        <div>
+          <div class="pc-title">${p.label}</div>
+          <div class="pc-meta">${p.tasks} · ${p.months}</div>
+        </div>
+        <div style="margin-left:auto;text-align:right">
+          <div class="pc-hrs" style="color:${p.color}">${p.hours.toLocaleString()}</div>
+          <div class="pc-hl">hours</div>
+        </div>
+      </div>
+      <table class="task-tbl">
+        <thead><tr>
+          <th>ID</th><th>Deliverable</th><th>Task</th><th>Role</th><th style="text-align:right">Hrs</th>
+        </tr></thead>
+        <tbody>${taskRows}</tbody>
+      </table>`;
+    grid.appendChild(div);
+  });
+}
+
+// ══════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded',()=>{
+  renderArchitecture();
+  renderConnectivity();
+  renderBuildPlan();
+});
+
+</script>
+</body>
+</html>

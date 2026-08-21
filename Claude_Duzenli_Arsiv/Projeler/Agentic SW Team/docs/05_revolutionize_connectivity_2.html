@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Revolutionize — Component Connectivity</title>
+<style>
+:root{
+  --bg:#0D1117;--bg2:#161B22;--bg3:#21262D;--border:#30363D;--border2:#444C56;
+  --text:#E6EDF3;--text2:#8B949E;--text3:#6E7681;
+  --purple:#BC8CFF;--green:#3FB950;--amber:#E3B341;--red:#F85149;--blue:#58A6FF;
+  --mono:ui-monospace,'JetBrains Mono','SFMono-Regular',Menlo,monospace;
+  --sans:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);line-height:1.5;-webkit-font-smoothing:antialiased;padding:0 0 60px}
+.hdr{background:linear-gradient(135deg,var(--bg2),#1C2333);border-bottom:1px solid var(--border);padding:22px 32px;position:sticky;top:0;z-index:10}
+.hdr h1{font-size:18px;font-weight:700;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.vb{font-family:var(--mono);font-size:10px;font-weight:700;background:rgba(188,140,255,.14);color:var(--purple);border:1px solid var(--purple);border-radius:20px;padding:2px 9px}
+.hdr .sub{font-size:12px;color:var(--text2);font-family:var(--mono);margin-top:5px}
+.main{max-width:1180px;margin:0 auto;padding:24px 32px}
+.sect{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin:32px 0 14px;padding-bottom:7px;border-bottom:1px solid var(--border)}
+.sect:first-of-type{margin-top:6px}
+.lede{font-size:13px;color:var(--text2);line-height:1.65;margin-bottom:16px;max-width:840px}
+.hub{background:rgba(188,140,255,.14);border:1px solid var(--purple);border-radius:10px;padding:12px 16px;text-align:center;margin-bottom:6px}
+.hub b{font-size:14px;color:var(--text)}.hub span{font-family:var(--mono);font-size:11px;color:var(--text2);display:block;margin-top:3px}
+.down{text-align:center;color:var(--text3);font-family:var(--mono);font-size:11px;margin:4px 0}
+.cols{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.col{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:13px}
+.coltitle{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px}
+.colsub{font-family:var(--mono);font-size:10.5px;color:var(--text3);margin-bottom:10px}
+.node{background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:7px 10px;font-size:12px;color:var(--text);margin-bottom:2px}
+.node.g{border-color:var(--green);background:rgba(63,185,80,.12);color:var(--green)}
+.node small{display:block;font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:1px}
+.node.g small{color:var(--green)}
+.conn{text-align:center;font-family:var(--mono);font-size:10px;color:var(--text3);margin:3px 0}
+.band{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:13px 15px;margin-top:8px}
+.bandtitle{font-size:13px;font-weight:600;margin-bottom:9px;display:flex;align-items:center;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:5px 9px;font-size:12px;color:var(--text)}
+.chip small{font-family:var(--mono);font-size:10px;color:var(--text3);margin-left:5px}
+.tag{font-family:var(--mono);font-size:10px;font-weight:700;border-radius:10px;padding:1px 7px}
+.tk{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:7px}
+.tki{background:var(--bg2);border:1px solid var(--border);border-radius:7px;padding:8px 10px}
+.tkb{font-family:var(--mono);font-size:10px;font-weight:700;border-radius:3px;padding:2px 6px;display:inline-block;margin-bottom:5px}
+.tkd{font-size:10.5px;color:var(--text2);line-height:1.4}
+.ctrl{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.in{background:var(--bg2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:7px 11px;font-size:12px;font-family:var(--mono);width:240px;outline:none}
+.in:focus{border-color:var(--purple)}
+.sel{background:var(--bg2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:7px 9px;font-size:12px;font-family:var(--mono);outline:none;cursor:pointer}
+.cnt{font-family:var(--mono);font-size:11px;color:var(--text3);margin-left:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);padding:8px 9px;border-bottom:1px solid var(--border2);position:sticky;top:73px;background:var(--bg)}
+td{padding:8px 9px;border-bottom:1px solid var(--border);vertical-align:top}
+.cfrom{font-weight:600;color:var(--text);white-space:nowrap}.carr{color:var(--text3);padding:0 4px}.cto{color:var(--text);white-space:nowrap}
+.cty{font-family:var(--mono);font-size:10px;font-weight:700;border-radius:3px;padding:1px 6px;white-space:nowrap}
+.cproto{font-family:var(--mono);font-size:10.5px;color:var(--purple)}.cpu{color:var(--text2);font-size:11px}
+.cgrp{font-family:var(--mono);font-size:9.5px;border-radius:10px;padding:1px 7px;white-space:nowrap;background:var(--bg3);border:1px solid var(--border2);color:var(--text2)}
+.note{background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--red);border-radius:0 8px 8px 0;padding:12px 15px;font-size:12.5px;color:var(--text2);line-height:1.6;margin-top:18px;max-width:880px}
+@media(max-width:760px){.cols{grid-template-columns:1fr}}
+footer{max-width:1180px;margin:30px auto 0;padding:20px 32px;font-size:11px;color:var(--text3);font-family:var(--mono);border-top:1px solid var(--border)}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <h1>Revolutionize — Component Connectivity <span class="vb">PATCHED · ADR-001 + ADR-002</span></h1>
+  <div class="sub">how the agent wires into the gateway, tools, and telemetry · invariant: the agent never waits for telemetry</div>
+</div>
+<div class="main">
+
+  <div class="sect">1 · Integration map — the three things every agent touches</div>
+  <div class="lede">The agent base class (Stage 1.5.1) is the single point where the LLM gateway (ADR-001) and MCP tooling (ADR-002) meet, and where every LLM call and tool call emits telemetry. Agents never call a provider or a tool directly — always through the wrapper or the MCP client.</div>
+
+  <div class="hub"><b>Agent base class</b> <span>Stage 1.5.1 · telemetry · LLM gateway · MCP client · capability allowlist</span></div>
+  <div class="down">↓ ↓ ↓</div>
+  <div class="cols">
+    <div class="col">
+      <div class="coltitle">LLM gateway</div><div class="colsub">ADR-001 · LiteLLM</div>
+      <div class="node g">Gateway wrapper<small>~500 LOC · attribution, rate limits, routing</small></div>
+      <div class="conn">↓ rest · openai-compat</div>
+      <div class="node g">LiteLLM proxy<small>multi-provider · prefix cache · fallback</small></div>
+      <div class="conn">↓ rest</div>
+      <div class="node">Anthropic API<small>Opus 4.7 · Sonnet 4.6 · Haiku 4.5</small></div>
+      <div class="node">Vertex AI<small>Gemini 3.1 Pro · fallback / long-ctx</small></div>
+    </div>
+    <div class="col">
+      <div class="coltitle">External tools</div><div class="colsub">ADR-002 · MCP (JSON-RPC)</div>
+      <div class="node g">MCP client<small>discover · enforce allowlist · trace_id</small></div>
+      <div class="conn">↓ json-rpc</div>
+      <div class="node g">Filesystem<small>1.7.4 · calibration · ships first</small></div>
+      <div class="node g">Sandbox → Docker<small>1.7.1 · provider interface</small></div>
+      <div class="node g">Git<small>1.7.2 · per-agent repo scope</small></div>
+      <div class="node g">GitHub<small>1.7.3 · ro / write per identity</small></div>
+      <div class="node g">Web search · Docs fetch<small>1.7.5 · 1.7.6</small></div>
+    </div>
+    <div class="col">
+      <div class="coltitle">Telemetry pipeline</div><div class="colsub">6 layers · agent never waits</div>
+      <div class="node">OTel emission SDK<small>in-proc · fire-and-forget · µs</small></div>
+      <div class="conn">↓ mmap</div>
+      <div class="node">Ring buffer<small>lock-free MPSC · 10MB · crash-safe</small></div>
+      <div class="conn">↓ mmap (separate process)</div>
+      <div class="node">Sidecar batcher<small>zstd-3 · 1000 ev / 5s</small></div>
+      <div class="conn">↓ kafka</div>
+      <div class="node">Redpanda → ClickHouse 30d · Tempo<small>→ Grafana / Metabase (incl. cache-hit, patch 1.3.4)</small></div>
+    </div>
+  </div>
+
+  <div class="band">
+    <div class="bandtitle">Three channels <span class="tag" style="background:rgba(248,81,73,.14);color:var(--red);border:1px solid var(--red)">Redpanda · append-only</span></div>
+    <div class="chips">
+      <span class="chip">intent stream <small>Vision → Execution</small></span>
+      <span class="chip">verification gate <small>Execution → Verification</small></span>
+      <span class="chip">reality feed <small>Reality → Vision + Meta</small></span>
+    </div>
+  </div>
+
+  <div class="band">
+    <div class="bandtitle">Shared state &amp; security</div>
+    <div class="chips">
+      <span class="chip">PostgreSQL <small>state · checkpoints</small></span>
+      <span class="chip">Qdrant <small>GraphRAG · patterns</small></span>
+      <span class="chip">MinIO <small>artifacts by hash</small></span>
+      <span class="chip">Git <small>ADRs · skills · prompts</small></span>
+      <span class="chip">Vault <small>all secrets by reference</small></span>
+      <span class="chip">Keycloak <small>JWT · allowlist at boot</small></span>
+      <span class="chip">MariaDB Galera <small>reuse where it fits</small></span>
+    </div>
+  </div>
+
+  <div class="sect">2 · Connection-type key</div>
+  <div class="tk" id="typekey"></div>
+
+  <div class="sect">3 · Connection reference</div>
+  <div class="ctrl">
+    <input class="in" id="q" placeholder="search component, protocol…" oninput="render()">
+    <select class="sel" id="fty" onchange="render()"><option value="">all types</option></select>
+    <select class="sel" id="fgr" onchange="render()"><option value="">all groups</option></select>
+    <span class="cnt" id="cnt"></span>
+  </div>
+  <table><thead><tr><th>from</th><th></th><th>to</th><th>type</th><th>protocol / call</th><th>purpose</th><th>group</th></tr></thead><tbody id="tb"></tbody></table>
+
+  <div class="note">Invariants enforced by this wiring: the agent never waits for telemetry (emission is fire-and-forget into the mmap ring buffer); PII and secrets are redacted at emission and full prompts live only in the hash-referenced artifact store; secrets are Vault references only; capability access is allowlist (not denylist), enforced at MCP-server boot from the Keycloak JWT; and no agent has production write access by default — shadow agents are read-only.</div>
+</div>
+<footer>ARDICTECH A.Ş. · Revolutionize component connectivity · constructed from ADR-001, ADR-002, dev_schedule_patch_v1, and the telemetry pipeline spec · internal technical reference</footer>
+
+<script>
+const CT={'IN-PROC':{c:'#A371F7',d:'In-process function call. No network hop, no serialization. Fastest path.'},
+MMAP:{c:'#E3B341',d:'Memory-mapped ring buffer. Lock-free, crash-safe, microsecond latency.'},
+REST:{c:'#388BFD',d:'HTTP request/response. OpenAI-compatible for gateway and provider calls.'},
+MCP:{c:'#3FB950',d:'JSON-RPC tool protocol over stdio/HTTP. Process-isolated tool servers.'},
+KAFKA:{c:'#F85149',d:'Redpanda (Kafka-compatible) append-only log. The three channels + telemetry stream.'},
+OTEL:{c:'#58A6FF',d:'OpenTelemetry OTLP traces to Tempo. trace_id propagated across boundaries.'},
+PSQL:{c:'#8B949E',d:'Native Postgres wire. Agent/run state and checkpoints.'},
+GRPC:{c:'#79C0FF',d:'Binary Protobuf over HTTP/2. Qdrant vector upsert / ANN.'},
+S3:{c:'#56D364',d:'S3-compatible object store (MinIO). Artifacts and cold telemetry tier.'},
+OIDC:{c:'#FF9933',d:'Keycloak JWT. Service-to-service auth + MCP capability allowlist.'},
+VAULT:{c:'#BC8CFF',d:'Secret reference resolution. Never raw values in config/prompts/telemetry.'},
+GIT:{c:'#6E7681',d:'Git operations / repository access. ADRs, skills, prompt versions, code.'}};
+const GR={gw:'LLM gateway',mcp:'MCP tools',tel:'Telemetry',ch:'Channels',st:'State & security'};
+const C=[
+['Agent base class','Gateway wrapper','IN-PROC','wrapper.complete(agent_id, messages)','All LLM calls go through the wrapper, never direct','gw'],
+['Gateway wrapper','LiteLLM','REST','POST /v1/chat/completions (OpenAI-compat)','Forward with routing decision + virtual key','gw'],
+['LiteLLM','Anthropic API','REST','messages API · Opus 4.7 / Sonnet 4.6 / Haiku 4.5','Primary provider; prefix caching passthrough','gw'],
+['LiteLLM','Vertex AI','REST','Gemini 3.1 Pro','Fallback + long-context route','gw'],
+['Gateway wrapper','Redpanda','KAFKA','telemetry event per call','model, tokens, cached, cost USD, cache-hit → attribution','gw'],
+['Gateway wrapper','Vault','VAULT','provider keys by reference','No raw keys in config or prompts','gw'],
+['Gateway wrapper','Keycloak','OIDC','service-to-service JWT','Authenticate gateway calls','gw'],
+['Gateway wrapper','Living knowledge','REST','routing policy read','Escalate Sonnet→Opus when quality drifts','gw'],
+['Agent base class','MCP client','IN-PROC','discover servers from per-agent config','Enforce allowlist; bind tools at runtime','mcp'],
+['MCP client','Filesystem MCP','MCP','fs.{read,write,list,mkdir,delete}','Sandboxed to agent home (1.7.4, ships first)','mcp'],
+['MCP client','Sandbox MCP','MCP','sandbox.execute(cmd,env,cwd,timeout,limits)','Code/test execution; Docker backend (1.7.1)','mcp'],
+['MCP client','Git MCP','MCP','git.{clone,fetch,branch,commit,diff,push}','Per-agent repo scope from identity (1.7.2)','mcp'],
+['MCP client','GitHub MCP','MCP','github.{pr_*, issue_*, file_*}','Read-only vs write per identity (1.7.3)','mcp'],
+['MCP client','Web search MCP','MCP','search.web(query,n,recency)','Brave primary / Tavily fallback (1.7.5)','mcp'],
+['MCP client','Docs fetch MCP','MCP','docs.fetch(url,format)','readability → markdown (1.7.6)','mcp'],
+['Sandbox MCP','Docker','IN-PROC','Docker socket + resource limits','CPU/mem/network-egress caps enforced','mcp'],
+['Git MCP','Git repositories','GIT','gitpython','SSH key via Vault reference','mcp'],
+['GitHub MCP','GitHub Enterprise','REST','github3.py','Token via Vault reference','mcp'],
+['Web search MCP','Brave / Tavily','REST','search API','API keys via Vault','mcp'],
+['MCP servers','Keycloak','OIDC','JWT validated at server boot','Capability allowlist (not denylist)','mcp'],
+['Agent','OTel emission SDK','IN-PROC','emit(event) fire-and-forget','µs latency; PII/secrets redacted at emission','tel'],
+['OTel SDK','Ring buffer','MMAP','lock-free MPSC, 10MB mmap','Crash-safe; agent never blocks','tel'],
+['Ring buffer','Sidecar batcher','MMAP','separate process reads buffer','Process isolation survives agent crash','tel'],
+['Sidecar batcher','Redpanda','KAFKA','zstd-3, 1000 ev / 5s; schema version per event','Pipeline rejects unknown schema versions','tel'],
+['Redpanda','ClickHouse','KAFKA','ClickHouse Kafka engine','Hot tier, 30-day retention','tel'],
+['Redpanda','Tempo','OTEL','OTLP traces','Distributed tracing across systems','tel'],
+['ClickHouse','MinIO','S3','cold tier export','365-day retention','tel'],
+['ClickHouse','Grafana','REST','SQL / PromQL dashboards','Ops + per-agent prefix-cache hit rate (1.3.4)','tel'],
+['ClickHouse','Metabase','PSQL','analytical SQL','Cost trends per agent / feature / intent','tel'],
+['Artifact store','MinIO','S3','PUT by content hash','Full prompts/completions, access-controlled','tel'],
+['Vision engine','intent stream','KAFKA','produce (Redpanda topic)','Immutable prioritised intents (Gherkin ACs)','ch'],
+['Execution swarm','intent stream','KAFKA','consume','Pull next intent to build','ch'],
+['Execution swarm','verification gate','KAFKA','produce','Code diff + spec for proof','ch'],
+['Verification mesh','verification gate','KAFKA','consume','Gate every change before merge','ch'],
+['Reality loop','reality feed','KAFKA','produce','Errors → properties, friction → intents','ch'],
+['Vision engine + Meta-cognition','reality feed','KAFKA','consume','Reprioritise + propose improvements','ch'],
+['Systems','PostgreSQL','PSQL','state + LangGraph-style checkpoints','Resume, debug, audit replay','st'],
+['Living knowledge','Qdrant','GRPC','vector upsert / ANN','GraphRAG codebase graph + pattern library','st'],
+['Living knowledge','Git','GIT','read/write markdown','ADRs, skills, SOUL.md, prompt versions','st'],
+['Platform','MariaDB Galera','PSQL','existing cluster','Reuse where existing infra fits','st']
+];
+const tk=document.getElementById('typekey');
+tk.innerHTML=Object.entries(CT).map(([k,v])=>`<div class="tki"><span class="tkb" style="background:${v.c}22;color:${v.c};border:1px solid ${v.c}55">${k}</span><div class="tkd">${v.d}</div></div>`).join('');
+const fty=document.getElementById('fty');Object.keys(CT).forEach(k=>fty.innerHTML+=`<option>${k}</option>`);
+const fgr=document.getElementById('fgr');Object.entries(GR).forEach(([k,v])=>fgr.innerHTML+=`<option value="${k}">${v}</option>`);
+function render(){
+  const q=document.getElementById('q').value.toLowerCase(),ty=fty.value,gr=fgr.value;
+  const rows=C.filter(r=>(!ty||r[2]===ty)&&(!gr||r[5]===gr)&&(!q||(r[0]+r[1]+r[2]+r[3]+r[4]).toLowerCase().includes(q)));
+  document.getElementById('tb').innerHTML=rows.map(r=>{const c=CT[r[2]].c;
+    return `<tr><td class="cfrom">${r[0]}</td><td class="carr">→</td><td class="cto">${r[1]}</td><td><span class="cty" style="background:${c}22;color:${c};border:1px solid ${c}55">${r[2]}</span></td><td class="cproto">${r[3]}</td><td class="cpu">${r[4]}</td><td><span class="cgrp">${GR[r[5]]}</span></td></tr>`;
+  }).join('');
+  document.getElementById('cnt').textContent=rows.length+' / '+C.length+' connections';
+}
+render();
+</script>
+</body>
+</html>

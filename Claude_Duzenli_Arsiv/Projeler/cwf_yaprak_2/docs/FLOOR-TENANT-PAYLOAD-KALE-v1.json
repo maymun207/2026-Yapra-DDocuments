@@ -1,0 +1,16 @@
+{
+  "_artifact": "FLOOR-TENANT-PAYLOAD-KALE-v1",
+  "_date": "2026-08-02",
+  "_class": "TENANT DATA ASSET — deployment-time payload. NEVER commit to the platform repo (check:tenant-zero enforces). Applied via the generic loader (PHASE-FLOOR-TENANT-SPLIT-2 G3) with the owner's consent line. Source bytes: api/cwf/_lib/knowledge/backends/armes/zones.ts @ master cc309328 (byte-read, not memory).",
+  "kind": "armes.zone",
+  "backend": "armes",
+  "factory": { "layer": "factory", "name": "KB7", "role": "canonical ARMES scope/factory id" },
+  "entries": [
+    { "layer": "zone", "name": "Glazur3",    "line": "KB7", "hasBarcode": true,  "scrapVisible": true },
+    { "layer": "zone", "name": "FIRINALT",   "line": "KB7", "hasBarcode": true,  "scrapVisible": true },
+    { "layer": "zone", "name": "IKINCILALT", "line": "KB7", "hasBarcode": true,  "scrapVisible": true },
+    { "layer": "zone", "name": "IKINCILUST", "line": "KB7", "hasBarcode": false, "scrapVisible": false,
+      "notes": "Barkodsuz çalışır. Fire/scrap ARMES'te görünmez; fire kırılımı yapısal olarak yoktur." }
+  ],
+  "_semantics": "Absence of a qualifier row for an entity = UNKNOWN (attributed), never default-true and never default-false. scrapVisible:false is the load-bearing empty≠zero carrier: a scrap question against IKINCILUST must render structural invisibility, never a zero."
+}

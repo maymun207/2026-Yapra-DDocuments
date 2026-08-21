@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A23 · CWF/EAIP · Hedef Komponent Mimarisi · v1_2 (LOCKED)</title>
+<!-- A23_cwf-target-component-architecture-v1_2 · rev 1.2 · 2026-07-25 · Architect-authored · LOCKED/FINAL.
+     Anchor: origin/master 194f6a8 (rev 142). Anlama katmanı = v1_3 (binding) entegre.
+     v1_1 → v1_2: SADECE OKUNABİLİRLİK/FORMAT düzeltmesi — içerik v1_1 ile birebir aynı.
+     v1_1'in tek-devasa-SVG'si ölçeklenince okunamıyordu; native-boyutlu responsive HTML/CSS düzenine geçildi.
+     STATUS coding: LIVE (gönderildi) · TARGET (v1_3, ölçüm-kapılı S62-2, kod başlamadı) · ADJACENT (Yol B, B7 sonrası).
+     Amendments mint v1_3 — never in-place (S37-1). -->
+<style>
+  :root{
+    --ink:#1C2422; --paper:#F5F6F3; --card:#FFFFFF; --line:#2A3330; --mut:#5C6662;
+    --pu:#6D4FC4; --te:#0E6B54; --gr:#667080; --am:#A8620A; --rd:#B3261E; --bl:#1D5FA8;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--paper);color:var(--ink);
+    font-family:"Avenir Next","Segoe UI",system-ui,sans-serif;font-size:15px;line-height:1.55;padding:0 0 72px}
+  header{border-bottom:2px solid var(--line);background:var(--card);padding:26px 30px 20px}
+  header .docid{font-family:ui-monospace,monospace;font-size:12px;color:var(--mut);letter-spacing:.03em}
+  header h1{font-size:24px;font-weight:600;margin:6px 0 4px}
+  header h1 span{font-size:14px;color:var(--te);font-family:ui-monospace,monospace}
+  header p.sub{color:var(--mut);max-width:900px;font-size:14px}
+  .status{display:inline-block;margin-top:10px;background:#E3F1EB;border:1px solid var(--te);
+    color:#0A5240;border-radius:6px;padding:4px 12px;font-family:ui-monospace,monospace;font-size:11.5px}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 22px}
+  section{margin-top:34px}
+  h2{font-size:19px;font-weight:600;border-left:4px solid var(--line);padding-left:12px;margin-bottom:6px}
+  h2 .sn{font-family:ui-monospace,monospace;font-size:12px;color:var(--mut);margin-right:8px}
+  .lede{color:var(--mut);font-size:13.5px;margin:6px 0 14px;padding-left:16px}
+
+  /* legend */
+  .legend{background:var(--card);border:1px solid #D8DDD9;border-radius:10px;padding:14px 18px;margin-top:16px;font-size:13px;line-height:2}
+  .legend .lg-row{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center}
+  .legend b{color:var(--ink)}
+  .swatch{display:inline-block;width:14px;height:14px;border-radius:3px;vertical-align:-2px;margin-right:5px;border:1px solid rgba(0,0,0,.15)}
+  .sw-llm{background:#EFEAFB;border-left:4px solid var(--pu)} .sw-det{background:#E3F1EB;border-left:4px solid var(--te)}
+  .sw-diag{background:#FBF3E4;border-left:4px solid var(--am)} .sw-exec{background:#E6EFF9;border-left:4px solid var(--bl)}
+  .sw-infra{background:#ECEFF1;border-left:4px solid var(--gr)}
+  .pill{display:inline-block;font-family:ui-monospace,monospace;font-size:11px;border-radius:5px;padding:2px 8px;border:1px solid;white-space:nowrap}
+  .pill.live{background:#EAF3EE;color:#0A5240;border-color:var(--te)}
+  .pill.target{background:#FBF3E4;color:#7A4A08;border-color:var(--am)}
+  .pill.adj{background:#F0ECFA;color:#4A32A0;border-color:var(--pu)}
+
+  /* pipeline */
+  .pipe{max-width:800px;margin:0 auto}
+  .box{background:var(--card);border:1.5px solid #D8DDD9;border-left:6px solid var(--nature,#999);
+    border-radius:9px;padding:12px 16px}
+  .nt-llm{--nature:var(--pu)} .nt-det{--nature:var(--te)} .nt-diag{--nature:var(--am)}
+  .nt-exec{--nature:var(--bl)} .nt-infra{--nature:var(--gr)}
+  .st-target{border-top-style:dashed;border-right-style:dashed;border-bottom-style:dashed}
+  .st-adj{border-top-style:dotted;border-right-style:dotted;border-bottom-style:dotted}
+  .box .bx-hd{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:3px}
+  .box .bx-t{font-weight:600;font-size:15px}
+  .box .bx-n{font-family:ui-monospace,monospace;font-size:11px;color:var(--mut)}
+  .box .bx-d{font-size:13.5px;line-height:1.5}
+  .box code{font-family:ui-monospace,monospace;font-size:12px;background:#F1F3EF;border:1px solid #E1E5E1;border-radius:4px;padding:0 4px}
+  .arrow{text-align:center;color:#9AA3A0;font-size:18px;line-height:1;margin:5px 0}
+  .ulayer{border:2px dashed #9DBBB0;border-radius:12px;padding:6px 12px 14px;background:#FbFcFb}
+  .ulayer .ul-hd{font-weight:600;color:#0A5240;font-size:12.5px;font-family:ui-monospace,monospace;padding:8px 2px 2px}
+  .ulayer .box{margin-top:8px}
+  .busnote{background:#E3F1EB;border:1px solid var(--te);border-radius:9px;padding:11px 15px;font-size:13px;margin-bottom:12px;line-height:1.55}
+  .carriernote{background:#E6EFF9;border:1px solid var(--bl);border-radius:9px;padding:11px 15px;font-size:13px;margin-top:12px;line-height:1.55}
+  .busnote b,.carriernote b{color:var(--ink)}
+  .busnote code,.carriernote code{font-family:ui-monospace,monospace;font-size:11.5px;background:rgba(255,255,255,.6);border-radius:3px;padding:0 4px}
+
+  /* planes grid */
+  .planes{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:14px}
+  .plane{background:var(--card);border:1.5px solid #D8DDD9;border-left:6px solid var(--nature,#999);border-radius:9px;padding:12px 15px}
+  .plane .pl-hd{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:3px}
+  .plane .pl-t{font-weight:600;font-size:14.5px}
+  .plane .pl-d{font-size:13px;line-height:1.5}
+  .plane code{font-family:ui-monospace,monospace;font-size:11.5px;background:#F1F3EF;border:1px solid #E1E5E1;border-radius:4px;padding:0 4px}
+
+  /* principle notes */
+  .note{background:var(--card);border:1px solid #D8DDD9;border-radius:9px;padding:13px 17px;margin:12px 0;font-size:13.5px;line-height:1.55}
+  .note.bl{background:#E6EFF9;border-color:var(--bl)} .note.am{background:#FBF3E4;border-color:var(--am)}
+  .note code{font-family:ui-monospace,monospace;font-size:12px;background:rgba(255,255,255,.55);border-radius:3px;padding:0 4px}
+
+  footer{max-width:1080px;margin:44px auto 0;padding:16px 22px 0;border-top:1px solid #D8DDD9;
+    font-family:ui-monospace,monospace;font-size:12px;color:var(--mut);line-height:1.8}
+  @media(max-width:560px){ .planes{grid-template-columns:1fr} header,.wrap{padding-left:16px;padding-right:16px} }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="docid">A23_cwf-target-component-architecture-v1_2 · rev 1.2 · 2026-07-25 · anchor 194f6a8 (rev 142) · 🔒 LOCKED</div>
+  <h1>CWF / EAIP — Hedef Komponent Mimarisi <span>v1_2 · FINAL</span></h1>
+  <p class="sub">Tüm sistemin komponent haritası: koşum yolu (turn pipeline) + <strong>anlama katmanı</strong> (v1_3, binding)
+  + onu saran platform düzlemleri + dış MCP backend'leri ile bitişik Yol B programı. Her kutu <em>doğasıyla</em>
+  (sol-kenar rengi) ve <em>durumuyla</em> (rozet + kenar biçimi) işaretli.
+  <br><span style="color:var(--am)">v1_2 not:</span> içerik v1_1 ile birebir aynıdır — bu sürüm yalnızca okunabilirlik/format düzeltmesidir (tek devasa SVG yerine native-boyutlu düzen).</p>
+  <div class="status">🔒 LOCKED · TARGET + LIVE karışık · anlama katmanı v1_3 · çapraz-tur taşıyıcı (A-10) dahil · kod ölçüm kapısına bağlı (S62-2)</div>
+</header>
+
+<div class="wrap">
+
+<div class="legend">
+  <div class="lg-row"><b>Doğa (sol-kenar):</b>
+    <span><span class="swatch sw-llm"></span>LLM (② router · ⑧ ana — TEK <code style="font-family:ui-monospace,monospace;font-size:11px">streamText</code>)</span>
+    <span><span class="swatch sw-det"></span>deterministik / governed</span>
+    <span><span class="swatch sw-diag"></span>teşhis / ledger (empty≠zero)</span>
+    <span><span class="swatch sw-exec"></span>yürütme ⑥ · taşıyıcı · bellek</span>
+    <span><span class="swatch sw-infra"></span>kabuk / dış backend</span>
+  </div>
+  <div class="lg-row" style="margin-top:6px"><b>Durum (rozet):</b>
+    <span class="pill live">LIVE</span> gönderildi (düz kenar) &nbsp;
+    <span class="pill target">TARGET</span> v1_3, ölçüm-kapılı S62-2, kod başlamadı (kesik kenar) &nbsp;
+    <span class="pill adj">ADJACENT</span> Yol B, B7 sonrası (noktalı kenar)
+  </div>
+</div>
+
+<section>
+  <h2><span class="sn">§1</span>Koşum yolu — turn pipeline</h2>
+  <p class="lede"><code style="font-family:ui-monospace,monospace">api/cwf/_lib/turn/*</code> · 14 aşamalı <code style="font-family:ui-monospace,monospace">cwf.stage.*</code> span ağacı · yukarıdan aşağı tek bir turun akışı.</p>
+  <div class="pipe">
+    <div class="busnote"><b>turn_context — TUR-İÇİ ortak akım.</b> Her aşama buradan OKUR ve buraya YAZAR (append-only · tipli · atıflı · güven-taşır).
+    Yapı = Global Workspace / blackboard (GWT: Baars; Goyal/Bengio ICLR 2022; Hearsay-II) — <b>deterministik/sert-rekabet varyantı, softmax değil</b>. Tur bitince flush = telemetri kaydı; tek turn id (RULE-28). <span class="pill target" style="margin-left:4px">v2 TARGET</span></div>
+
+    <div class="box nt-infra st-live">
+      <div class="bx-hd"><span class="bx-t">① Turn Shell</span><span class="bx-n">chat.ts · HTTP kabuk</span><span class="pill live">LIVE</span></div>
+      <div class="bx-d">Akışı kurar; hiçbir <code>streamText</code> burada değil. Turn id = OTel trace id'yi doğurur (RULE-28).</div>
+    </div>
+    <div class="arrow">↓</div>
+    <div class="box nt-llm st-live">
+      <div class="bx-hd"><span class="bx-t">② IR Router</span><span class="bx-n">LLM · governed küçük model</span><span class="pill live">LIVE</span></div>
+      <div class="bx-d">Yüzeyi yakalar, yorumlamaz: <code>frame{action·object·entity_ref[]·metric·time}</code> + her slota güven. <code>prompt.segment</code> değişmez (GOLDEN FREEZE), tip yayınlamaz (A-1). İKİNCİ completion — chat <code>streamText</code>'inden ayrı.</div>
+    </div>
+    <div class="arrow">↓</div>
+
+    <div class="ulayer">
+      <div class="ul-hd">ANLAMA KATMANI — v1_3 (binding · TARGET) · bugünkü kırık sert clarify kapısının yerine geçer</div>
+      <div class="box nt-det st-target">
+        <div class="bx-hd"><span class="bx-t">③ Mention Typer</span><span class="bx-n">deterministik · negatif sınıflandırıcı</span><span class="pill target">TARGET</span></div>
+        <div class="bx-d">Ne-değil'i ayıklar: «4-12 vardiyası»=shift ✗, «ortalama»=kapsam-sinyali → entity listesine girmez. Desenler yönetilen satır (D3) — kodda regex sabiti yok.</div>
+      </div>
+      <div class="arrow">↓</div>
+      <div class="box nt-det st-target">
+        <div class="bx-hd"><span class="bx-t">④ Resolve</span><span class="bx-n">deterministik · 2 kanal + RRF</span><span class="pill target">TARGET</span></div>
+        <div class="bx-d">kanal-1 DL≤2 (yazım: «Ganit»→«Granit») · kanal-2 BM25 (çok-token/alias: «sırlama 3-4-5»→«Sırlama Hattı 3») → RRF füzyon → sıralı adaylar. Arama uzayı = dolu çapaların kapsamı (G'den). Kanallar yönetilen satır (D2).</div>
+      </div>
+      <div class="arrow">↓</div>
+      <div class="box nt-diag st-target">
+        <div class="bx-hd"><span class="bx-t">⑤ Teşhis</span><span class="bx-n">deterministik · durum raporu</span><span class="pill target">TARGET</span></div>
+        <div class="bx-d">Belirsizliğin durum raporu: <code>s₁&lt;τ→NIL</code> (epistemik) · <code>(s₁−s₂)≥β→LINK</code> · else AMBIGUOUS (aleatorik) — τ,β governed. + çapa doluluğu + taşıyıcılık. <strong>Hiçbir şeyi iptal etmez.</strong></div>
+      </div>
+      <div class="arrow">↓</div>
+      <div class="box nt-exec st-target">
+        <div class="bx-hd"><span class="bx-t">⑥ Yürütme Kararı</span><span class="bx-n">deterministik · v1'de yoktu</span><span class="pill target">TARGET</span></div>
+        <div class="bx-d">«Model çağrılır mı, neyle» — teşhis×taşıyıcılık tablosu: LINK→çöz+atıf · AMBIGUOUS+taşıyıcı→seçenek sun · NIL+taşıyıcı→bildir. <strong>Tek iptal biçimi «modeli çağırmamak».</strong> Yorum/dil üretmez, ham metin almaz (A-10).</div>
+      </div>
+      <div class="arrow">↓</div>
+      <div class="box nt-det st-target">
+        <div class="bx-hd"><span class="bx-t">Kök omurgası · Sinyal tablosu · Kapsama-grafı (G)</span><span class="bx-n">governed profil verisi</span><span class="pill target">TARGET</span></div>
+        <div class="bx-d">Ayrımlayıcı kök (hangisi?) vs kapsam kökü (ne kadarı?) — <code>root_type:[factory]</code> profil satırı, «17» kodda değil. τ/β + örtük-kapsam eşlemesi = yönetilen satır (A-6). G = 4 sorgu arayüzü <code>ancestors·children·roots·in_scope</code>; motor bugün Postgres CTE, yarın Neo4j/AGE arayüz arkasında (§6 alarmlı raf).</div>
+      </div>
+    </div>
+
+    <div class="arrow">↓</div>
+    <div class="box nt-det st-live">
+      <div class="bx-hd"><span class="bx-t">⑦ Araç getirimi</span><span class="bx-n">deterministik tablo · Yol A</span><span class="pill live">LIVE</span></div>
+      <div class="bx-d">Yol A: (action×object) sembolik eşleme. Ölçü Recall@k (routerAbLens, tetik F129); bekçi = sunulan set genişliği. Yol B ikinci vites (§3).</div>
+    </div>
+    <div class="arrow">↓</div>
+    <div class="box nt-llm st-live">
+      <div class="bx-hd"><span class="bx-t">⑧ Ana LLM</span><span class="bx-n">LLM · streamText</span><span class="pill live">LIVE</span></div>
+      <div class="bx-d"><strong>TEK <code>streamText</code> çağrı yeri</strong> (Vercel AI SDK). Çözülmüş veri + etiketli belirsizlik üstünde cevaplar. Araç turları (maxToolRounds). <code>experimental_telemetry</code> yalnız burada.</div>
+    </div>
+    <div class="arrow">↓</div>
+    <div class="box nt-det st-live">
+      <div class="bx-hd"><span class="bx-t">⑨ Grounding + Render</span><span class="bx-n">deterministik · ADR-001</span><span class="pill live">LIVE</span></div>
+      <div class="bx-d">Atıflar AKIŞTAN okunur, model yazmaz (BAĞ 1). empty≠zero render disiplini. «Granit olarak yorumladım / son 3 ay ortalaması».</div>
+    </div>
+
+    <div class="carriernote"><b>Tur sonu → çapraz-tur taşıyıcı (A-10 · D-N7).</b> Flush ile birlikte <b>son-çözüm dilimi</b> yazılır: önceki turun canonical_id'leri + scope + ⑥ kararı + sunulan adaylar.
+    <b>Sonraki tur</b> (P3c düzeltme, «hayır, KB7»): ② bu dilimi okuyup delta olarak yorumlar → tam-pipeline ②→③→④→⑤→⑥. <b>⑥ okumaz, ham metin görmez</b> (D-N3 by construction). Ayrıntı §2 kartında.</div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="sn">§2</span>Platform düzlemleri — koşum yolu bunları OKUR/YAZAR</h2>
+  <p class="lede">Çapraz-kesen düzlemler; koşum yolundaki her kutu bunlara erişir ve tur sonunda gözlemlenebilirliğe emisyon yapar.</p>
+  <div class="planes">
+    <div class="plane nt-det st-live">
+      <div class="pl-hd"><span class="pl-t">Yönetişim + eval-gate</span><span class="pill live">LIVE</span></div>
+      <div class="pl-d"><code>rule_kinds·domain_rules·rule_versions·rule_audit</code>. Yayın yalnız <strong>geçilemez kapı</strong> ile: schema → referential → behavioral. İstemciye RLS-deny. Backend identity = DATA (satır, enum değil).</div>
+    </div>
+    <div class="plane nt-diag st-target">
+      <div class="pl-hd"><span class="pl-t">L5 · entity-miss ledger</span><span class="pill target">TARGET</span></div>
+      <div class="pl-d">⑤/⑥'nın her NIL &amp; AMBIGUOUS olayı → 🤖 öneri (alias / τ-β / sinyal satırı) → 🗄️ insan + eval-gate → yayın. Etiketli veriyi <strong>kendisi üretir</strong> (S55-1: «ayarladık, bitti» yasak).</div>
+    </div>
+    <div class="plane nt-det st-live">
+      <div class="pl-hd"><span class="pl-t">Bilgi — DbKnowledgeProvider</span><span class="pill live">LIVE</span></div>
+      <div class="pl-d">Governed DB = runtime SSOT. Kod <code>referenceSchema</code> = tam olarak seed · reset-hedefi · outage zemini. 4 araç-bilgi kaynağı: server metni · <code>tool_category</code> · <code>tool_annotation</code> (fail-closed) · <code>tool_doc</code>. <code>backend_tools</code> = AYNA (eksik ≠ silinmiş). Çekirdekte vektör YOK (o Yol B).</div>
+    </div>
+    <div class="plane nt-det st-live">
+      <div class="pl-hd"><span class="pl-t">Provider Registry</span><span class="pill live">LIVE</span></div>
+      <div class="pl-d">DB-first / code-floor. Tanınmayan aile <code>throw</code>. ② ve ⑧ buradan model çözer. Yapı→kod, veri→gated admin-UI, sır→env.</div>
+    </div>
+    <div class="plane nt-det st-live">
+      <div class="pl-hd"><span class="pl-t">Güven &amp; Grounding</span><span class="pill live">LIVE</span></div>
+      <div class="pl-d">ADR-001 · deterministik, LLM-yargısı YOK. Amaç: yalancı backend'i <strong>HARMLESS</strong> kıl (contained/attributed/quarantinable), honest değil. Güven-çürümesi: cevabın güveni zincirin en zayıf halkasını aşamaz.</div>
+    </div>
+    <div class="plane nt-det st-live">
+      <div class="pl-hd"><span class="pl-t">Kalıcılık</span><span class="pill live">LIVE</span></div>
+      <div class="pl-d">Supabase repo'lar · konuşma persistence. Kişisel MCP sırları owner-scoped RLS · sır referansla (<code>apiKeyEnv, ^MCP_[A-Z0-9_]+$</code>).</div>
+    </div>
+    <div class="plane nt-exec st-target">
+      <div class="pl-hd"><span class="pl-t">Bellek — B3 / MEMORY-1</span><span class="pill target">TARGET</span></div>
+      <div class="pl-d">Episodik · F166-aware · ARDICTECH-bağlı. <code>auth.users</code> FK YOK · kiracı = profil · saklama = Class-C. Bellek <strong>ASLA</strong> bir viz veri kaynağı değildir (F82/C1-LAW).</div>
+    </div>
+    <div class="plane nt-det st-live">
+      <div class="pl-hd"><span class="pl-t">Gözlemlenebilirlik</span><span class="pill live">LIVE</span></div>
+      <div class="pl-d">ADR-008 · ÜÇ SİSTEM, asla karıştırılmaz: <code>telemetry_events</code> = kalıcı yönetişim/güvenlik LEDGER'ı (PII yok) · Langfuse (AWS EC2 · CloudFront) = tam-scrubbed nedensel TRACE (<code>OTLP/HTTP</code>) · <code>turn_trace_digest</code> = 14g görüntü-yalnız AYNA. Join = tek turn id (RULE-28). <span style="color:var(--am)">⚠ yanıttan ÖNCE force-flush (F169) · FULL-TRACE guard (F178).</span></div>
+    </div>
+    <div class="plane nt-exec st-target">
+      <div class="pl-hd"><span class="pl-t">Çapraz-tur taşıyıcı — son-çözüm dilimi</span><span class="pill target">TARGET</span></div>
+      <div class="pl-d"><strong>A-10 · D-N7.</strong> Minimal working-memory: önceki turun canonical_id + scope + ⑥ kararı + sunulan adaylar. Tur sonunda yazılır → ② sonraki turda okur (P3c delta). <code>messages</code>'a yazmaz (C1) · digest'ten okumaz (ADR-008) · ham parse yasak · B3 ile ileri-uyumlu · <strong>⑥ okumaz</strong> · ⑤/⑥ ile gönderilir (BAĞ 2, ertelenemez).</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="sn">§3</span>Dış backend'ler + bitişik program</h2>
+  <div class="planes">
+    <div class="plane nt-infra st-live">
+      <div class="pl-hd"><span class="pl-t">MCP Backend'leri</span><span class="pill live">LIVE</span></div>
+      <div class="pl-d"><strong>backend identity = DATA</strong> (bir satır + bir pack + bir kayıt; enum/CHECK değil).
+      <br><strong>ARMES</strong> — Kale KB7 seramik-fabrika MES · ~140 düz araç · <code>system_of_record</code> · <code>backend_id</code> yoksa DEFAULT=armes (tasarım).
+      <br><strong>Superset</strong> — Apache Superset 6.1 BI · GATEWAY (<code>search_tools/call_tool</code>) · kapsam = bağlı datasource · S59'dan beri canlı.</div>
+    </div>
+    <div class="plane nt-diag st-adj">
+      <div class="pl-hd"><span class="pl-t">Yol B — BİTİŞİK PROGRAM</span><span class="pill adj">ADJACENT</span></div>
+      <div class="pl-d">B7 sonrası, kapılı · IR kanonik frame'i arar, <strong>ham dili DEĞİL</strong> · sıfır yeni LLM çağrısı.
+      <br><strong>Qdrant</strong> (dense+sparse tek koleksiyon, RRF, tenant-per-collection) · <strong>bge-m3</strong> (deterministik encoder, LLM DEĞİL, TR) · <strong>OPA</strong> (fail-closed, Rego ← <code>tool_annotation</code>).
+      <br><strong>A↔B köprüsü:</strong> retrieval-miss ledger → sık Yol-B niyeti → 1 governed satır → Yol A (en değerli yol en deterministik vitese taşınır).</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="sn">§4</span>Üç mimari ilke — bu haritayı ayakta tutan</h2>
+  <div class="note bl"><strong>Tek <code>streamText</code>, iki completion.</strong> Turda kullanıcıya konuşan tek üretken çağrı ⑧'dir.
+  ② semantik router ayrı ve governed bir küçük modeldir (ikinci completion site), ama chat turu için hâlâ tek <code>streamText</code> vardır. Yol B sıfır yeni LLM çağrısı ekler.</div>
+  <div class="note am"><strong>empty≠zero + deterministik güven kutsaldır.</strong> Grounding bir LLM-yargısı değildir (ADR-001); atıf yapısal kayıttır,
+  model yazmaz; boş ≠ sıfır outage'ı ve render katmanını aşar. Bu, «yalancı backend'i honest yapmaya çalışma, ZARARSIZ kıl» duruşudur.</div>
+  <div class="note"><strong>DB-first / code-floor.</strong> Runtime SSOT governed DB'dir; kod referansı tam olarak üç rol taşır — seed, reset-hedefi, outage zemini.
+  Backend kimliği bir <em>satırdır</em>, bir enum ya da migration değil. Yapı→kod, veri→gated admin-UI, sır→env.</div>
+</section>
+
+</div>
+
+<footer>
+END · A23_cwf-target-component-architecture-v1_2 · rev 1.2 · 2026-07-25 · anchor 194f6a8 (rev 142) · 🔒 LOCKED · v1_1'in okunabilirlik/format düzeltmesi (içerik birebir aynı)<br>
+sibling (locked): A23_cwf-understanding-layer-architecture-v1_3.html (binding) · A23_cwf-turn-sequence-target-v1_1.html<br>
+kaynaklar: A23_cwf-understanding-layer-architecture-v1_3 (binding) · CLAUDE-PROJECT-INSTRUCTIONS-v3 §3 · ADR-001/005/008 · cwf-master-plan-v5_2 · cwf-open-items-register-v64<br>
+amendments mint v1_3 — never in-place (S37-1) · STATUS: LIVE / TARGET (S62-2 ölçüm-kapılı) / ADJACENT (Yol B, B7 sonrası)
+</footer>
+
+</body>
+</html>

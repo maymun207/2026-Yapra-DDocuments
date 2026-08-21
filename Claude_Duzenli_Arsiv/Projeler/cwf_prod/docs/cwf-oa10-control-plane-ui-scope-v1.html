@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CWF — OA-10 · Control-Plane UI Home · Redesign Scope · v1</title>
+<style>
+  :root{
+    --bg:#0a0e14; --panel:#111a26; --panel2:#0f1722;
+    --line:#1f2d3d; --line2:#2a3b4f;
+    --ink:#dbe6f0; --ink-dim:#8aa0b6; --ink-faint:#5c7186;
+    --cyan:#34d6e6;
+    --govern:#e0a93b; --micro:#34d6e6;
+    --now:#3ad29f; --code:#df9bff; --fobs:#ff6b7a;
+    --mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+    --sans:ui-sans-serif,system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:
+      radial-gradient(1100px 560px at 82% -8%, #10202c 0%, transparent 60%),
+      radial-gradient(820px 460px at -8% 14%, #141018 0%, transparent 55%),
+      var(--bg); color:var(--ink); font-family:var(--sans);
+      -webkit-font-smoothing:antialiased; padding:26px 18px 72px; line-height:1.5}
+  .wrap{max-width:1180px;margin:0 auto}
+  code{font-family:var(--mono);font-size:.92em;color:#a9cdff;background:rgba(95,168,255,.08);padding:1px 4px;border-radius:4px}
+
+  header.top{border:1px solid var(--line);border-radius:14px;padding:24px 26px;
+    background:linear-gradient(180deg,var(--panel),var(--panel2));position:relative;overflow:hidden}
+  header.top::after{content:"";position:absolute;inset:0;
+    background:repeating-linear-gradient(90deg,transparent 0 38px, rgba(52,214,230,.022) 38px 39px);pointer-events:none}
+  .kick{font-family:var(--mono);font-size:11px;letter-spacing:.34em;text-transform:uppercase;color:var(--cyan);margin:0 0 10px}
+  h1{font-size:29px;margin:0;letter-spacing:-.015em;font-weight:700}
+  h1 .sub{display:block;color:var(--ink-dim);font-weight:400;font-size:15.5px;margin-top:7px;letter-spacing:0}
+  .stamp{position:absolute;top:20px;right:24px;font-family:var(--mono);font-size:10.5px;color:var(--ink-faint);text-align:right;line-height:1.85}
+  .stamp b{color:var(--now)}
+  .thesis{margin:16px 0 0;padding:15px 17px;border:1px solid var(--line2);border-left:3px solid var(--cyan);border-radius:10px;
+    background:linear-gradient(180deg,#0c1a20,#0b1318);font-size:13.5px;line-height:1.66;color:var(--ink)}
+  .thesis b{color:#9fe9f3}
+
+  h2.sec{font-size:12.5px;font-family:var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--cyan);
+    margin:36px 4px 8px;display:flex;align-items:center;gap:12px}
+  h2.sec .n{color:var(--ink-faint)}
+  h2.sec::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line2),transparent)}
+  .lead{color:var(--ink-dim);font-size:13.5px;line-height:1.62;margin:2px 4px 16px;max-width:98ch}
+  .lead b{color:var(--ink)}
+
+  .planes{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:820px){.planes{grid-template-columns:1fr}}
+  .plane{border:1px solid var(--line);border-radius:12px;padding:15px 17px;background:#0c141d}
+  .plane.gov{border-top:3px solid var(--govern)}
+  .plane.mic{border-top:3px solid var(--micro)}
+  .plane h3{margin:0 0 4px;font-size:14px;font-weight:640}
+  .plane.gov h3{color:var(--govern)} .plane.mic h3{color:var(--micro)}
+  .plane .cap{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:10px}
+  .plane ul{margin:0;padding-left:0;list-style:none}
+  .plane li{font-size:12.5px;color:var(--ink-dim);line-height:1.5;margin:7px 0;padding-left:16px;position:relative}
+  .plane li::before{content:"›";position:absolute;left:2px;color:var(--ink-faint);font-family:var(--mono)}
+  .plane li b{color:var(--ink)}
+
+  .rules{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:2px}
+  @media(max-width:820px){.rules{grid-template-columns:1fr}}
+  .rule{border:1px solid var(--line);border-radius:11px;padding:13px 15px;background:#0c141d}
+  .rule h4{margin:0 0 5px;font-size:13px;color:var(--ink);font-weight:620;display:flex;align-items:center;gap:8px}
+  .rule .tag{font-family:var(--mono);font-size:9px;letter-spacing:.06em;padding:2px 7px;border-radius:5px;background:rgba(52,214,230,.12);color:var(--cyan);border:1px solid rgba(52,214,230,.4)}
+  .rule p{margin:0;font-size:12px;color:var(--ink-dim);line-height:1.55}
+  .rule p b{color:var(--ink)}
+
+  .matrix{border:1px solid var(--line);border-radius:13px;overflow:hidden;background:var(--panel2)}
+  table{border-collapse:collapse;width:100%;font-size:12px}
+  thead th{background:#0d1620;color:var(--ink-dim);font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;
+    text-transform:uppercase;text-align:left;padding:10px 11px;border-bottom:1px solid var(--line2)}
+  tbody td{padding:11px 11px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.5}
+  tbody tr:last-child td{border-bottom:none}
+  tbody tr:hover td{background:rgba(52,214,230,.03)}
+  .pnl{font-weight:600;color:var(--ink);font-size:12.5px}
+  .pnl .pl{display:block;font-weight:400;color:var(--ink-faint);font-size:10px;font-family:var(--mono);margin-top:2px}
+  td.c{color:var(--ink-dim);font-size:11.5px}
+  td.c code{font-size:10px}
+  .cost{font-family:var(--mono);font-size:9px;font-weight:700;padding:2px 7px;border-radius:5px;white-space:nowrap;display:inline-block}
+  .cost.now{background:rgba(58,210,159,.13);color:var(--now);border:1px solid rgba(58,210,159,.45)}
+  .cost.code{background:rgba(197,139,255,.13);color:var(--code);border:1px solid rgba(197,139,255,.45)}
+  .cost.fobs{background:rgba(255,107,122,.1);color:var(--fobs);border:1px solid rgba(255,107,122,.45)}
+
+  .reqs{border:1px solid var(--line);border-radius:12px;background:#0c141d;padding:6px 16px}
+  .reqs .r{display:flex;gap:11px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--line);font-size:12.5px;color:var(--ink-dim);line-height:1.5}
+  .reqs .r:last-child{border-bottom:none}
+  .reqs .r i{color:var(--now);font-family:var(--mono);font-size:11px;margin-top:2px;flex-shrink:0}
+  .reqs .r b{color:var(--ink)}
+
+  .seqbar{display:flex;gap:10px;flex-wrap:wrap;margin-top:2px}
+  .seqcol{flex:1 1 240px;border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:#0c141d}
+  .seqcol.now{border-top:3px solid var(--now)} .seqcol.fobs{border-top:3px solid var(--fobs)}
+  .seqcol h3{margin:0 0 9px;font-size:13px;font-weight:620}
+  .seqcol.now h3{color:var(--now)} .seqcol.fobs h3{color:var(--fobs)}
+  .seqcol ul{margin:0;padding-left:16px} .seqcol li{font-size:12px;color:var(--ink-dim);line-height:1.6;margin:4px 0}
+  .seqcol li b{color:var(--ink)}
+
+  .box{border:1px solid var(--line);border-radius:12px;padding:15px 17px;background:#0c141d;margin-top:2px}
+  .box.dec{border-left:3px solid var(--code);background:linear-gradient(180deg,#120c18,#0c141d)}
+  .box.trap{border-left:3px solid var(--fobs);background:linear-gradient(180deg,#160d11,#0c141d)}
+  .box h3{margin:0 0 7px;font-size:13px;color:var(--ink);font-weight:620}
+  .box p{margin:5px 0;font-size:12.5px;color:var(--ink-dim);line-height:1.6}
+  .box p b{color:var(--ink)}
+
+  footer{margin-top:38px;padding-top:16px;border-top:1px solid var(--line);
+    font-family:var(--mono);font-size:10.5px;color:var(--ink-faint);line-height:1.9;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="stamp">v1 · rev 1<br>2026-07-02<br>UI home scope<br>CWF code @ <b>5302ff1</b></div>
+    <p class="kick">OA-10 · Control-Plane UI Home · Redesign Scope</p>
+    <h1>The house the control plane lives in
+      <span class="sub">A govern-plane / microscope-plane split, five panels specified, so F-obs lands into a clean home — not the flat 9-tab admin it is today.</span>
+    </h1>
+    <div class="thesis">
+      Today's admin is a <b>flat stack of nine tabs</b> — govern, observe and tweak all mixed, tables that clip text and don't expand, 15-digit costs, no lifecycle legibility. The bar is <b>clean, mainstream, SOTA</b> — and the standing instruction holds: <b>don't reinvent America.</b> Adopt the patterns the field already ships (Langfuse-style trace/expand, OTel semconv, dataset/experiment loops); build only what is ours. OA-10 reorganizes the surface into two planes — <b>GOVERN</b> (what the factory runs on) and <b>MICROSCOPE</b> (observe → tweak → replay one request) — and specifies the five panels below against the code, verified at <code>5302ff1</code>. Companion: <code>cwf-agent-control-plane-blueprint-v2.1</code>.
+    </div>
+  </header>
+
+  <!-- 01 the two planes -->
+  <h2 class="sec"><span class="n">01</span> The two planes</h2>
+  <p class="lead">The reorganizing move. Same tabs, two intents: <b>configure the system</b> vs <b>inspect one request</b>. This is the frame every panel hangs from.</p>
+  <div class="planes">
+    <div class="plane gov">
+      <h3>GOVERN</h3>
+      <div class="cap">what the factory runs on · global · gated · persistent</div>
+      <ul>
+        <li><b>Rules</b> — the governed rule instances (<code>domain_rules</code>) the agent reads.</li>
+        <li><b>Kinds</b> — the structural contract (<code>rule_kinds</code>): CORE locked-to-code, SOFT DB-editable.</li>
+        <li><b>Providers · MCP · Routing · Users</b> — the "govern grammar" panels (same list + detail + gated-action shape).</li>
+      </ul>
+    </div>
+    <div class="plane mic">
+      <h3>MICROSCOPE</h3>
+      <div class="cap">inspect one request · observe → tweak → replay</div>
+      <ul>
+        <li><b>Inspect</b> (← Telemetry) — observe: the SOTA event list now; the 14-stage trace tree after F-obs.</li>
+        <li><b>Tweak</b> (← Lab) — the session read-path overlay; per-request tweak fuses into Replay.</li>
+        <li><b>Replay</b> (new · 0/14) — re-run + diff; the empty-completion is its first customer.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 02 cross-cutting rules -->
+  <h2 class="sec"><span class="n">02</span> Cross-cutting rules — apply to every panel</h2>
+  <div class="rules">
+    <div class="rule">
+      <h4>Panel primer <span class="tag">every panel · top</span></h4>
+      <p>An in-page primer at the top of each panel: <b>what it controls · which tables · WHERE in code · lifecycle</b> — code-accurate, with pointers (e.g. structure → <code>coreSchemas.ts</code>, instances → <code>domain_rules</code>, emission → <code>chat.ts</code>). So a developer knows exactly where to look and never traces the codebase or hunts a needle in a span.</p>
+    </div>
+    <div class="rule">
+      <h4>SOTA UI bar <span class="tag">no amateur tables</span></h4>
+      <p>Clean, mainstream patterns. <b>Equal-width aligned columns</b>, no text clipping, <b>expandable rows</b>, rounded numbers (no 15-digit cost), sortable + sticky headers, filter/search, export where data-heavy. Copy the field's shipped patterns; don't invent.</p>
+    </div>
+    <div class="rule">
+      <h4>Govern | microscope split <span class="tag">two intents</span></h4>
+      <p>Never mix "configure the system" (global, gated, persistent) with "inspect one request" (ephemeral, session). The sidebar groups them; a panel belongs to exactly one plane.</p>
+    </div>
+    <div class="rule">
+      <h4>Determinism / soft split visible <span class="tag">§8</span></h4>
+      <p>Where a panel governs both correctness and advisory content, the two must <b>look different</b> because you can do different things. CORE (locked, poison-proof) vs SOFT (editable) is the canonical case — Kinds makes it visual.</p>
+    </div>
+  </div>
+
+  <!-- 03 the five panels -->
+  <h2 class="sec"><span class="n">03</span> The five specified panels</h2>
+  <p class="lead">Each verified against the code. <b>Cost tag</b>: <span class="cost now">UI NOW</span> = UI over existing endpoints; <span class="cost code">+CODE</span> = a small additive backend/schema change; <span class="cost fobs">F-OBS</span> = gated on the observe backbone (OA-8).</p>
+  <div class="matrix">
+    <table>
+      <thead><tr><th style="width:12%">Panel</th><th style="width:26%">Purpose · tables</th><th style="width:44%">Key affordances (redesigned)</th><th style="width:18%">Cost</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="pnl">Rules<span class="pl">govern</span></span></td>
+          <td class="c">Governed rule <b>instances</b>. <code>domain_rules</code> (+ <code>rule_kinds</code>, <code>rule_versions</code>, <code>rule_audit</code>). Versioning is table-level: one <code>published</code> row per (kind,key); publish archives prior + <code>version+1</code> + appends <code>rule_versions</code>.</td>
+          <td class="c">List with <b>status legibility</b> (running vN / draft / ready); <b>publish queue</b> (super_admin inbox); version <b>timeline + diff + rollback</b> inline; role-gated actions (maker: edit / mark-ready · super_admin: publish→gate / archive). SoD: draft exists = the handoff.</td>
+          <td><span class="cost now">UI NOW</span><br><span class="cost code">+CODE</span> ready-signal (status enum → migration)</td>
+        </tr>
+        <tr>
+          <td><span class="pnl">Kinds<span class="pl">govern</span></span></td>
+          <td class="c">The <b>structure</b> contract. <code>rule_kinds</code>. CORE structure validated by code Zod (<code>coreSchemas.ts</code>); <code>field_spec</code> is a read-only mirror. SOFT structure = <code>field_spec</code> (interpreter-validated). Zone = the shape behind blind-spot correctness (<code>hasBarcode/scrapVisible → empty≠zero</code>); its instances live in Rules.</td>
+          <td class="c">CORE and SOFT <b>look different</b>. CORE: locked read-only fields + <i>view Zod schema</i>, <i>N instances →</i>, <i>reset to reference</i> (no structure edit). SOFT: real <b>field editor</b> (add/type/required/delete) + create; save re-validates existing instances, rejects if any break.</td>
+          <td><span class="cost now">UI NOW</span> zero backend change</td>
+        </tr>
+        <tr>
+          <td><span class="pnl">Inspect<span class="pl">microscope · observe</span></span></td>
+          <td class="c">Per-request observation. <code>telemetry_events</code> (append-only, service-role writes, RLS own-rows). Emission: <code>chat.ts emit() → TelemetryRepository.record()</code> (redaction at write-time).</td>
+          <td class="c"><b>SOTA telemetry list</b> (see §04). Payload is <b>not a column</b> → click to expand → dual JSON + human-readable + copy. Later: the same panel grows the <b>14-stage trace tree</b> with a single joinable trace id.</td>
+          <td><span class="cost now">UI NOW</span> list<br><span class="cost fobs">F-OBS</span> stage tree + trace id<br><span class="cost code">+CODE</span> cross-user read (open decision)</td>
+        </tr>
+        <tr>
+          <td><span class="pnl">Tweak<span class="pl">microscope</span></span></td>
+          <td class="c">Session read-path overlay (GOV-4). <code>labMode.ts authorizeLab</code>; applied in <code>chat.ts if(labActive)</code>; <b>nothing persisted</b>. Invariants (code): server-authorized · read-only · session-only · additive (off = byte-identical).</td>
+          <td class="c">Legible, stage-tagged flags: <code>routingBypass</code>(06) · <code>knowledgeSource</code>(05) · <code>previewDrafts</code>(05/08) · <code>forceProvider</code>(09) · <code>rawToolData</code>(12 render). <b>No standalone big screen</b> — per-request tweak fuses into Replay.</td>
+          <td><span class="cost now">UI NOW</span> overlay<br><span class="cost code">+CODE</span> each new tweak point (LabMode field)</td>
+        </tr>
+        <tr>
+          <td><span class="pnl">Replay<span class="pl">microscope · 0/14</span></span></td>
+          <td class="c">The differentiator. No prior surface. Substrate = <b>Langfuse Experiments</b> (buy). Inputs from <code>messages.content</code> (unredacted) — NOT redacted telemetry; tools stubbed from <code>messages.raw_tool_results</code>.</td>
+          <td class="c"><b>Part A</b> single-request replay: inline perturbation (nudge/temp/model) + <b>original-vs-replayed diff</b>. <b>Part B</b> empty-completion experiment: dataset of high-empty queries → variants → deterministic recovery scorer → winner → design OBS-3.1 once.</td>
+          <td><span class="cost fobs">F-OBS</span> Part A (isolated stage I/O)<br><span class="cost now">UI NOW</span> Part B pre-F-obs<br><span class="cost code">+CODE</span> task-fn + scorer</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 04 telemetry SOTA -->
+  <h2 class="sec"><span class="n">04</span> Inspect — the locked telemetry SOTA requirements</h2>
+  <div class="reqs">
+    <div class="r"><i>01</i><span><b>Expand-on-click, dual view.</b> A row is a summary; click expands the full record in two synchronized views — human-readable key/value + raw JSON — with copy-JSON.</span></div>
+    <div class="r"><i>02</i><span><b>No payload column.</b> The payload never clips a table cell; it lives only in the expanded row.</span></div>
+    <div class="r"><i>03</i><span><b>Equal-width, aligned columns</b>; numbers right-aligned monospace; sortable; sticky header.</span></div>
+    <div class="r"><i>04</i><span><b>Rounded cost.</b> <code>$0.0028</code>, not <code>0.00280559999…</code> — the full precision (if ever needed) lives in the expand.</span></div>
+    <div class="r"><i>05</i><span><b>Time-range picker + export</b> of the selected window.</span></div>
+    <div class="r"><i>06</i><span><b>Type filter</b> (<code>message · llm_call · tool_call · error</code>) + free-text search; <b>error rows highlighted</b>.</span></div>
+    <div class="r"><i>07</i><span><b>Trace-id correlation</b> (via F-obs OTel trace id) — the bridge that turns the list into the stage tree and joins it to logs + replay.</span></div>
+  </div>
+
+  <!-- 05 sequencing -->
+  <h2 class="sec"><span class="n">05</span> Sequencing — what ships when</h2>
+  <div class="seqbar">
+    <div class="seqcol now">
+      <h3>Now — UI + small additions</h3>
+      <ul>
+        <li><b>Kinds</b> — pure UI, zero backend.</li>
+        <li><b>Rules</b> — UI over existing endpoints + one small ready-signal (status enum → migration).</li>
+        <li><b>Inspect list</b> — SOTA telemetry list over <code>telemetry_events</code>.</li>
+        <li><b>Tweak overlay</b> — legible <code>labMode</code>; new tweak points are small additive fields.</li>
+        <li><b>Replay Part B</b> — empty-completion experiment; inputs from <code>messages</code>, tools stubbed from <code>raw_tool_results</code>; task-fn + deterministic scorer.</li>
+      </ul>
+    </div>
+    <div class="seqcol fobs">
+      <h3>F-obs gated — OA-8 (host placement + serverless egress)</h3>
+      <ul>
+        <li><b>Inspect stage tree</b> — the 14-stage per-request trace via OTel spans.</li>
+        <li><b>Single joinable trace id</b> — OTel trace id as SSOT; folds the <code>session_id</code> reconciliation (three uncorrelated ids today) into F-obs, never a standalone patch.</li>
+        <li><b>Replay Part A</b> — isolated mid-pipeline stage replay + diff (needs captured stage I/O).</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 06 resolved + open -->
+  <h2 class="sec"><span class="n">06</span> Decisions — resolved &amp; open</h2>
+  <div class="box trap">
+    <h3>Resolved · the parked stage-10 question</h3>
+    <p>Parked: is tool-loop (stage 10) replay a first-class BUILD or deferred? <b>Neither — a third, cheaper answer.</b> <code>messages.raw_tool_results</code> already stores tool results, so tool-loop replay is a <b>stub-from-recorded-results</b>: no live ARMES re-hit, no F-obs. Because the empty is LLM-stage-correlated (tool-composition exonerated), stubbing tools is not only cheap but <b>correct</b> — it isolates the real variable. Sealed into blueprint v2.1.</p>
+  </div>
+  <div class="box trap" style="margin-top:12px">
+    <h3>Named trap · the three uncorrelated ids</h3>
+    <p><code>conversationId</code> (persisted, message) · <code>traceId</code> 8-char (<code>chat.ts:392</code>, logs only, not persisted) · <code>session_id</code> (<code>chat.ts:451</code>, on telemetry but per-turn, not conversationId, uncorrelated with the log traceId). Today a telemetry row joins to neither its log lines nor a stage tree. <b>Do not standalone-patch</b> — the OTel trace id becomes SSOT and folds this in at F-obs.</p>
+  </div>
+  <div class="box dec" style="margin-top:12px">
+    <h3>Open decision · Inspect cross-user read</h3>
+    <p>Today <code>telemetry_events</code> RLS = own-rows only, so Inspect is personal. Real debugging wants super_admin to inspect <b>any</b> user's request → a small service-role admin read (as <code>rules</code>/<code>versions</code> already do). <b>Committed recommendation:</b> add it (structure → code, gated). Awaiting Maymun's confirm.</p>
+  </div>
+
+  <!-- 07 next -->
+  <h2 class="sec"><span class="n">07</span> Next — into the build loop</h2>
+  <p class="lead">This scope → gated AG phase prompt(s), one at a time (the loop). OA-10 is large; the natural split follows the sequencing above: a <b>govern-plane UI phase</b> (Kinds + Rules, both mostly-UI) and an <b>Inspect+Tweak+Replay-Part-B phase</b> can proceed now; the F-obs-gated pieces wait on OA-8. The remaining govern panels (Providers / MCP / Routing / Users) reuse one "govern grammar" and fold into a single fast pass. Each phase carries a hard pre-flight gate + evidence-demanding self-verify; each artifact stays versioned; the blueprint re-syncs (RULE 23) when a capability cell flips.</p>
+
+  <footer>
+    <span>cwf-oa10-control-plane-ui-scope · v1 · rev 1 · 2026-07-02</span>
+    <span>verified against cwf_yaprak @ 5302ff1 · companion: cwf-agent-control-plane-blueprint-v2.1 · verify against repo, not this scope</span>
+  </footer>
+
+</div>
+</body>
+</html>

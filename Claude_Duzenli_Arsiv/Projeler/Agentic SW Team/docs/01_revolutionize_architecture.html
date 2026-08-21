@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Revolutionize — Virtual SW Engineering Org · Architecture (patched)</title>
+<style>
+:root{
+  --bg:#0D1117;--bg2:#161B22;--bg3:#21262D;--border:#30363D;--border2:#444C56;
+  --text:#E6EDF3;--text2:#8B949E;--text3:#6E7681;
+  --purple:#BC8CFF;--purple-bg:rgba(188,140,255,.14);
+  --teal:#3FB950;--teal-bg:rgba(63,185,80,.14);
+  --amber:#E3B341;--green:#3FB950;--green-bg:rgba(63,185,80,.14);
+  --mono:ui-monospace,'JetBrains Mono','SFMono-Regular',Menlo,monospace;
+  --sans:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);line-height:1.5;-webkit-font-smoothing:antialiased;padding:0 0 60px}
+.hdr{background:linear-gradient(135deg,var(--bg2),#1C2333);border-bottom:1px solid var(--border);padding:22px 32px;position:sticky;top:0;z-index:10}
+.hdr h1{font-size:18px;font-weight:700;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.vb{font-family:var(--mono);font-size:10px;font-weight:700;background:var(--purple-bg);color:var(--purple);border:1px solid var(--purple);border-radius:20px;padding:2px 9px}
+.gb{font-family:var(--mono);font-size:10px;font-weight:700;background:var(--green-bg);color:var(--green);border:1px solid var(--green);border-radius:20px;padding:2px 9px}
+.hdr .sub{font-size:12px;color:var(--text2);font-family:var(--mono);margin-top:5px}
+.main{max-width:1080px;margin:0 auto;padding:28px 32px}
+.sect{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin:34px 0 14px;padding-bottom:7px;border-bottom:1px solid var(--border)}
+.sect:first-of-type{margin-top:8px}
+.lede{font-size:13px;color:var(--text2);line-height:1.65;margin-bottom:18px;max-width:760px}
+svg{width:100%;height:auto;display:block}
+.legend{display:flex;gap:18px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--text2);margin:14px 2px 0}
+.sw{display:inline-block;width:13px;height:13px;border-radius:3px;vertical-align:-2px;margin-right:6px}
+/* component map */
+.cap{font-size:12px;color:var(--text2);margin:0 2px 16px;display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+.tag{font-family:var(--mono);font-size:11px;border-radius:10px;padding:1px 7px;border:1px solid}
+.t-op{background:var(--purple-bg);color:var(--purple);border-color:var(--purple)}
+.t-so{background:var(--teal-bg);color:var(--teal);border-color:var(--teal)}
+.t-ha{background:rgba(227,179,65,.14);color:var(--amber);border-color:var(--amber)}
+.row{display:flex;border:1px solid var(--border);border-radius:8px;background:var(--bg2);overflow:hidden;margin-bottom:8px}
+.lbl{flex:0 0 175px;padding:13px 15px;border-right:1px solid var(--border);position:relative;background:var(--bg3)}
+.acc{position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--purple)}
+.lname{font-size:14px;font-weight:600;color:var(--text)}
+.ltag{font-family:var(--mono);font-size:11px;color:var(--text3);margin-top:3px}
+.chips{flex:1;display:flex;flex-wrap:wrap;gap:6px;padding:11px 13px;align-content:center}
+.chip{display:inline-flex;align-items:center;gap:5px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:5px 9px;font-size:12px;color:var(--text)}
+.grp{font-family:var(--mono);font-size:11px;color:var(--text3);align-self:center;padding:2px 7px;border:1px dashed var(--border2);border-radius:10px}
+.note{background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--purple);border-radius:0 8px 8px 0;padding:12px 15px;font-size:12.5px;color:var(--text2);line-height:1.6;margin-top:20px;max-width:860px}
+footer{max-width:1080px;margin:0 auto;padding:20px 32px;font-size:11px;color:var(--text3);font-family:var(--mono);border-top:1px solid var(--border);margin-top:30px}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <h1>Revolutionize — Virtual Software Engineering Organisation <span class="vb">v1 → v2</span> <span class="gb">PATCHED</span></h1>
+  <div class="sub">architecture · the autonomous agent platform that builds software · ADR-001 (LiteLLM) + ADR-002 (MCP) applied</div>
+</div>
+<div class="main">
+
+  <div class="sect">1 · System overview — the shape on the whiteboard</div>
+  <div class="lede">Five primary systems form one closed loop. Value flows top-down through the four operational systems via the only three sanctioned channels; Meta-cognition observes every system and activates last (Phase 8). The two approved patches both live in the Tool Integration layer.</div>
+
+  <svg viewBox="0 0 680 600" role="img" aria-label="Five primary systems with three channels over three cross-cutting layers; LiteLLM and MCP highlighted as patched.">
+    <defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+
+    <!-- systems -->
+    <g>
+      <rect x="200" y="40" width="280" height="54" rx="8" fill="var(--purple-bg)" stroke="var(--purple)" stroke-width="1"/>
+      <text x="340" y="62" text-anchor="middle" fill="var(--text)" font-size="14" font-weight="600" font-family="var(--sans)">Vision engine</text>
+      <text x="340" y="80" text-anchor="middle" fill="var(--text2)" font-size="12" font-family="var(--sans)">decide what to build</text>
+    </g>
+    <g>
+      <rect x="200" y="120" width="280" height="54" rx="8" fill="var(--purple-bg)" stroke="var(--purple)" stroke-width="1"/>
+      <text x="340" y="142" text-anchor="middle" fill="var(--text)" font-size="14" font-weight="600" font-family="var(--sans)">Execution swarm</text>
+      <text x="340" y="160" text-anchor="middle" fill="var(--text2)" font-size="12" font-family="var(--sans)">build it · v1 agents → v2 cells</text>
+    </g>
+    <g>
+      <rect x="200" y="200" width="280" height="54" rx="8" fill="var(--purple-bg)" stroke="var(--purple)" stroke-width="1"/>
+      <text x="340" y="222" text-anchor="middle" fill="var(--text)" font-size="14" font-weight="600" font-family="var(--sans)">Verification mesh</text>
+      <text x="340" y="240" text-anchor="middle" fill="var(--text2)" font-size="12" font-family="var(--sans)">prove it works before merge</text>
+    </g>
+    <g>
+      <rect x="200" y="280" width="280" height="54" rx="8" fill="var(--purple-bg)" stroke="var(--purple)" stroke-width="1"/>
+      <text x="340" y="302" text-anchor="middle" fill="var(--text)" font-size="14" font-weight="600" font-family="var(--sans)">Reality loop</text>
+      <text x="340" y="320" text-anchor="middle" fill="var(--text2)" font-size="12" font-family="var(--sans)">learn from production</text>
+    </g>
+    <g>
+      <rect x="500" y="40" width="140" height="294" rx="8" fill="var(--purple-bg)" stroke="var(--purple)" stroke-width="1"/>
+      <text x="570" y="178" text-anchor="middle" fill="var(--text)" font-size="14" font-weight="600" font-family="var(--sans)">Meta-cognition</text>
+      <text x="570" y="198" text-anchor="middle" fill="var(--text2)" font-size="12" font-family="var(--sans)">observes all</text>
+      <text x="570" y="216" text-anchor="middle" fill="var(--text2)" font-size="12" font-family="var(--sans)">activates phase 8</text>
+    </g>
+
+    <!-- forward channels -->
+    <line x1="340" y1="94" x2="340" y2="118" stroke="var(--text3)" stroke-width="1.5" marker-end="url(#ar)"/>
+    <line x1="340" y1="174" x2="340" y2="198" stroke="var(--text3)" stroke-width="1.5" marker-end="url(#ar)"/>
+    <line x1="340" y1="254" x2="340" y2="278" stroke="var(--text3)" stroke-width="1.5" marker-end="url(#ar)"/>
+    <text x="352" y="110" fill="var(--text2)" font-size="12" font-family="var(--mono)">intent stream</text>
+    <text x="352" y="190" fill="var(--text2)" font-size="12" font-family="var(--mono)">verification gate</text>
+    <text x="352" y="270" fill="var(--text2)" font-size="12" font-family="var(--mono)">to production</text>
+
+    <!-- reality feed loop -->
+    <path d="M200 307 L140 307 L140 67 L200 67" fill="none" stroke="var(--amber)" stroke-width="1.5" marker-end="url(#ar)"/>
+    <text x="46" y="190" fill="var(--amber)" font-size="12" font-family="var(--mono)">reality</text>
+    <text x="46" y="206" fill="var(--amber)" font-size="12" font-family="var(--mono)">feed</text>
+
+    <!-- meta observes -->
+    <line x1="480" y1="67" x2="498" y2="67" stroke="var(--border2)" stroke-width="1" stroke-dasharray="3 3" marker-end="url(#ar)"/>
+    <line x1="480" y1="147" x2="498" y2="147" stroke="var(--border2)" stroke-width="1" stroke-dasharray="3 3" marker-end="url(#ar)"/>
+    <line x1="480" y1="227" x2="498" y2="227" stroke="var(--border2)" stroke-width="1" stroke-dasharray="3 3" marker-end="url(#ar)"/>
+    <line x1="480" y1="307" x2="498" y2="307" stroke="var(--border2)" stroke-width="1" stroke-dasharray="3 3" marker-end="url(#ar)"/>
+
+    <!-- cross-cutting bands -->
+    <g>
+      <rect x="40" y="372" width="600" height="46" rx="8" fill="var(--bg3)" stroke="var(--border)" stroke-width="1"/>
+      <text x="56" y="391" fill="var(--text)" font-size="14" font-weight="600" font-family="var(--sans)">Measurement foundation</text>
+      <text x="56" y="408" fill="var(--text2)" font-size="12" font-family="var(--sans)">telemetry · eval · shadow mode · quality scoring</text>
+    </g>
+    <g>
+      <rect x="40" y="428" width="600" height="46" rx="8" fill="var(--bg3)" stroke="var(--border)" stroke-width="1"/>
+      <text x="56" y="447" fill="var(--text)" font-size="14" font-weight="600" font-family="var(--sans)">Living knowledge</text>
+      <text x="56" y="464" fill="var(--text2)" font-size="12" font-family="var(--sans)">skills · ADRs · GraphRAG codebase graph · SOUL.md · memory</text>
+    </g>
+    <g>
+      <rect x="40" y="484" width="600" height="72" rx="8" fill="var(--bg3)" stroke="var(--border)" stroke-width="1"/>
+      <text x="56" y="506" fill="var(--text)" font-size="14" font-weight="600" font-family="var(--sans)">Tool integration</text>
+      <text x="56" y="524" fill="var(--text2)" font-size="12" font-family="var(--sans)">git · CI/CD · observability · secrets (Vault) · auth (Keycloak)</text>
+      <rect x="448" y="500" width="88" height="44" rx="6" fill="var(--green-bg)" stroke="var(--green)" stroke-width="1"/>
+      <text x="492" y="519" text-anchor="middle" fill="var(--green)" font-size="13" font-weight="600" font-family="var(--sans)">LiteLLM</text>
+      <text x="492" y="535" text-anchor="middle" fill="var(--green)" font-size="11" font-family="var(--mono)">ADR-001</text>
+      <rect x="544" y="500" width="88" height="44" rx="6" fill="var(--green-bg)" stroke="var(--green)" stroke-width="1"/>
+      <text x="588" y="519" text-anchor="middle" fill="var(--green)" font-size="13" font-weight="600" font-family="var(--sans)">MCP servers</text>
+      <text x="588" y="535" text-anchor="middle" fill="var(--green)" font-size="11" font-family="var(--mono)">ADR-002</text>
+    </g>
+  </svg>
+
+  <div class="legend">
+    <span><span class="sw" style="background:var(--purple-bg);border:1px solid var(--purple)"></span>primary system</span>
+    <span><span class="sw" style="background:var(--bg3);border:1px solid var(--border2)"></span>cross-cutting layer</span>
+    <span><span class="sw" style="background:var(--green-bg);border:1px solid var(--green)"></span>patched (ADR-approved)</span>
+    <span><span class="sw" style="background:none;border:1px solid var(--amber)"></span>reality feed (feedback)</span>
+  </div>
+
+  <div class="sect">2 · Per-system components — with LLM routing</div>
+  <div class="cap">
+    <span>Model routing:</span>
+    <span class="tag t-op">Opus 4.7</span>
+    <span class="tag t-so">Sonnet 4.6</span>
+    <span class="tag t-ha">Haiku 4.5</span>
+    <span style="color:var(--text3)">resolved by the LiteLLM gateway (ADR-001); untagged = formal / non-LLM or routed at runtime</span>
+  </div>
+
+  <div class="row">
+    <div class="lbl"><span class="acc"></span><div class="lname">Vision engine</div><div class="ltag">decide what to build</div></div>
+    <div class="chips">
+      <span class="chip">Founder agent <span class="tag t-op">Opus</span></span>
+      <span class="chip">Empathy engine · OASIS <span class="tag t-so">Sonnet</span></span>
+      <span class="chip">Market sensor <span class="tag t-so">Sonnet</span></span>
+      <span class="chip">Intent synthesiser <span class="tag t-op">Opus</span></span>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="lbl"><span class="acc"></span><div class="lname">Execution swarm</div><div class="ltag">build it · v1 → v2</div></div>
+    <div class="chips">
+      <span class="grp">v1 specialised</span>
+      <span class="chip">Engineering manager <span class="tag t-op">Opus</span></span>
+      <span class="chip">Solution architect <span class="tag t-op">Opus</span></span>
+      <span class="chip">Frontend agent <span class="tag t-so">Sonnet</span></span>
+      <span class="chip">Backend agent <span class="tag t-so">Sonnet</span></span>
+      <span class="chip">Database agent <span class="tag t-so">Sonnet</span></span>
+      <span class="chip">DevOps agent <span class="tag t-so">Sonnet</span></span>
+      <span class="grp">v2 cellular</span>
+      <span class="chip">Speculation orchestrator <span class="tag t-op">Opus</span></span>
+      <span class="chip">Engineering cells <span class="tag t-so">Sonnet</span></span>
+      <span class="chip">Capability composer</span>
+      <span class="chip">Tournament selector</span>
+      <span class="chip">Cell pool manager</span>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="lbl"><span class="acc"></span><div class="lname">Verification mesh</div><div class="ltag">prove it works</div></div>
+    <div class="chips">
+      <span class="chip">Spec author · TLA+/Alloy <span class="tag t-op">Opus</span></span>
+      <span class="chip">Verifier · formal</span>
+      <span class="chip">Code reviewer · 6-dim <span class="tag t-op">Opus</span></span>
+      <span class="chip">Test generator <span class="tag t-so">Sonnet</span></span>
+      <span class="chip">Security agent <span class="tag t-op">Opus</span></span>
+      <span class="chip">Red team agent <span class="tag t-op">Opus</span></span>
+      <span class="chip">Performance agent <span class="tag t-so">Sonnet</span></span>
+      <span class="chip">Taste evaluator</span>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="lbl"><span class="acc"></span><div class="lname">Reality loop</div><div class="ltag">learn from production</div></div>
+    <div class="chips">
+      <span class="chip">Reality observer <span class="tag t-so">Sonnet</span></span>
+      <span class="chip">Support synthesiser <span class="tag t-ha">Haiku</span></span>
+      <span class="chip">Experiment runner</span>
+      <span class="chip">Incident responder</span>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="lbl"><span class="acc"></span><div class="lname">Meta-cognition</div><div class="ltag">improve the system · phase 8</div></div>
+    <div class="chips">
+      <span class="chip">System observer</span>
+      <span class="chip">Bottleneck detector</span>
+      <span class="chip">Architecture proposer <span class="tag t-op">Opus</span></span>
+      <span class="chip">Decision auditor</span>
+      <span class="chip">Prompt evolver · DSPy</span>
+      <span class="chip">Parameter tuner</span>
+    </div>
+  </div>
+
+  <div class="note">The three channels (<span style="font-family:var(--mono)">intent stream · verification gate · reality feed</span>) are the only sanctioned inter-system paths — the deliberate guard against multi-agent chat proliferation. v1 maps to human team roles for de-risking; each v1 component contains a v2 capability that emerges incrementally on the same substrate. Meta-cognition is built last because it needs 12+ months of accumulated telemetry before its outputs are reliable.</div>
+
+</div>
+<footer>ARDICTECH A.Ş. · Revolutionize architecture · regenerated clean with ADR-001 (LiteLLM gateway) + ADR-002 (MCP external tool protocol) + dev_schedule_patch_v1 · internal technical reference</footer>
+</body>
+</html>

@@ -1,0 +1,505 @@
+# PHASE DOC-3 — Agent Control Plane blueprint → 6th architecture tab (living-doc lock-step)
+<!-- artifact: claude-code-PHASE-DOC-3-control-plane-blueprint-tab-v1.md · rev 1 · 2026-07-01 -->
+
+**Lane:** Author (AG-CC). **Repo:** `cwf_yaprak`. **Base:** master HEAD `b8a0e6d`.
+**Type:** DOC-ONLY · **single commit** (no code → no two-commit seal). No `api/`, no `src/`, no `shared/`, no migration, no dependency.
+
+---
+
+## 0. Goal & altitude (read first)
+
+Register the Agent Control Plane blueprint as the **6th narrative tab** of the living architecture document, and wire it into the drift-guarded lock-step — **at the right altitude**. The blueprint is a **roadmap/capability map**, NOT a code-structure diagram: it drifts when a control-plane **capability** changes (a stage's observe/tweak/replay/stub status flips), not on every pipeline edit. So its manifest mapping is a **tight** control-plane set, and the real trigger is a new **RULE 23**, with the drift-guard as a backstop.
+
+---
+
+## 1. HARD PRE-FLIGHT GATE (stop if any fails; paste evidence)
+
+1. `git rev-parse HEAD` → `b8a0e6d` (or a named descendant). `git status --porcelain` → clean.
+2. Read + confirm the four anchors (paste the lines):
+   - `public/architecture/index.html` — the `TABS` registry (~lines 100–104): 5 existing `{ id, label, kind:"diagram", src }` entries; the header comment says "5 hand-authored diagrams … rev 3".
+   - `public/architecture/manifest.json` — `tabs[]` (5 entries, each `{tab, diagram, codeAreas, lastSyncedCommit}`) + `"docVersion": "rev 17 · 2026-07-01"`.
+   - `.agents/AGENTS.md` — highest rule is **RULE 22**; RULE 20 is the living-doc lock-step rule (format `## ⛔ RULE N — TITLE`).
+   - `check:doc-drift` = `tsx scripts/checkDocDrift.ts` (WARN-only, exits 0), part of `build`.
+
+---
+
+## 2. HARD CONSTRAINTS
+
+- **DOC-ONLY.** Touch ONLY `public/architecture/**`, `.agents/AGENTS.md`, `.agents/CHANGELOG.md`. NOTHING in `api/`, `src/`, `shared/`, `scripts/`, `supabase/`. `git diff --stat` must prove it.
+- **Served path is STABLE** (like the other diagrams — no version in the served filename): `diagrams/agent-control-plane-blueprint.html`. Versioning lives in the internal `rev` stamp + `docVersion` + git + the project-side `-vN` artifact.
+- **Embed VERBATIM.** Create the tab file with EXACTLY the content in §3 — no reformatting, no minifying, no re-indentation.
+- **TIGHT codeAreas (the altitude point).** Map the blueprint ONLY to control-plane surfaces, NOT the whole pipeline. A broad glob (e.g. `api/cwf/*.ts`) would fire on every unrelated edit (a FLOOR-1-style composer fix) — wrong altitude. Exact set in §5.
+- **RULE 23 names BOTH sides:** the trigger (a matrix cell flips / a control-plane capability lands) AND the non-trigger (a pure phase touching no control-plane surface does NOT re-sync it).
+
+---
+
+## 3. CREATE THE TAB FILE — verbatim
+
+Create `public/architecture/diagrams/agent-control-plane-blueprint.html` with EXACTLY this content:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CWF — Agent Control Plane · Blueprint · v1</title>
+<style>
+  :root{
+    --bg:#0a0e14; --panel:#111a26; --panel2:#0f1722;
+    --line:#1f2d3d; --line2:#2a3b4f;
+    --ink:#dbe6f0; --ink-dim:#8aa0b6; --ink-faint:#5c7186;
+    --cyan:#34d6e6;
+    /* control-plane axis */
+    --observe:#34d6e6;   /* see it */
+    --tweak:#d07bff;     /* change its input */
+    --replay:#ff6b7a;    /* re-run it — the missing axis */
+    --stub:#2dd4bf;      /* pluggable slot */
+    /* state */
+    --have:#3ad29f; --divergent:#7bc4ff; --partial:#e0a93b;
+    --gap:#8aa0b6; --deferred:#c58bff;
+    --mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+    --sans:ui-sans-serif,system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:
+      radial-gradient(1100px 560px at 82% -8%, #10202c 0%, transparent 60%),
+      radial-gradient(820px 460px at -8% 14%, #141018 0%, transparent 55%),
+      var(--bg); color:var(--ink); font-family:var(--sans);
+      -webkit-font-smoothing:antialiased; padding:26px 18px 72px; line-height:1.5}
+  .wrap{max-width:1180px;margin:0 auto}
+  a{color:var(--cyan)}
+
+  header.top{border:1px solid var(--line);border-radius:14px;padding:24px 26px;
+    background:linear-gradient(180deg,var(--panel),var(--panel2));position:relative;overflow:hidden}
+  header.top::after{content:"";position:absolute;inset:0;
+    background:repeating-linear-gradient(90deg,transparent 0 38px, rgba(52,214,230,.022) 38px 39px);pointer-events:none}
+  .kick{font-family:var(--mono);font-size:11px;letter-spacing:.34em;text-transform:uppercase;color:var(--cyan);margin:0 0 10px}
+  h1{font-size:30px;margin:0;letter-spacing:-.015em;font-weight:700}
+  h1 .sub{display:block;color:var(--ink-dim);font-weight:400;font-size:16px;margin-top:7px;letter-spacing:0}
+  .stamp{position:absolute;top:20px;right:24px;font-family:var(--mono);font-size:10.5px;color:var(--ink-faint);text-align:right;line-height:1.85}
+  .stamp b{color:var(--have)}
+  .thesis{margin:16px 0 0;padding:15px 17px;border:1px solid var(--line2);border-left:3px solid var(--cyan);border-radius:10px;
+    background:linear-gradient(180deg,#0c1a20,#0b1318);font-size:14px;line-height:1.68;color:var(--ink)}
+  .thesis b{color:#9fe9f3}
+  .thesis .micro{color:var(--ink-dim);font-size:13px;display:block;margin-top:8px}
+
+  h2.sec{font-size:12.5px;font-family:var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--cyan);
+    margin:38px 4px 8px;display:flex;align-items:center;gap:12px}
+  h2.sec .n{color:var(--ink-faint)}
+  h2.sec::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line2),transparent)}
+  .lead{color:var(--ink-dim);font-size:13.5px;line-height:1.62;margin:2px 4px 18px;max-width:98ch}
+  .lead b{color:var(--ink)}
+
+  /* ── the 14-stage spine ── */
+  .spine{display:flex;flex-wrap:wrap;gap:7px;border:1px solid var(--line);border-radius:13px;
+    background:linear-gradient(180deg,var(--panel),var(--panel2));padding:15px}
+  .st{flex:1 1 120px;min-width:120px;border:1px solid var(--line2);border-radius:9px;padding:9px 10px 10px;
+    background:#0c141d;position:relative}
+  .st .num{font-family:var(--mono);font-size:9.5px;color:var(--ink-faint);letter-spacing:.06em}
+  .st .nm{font-size:12px;font-weight:600;color:var(--ink);margin-top:3px;line-height:1.25}
+  .st .dot{position:absolute;top:9px;right:9px;width:7px;height:7px;border-radius:50%}
+  .d-have{background:var(--have)} .d-divergent{background:var(--divergent)}
+  .d-partial{background:var(--partial)} .d-gap{background:var(--gap)} .d-deferred{background:var(--deferred)}
+  .st.core{border-color:rgba(58,210,159,.4)} .st.div{border-color:rgba(123,196,255,.42)}
+  .st.def{border-color:rgba(197,139,255,.4)} .st.par{border-color:rgba(224,169,59,.38)}
+
+  /* ── legends ── */
+  .legends{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:4px}
+  @media(max-width:820px){.legends{grid-template-columns:1fr}}
+  .legend{border:1px solid var(--line);border-radius:11px;padding:13px 15px;background:#0c141d}
+  .legend .lh{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:10px}
+  .legend .row{display:flex;align-items:flex-start;gap:10px;font-size:12px;color:var(--ink-dim);margin:8px 0;line-height:1.45}
+  .pill{font-family:var(--mono);font-size:9.5px;font-weight:700;letter-spacing:.04em;padding:2px 8px;border-radius:6px;white-space:nowrap;flex-shrink:0;margin-top:1px}
+  .p-have{background:rgba(58,210,159,.13);color:var(--have);border:1px solid rgba(58,210,159,.45)}
+  .p-div{background:rgba(123,196,255,.12);color:var(--divergent);border:1px solid rgba(123,196,255,.45)}
+  .p-par{background:rgba(224,169,59,.13);color:var(--partial);border:1px solid rgba(224,169,59,.45)}
+  .p-gap{background:rgba(138,160,182,.1);color:var(--gap);border:1px solid rgba(138,160,182,.4)}
+  .p-def{background:rgba(197,139,255,.13);color:var(--deferred);border:1px solid rgba(197,139,255,.45)}
+  .p-obs{background:rgba(52,214,230,.12);color:var(--observe);border:1px solid rgba(52,214,230,.4)}
+  .p-twk{background:rgba(208,123,255,.12);color:#df9bff;border:1px solid rgba(208,123,255,.42)}
+  .p-rep{background:rgba(255,107,122,.1);color:var(--replay);border:1px solid rgba(255,107,122,.42)}
+  .p-stb{background:rgba(45,212,191,.1);color:var(--stub);border:1px solid rgba(45,212,191,.4)}
+
+  /* ── the matrix (signature) ── */
+  .matrix{border:1px solid var(--line);border-radius:13px;overflow:hidden;background:var(--panel2)}
+  table{border-collapse:collapse;width:100%;font-size:12.5px}
+  thead th{background:#0d1620;color:var(--ink-dim);font-family:var(--mono);font-size:10px;letter-spacing:.12em;
+    text-transform:uppercase;text-align:left;padding:11px 12px;border-bottom:1px solid var(--line2);position:sticky;top:0}
+  thead th .ax{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px;vertical-align:middle}
+  .ax-obs{background:var(--observe)} .ax-twk{background:var(--tweak)} .ax-rep{background:var(--replay)} .ax-stb{background:var(--stub)}
+  tbody td{padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.5}
+  tbody tr:last-child td{border-bottom:none}
+  tbody tr:hover td{background:rgba(52,214,230,.03)}
+  .sc{white-space:nowrap;font-family:var(--mono);font-size:10.5px;color:var(--ink-faint)}
+  .stg{font-weight:600;color:var(--ink);font-size:12.5px}
+  .stg .sub2{display:block;font-weight:400;color:var(--ink-faint);font-size:10.5px;font-family:var(--mono);margin-top:2px}
+  td.cell{color:var(--ink-dim);font-size:11.5px}
+  td.cell code{font-family:var(--mono);font-size:10.5px;color:#a9cdff;background:rgba(95,168,255,.08);padding:1px 4px;border-radius:4px}
+  td.empty{color:var(--ink-faint);text-align:center;font-family:var(--mono);font-size:11px}
+  td.repcol{background:rgba(255,107,122,.035)}
+  .none{color:var(--replay);opacity:.7;font-family:var(--mono);font-size:11px}
+  .state{display:inline-flex;flex-direction:column;gap:3px}
+  .state .why{color:var(--ink-faint);font-size:10.5px;line-height:1.35;max-width:20ch}
+
+  /* ── readout cards ── */
+  .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}
+  @media(max-width:820px){.cards{grid-template-columns:1fr 1fr}}
+  .card{border:1px solid var(--line);border-radius:12px;padding:15px 16px;background:#0c141d}
+  .card .big{font-family:var(--mono);font-size:30px;font-weight:700;letter-spacing:-.02em}
+  .card .lab{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);margin-top:2px}
+  .card .note{font-size:11.5px;color:var(--ink-dim);margin-top:9px;line-height:1.45}
+  .c-obs .big{color:var(--observe)} .c-twk .big{color:var(--tweak)}
+  .c-rep .big{color:var(--replay)} .c-stb .big{color:var(--stub)}
+  .c-rep{border-color:rgba(255,107,122,.4);background:linear-gradient(180deg,#160c10,#0c141d)}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:820px){.grid2{grid-template-columns:1fr}}
+  .box{border:1px solid var(--line);border-radius:12px;padding:15px 17px;background:#0c141d}
+  .box h3{margin:0 0 9px;font-size:13px;color:var(--ink);font-weight:640}
+  .box h3 .tag{font-family:var(--mono);font-size:9px;letter-spacing:.1em;padding:2px 7px;border-radius:5px;margin-left:8px;vertical-align:middle}
+  .box p{margin:6px 0;font-size:12.5px;color:var(--ink-dim);line-height:1.6}
+  .box p b{color:var(--ink)}
+  .box code{font-family:var(--mono);font-size:11px;color:#a9cdff}
+  .divider-note{border-left:3px solid var(--divergent);background:linear-gradient(180deg,#0b1622,#0b1016)}
+  .ban{border-left:3px solid var(--replay);background:linear-gradient(180deg,#160d11,#0b1016)}
+
+  .seq{border:1px solid var(--line);border-radius:12px;background:#0c141d;padding:6px 0}
+  .seq .step{display:flex;gap:14px;padding:13px 18px;border-bottom:1px solid var(--line);align-items:flex-start}
+  .seq .step:last-child{border-bottom:none}
+  .seq .ord{font-family:var(--mono);font-size:11px;color:var(--bg);background:var(--cyan);border-radius:6px;padding:3px 8px;font-weight:700;flex-shrink:0;height:fit-content}
+  .seq .ord.later{background:var(--ink-faint)}
+  .seq .body h4{margin:0 0 3px;font-size:13px;color:var(--ink);font-weight:620}
+  .seq .body p{margin:0;font-size:12px;color:var(--ink-dim);line-height:1.55}
+  .seq .body code{font-family:var(--mono);font-size:10.5px;color:#df9bff}
+
+  .flag{margin-top:14px;border:1px dashed var(--line2);border-radius:11px;padding:14px 16px;background:#0d1119;
+    font-size:12.5px;color:var(--ink-dim);line-height:1.6}
+  .flag b{color:var(--partial)}
+
+  footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--line);
+    font-family:var(--mono);font-size:10.5px;color:var(--ink-faint);line-height:1.9;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="stamp">rev 1 · 2026-07-01<br><b>v1</b> · blueprint<br>refs: 5 SOTA docs<br>CWF @ <b>b8a0e6d</b></div>
+    <p class="kick">Agent Control Plane · Blueprint</p>
+    <h1>The Electron Microscope
+      <span class="sub">A stage-by-stage lab for observing, tweaking, and replaying a single agent — before it becomes a product.</span>
+    </h1>
+    <div class="thesis">
+      Five SOTA references agree on <b>what an agent's pipeline is</b> (14 stages, raw query → LLM → rendered answer). None of them describe the layer that turns a pipeline into a <b>lab</b>: the control plane that lets an engineer <b>see</b> each stage, <b>change</b> its input, and <b>re-run</b> it — and drop a <b>stub</b> where a stage is missing. That layer is the differentiator. This blueprint maps the canonical 14 stages against what CWF can do at each one today, and names the gaps by <b>plan</b>, not by accident.
+      <span class="micro">Scope: single-agent optimization bench. Multi-agent orchestration is deliberately out of scope at this stage — master one agent's behavior first.</span>
+    </div>
+  </header>
+
+  <!-- ── 1 · canonical flow ── -->
+  <h2 class="sec"><span class="n">01</span> The canonical flow — union of all five references</h2>
+  <p class="lead">The SOTA list, kept <b>intact</b>. Every reference maps to these 14 stages at some granularity; we do not drop or rename any, so the map stays comparable to the literature. Stages 14+ (e.g. multi-agent, tool-synthesis) are left as future rows — the list is designed to grow, not to be pruned.</p>
+  <div class="spine">
+    <div class="st core"><span class="dot d-have"></span><div class="num">00</div><div class="nm">User Query</div></div>
+    <div class="st core"><span class="dot d-have"></span><div class="num">01</div><div class="nm">Conversation &amp; State</div></div>
+    <div class="st par"><span class="dot d-partial"></span><div class="num">02</div><div class="nm">Query Understanding &amp; Intent</div></div>
+    <div class="st def"><span class="dot d-deferred"></span><div class="num">03</div><div class="nm">Planning / Task Decomp</div></div>
+    <div class="st par"><span class="dot d-partial"></span><div class="num">04</div><div class="nm">Memory Retrieval</div></div>
+    <div class="st div"><span class="dot d-divergent"></span><div class="num">05</div><div class="nm">Knowledge Retrieval (RAG)</div></div>
+    <div class="st core"><span class="dot d-have"></span><div class="num">06</div><div class="nm">Tool &amp; Skill Selection</div></div>
+    <div class="st par"><span class="dot d-partial"></span><div class="num">07</div><div class="nm">Context Compression</div></div>
+    <div class="st core"><span class="dot d-have"></span><div class="num">08</div><div class="nm">Prompt Assembly</div></div>
+    <div class="st core"><span class="dot d-have"></span><div class="num">09</div><div class="nm">LLM Inference</div></div>
+    <div class="st core"><span class="dot d-have"></span><div class="num">10</div><div class="nm">Tool Execution Loop</div></div>
+    <div class="st div"><span class="dot d-divergent"></span><div class="num">11</div><div class="nm">Verification / Reflection</div></div>
+    <div class="st core"><span class="dot d-have"></span><div class="num">12</div><div class="nm">Response Format / Render</div></div>
+    <div class="st par"><span class="dot d-partial"></span><div class="num">13</div><div class="nm">Memory Update</div></div>
+  </div>
+
+  <div class="legends">
+    <div class="legend">
+      <div class="lh">Stage state — current + planned</div>
+      <div class="row"><span class="pill p-have">HAVE</span>Built and working in CWF today.</div>
+      <div class="row"><span class="pill p-div">DIVERGENT</span>Built, but a <b>principled departure</b> from the SOTA default — a design choice, kept on purpose.</div>
+      <div class="row"><span class="pill p-par">PARTIAL / STUB</span>Present in a reduced form (a window, an offload) — no full component yet.</div>
+      <div class="row"><span class="pill p-gap">DELIBERATE-GAP</span>Intentionally absent, with a rationale. Not a TODO — a decision.</div>
+      <div class="row"><span class="pill p-def">DEFERRED →</span>Planned and sequenced to a named phase (the arrow says where).</div>
+    </div>
+    <div class="legend">
+      <div class="lh">Control-plane axis — the four questions per stage</div>
+      <div class="row"><span class="pill p-obs">OBSERVE</span>Can we <b>see</b> what this stage did on a given request?</div>
+      <div class="row"><span class="pill p-twk">TWEAK</span>Can we <b>change this stage's input/config</b> for a run, safely (session-only, no governed writes)?</div>
+      <div class="row"><span class="pill p-rep">REPLAY</span>Can we <b>re-run</b> this stage on a captured request with the tweak, and diff the result?</div>
+      <div class="row"><span class="pill p-stb">STUB / EXTEND</span>If missing, is there a <b>pluggable slot</b> — add a layer, write JS/Python, test in isolation?</div>
+    </div>
+  </div>
+
+  <!-- ── 2 · divergence ── -->
+  <h2 class="sec"><span class="n">02</span> Where the references diverge — and where CWF takes a stand</h2>
+  <p class="lead">Union is easy; the <b>separation points</b> are where the design lives. Two of these are not gaps to fill later — they are CWF's identity, and the blueprint records them as chosen, not missing.</p>
+  <div class="grid2">
+    <div class="box ban">
+      <h3>No vector in the knowledge core <span class="pill p-div" style="border:none">DIVERGENT · stage 05</span></h3>
+      <p>All five references assume <b>RAG = vector search</b> (top-k, HyDE, re-rank, Graph-RAG). CWF's deterministic core <b>bans it</b>: the critical slice is <b>always-injected typed data</b>, never lossy near-neighbor retrieval that could confuse <code>IKINCILUST</code> with <code>IKINCILALT</code> and corrupt a fact. pgvector stays a <b>gated slot</b> for a future advisory Layer-2 corpus only.</p>
+    </div>
+    <div class="box ban">
+      <h3>No LLM-as-judge in verification <span class="pill p-div" style="border:none">DIVERGENT · stage 11</span></h3>
+      <p>The references converge on a <b>critic / judge model</b> (Reflexion, LLM-as-Judge, guard models). CWF <b>bans it</b> for grounding and trust: a judge can hallucinate its own verdict. Verification is <b>deterministic code</b> — <code>empty≠zero</code>, count-integrity, scope-authority — a function of provenance, not a model's opinion.</p>
+    </div>
+    <div class="box divider-note">
+      <h3>Planning is implicit — for now <span class="pill p-def" style="border:none">DEFERRED → LangGraph</span></h3>
+      <p>Docs make an explicit hierarchical <b>Planner / Task-Graph / DAG</b> a first-class stage. CWF plans <b>implicitly</b> inside the <code>stepCountIs</code> tool loop today. An explicit planner is <b>deferred</b> to the LangGraph bridge (Shape B: TS core stays an MCP service, Python orchestrates, governance untouched) — a plan, with an address.</p>
+    </div>
+    <div class="box divider-note">
+      <h3>Intent, memory, skills — reduced by design <span class="pill p-par" style="border:none">PARTIAL / GAP</span></h3>
+      <p><b>Intent:</b> a keyword router feeds tool-selection only — no separate intent LLM (single-domain agent; a separate model adds latency + an error surface). <b>Memory:</b> short-term window ✓; <b>learned user memory</b> is a deliberate gap. <b>Skills:</b> <code>SKILL.md</code> serves the author lane, not a runtime skill layer.</p>
+    </div>
+  </div>
+
+  <!-- ── 3 · the matrix ── -->
+  <h2 class="sec"><span class="n">03</span> The control-plane matrix — 14 stages × observe · tweak · replay · stub</h2>
+  <p class="lead">Read each row as: <b>what state is this stage in</b>, and for each of the four control questions, <b>what exists today</b>. Facts verified against the repo at <code>b8a0e6d</code>. Watch the <span style="color:var(--replay)">REPLAY</span> column.</p>
+  <div class="matrix">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:16%">Stage</th>
+          <th style="width:13%">State</th>
+          <th style="width:20%"><span class="ax ax-obs"></span>Observe</th>
+          <th style="width:18%"><span class="ax ax-twk"></span>Tweak</th>
+          <th style="width:15%"><span class="ax ax-rep"></span>Replay</th>
+          <th style="width:18%"><span class="ax ax-stb"></span>Stub / Extend</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="stg">00 · User Query<span class="sub2">/api/cwf/chat</span></span></td>
+          <td><span class="state"><span class="pill p-have">HAVE</span></span></td>
+          <td class="cell">Request log, per-turn <code>[trace]</code> id</td>
+          <td class="cell">—</td>
+          <td class="repcol"><span class="none">— none</span></td>
+          <td class="cell">—</td>
+        </tr>
+        <tr>
+          <td><span class="stg">01 · Conversation &amp; State<span class="sub2">ConversationRepo · auth</span></span></td>
+          <td><span class="state"><span class="pill p-have">HAVE</span></span></td>
+          <td class="cell">auth role/scopes, history window, language — in logs</td>
+          <td class="cell">—</td>
+          <td class="repcol"><span class="none">— none</span></td>
+          <td class="cell">—</td>
+        </tr>
+        <tr>
+          <td><span class="stg">02 · Understanding &amp; Intent<span class="sub2">keyword router</span></span></td>
+          <td><span class="state"><span class="pill p-par">PARTIAL</span><span class="why">no intent LLM; feeds tool-select only</span></span></td>
+          <td class="cell"><code>[ToolRoute]</code> categories, path</td>
+          <td class="cell"><code>labMode.routingBypass</code> (indirect)</td>
+          <td class="repcol"><span class="none">— none</span></td>
+          <td class="cell">intent-object slot</td>
+        </tr>
+        <tr>
+          <td><span class="stg">03 · Planning / Decomp<span class="sub2">implicit in tool loop</span></span></td>
+          <td><span class="state"><span class="pill p-def">DEFERRED →</span><span class="why">LangGraph bridge (Shape B)</span></span></td>
+          <td class="cell"><span class="none">— not surfaced</span></td>
+          <td class="cell">—</td>
+          <td class="repcol"><span class="none">— none</span></td>
+          <td class="cell">plan-preview stub</td>
+        </tr>
+        <tr>
+          <td><span class="stg">04 · Memory Retrieval<span class="sub2">history window</span></span></td>
+          <td><span class="state"><span class="pill p-par">PARTIAL</span><span class="why">short-term ✓; long-term user memory = gap</span></span></td>
+          <td class="cell">history slice in logs</td>
+          <td class="cell">—</td>
+          <td class="repcol"><span class="none">— none</span></td>
+          <td class="cell">user-memory store slot</td>
+        </tr>
+        <tr>
+          <td><span class="stg">05 · Knowledge (RAG)<span class="sub2">DbKnowledgeProvider</span></span></td>
+          <td><span class="state"><span class="pill p-div">DIVERGENT</span><span class="why">typed always-inject; vector banned in core</span></span></td>
+          <td class="cell">warm / floor logs (thin)</td>
+          <td class="cell"><code>knowledgeSource</code> floor|db · <code>previewDrafts</code></td>
+          <td class="repcol"><span class="none">— none</span></td>
+          <td class="cell">pgvector Layer-2 slot (gated)</td>
+        </tr>
+        <tr>
+          <td><span class="stg">06 · Tool &amp; Skill Selection<span class="sub2">scope · partition · router</span></span></td>
+          <td><span class="state"><span class="pill p-have">HAVE</span><span class="why">runtime skills = gap</span></span></td>
+          <td class="cell"><code>[ToolRoute]</code> offered/gateway/canonicalOEE</td>
+          <td class="cell"><code>routingBypass</code> · routing-cache clear</td>
+          <td class="repcol"><span class="none">— none</span></td>
+          <td class="cell">skill-registry slot</td>
+        </tr>
+        <tr>
+          <td><span class="stg">07 · Context Compression<span class="sub2">window + resultStore</span></span></td>
+          <td><span class="state"><span class="pill p-par">STUB</span><span class="why">offload only; no summarizer</span></span></td>
+          <td class="cell"><code>[ToolResult]</code> compacted/stored flags</td>
+          <td class="cell">—</td>
+          <td class="repcol"><span class="none">— none</span></td>
+          <td class="cell">summarizer slot</td>
+        </tr>
+        <tr>
+          <td><span class="stg">08 · Prompt Assembly<span class="sub2">buildSystemPrompt</span></span></td>
+          <td><span class="state"><span class="pill p-have">HAVE·STRONG</span><span class="why">core modules + domain packs; byte-cache</span></span></td>
+          <td class="cell">promptSnapshot test — <b>build-time only</b>; the final per-request prompt is <span class="none">not captured</span></td>
+          <td class="cell"><code>knowledgeSource</code> / <code>previewDrafts</code> (lab)</td>
+          <td class="repcol"><span class="none">— none</span></td>
+          <td class="cell">—</td>
+        </tr>
+        <tr>
+          <td><span class="stg">09 · LLM Inference<span class="sub2">single gateway</span></span></td>
+          <td><span class="state"><span class="pill p-have">HAVE</span></span></td>
+          <td class="cell"><code>[LLMFinish]</code> finishReason · warnings · usage (OBS-2)</td>
+          <td class="cell"><code>forceProvider</code></td>
+          <td class="repcol"><span class="none">— none</span></td>
+          <td class="cell">—</td>
+        </tr>
+        <tr>
+          <td><span class="stg">10 · Tool Execution Loop<span class="sub2">stepCountIs · meta-tools</span></span></td>
+          <td><span class="state"><span class="pill p-have">HAVE</span></span></td>
+          <td class="cell"><code>[MCP Call/Result]</code>, tool_call telemetry; steps not fully surfaced</td>
+          <td class="cell">—</td>
+          <td class="repcol"><span class="none">— none</span></td>
+          <td class="cell">—</td>
+        </tr>
+        <tr>
+          <td><span class="stg">11 · Verification / Reflection<span class="sub2">groundingCheck</span></span></td>
+          <td><span class="state"><span class="pill p-div">DIVERGENT</span><span class="why">deterministic; LLM-judge banned</span></span></td>
+          <td class="cell">grounding verdict → done event + telemetry</td>
+          <td class="cell">—</td>
+          <td class="repcol"><span class="none">— none</span></td>
+          <td class="cell">—</td>
+        </tr>
+        <tr>
+          <td><span class="stg">12 · Response / Render<span class="sub2">FROM-TOOL directives</span></span></td>
+          <td><span class="state"><span class="pill p-have">HAVE</span></span></td>
+          <td class="cell">tool-result-raw, done; empty-guard (OBS-2)</td>
+          <td class="cell">—</td>
+          <td class="repcol"><span class="none">— none</span></td>
+          <td class="cell">—</td>
+        </tr>
+        <tr>
+          <td><span class="stg">13 · Memory Update<span class="sub2">persist + routing-cache</span></span></td>
+          <td><span class="state"><span class="pill p-par">MINIMAL</span><span class="why">message persist + routing self-learn ✓; user memory = gap</span></span></td>
+          <td class="cell">persistence, <code>[ToolFilter] Learned</code></td>
+          <td class="cell">routing-cache clear</td>
+          <td class="repcol"><span class="none">— none</span></td>
+          <td class="cell">user-memory writer slot</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ── 4 · readout ── -->
+  <h2 class="sec"><span class="n">04</span> The readout — and the differentiator hiding in one column</h2>
+  <div class="cards">
+    <div class="card c-obs"><div class="big">~9<span style="font-size:15px;color:var(--ink-faint)">/14</span></div><div class="lab">Observe</div><div class="note">Real at 6/9/10/11; thin at 05/07; <b>build-time only</b> at 08; absent at 03.</div></div>
+    <div class="card c-twk"><div class="big">5<span style="font-size:15px;color:var(--ink-faint)">/14</span></div><div class="lab">Tweak</div><div class="note">Stages 02, 05, 06, 09 (+ routing clear at 13) — all via the GOV-4 session-only, read-only lab overlay.</div></div>
+    <div class="card c-rep"><div class="big">0<span style="font-size:15px;color:var(--ink-faint)">/14</span></div><div class="lab">Replay</div><div class="note">No stage can be re-run on a captured request with a tweak and diffed. This empty column <b>is the lab.</b></div></div>
+    <div class="card c-stb"><div class="big">0<span style="font-size:15px;color:var(--ink-faint)">/14</span></div><div class="lab">Stub / Extend</div><div class="note">Slots are named, but no pluggable mechanism to add a stage or drop in JS/Python exists yet.</div></div>
+  </div>
+
+  <div class="grid2" style="margin-top:14px">
+    <div class="box">
+      <h3>What the market already sells</h3>
+      <p><b>Observability (read-only):</b> Langfuse, LangSmith, Phoenix, Braintrust, Weave — trace trees, spans, tokens. You watch a run; you can't re-run a stage.</p>
+      <p><b>Prompt replay (one stage):</b> LangSmith Playground, Langfuse, PromptLayer — edit the prompt and re-run. Only the prompt stage; not tool-select, retrieval, or grounding.</p>
+      <p><b>Graph studios (framework-bound):</b> LangGraph Studio — breakpoints, edit-state, time-travel — but only for graphs built its way.</p>
+    </div>
+    <div class="box divider-note">
+      <h3>What we build — and why it's ours</h3>
+      <p><b>Buy the telescope, build the microscope stage.</b> Observability is a solved import (Langfuse via F-obs). The differentiator is the layer <b>on top</b>: domain-aware <b>tweak + replay + stub</b> across every stage — including the ones no generic tool understands (deterministic grounding, scope-authority, governed knowledge, <code>empty≠zero</code>).</p>
+      <p>A competitor watching a dashboard and editing a prompt cannot see, let alone replay, our knowledge-floor or scope-authority stages. <b>Their tool doesn't know our domain. Ours will.</b></p>
+    </div>
+  </div>
+
+  <!-- ── 5 · sequencing ── -->
+  <h2 class="sec"><span class="n">05</span> How the gaps close — the build order</h2>
+  <p class="lead">The control plane is built in the order that makes each next layer <b>verifiable</b>. Observe before tweak; tweak before replay; replay before extensibility.</p>
+  <div class="seq">
+    <div class="step"><span class="ord">1</span><div class="body"><h4>Observe backbone — unpark F-obs</h4><p>Self-hosted Langfuse + OTel span tree. Fills the observe gaps in one move: the <b>final per-request prompt</b> (stage 08), per-step reasoning (stages 03/10), and a single trace id (folds the TD-10 <code>session_id</code> reconciliation in). Blocked only on host placement (OA-8).</p></div></div>
+    <div class="step"><span class="ord">2</span><div class="body"><h4>Tweak expansion — widen the GOV-4 lab overlay</h4><p>Extend the existing session-only, read-only overlay from 5 stages to every tweakable one — always server-authorized, never touching governed state. The safety model already exists; this is coverage.</p></div></div>
+    <div class="step"><span class="ord">3</span><div class="body"><h4>Replay — the genuinely new build</h4><p>Capture a request's stage inputs; re-run one stage with a tweak; diff the output against the original. This is the empty column and the heart of the microscope — nothing off-the-shelf does it for our stages.</p></div></div>
+    <div class="step"><span class="ord">4</span><div class="body"><h4>Stub &amp; extensibility — add a layer</h4><p>A pluggable stage interface: drop a stub where a stage is missing, or let an engineer write a small JS/Python transform, run it in isolation, and see its effect through observe+replay.</p></div></div>
+    <div class="step"><span class="ord later">·</span><div class="body"><h4>Out of scope, on purpose — multi-agent orchestration</h4><p>Not now. The bench optimizes <b>one</b> agent to product quality first; orchestration is a later chapter, not this one.</p></div></div>
+  </div>
+
+  <div class="flag">
+    <b>Held for the next pass — the control plane needs a home.</b> Observe and tweak surfaces today live in scattered logs and the admin/settings/telemetry pages. Those pages are the intended UI home for this control plane and are a known redesign target (the telemetry page in particular has acknowledged bugs and missing features). This blueprint deliberately stops at the <i>capability</i> map; the UI redesign that gives it a home is a separate, sequenced phase — flagged here so the two stay linked.
+  </div>
+
+  <footer>
+    <span>cwf-agent-control-plane-blueprint · v1 · rev 1 · 2026-07-01</span>
+    <span>derived from 5 SOTA references × CWF code @ b8a0e6d · verify against repo, not this map</span>
+  </footer>
+
+</div>
+</body>
+</html>
+```
+
+---
+
+## 4. WIRE INTO THE VIEWER — `public/architecture/index.html`
+
+- Add ONE entry to the `TABS` array, immediately AFTER the `governance-model` line:
+  ```js
+  { id: "agent-control-plane", label: "Agent Control Plane", kind: "diagram", src: "diagrams/agent-control-plane-blueprint.html" },
+  ```
+- Update the header comment: "5 hand-authored diagrams" → "**6** hand-authored diagrams"; bump the comment's rev stamp (`rev 3` → `rev 4 · 2026-07-01`).
+
+---
+
+## 5. REGISTER IN `manifest.json` (tight codeAreas) + bump `docVersion`
+
+- Append to `tabs[]`:
+  ```json
+  {
+    "tab": "Agent Control Plane",
+    "diagram": "diagrams/agent-control-plane-blueprint.html",
+    "codeAreas": ["api/cwf/_lib/llm/gateway.ts", "api/cwf/_lib/labMode.ts", "api/cwf/_lib/observability/**", "api/cwf/_lib/replay/**"],
+    "lastSyncedCommit": "b8a0e6d"
+  }
+  ```
+  (Set `lastSyncedCommit` to the actual commit this lands in / current HEAD. The last two globs match nothing today — they auto-map when F-obs/replay land.)
+- Bump `docVersion`: `"rev 17 · 2026-07-01"` → `"rev 18 · 2026-07-01"`.
+
+---
+
+## 6. ADD RULE 23 — `.agents/AGENTS.md`
+
+Append after RULE 22, same `## ⛔ RULE N — TITLE` format:
+
+```
+## ⛔ RULE 23 — THE AGENT CONTROL PLANE BLUEPRINT IS A ROADMAP-ALTITUDE TAB; RE-SYNC ON CAPABILITY, NOT ON EVERY EDIT
+
+* The "Agent Control Plane" tab (`diagrams/agent-control-plane-blueprint.html`) maps the canonical 14-stage flow × the observe/tweak/replay/stub control-plane axis. It sits ABOVE the code-structure tabs: it drifts when a control-plane CAPABILITY changes — a stage's observe/tweak/replay/stub status flips, or a control-plane phase lands (F-obs, lab-expansion, replay, stage-stub) — NOT on every pipeline edit.
+* TRIGGER (MUST re-sync in the SAME seal): any phase that flips a matrix cell or lands a control-plane capability → update the blueprint matrix + bump this tab's `lastSyncedCommit` to HEAD + `docVersion` + the project-side `-vN` artifact (filename + internal `rev`).
+* NON-TRIGGER (MUST NOT couple): a phase touching no control-plane surface (e.g. a domain-composer fix like FLOOR-1) does NOT re-sync the blueprint — even if it changed a lot of code.
+* The manifest `codeAreas` for this tab are deliberately TIGHT (`gateway.ts`, `labMode.ts`, + reserved `observability/`/`replay/` dirs); the drift-guard WARN is a BACKSTOP, not the guarantee. This RULE (the human seal) is the guarantee, because the true trigger is semantic (a cell changed), finer than a file glob. Verify by asking "did a matrix cell change?", never by trusting the WARN alone.
+```
+
+---
+
+## 7. CHANGELOG
+
+Add a DOC-3 entry to `.agents/CHANGELOG.md` (match the existing entry format): date, phase `DOC-3`, title "Agent Control Plane blueprint → 6th architecture tab + RULE 23 (roadmap-altitude lock-step)".
+
+---
+
+## 8. SEAL
+
+Single doc commit (no code → NOT a two-commit seal): `docs(doc-3): agent control plane blueprint tab + RULE 23 lock-step`. Open a PR; report PR number + SHA.
+
+---
+
+## 9. SELF-VERIFY (paste evidence for each)
+
+- [ ] Pre-flight gate green (HEAD, clean tree, the 4 anchors with pasted lines).
+- [ ] Tab file created verbatim: `wc -l` ≈ **396**; `grep` confirms markers ("The Electron Microscope", "control-plane matrix", "REPLAY", "0/14"); no triple-backticks introduced; opens in an iframe.
+- [ ] `index.html`: `TABS` has **6** entries; header comment says "6 … rev 4"; the tab renders in the viewer.
+- [ ] `manifest.json`: **6** tabs; the new entry has the **TIGHT** `codeAreas` (NOT a broad `api/cwf/*.ts` glob); `docVersion` → rev 18.
+- [ ] **RULE 23** present, names BOTH trigger and non-trigger; `check:doc-drift` runs clean (WARN-only — paste output).
+- [ ] CHANGELOG `DOC-3` entry added.
+- [ ] `git diff --stat` = **DOC-ONLY**: `public/architecture/**`, `.agents/AGENTS.md`, `.agents/CHANGELOG.md` — NOTHING in `api/`, `src/`, `shared/`, `scripts/`, `supabase/`.
+- [ ] **Single** commit (not two-commit); PR + SHA reported.
+
+**Do not** claim done from a green build — the altitude is the point. Confirm the `codeAreas` are TIGHT (a future FLOOR-1-style pure phase must NOT drift this tab) and that RULE 23 names the non-trigger. I review by cloning + diffing vs `b8a0e6d`.

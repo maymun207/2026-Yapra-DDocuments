@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CWF / EAIP — Architecture Map · v6</title>
+<style>
+  :root{
+    --bg:#0a0e14; --bg2:#0d131c; --panel:#111a26; --panel2:#0f1722;
+    --line:#1f2d3d; --line2:#2a3b4f;
+    --ink:#dbe6f0; --ink-dim:#8aa0b6; --ink-faint:#5c7186;
+    --cyan:#34d6e6; --cyan-deep:#0e7d8c; --cyan-glow:rgba(52,214,230,.20);
+    /* status */
+    --verified:#3ad29f;     /* code-read this session */
+    --docs:#6ea8fe;         /* known from design docs */
+    --inflight:#f5b942;     /* prompt written, not yet implemented */
+    --seam:#7f8fa3;         /* interface exists, impl is no-op */
+    --planned:#b58cff;      /* not built yet */
+    --external:#5fd0ff;     /* external MCP backend */
+    --danger:#ff6b7a;       /* invariant / blind-spot thread */
+    --mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+    --sans:ui-sans-serif,system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; background:
+      radial-gradient(1200px 600px at 80% -10%, #10202c 0%, transparent 60%),
+      radial-gradient(900px 500px at -10% 20%, #121a14 0%, transparent 55%),
+      var(--bg);
+    color:var(--ink); font-family:var(--sans); line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1280px; margin:0 auto; padding:32px 24px 80px}
+
+  /* ---------- header ---------- */
+  header.top{border:1px solid var(--line); border-radius:14px; padding:22px 24px;
+    background:linear-gradient(180deg,var(--panel),var(--panel2)); position:relative; overflow:hidden}
+  header.top::before{content:""; position:absolute; inset:0;
+    background:repeating-linear-gradient(90deg,transparent 0 38px, rgba(52,214,230,.025) 38px 39px);
+    pointer-events:none}
+  .kick{font-family:var(--mono); font-size:11px; letter-spacing:.32em; text-transform:uppercase;
+    color:var(--cyan); margin:0 0 8px}
+  h1{font-size:30px; margin:0; letter-spacing:-.01em; font-weight:680}
+  h1 .sub{color:var(--ink-dim); font-weight:400}
+  .tagline{color:var(--ink-dim); margin:10px 0 0; max-width:78ch; font-size:14.5px}
+  .stamp{position:absolute; top:18px; right:20px; font-family:var(--mono); font-size:10.5px;
+    color:var(--ink-faint); text-align:right; line-height:1.7}
+  .stamp b{color:var(--verified)}
+
+  /* ---------- legend ---------- */
+  .legend{display:flex; flex-wrap:wrap; gap:10px 18px; margin:18px 0 0; align-items:center}
+  .lg{display:inline-flex; align-items:center; gap:7px; font-size:12px; color:var(--ink-dim); font-family:var(--mono)}
+  .dot{width:10px; height:10px; border-radius:3px; flex:none; box-shadow:0 0 0 1px rgba(255,255,255,.06) inset}
+  .dot.v{background:var(--verified)} .dot.d{background:var(--docs)} .dot.i{background:var(--inflight)}
+  .dot.s{background:var(--seam)} .dot.p{background:var(--planned)} .dot.e{background:var(--external)}
+  .dot.x{background:var(--danger)}
+  .controls{margin-left:auto; display:flex; gap:8px}
+  button.t{font-family:var(--mono); font-size:11.5px; color:var(--ink); background:var(--panel);
+    border:1px solid var(--line2); border-radius:8px; padding:7px 11px; cursor:pointer}
+  button.t:hover{border-color:var(--cyan-deep); color:var(--cyan)}
+  button.t[aria-pressed="true"]{border-color:var(--cyan); color:var(--cyan); box-shadow:0 0 0 1px var(--cyan-glow)}
+
+  /* ---------- section scaffolding ---------- */
+  .band{margin-top:18px; border:1px solid var(--line); border-radius:14px;
+    background:linear-gradient(180deg,var(--panel),var(--panel2)); position:relative}
+  .band > .bhead{display:flex; align-items:baseline; gap:14px; padding:14px 20px 0}
+  .bnum{font-family:var(--mono); font-size:12px; color:var(--cyan); letter-spacing:.1em}
+  .btitle{font-size:16px; font-weight:640; margin:0}
+  .bsub{font-size:12.5px; color:var(--ink-faint); font-family:var(--mono); margin-left:auto; text-align:right}
+  .grid{display:grid; gap:12px; padding:16px 20px 20px}
+  .g2{grid-template-columns:repeat(2,1fr)} .g3{grid-template-columns:repeat(3,1fr)}
+  .g4{grid-template-columns:repeat(4,1fr)}
+
+  /* ---------- block card ---------- */
+  .blk{border:1px solid var(--line2); border-radius:11px; padding:13px 14px; background:var(--bg2);
+    position:relative; transition:border-color .15s, transform .15s, box-shadow .15s}
+  .blk:hover{border-color:var(--cyan-deep); transform:translateY(-1px); box-shadow:0 6px 22px -12px var(--cyan-glow)}
+  .blk .st{position:absolute; top:11px; right:11px; width:9px; height:9px; border-radius:3px}
+  .blk h4{margin:0 5px 0 0; font-size:13.5px; font-weight:640; display:inline}
+  .blk .role{display:block; font-size:11px; color:var(--ink-faint); font-family:var(--mono);
+    text-transform:uppercase; letter-spacing:.08em; margin:2px 0 8px}
+  .path{font-family:var(--mono); font-size:11px; color:var(--cyan); background:rgba(52,214,230,.06);
+    border:1px solid rgba(52,214,230,.14); border-radius:5px; padding:1px 6px; display:inline-block; margin-bottom:8px;
+    word-break:break-all}
+  body:not(.show-paths) .path{display:none}
+  .fns{margin:0; padding:0; list-style:none; display:flex; flex-wrap:wrap; gap:4px 6px}
+  .fns li{font-family:var(--mono); font-size:10.5px; color:var(--ink-dim);
+    border:1px solid var(--line2); border-radius:5px; padding:2px 6px; background:var(--panel)}
+  .fns li.fn{color:var(--ink)}
+  .note{font-size:11.5px; color:var(--ink-dim); margin:8px 0 0}
+  .note b{color:var(--ink)}
+  .tag-v{color:var(--verified)} .tag-x{color:var(--danger)} .tag-i{color:var(--inflight)} .tag-s{color:var(--seam)}
+
+  /* status left border accents */
+  .blk.v{border-left:3px solid var(--verified)} .blk.d{border-left:3px solid var(--docs)}
+  .blk.i{border-left:3px solid var(--inflight)} .blk.s{border-left:3px solid var(--seam)}
+  .blk.p{border-left:3px solid var(--planned)} .blk.e{border-left:3px solid var(--external)}
+
+  /* ---------- flow spine ---------- */
+  .flow{padding:18px 20px 6px}
+  .flowrow{display:flex; align-items:stretch; gap:0; flex-wrap:wrap}
+  .step{flex:1 1 0; min-width:120px; border:1px solid var(--line2); background:var(--bg2);
+    border-radius:10px; padding:10px 12px; position:relative; margin:0 14px 14px 0}
+  .step:last-child{margin-right:0}
+  .step .n{font-family:var(--mono); font-size:10px; color:var(--cyan); letter-spacing:.1em}
+  .step .l{font-size:12.5px; font-weight:600; margin:3px 0 2px}
+  .step .d{font-size:10.5px; color:var(--ink-faint); font-family:var(--mono)}
+  .step::after{content:"▸"; position:absolute; right:-13px; top:50%; transform:translateY(-50%);
+    color:var(--cyan-deep); font-size:13px}
+  .step.last::after{display:none}
+
+  .edge{font-family:var(--mono); font-size:11px; color:var(--ink-faint); text-align:center;
+    padding:2px 0 10px; letter-spacing:.04em}
+  .edge b{color:var(--danger)}
+  .edge .arr{color:var(--cyan-deep)}
+
+  /* ---------- eval gate airlock ---------- */
+  .gate{display:grid; grid-template-columns:1.1fr 1fr 1fr 1fr 1.1fr; gap:0; align-items:stretch;
+    margin:6px 20px 4px}
+  .gcell{border:1px solid var(--line2); padding:12px 13px; background:var(--bg2); position:relative}
+  .gcell:first-child{border-radius:10px 0 0 10px} .gcell:last-child{border-radius:0 10px 10px 0}
+  .gcell + .gcell{border-left:none}
+  .gcell .gn{font-family:var(--mono); font-size:10px; letter-spacing:.1em; color:var(--cyan)}
+  .gcell h5{margin:4px 0 5px; font-size:13px}
+  .gcell p{margin:0; font-size:11px; color:var(--ink-dim)}
+  .gcell.io{background:linear-gradient(180deg,#0e1a16,#0c1512)}
+  .gcell.io.out{background:linear-gradient(180deg,#0e1a16,#0c1512)}
+  .gcell.stage{background:linear-gradient(180deg,#141c0e,#101607)}
+  .gpass{font-family:var(--mono); font-size:10px; color:var(--verified); position:absolute; bottom:8px; right:11px}
+  .greject{font-family:var(--mono); font-size:10px; color:var(--danger)}
+  .gate-cap{font-family:var(--mono); font-size:11px; color:var(--ink-faint); margin:8px 20px 16px; line-height:1.7}
+  .gate-cap b{color:var(--danger)}
+
+  /* ---------- db tables ---------- */
+  .dbgrid{display:grid; grid-template-columns:repeat(3,1fr); gap:11px; padding:16px 20px 20px}
+  .tbl{border:1px solid var(--line2); border-radius:10px; padding:11px 13px; background:var(--bg2)}
+  .tbl .tn{font-family:var(--mono); font-size:12.5px; color:var(--cyan); font-weight:600}
+  .tbl .grp{font-family:var(--mono); font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint)}
+  .tbl .rls{font-size:11px; color:var(--ink-dim); margin-top:6px}
+  .tbl .rls b{color:var(--ink)}
+  .tbl.gov{border-left:3px solid var(--verified)} .tbl.rbac{border-left:3px solid var(--docs)}
+  .tbl.found{border-left:3px solid var(--docs)} .tbl.new{border-left:3px solid var(--verified)}
+  .tbl.trust{border-left:3px solid var(--verified)} .tbl.persist{border-left:3px solid var(--docs)}
+
+  /* ---------- backends ---------- */
+  .be{border:1px solid var(--line2); border-left:3px solid var(--external); border-radius:11px;
+    padding:14px 16px; background:var(--bg2)}
+  .be h4{margin:0 0 2px; font-size:15px}
+  .be .pat{font-family:var(--mono); font-size:11px; color:var(--external); letter-spacing:.06em}
+  .be .meta{font-size:12px; color:var(--ink-dim); margin:8px 0 0}
+  .be .meta code{font-family:var(--mono); color:var(--cyan); font-size:11px}
+  .be ul{margin:8px 0 0; padding-left:16px; font-size:11.5px; color:var(--ink-dim)}
+  .be ul code{font-family:var(--mono); color:var(--ink); font-size:11px}
+  .be .tier{display:inline-block; font-family:var(--mono); font-size:10px; padding:2px 8px; border-radius:20px;
+    border:1px solid currentColor; margin-left:6px}
+  .tier.sor{color:var(--verified)} .tier.mir{color:var(--inflight)}
+  .zone{display:inline-block; font-family:var(--mono); font-size:10.5px; padding:2px 7px; margin:3px 3px 0 0;
+    border:1px solid var(--line2); border-radius:5px; color:var(--ink-dim)}
+  .zone.bs{border-color:var(--danger); color:var(--danger)}
+
+  /* ---------- trust layers strip ---------- */
+  .tl{display:grid; grid-template-columns:repeat(3,1fr); gap:0; margin:6px 20px 4px}
+  .tlc{border:1px solid var(--line2); padding:12px 14px; background:var(--bg2); position:relative}
+  .tlc:first-child{border-radius:10px 0 0 10px} .tlc:last-child{border-radius:0 10px 10px 0}
+  .tlc + .tlc{border-left:none}
+  .tlc .ln{font-family:var(--mono); font-size:10px; letter-spacing:.1em; color:var(--cyan)}
+  .tlc h5{margin:4px 0 5px; font-size:13px}
+  .tlc p{margin:0; font-size:11px; color:var(--ink-dim)}
+  .tlc .str{font-family:var(--mono); font-size:9.5px; position:absolute; bottom:8px; right:11px}
+  .str.strong{color:var(--verified)} .str.med{color:var(--inflight)} .str.real{color:var(--planned)}
+
+  /* ---------- invariants rail ---------- */
+  .rail{display:grid; grid-template-columns:repeat(3,1fr); gap:11px; padding:16px 20px 20px}
+  .inv{border:1px solid var(--line2); border-left:3px solid var(--danger); border-radius:10px;
+    padding:12px 14px; background:linear-gradient(180deg,#1a0f12,#140c0e)}
+  .inv h5{margin:0 0 4px; font-size:13px; color:#ffd0d6}
+  .inv p{margin:0; font-size:11.5px; color:var(--ink-dim)}
+  .inv p code{font-family:var(--mono); color:#ff9aa6; font-size:11px}
+
+  /* ---------- recommendations ---------- */
+  .rec{padding:6px 20px 20px}
+  .rec ol{margin:6px 0 0; padding-left:20px}
+  .rec li{margin:0 0 11px; font-size:13.5px}
+  .rec li b{color:var(--cyan)}
+  .rec li .why{color:var(--ink-dim); font-size:12.5px; display:block; margin-top:2px}
+  .pill{font-family:var(--mono); font-size:10px; padding:1px 7px; border-radius:20px; margin-left:6px;
+    border:1px solid currentColor}
+  .pill.done{color:var(--verified)} .pill.now{color:var(--inflight)} .pill.next{color:var(--cyan)} .pill.later{color:var(--planned)}
+
+  footer{margin-top:26px; border-top:1px solid var(--line); padding-top:16px;
+    font-family:var(--mono); font-size:11px; color:var(--ink-faint); display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px}
+
+  @media (max-width:880px){
+    .g2,.g3,.g4,.dbgrid,.rail{grid-template-columns:1fr}
+    .gate,.tl{grid-template-columns:1fr}
+    .gcell,.tlc{border-radius:10px!important; border-left:1px solid var(--line2)!important; margin-bottom:2px}
+    .stamp{position:static; text-align:left; margin-top:10px}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body class="show-paths">
+<div class="wrap">
+
+  <header class="top">
+    <p class="kick">Chat With your Factory · EAIP-aligned service</p>
+    <h1>Architecture Map <span class="sub">— cwf_yaprak</span></h1>
+    <p class="tagline">A single-agent, multi-backend AI service over live MCP backends, built so every concern that becomes a future EAIP layer is isolated behind an interface today. Request flows top→bottom; the governance + trust core (read from source this session) is the spine. Both backends are now live; the trust registry has landed as gated DATA.</p>
+    <div class="stamp">
+      drawn 2026-06-28 · rev 6<br>
+      governance + trust core: <b>code-verified</b><br>
+      SEED→P6.8 · A1 · A1.1 ✓ @ bc7ce8e · A2 next
+    </div>
+    <div class="legend">
+      <span class="lg"><span class="dot v"></span>code-verified (read this session)</span>
+      <span class="lg"><span class="dot d"></span>per design docs</span>
+      <span class="lg"><span class="dot i"></span>prompt written, not yet built</span>
+      <span class="lg"><span class="dot s"></span>seam / no-op stub</span>
+      <span class="lg"><span class="dot p"></span>planned (B/C/D)</span>
+      <span class="lg"><span class="dot e"></span>external MCP backend</span>
+      <span class="lg"><span class="dot x"></span>invariant thread</span>
+      <span class="controls">
+        <button class="t" id="togglePaths" aria-pressed="true">file paths</button>
+      </span>
+    </div>
+  </header>
+
+  <!-- ============ REQUEST FLOW SPINE ============ -->
+  <section class="band">
+    <div class="bhead"><span class="bnum">FLOW</span><h2 class="btitle">The request, end to end</h2>
+      <span class="bsub">one path · all providers · token never leaves the server</span></div>
+    <div class="flow">
+      <div class="flowrow">
+        <div class="step"><div class="n">01</div><div class="l">Client</div><div class="d">React · auth session</div></div>
+        <div class="step"><div class="n">02</div><div class="l">Verify Bearer</div><div class="d">getUser → userId</div></div>
+        <div class="step"><div class="n">03</div><div class="l">Role + scopes</div><div class="d">RBAC derive</div></div>
+        <div class="step"><div class="n">04</div><div class="l">Resolve MCP + active</div><div class="d">mcp_settings → activeBackends</div></div>
+        <div class="step"><div class="n">05</div><div class="l">Warm knowledge</div><div class="d">published slice → packs</div></div>
+        <div class="step"><div class="n">06</div><div class="l">Assemble + scope tools</div><div class="d">core + packs · scopeTools</div></div>
+        <div class="step"><div class="n">07</div><div class="l">Gateway stream</div><div class="d">streamText loop · MCP calls (retry)</div></div>
+        <div class="step last"><div class="n">08</div><div class="l">SSE out + ground</div><div class="d">format · handle · grounding (Mode A)</div></div>
+      </div>
+      <div class="edge">client sends only <span class="arr">{ message, history, language, conversationId } + Bearer</span> — <b>no mcpServers, no URL, no token</b> (proven: request body + JS bundle) · trust is read-only DATA today; it routes answers in <b>Phase&nbsp;C</b>, not yet</div>
+    </div>
+  </section>
+
+  <!-- ============ LAYER 1 — CLIENT ============ -->
+  <section class="band">
+    <div class="bhead"><span class="bnum">L1</span><h2 class="btitle">Client — React 19 / Vite / Zustand</h2>
+      <span class="bsub">src/ · bilingual TR/EN · Claude-style shell (P5.5)</span></div>
+    <div class="grid g4">
+      <div class="blk d"><span class="st" style="background:var(--docs)"></span>
+        <h4>Auth + session</h4><span class="role">identity</span>
+        <span class="path">LoginPage.tsx · store/authStore.ts</span>
+        <ul class="fns"><li class="fn">signInWithPassword</li><li>session</li><li>role</li><li>scopes</li></ul>
+        <p class="note">Real Supabase Auth (P3). Role/scopes are a UI hint — server-enforced.</p>
+      </div>
+      <div class="blk d"><span class="st" style="background:var(--docs)"></span>
+        <h4>Chat + sidebar</h4><span class="role">conversation</span>
+        <span class="path">components/ui/cwf/* · Sidebar.tsx · store/cwfStore.ts</span>
+        <ul class="fns"><li>one layout /+/v2</li><li class="fn">history list</li><li>raw-tool toggle</li></ul>
+        <p class="note">P5.6 multi-conversation. <span class="tag-s">⚠ chart/table content</span> = viz-restore stub (planned).</p>
+      </div>
+      <div class="blk d"><span class="st" style="background:var(--docs)"></span>
+        <h4>MCP settings</h4><span class="role">per-user config</span>
+        <span class="path">MCPSettingsPanel · lib/mcpSettingsService.ts</span>
+        <ul class="fns"><li class="fn">load</li><li class="fn">save (upsert)</li><li>auth.uid()</li></ul>
+        <p class="note">Owner-only RLS. ARMES + Superset tokens entered here, stored server-side.</p>
+      </div>
+      <div class="blk d"><span class="st" style="background:var(--docs)"></span>
+        <h4>Service client</h4><span class="role">transport</span>
+        <span class="path">lib/cwfService.ts · lib/conversationsService.ts</span>
+        <ul class="fns"><li class="fn">postChat (SSE)</li><li class="fn">rename</li><li class="fn">soft-delete</li></ul>
+        <p class="note"><b>Sends no secrets.</b> The only browser writes: <code style="font-family:var(--mono);color:var(--cyan)">mcp_settings</code> + <code style="font-family:var(--mono);color:var(--cyan)">conversations</code> (owner-CRUD).</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ LAYER 2 — EDGE / API ============ -->
+  <section class="band">
+    <div class="bhead"><span class="bnum">L2</span><h2 class="btitle">Edge / API — Vercel serverless (thin handlers)</h2>
+      <span class="bsub">api/ · parse → authorize → delegate → stream</span></div>
+    <div class="grid g3">
+      <div class="blk v"><span class="st" style="background:var(--verified)"></span>
+        <h4>Chat handler</h4><span class="role">the spine</span>
+        <span class="path">api/cwf/chat.ts</span>
+        <ul class="fns"><li class="fn">verify Bearer</li><li class="fn">resolve mcp_settings</li><li class="fn">warm</li><li class="fn">buildSystemPrompt</li><li class="fn">streamChat</li><li class="fn">persist (assertOwned)</li></ul>
+        <p class="note">Thin spine: tool-loop runs here via the SDK (no separate runAgent). <b>Single message-writer</b> (P5.6). <span class="tag-v">read this session</span></p>
+      </div>
+      <div class="blk v"><span class="st" style="background:var(--verified)"></span>
+        <h4>Admin API</h4><span class="role">governance control</span>
+        <span class="path">api/admin/{rules, rules/[id], kinds, reset}.ts</span>
+        <ul class="fns"><li class="fn">GET history+diff</li><li class="fn">PATCH draft</li><li class="fn">POST publish</li><li class="fn">rollback</li><li class="fn">reset</li></ul>
+        <p class="note">role/scope-gated via <code style="font-family:var(--mono);color:var(--cyan)">adminGuard</code>. Governed writes only here — browser never mutates the store.</p>
+      </div>
+      <div class="blk v"><span class="st" style="background:var(--verified)"></span>
+        <h4>MCP transport</h4><span class="role">backend transport</span>
+        <span class="path">_lib/backends/mcpTransport.ts · chat.ts executeMCPTool</span>
+        <ul class="fns"><li class="fn">connect</li><li class="fn">call</li><li>SSE-first (Superset)</li><li>transient retry</li></ul>
+        <p class="note">SDK pinned exact <code style="font-family:var(--mono);color:var(--cyan)">1.29.0</code>. Retries only transient errors (live 405); validation errors return as RESULT.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ LAYER 3 — AGENT CORE ============ -->
+  <section class="band">
+    <div class="bhead"><span class="bnum">L3</span><h2 class="btitle">Agent core — orchestration, prompt, tools, trust</h2>
+      <span class="bsub">api/cwf/_lib/ · provider-agnostic · EAIP seams</span></div>
+    <div class="grid g3">
+      <div class="blk v"><span class="st" style="background:var(--verified)"></span>
+        <h4>LLM gateway</h4><span class="role">one call site · L4 seam</span>
+        <span class="path">_lib/llm/gateway.ts · models.ts</span>
+        <ul class="fns"><li class="fn">streamChat</li><li>streamText</li><li>stepCountIs(MAX_TOOL_ROUNDS)</li><li>Anthropic cache</li></ul>
+        <p class="note">All providers (Gemini default · GPT-4.1 · Sonnet 4.6). <code style="font-family:var(--mono);color:var(--cyan)">system:</code> = buildSystemPrompt only. → future LiteLLM/vLLM.</p>
+      </div>
+      <div class="blk v"><span class="st" style="background:var(--verified)"></span>
+        <h4>Prompt assembler</h4><span class="role">single source · L4 seam</span>
+        <span class="path">_lib/prompt/assemble.ts · registry.ts · core/* · backends/*</span>
+        <ul class="fns"><li class="fn">buildSystemPrompt(ctx, activeBackends)</li></ul>
+        <p class="note">Core <code style="font-family:var(--mono);color:var(--cyan)">[identity, safety, outputFormat]</code> + toolProtocol + per-backend packs (suffix). <span class="tag-i">A2 adds safety §5: tool content = DATA not COMMAND.</span></p>
+      </div>
+      <div class="blk v"><span class="st" style="background:var(--verified)"></span>
+        <h4>Backends layer</h4><span class="role">resolve · scope · trust</span>
+        <span class="path">_lib/backends/{resolveActiveBackends, scopeTools, mcpTransport, trustRegistry}.ts</span>
+        <ul class="fns"><li class="fn">resolveActiveBackends</li><li class="fn">scopeTools</li><li class="fn">trustRegistry</li></ul>
+        <p class="note"><b>trustRegistry (A1)</b>: DB-first/code-floor <code style="font-family:var(--mono);color:var(--cyan)">getTrust()</code>, <b>unknown→floor</b>. Read-only seam — not in the answer flow yet (enforcement = C).</p>
+      </div>
+
+      <div class="blk d"><span class="st" style="background:var(--docs)"></span>
+        <h4>Tools + result layer</h4><span class="role">MCP adapter + large-result</span>
+        <span class="path">_lib/toolResult.ts · resultStore.ts · toolCategories.ts</span>
+        <ul class="fns"><li class="fn">discover/exec</li><li>3-tier format</li><li class="fn">resultHandle</li><li>relevance filter</li></ul>
+        <p class="note">Solved the real 5470-record analytics failure. <code style="font-family:var(--mono);color:var(--cyan)">stored:true</code> ≠ truncated. ARMES = flat · Superset = gateway.</p>
+      </div>
+      <div class="blk d"><span class="st" style="background:var(--docs)"></span>
+        <h4>Meta-tools</h4><span class="role">domain-agnostic primitives</span>
+        <span class="path">_lib/timeTools.ts · resultStore.ts</span>
+        <ul class="fns"><li class="fn">resolve_time_range</li><li class="fn">aggregate_records</li><li class="fn">query_records</li></ul>
+        <p class="note">Forbids hand-computed epoch (midnight TRT). Powers analytics over stored handles.</p>
+      </div>
+      <div class="blk v"><span class="st" style="background:var(--verified)"></span>
+        <h4>Grounding</h4><span class="role">runtime validator · code-verified</span>
+        <span class="path">prompt/core/grounding.ts · grounding/groundingCheck.ts</span>
+        <ul class="fns"><li class="fn">runGroundingCheck</li><li>empty≠zero</li><li>count-understatement</li><li>fabrication</li></ul>
+        <p class="note">Deterministic, advisory (Mode A); forbidden phrases <b>derived from BLIND_SPOTS</b>; no LLM-judge. ARMES-zone-specific — the cross-backend trust validator is <span class="tag-i">Phase C</span> (blocked on provenance B).</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ LAYER 4 — KNOWLEDGE & GOVERNANCE ============ -->
+  <section class="band">
+    <div class="bhead"><span class="bnum">L4</span><h2 class="btitle">Knowledge &amp; Governance — the verified core</h2>
+      <span class="bsub">api/cwf/_lib/knowledge/ · DB-first / code-floor</span></div>
+    <div class="grid g3">
+      <div class="blk v"><span class="st" style="background:var(--verified)"></span>
+        <h4>referenceSchema</h4><span class="role">immutable code baseline</span>
+        <span class="path">knowledge/reference/{kinds, referenceData, backendTrust, index}.ts</span>
+        <ul class="fns"><li class="fn">coreSchemaRegistry</li><li>Zod .strict()</li><li class="fn">REFERENCE_BACKEND_TRUST</li></ul>
+        <p class="note"><b>Golden copy</b> = DB seed source + DB-down fallback floor. CORE locked; SOFT interpreted. Trust declarations (A1) live here too.</p>
+      </div>
+      <div class="blk v"><span class="st" style="background:var(--verified)"></span>
+        <h4>DbKnowledgeProvider</h4><span class="role">runtime knowledge · with floor</span>
+        <span class="path">knowledge/DbKnowledgeProvider.ts · composeArmes/composeSuperset.ts</span>
+        <ul class="fns"><li class="fn">warm (async)</li><li class="fn">getDomainContext (sync)</li><li class="fn">composeFor</li></ul>
+        <p class="note">Cache miss / DB-down / empty → <code style="font-family:var(--mono);color:var(--cyan)">StaticKnowledgeProvider</code> floor. <b>Agent never goes dark.</b> No vector. Per-backend composer dispatch.</p>
+      </div>
+      <div class="blk v"><span class="st" style="background:var(--verified)"></span>
+        <h4>Governance service</h4><span class="role">service-role orchestration</span>
+        <span class="path">knowledge/governance.ts</span>
+        <ul class="fns"><li class="fn">createDraft</li><li class="fn">publish</li><li class="fn">rollback</li><li class="fn">resetToReference</li><li class="fn">createSoftKind</li></ul>
+        <p class="note"><b><code style="font-family:var(--mono);color:#3ad29f">publish()</code> is the ONLY path to <code style="font-family:var(--mono);color:var(--cyan)">status='published'</code></b> — reset calls it. CORE field-structure locked.</p>
+      </div>
+    </div>
+
+    <!-- eval gate airlock -->
+    <div class="bhead" style="padding-top:4px"><span class="bnum">L4·gate</span><h2 class="btitle" style="font-size:14px">Eval-gate — unbypassable publish pipeline</h2>
+      <span class="bsub">knowledge/gate/evalGate.ts · runGate() · backend-aware additive dispatch</span></div>
+    <div class="gate">
+      <div class="gcell io"><div class="gn">INPUT</div><h5>Draft</h5><p>editor's draft for (kind, key). Composed onto current published set = <b>candidate</b>.</p></div>
+      <div class="gcell stage"><div class="gn">STAGE 1</div><h5>schema</h5><p>CORE Zod (locked) / SOFT field-spec. Unknown fields rejected.</p><span class="gpass">pass ▸</span></div>
+      <div class="gcell stage"><div class="gn">STAGE 2</div><h5>referential</h5><p>refs resolve in candidate (ARMES + <code style="font-family:var(--mono);color:var(--cyan)">stageReferentialSuperset</code>).</p><span class="gpass">pass ▸</span></div>
+      <div class="gcell stage"><div class="gn">STAGE 3</div><h5>behavioral</h5><p>blind-spots survive; required markers present — incl. P6.8 scope-match + metric-authority-armes.</p><span class="gpass">pass ▸</span></div>
+      <div class="gcell io out"><div class="gn">OUTPUT</div><h5>publish</h5><p>service-role sets published, archives prior, writes version + audit, invalidates cache.</p></div>
+    </div>
+    <p class="gate-cap">Any stage fails → stays <code style="font-family:var(--mono);color:var(--cyan)">draft</code>, writes <code style="font-family:var(--mono);color:#ff9aa6">audit(reject, failedStage)</code>. &nbsp;·&nbsp; Poison (IKINCILUST "barcoded / scrap=0", Superset "call-without-search", or scope-substitute Granit-as-KB7) passes schema+referential but is <b>REJECTED at behavioral</b>. &nbsp;·&nbsp; Direct client publish independently blocked by RLS (<code style="font-family:var(--mono);color:#ff9aa6">42501</code>). Adding a backend = additive per-backend stages; engine/order/ARMES-path stay byte-identical.</p>
+  </section>
+
+  <!-- ============ TRUST LAYER (ADR-001 v2) ============ -->
+  <section class="band">
+    <div class="bhead"><span class="bnum">TRUST</span><h2 class="btitle">Backend trust &amp; provenance — ADR-001 v2</h2>
+      <span class="bsub">trust is earned by declaration + verification, never granted by connection</span></div>
+    <div class="grid g3">
+      <div class="blk v"><span class="st" style="background:var(--verified)"></span>
+        <h4>Trust registry — A1 ✓</h4><span class="role">gated DATA + read seam</span>
+        <span class="path">backends.trust_tier/scope_identity · backend_authority · trustRegistry.ts</span>
+        <ul class="fns"><li class="fn">trust_tier</li><li class="fn">authority map</li><li class="fn">scope-identity</li><li class="fn">unknown→floor</li></ul>
+        <p class="note">ARMES = <code style="font-family:var(--mono);color:#3ad29f">system_of_record</code>; Superset = <code style="font-family:var(--mono);color:#f5b942">reporting_mirror</code> (authoritative for nothing). Default <code style="font-family:var(--mono)">'unverified'</code> = floor. Live 14/14.</p>
+      </div>
+      <div class="blk i"><span class="st" style="background:var(--inflight)"></span>
+        <h4>Injection boundary — A2</h4><span class="role">structural · prompt rule · NO sanitizer</span>
+        <span class="path">prompt/core/safety.ts §5 (pending)</span>
+        <ul class="fns"><li>tool content = DATA</li><li>never COMMAND</li><li class="fn">containment suite</li></ul>
+        <p class="note"><span class="tag-i">prompt written</span>. The boundary is structural (tool text never enters the system role — verified) + a rule, <b>never a regex stripper</b>.</p>
+      </div>
+      <div class="blk p"><span class="st" style="background:var(--planned)"></span>
+        <h4>Provenance + validators — B/C/D</h4><span class="role">enforcement (planned)</span>
+        <ul class="fns"><li class="fn">envelope</li><li class="fn">payload</li><li class="fn">scope-match</li><li class="fn">reconcile</li><li class="fn">quarantine</li></ul>
+        <p class="note">B tags every fact (envelope=unforgeable; payload=claim). C = deterministic validators → first answer-routing. D = quarantine + the lying-MCP acid test.</p>
+      </div>
+    </div>
+    <!-- three reliability layers -->
+    <div class="tl">
+      <div class="tlc"><div class="ln">LAYER 1</div><h5>Declaration routing + role ceiling</h5><p>Registry routes OEE→ARMES; a mirror can never be authoritative. Model- and content-independent.</p><span class="str strong">STRONG · every tier</span></div>
+      <div class="tlc"><div class="ln">LAYER 2</div><h5>Prompt guard</h5><p>P6.8 scope rules + the A2 tool-content rule. Sonnet obeys; Gemini Flash may slip.</p><span class="str med">MEDIUM · model-dep</span></div>
+      <div class="tlc"><div class="ln">LAYER 3</div><h5>Deterministic runtime validator</h5><p>Answer claims "KB7…" but tool-result datasource is "Granit…" → flag. Strong vs an honest backend; containment-only vs a forged-label liar.</p><span class="str real">PHASE C</span></div>
+    </div>
+    <p class="gate-cap"><b>Honest limit (v2):</b> a single-source self-consistent in-scope lie — in its values <i>and</i> its self-reported scope label — is made HARMLESS (can't be authoritative, can't poison, must be attributed, quarantinable) but NOT VISIBLE without an independent second source. <b>Software contains; redundancy reveals.</b> Trust is a deterministic function — never an LLM score.</p>
+  </section>
+
+  <!-- ============ LAYER 5 — DATA ============ -->
+  <section class="band">
+    <div class="bhead"><span class="bnum">L5</span><h2 class="btitle">Data — Supabase (13 tables, RLS + REVOKE on every one)</h2>
+      <span class="bsub">repository pattern · service-role at the edge only · RULE 11</span></div>
+    <div class="dbgrid">
+      <div class="tbl found"><div class="grp">Foundation P1</div><div class="tn">mcp_settings</div><div class="rls"><b>owner-CRUD</b> · holds MCP server configs + tokens (sensitive)</div></div>
+      <div class="tbl found"><div class="grp">Foundation P1</div><div class="tn">tool_category_cache</div><div class="rls">read-shared · <b>service-role write</b> (learned routing)</div></div>
+      <div class="tbl found"><div class="grp">Foundation P1</div><div class="tn">telemetry_events</div><div class="rls">own-read · service writes · redacted payload</div></div>
+      <div class="tbl rbac"><div class="grp">RBAC P3</div><div class="tn">user_roles</div><div class="rls">super_admin / domain_editor / user · own-read</div></div>
+      <div class="tbl rbac"><div class="grp">RBAC P3</div><div class="tn">user_backend_scopes</div><div class="rls">scopes a domain_editor to backends</div></div>
+      <div class="tbl gov"><div class="grp">Governance P4</div><div class="tn">rule_kinds</div><div class="rls">class core|soft · field_spec · service-role write</div></div>
+      <div class="tbl gov"><div class="grp">Governance P4</div><div class="tn">domain_rules</div><div class="rls"><b>RLS WITH CHECK status='draft'</b> · one published per (kind,key)</div></div>
+      <div class="tbl gov"><div class="grp">Governance P4</div><div class="tn">rule_versions</div><div class="rls">append-only history</div></div>
+      <div class="tbl gov"><div class="grp">Governance P4</div><div class="tn">rule_audit</div><div class="rls">append-only · actor · action · gate detail</div></div>
+      <div class="tbl trust"><div class="grp">Registry P4.7 + Trust A1</div><div class="tn">backends</div><div class="rls"><b>registry</b> · id, tool_pattern · <b>+ trust_tier, scope_identity</b> · FK target · service-role + REVOKE</div></div>
+      <div class="tbl trust"><div class="grp">Trust A1</div><div class="tn">backend_authority</div><div class="rls">(backend_id, metric) · which metric a backend is authoritative for · mirror = 0 rows</div></div>
+      <div class="tbl persist"><div class="grp">Persistence P5.6</div><div class="tn">conversations</div><div class="rls"><b>owner-CRUD</b> · client mints/renames/soft-deletes</div></div>
+      <div class="tbl persist"><div class="grp">Persistence P5.6</div><div class="tn">messages</div><div class="rls">SELECT-own · <b>server single-writer</b> (assertOwned)</div></div>
+    </div>
+    <p class="gate-cap" style="margin-top:0"><b>RULE 11 (A1.1) — RLS isn't enough.</b> RLS-on + no write policy is asymmetric: INSERT denies (<code style="font-family:var(--mono);color:#ff9aa6">42501</code>) but UPDATE/DELETE silently no-op. Every server-only table <code style="font-family:var(--mono);color:var(--cyan)">REVOKE</code>s writes from anon+authenticated (privilege-layer deny); owner-CRUD tables REVOKE anon only. Manifest <code style="font-family:var(--mono);color:var(--cyan)">shared/grantPolicy.ts</code> + CI guard + live <code style="font-family:var(--mono)">verifyGrants 12/12</code>.</p>
+  </section>
+
+  <!-- ============ LAYER 6 — EXTERNAL MCP ============ -->
+  <section class="band">
+    <div class="bhead"><span class="bnum">L6</span><h2 class="btitle">External MCP backends — both live</h2>
+      <span class="bsub">both under ksadmin@ardictech.com · resolved server-side</span></div>
+    <div class="grid g2">
+      <div class="be">
+        <h4>ARMES <span class="pat">— FLAT · ~142 tools</span><span class="tier sor">system_of_record</span></h4>
+        <p class="meta">Ceramic-factory MES (Kale Seramik / KB7). Domain pack <span class="tag-v">built (P2)</span>. Authoritative for <code>oee · fire · throughput</code>.</p>
+        <p class="meta">Entry <code>getFactoryLines</code> → resolve zone UUID → <code>getDailyOeeValues</code> (epoch-ms midnight TRT) · <code>getScrapBarcodeList</code> (shift 24-08/08-16/16-24) · <code>K4</code> = definitive throughput.</p>
+        <div style="margin-top:8px">
+          <span class="zone">Glazur3</span><span class="zone">FIRINALT</span><span class="zone">IKINCILALT</span><span class="zone bs">IKINCILUST · barcodeless</span>
+        </div>
+        <p class="meta" style="margin-top:8px"><b style="color:var(--danger)">Blind spot:</b> IKINCILUST → manual-scrap empty → <code>empty ≠ zero</code>.</p>
+      </div>
+      <div class="be" style="border-left-color:var(--inflight)">
+        <h4>Superset <span class="pat" style="color:var(--inflight)">— GATEWAY · ~22 tools</span><span class="tier mir">reporting_mirror</span></h4>
+        <p class="meta">Apache Superset 6.1 BI. Gateway: <code>search_tools</code> + <code>call_tool</code> — NOT flat. Domain pack <span class="tag-v">built + LIVE (P6/P6.5)</span>. Authoritative for <b>nothing</b>.</p>
+        <p class="meta">Catalog <code>docs/superset-tool-catalog.json</code> = authoring ground-truth, NEVER transcribed into the prompt (RULE 9).</p>
+        <ul>
+          <li><b style="color:var(--danger)">Scope = bound datasource, NEVER the title</b> (P6.8). A "KB7"-titled dashboard bound to <code>Granit -</code> datasources is <b>Granit</b> data.</li>
+          <li>Guard rules (eval-gate-enforced): scope-from-datasource · scope-match-or-decline · attribute-source · metric-authority-armes</li>
+          <li><b>Data reality:</b> KB7 OEE does NOT exist as KB7-scoped data in Superset — the "KB7" dashboards are Granit shells. Never present Granit-as-KB7.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ INVARIANTS RAIL ============ -->
+  <section class="band">
+    <div class="bhead"><span class="bnum">INV</span><h2 class="btitle">Cross-cutting invariants — the red thread</h2>
+      <span class="bsub">these have each prevented a real bug</span></div>
+    <div class="rail">
+      <div class="inv"><h5>Empty ≠ Zero</h5><p>Barcodeless zone → empty tool result. Agent says <code>"not visible in ARMES"</code>, never <code>sıfır/zero</code>. Prompt + gated at publish + validated at runtime (Mode A).</p></div>
+      <div class="inv"><h5>Scope ≠ Title (but datasource is a claim)</h5><p>Scope = the bound datasource, never the resource title. A <code>"KB7"</code> dashboard on <code>Granit</code> data is Granit. But the datasource field is self-reported → catches an honest mislabel, not a forged-label liar.</p></div>
+      <div class="inv"><h5>Unknown → Floor</h5><p>Trust is earned, not granted. A backend with no declaration / tier <code>unverified</code> is never authoritative. Known ≠ declared — even ARMES/Superset sit at the floor until seeded.</p></div>
+      <div class="inv"><h5>Gate is unbypassable</h5><p><code>published</code> set only by service-role <code>publish()</code> after schema→referential→behavioral. RLS denies any client publish (<code>42501</code>).</p></div>
+      <div class="inv"><h5>RLS isn't enough (RULE 11)</h5><p>RLS-on + no policy silently no-ops anon UPDATE/DELETE. Classify each table's write-model + <code>REVOKE</code> at the privilege layer for a deterministic <code>42501</code>.</p></div>
+      <div class="inv"><h5>Trust is a function, not a vibe</h5><p>Trust = f(provenance, role-ceiling, scope, authority, reconciliation, invariants) — deterministic, auditable. <b>Never an LLM self-score</b> (theatre). Software contains; redundancy reveals.</p></div>
+    </div>
+  </section>
+
+  <!-- ============ WHAT'S NEXT ============ -->
+  <section class="band">
+    <div class="bhead"><span class="bnum">NEXT</span><h2 class="btitle">Build order — one path, state-of-the-art</h2>
+      <span class="bsub">each ships only when its gate passes · HEAD bc7ce8e</span></div>
+    <div class="rec">
+      <ol>
+        <li><b>SEED → P6.8</b> <span class="pill done">done ✓</span><span class="why">Clean repo · gateway unification · modular prompt + ARMES pack · MCP SDK upgrade + dual-backend + Auth/RBAC · governed store + eval-gate (P4) · backend-registry enum killed (P4.7) · grounding validator · governance panel (P5) · UI shell (P5.5) · conversation persistence (P5.6) · Superset domain pack + live activation (P6/P6.5) · active-backend tool discipline + transport (P6.6/6.7) · cross-backend scope/authority guard (P6.8). All code-verified.</span></li>
+        <li><b>A1 — Trust registry</b> <span class="pill done">done ✓ e5b8310</span><span class="why">Trust as gated DATA + read seam: <code style="font-family:var(--mono)">trust_tier</code>/authority/scope-contract, <b>unknown→floor</b>, DB-first/code-floor. Zero behavioral change (frozen diff empty). Live 14/14.</span></li>
+        <li><b>A1.1 — RLS/grant hardening</b> <span class="pill done">done ✓ bc7ce8e</span><span class="why">Emergent from a real bug: RLS-on without REVOKE silently no-ops anon writes. Per-table write-model manifest + <code style="font-family:var(--mono)">REVOKE</code> + CI guard + live verify 12/12. <b>RULE 11.</b></span></li>
+        <li><b>A2 — Injection boundary</b> <span class="pill now">next</span><span class="why">CORE safety §5: tool/backend content = DATA, never COMMAND. Structural audit-test + provenance-free containment scaffold. <b>No sanitizer.</b> Completes "fraudulent MCP, both halves." Prompt written; awaiting AG run.</span></li>
+        <li><b>B — Provenance</b> <span class="pill later">trust line</span><span class="why">Tag every emitted fact: envelope (<code style="font-family:var(--mono)">backend·tool</code>, unforgeable) first, then payload (<code style="font-family:var(--mono)">datasource·scope</code>, backend-claimed/role-ceilinged). Carrier = <code style="font-family:var(--mono)">ToolResultMeta</code>.</span></li>
+        <li><b>C — Deterministic validators + enforcement</b> <span class="pill later">trust line</span><span class="why">The inflection: trust first changes an answer. Scope/authority/role-ceiling/reconciliation/invariant checks → score + reasons; no LLM judge. The 3-provider acceptance test sets C's priority.</span></li>
+        <li><b>D — Quarantine + acid test</b> <span class="pill later">trust line</span><span class="why">Deterministic-trigger demote/flag. Attach a deliberately-lying MCP — pass = its claims were never authoritative, flagged on divergence, couldn't write the KB, couldn't hijack. <i>Contained</i>, not "we knew the numbers were fake."</span></li>
+        <li><b>Completion set</b> <span class="pill later">EAIP</span><span class="why">Langfuse wiring → eval golden harness → viz-restore (tool-result tables/charts) → <code style="font-family:var(--mono)">ARCHITECTURE.md</code> + ADRs in <code style="font-family:var(--mono)">docs/adr/</code> → LangGraph bridge (lean Shape B — TS core as an MCP service, governance stays publish-time).</span></li>
+      </ol>
+    </div>
+  </section>
+
+  <footer>
+    <span>cwf_yaprak · CWF→EAIP · single-agent now, ~100% reusable later</span>
+    <span>governance + trust core read from source · HEAD bc7ce8e · supersedes v5</span>
+  </footer>
+
+</div>
+<script>
+  (function(){
+    var btn = document.getElementById('togglePaths');
+    btn.addEventListener('click', function(){
+      var on = document.body.classList.toggle('show-paths');
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+  })();
+</script>
+</body>
+</html>

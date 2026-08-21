@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EAIP Brick Architecture v0_3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F3F4F1; --ink:#1B1E22; --muted:#5C6168; --line:#D8DAD4; --card:#FFFFFF;
+  --amber:#B87513; --amber-bg:#FAEEDA; --amber-dk:#633806;
+  --teal:#0F6E56;  --teal-bg:#E1F5EE;  --teal-dk:#085041;
+  --purple:#534AB7;--purple-bg:#EEEDFE;--purple-dk:#3C3489;
+  --gray:#5F5E5A;  --gray-bg:#ECEBE4;  --gray-dk:#2C2C2A;
+  --coral:#993C1D; --coral-bg:#FAECE7; --coral-dk:#6E2A13;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:'IBM Plex Sans',sans-serif;line-height:1.6;font-size:15.5px}
+.mono{font-family:'IBM Plex Mono',monospace}
+header{border-bottom:1px solid var(--line);padding:22px 36px;display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:8px}
+header h1{font-size:18px;font-weight:600}
+header .ver{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted)}
+main{max-width:1120px;margin:0 auto;padding:40px 36px 80px}
+section{margin-bottom:60px}
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--amber-dk);margin-bottom:8px}
+h2{font-size:24px;font-weight:600;margin-bottom:10px;letter-spacing:-.01em}
+h3{font-size:16px;font-weight:600;margin:26px 0 10px}
+.lede{color:var(--muted);max-width:76ch;margin-bottom:24px}
+p{max-width:80ch;margin-bottom:10px}
+.principles{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px;margin-top:8px}
+.pr{border-top:2px solid var(--amber);padding-top:12px}
+.pr h4{font-size:14px;font-weight:600;margin-bottom:4px}
+.pr p{font-size:13.5px;color:var(--muted)}
+/* axis banner */
+.axis{border:1px solid var(--purple);border-radius:10px;background:var(--purple-bg);padding:20px 24px;margin:8px 0 22px}
+.axis .formula{font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:500;color:var(--purple-dk);margin-bottom:10px;line-height:1.9}
+.axis p{font-size:14px;color:var(--gray-dk);max-width:none;margin-bottom:6px}
+.axis p:last-child{margin-bottom:0}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+.ax{border:1px solid var(--line);border-radius:10px;background:var(--card);padding:14px 18px}
+.ax h4{font-size:14px;font-weight:600;margin-bottom:6px}
+.ax .tag{font-family:'IBM Plex Mono',monospace;font-size:11px;padding:1px 7px;border-radius:9px;background:var(--teal-bg);color:var(--teal-dk);margin-left:6px}
+.ax .tag.open{background:var(--amber-bg);color:var(--amber-dk)}
+.ax p{font-size:13.5px;color:var(--muted);max-width:none}
+/* assembly ladder */
+.ladder{max-width:820px}
+.rung{border:1px solid var(--line);border-left:4px solid var(--purple);border-radius:8px;background:var(--card);padding:12px 18px;margin-bottom:10px;display:flex;gap:14px;align-items:baseline}
+.rung .rn{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--purple-dk);min-width:160px;font-weight:500}
+.rung .rd{font-size:13.5px;color:var(--muted)}
+.rung.hot{border-left-color:var(--amber)}
+.rung.hot .rn{color:var(--amber-dk)}
+.seq{counter-reset:s;max-width:80ch}
+.seq li{list-style:none;counter-increment:s;padding:6px 0 6px 40px;position:relative;font-size:14px;color:var(--ink)}
+.seq li::before{content:counter(s);position:absolute;left:0;top:8px;width:24px;height:24px;border-radius:50%;background:var(--gray-bg);color:var(--gray-dk);font-family:'IBM Plex Mono',monospace;font-size:12px;display:flex;align-items:center;justify-content:center}
+/* brick cards */
+.bricks{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
+.brick{border:1px solid var(--line);border-radius:10px;background:var(--card);padding:14px 16px;border-left-width:4px}
+.brick.fnd{border-left-color:var(--gray)}
+.brick.ctl{border-left-color:var(--amber)}
+.brick.core{border-left-color:var(--purple)}
+.brick .bh{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.brick .bn{font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:14px}
+.brick .bp{font-size:11px;font-family:'IBM Plex Mono',monospace;padding:1px 7px;border-radius:9px;white-space:nowrap}
+.bp.p0{background:var(--gray-bg);color:var(--gray-dk)}
+.bp.new{background:var(--coral-bg);color:var(--coral-dk)}
+.bp.upd{background:var(--purple-bg);color:var(--purple-dk)}
+.bp.gate{background:var(--amber-bg);color:var(--amber-dk)}
+.brick .bd{font-size:13px;color:var(--muted);margin:4px 0 8px}
+.brick .bc{font-size:12.5px;font-family:'IBM Plex Mono',monospace;color:var(--ink);line-height:1.8}
+.brick .bc b{font-weight:500;color:var(--muted)}
+/* tables */
+table{border-collapse:collapse;width:100%;font-size:13.5px;background:var(--card);border:1px solid var(--line)}
+th,td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
+th{font-weight:600;background:var(--gray-bg);font-size:13px}
+td.y{background:var(--teal-bg);color:var(--teal-dk);text-align:center;font-weight:500}
+td.l{background:var(--amber-bg);color:var(--amber-dk);text-align:center;font-size:12px}
+td.n{color:var(--line);text-align:center}
+td .mono{font-size:12.5px}
+.matrix-note{font-size:13px;color:var(--muted);margin-top:10px;max-width:80ch}
+.mwrap{overflow-x:auto}
+/* code */
+pre.code{font-family:'IBM Plex Mono',monospace;font-size:12.5px;line-height:1.75;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px;overflow-x:auto;color:var(--ink)}
+pre.code .c{color:var(--muted)}
+pre.code .k{color:var(--purple-dk)}
+pre.code .s{color:var(--teal-dk)}
+/* manifests */
+.manifests{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.man{border:1px solid var(--line);border-radius:10px;background:var(--card);overflow:hidden}
+.man .mh{padding:10px 16px;font-weight:600;font-size:14px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.man .mh .mode{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted)}
+.man.wa .mh{background:var(--coral-bg);color:var(--coral-dk)}
+.man.gu .mh{background:var(--teal-bg);color:var(--teal-dk)}
+.man.cwf .mh{background:var(--purple-bg);color:var(--purple-dk)}
+.man.ins .mh{background:var(--amber-bg);color:var(--amber-dk)}
+.man.hq .mh{background:var(--gray-bg);color:var(--gray-dk)}
+.man pre{font-family:'IBM Plex Mono',monospace;font-size:12px;line-height:1.75;padding:14px 16px;overflow-x:auto;color:var(--ink)}
+.man pre .c{color:var(--muted)}
+.man pre .k{color:var(--purple-dk)}
+/* callout */
+.call{border-left:4px solid var(--coral);background:var(--coral-bg);border-radius:0 8px 8px 0;padding:14px 18px;margin:16px 0}
+.call h4{font-size:14px;font-weight:600;margin-bottom:4px;color:var(--coral-dk)}
+.call p{font-size:13.5px;color:var(--gray-dk);max-width:none;margin-bottom:0}
+.rule{border-left:4px solid var(--teal);background:var(--teal-bg);border-radius:0 8px 8px 0;padding:14px 18px;margin:16px 0}
+.rule h4{font-size:14px;font-weight:600;margin-bottom:4px;color:var(--teal-dk)}
+.rule p{font-size:13.5px;color:var(--gray-dk);max-width:none;margin-bottom:0}
+/* decisions */
+.dec{border:1px solid var(--line);border-radius:10px;background:var(--card);padding:14px 18px;margin-bottom:12px}
+.dec.newd{border-left:4px solid var(--coral)}
+.dec h4{font-size:14px;font-weight:600;margin-bottom:4px}
+.dec h4 .mono{color:var(--muted);font-weight:400;font-size:12px}
+.dec p{font-size:13.5px;color:var(--muted);max-width:none;margin-bottom:0}
+.open{border:1px dashed var(--amber);border-radius:10px;background:var(--amber-bg);padding:16px 20px}
+.open ul{margin-left:18px;font-size:14px}
+.open li{margin-bottom:6px}
+.open code{font-family:'IBM Plex Mono',monospace;font-size:12.5px}
+.pins{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);border:1px solid var(--line);border-radius:8px;background:var(--card);padding:12px 16px;margin-bottom:24px;line-height:1.9}
+footer{border-top:1px solid var(--line);margin-top:20px;padding:16px 36px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px}
+@media(max-width:820px){.two{grid-template-columns:1fr}}
+@media(max-width:720px){main{padding:28px 18px 60px}header,footer{padding-left:18px;padding-right:18px}.rung{flex-direction:column;gap:2px}}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>EAIP brick architecture</h1>
+  <div class="ver">EAIP_Brick_Architecture_v0_3 · supersedes v0_2 · 13 July 2026</div>
+</header>
+
+<main>
+
+<div class="pins">
+  <b>Source pins (verify before trust):</b><br>
+  cwf_yaprak @ <b>b753783</b> · Living-Arch <b>rev 70</b> · read 2026-07-13 (advances the v1_2 bootstrap pin d87fedd/rev 61)<br>
+  EAIP_Brick_Architecture_v0_2 md5 8ffb… (b7caad7a92c456664a9bfa00c3c0c678) · ADR_SPINE_FRONT_graduation_seam_v0_1 (draft, operator commit pending)<br>
+  theblueprint23_knowledge_graph_v1_3.json — sota_verdict_v2, DR-4/5/8/13
+</div>
+
+<!-- 1 -->
+<section>
+  <div class="eyebrow">1 · What changed</div>
+  <h2>Why v0_2 no longer holds</h2>
+  <p class="lede">v0_2 was written before SPINE-FRONT and before cwf_yaprak proved, in code, that it is a
+  configurable multi-backend agent platform. Three of its load-bearing claims are now wrong. The brick layer
+  is still <b>zero-hit in the canonical repo</b> (DR-4) — which means correcting it now is free, and correcting
+  it after the merge wave is not.</p>
+
+  <div class="principles">
+    <div class="pr">
+      <h4>agent-runtime was mis-specified</h4>
+      <p>v0_2 made LangGraph the single conversational brain. SPINE-FRONT inverts this: the CWF turn pipeline
+      owns the user; LangGraph is a workflow engine behind the MCP boundary. One foundation brick becomes two.</p>
+    </div>
+    <div class="pr">
+      <h4>"One Langfuse" broke Class C</h4>
+      <p>SC-4 says one Langfuse; the telemetry contract says prompts never cross the perimeter. Both cannot
+      hold for a sovereign silo. Resolved in §7: one Langfuse <i>configuration</i>, per-instance deployment.</p>
+    </div>
+    <div class="pr">
+      <h4>The product axis was missing</h4>
+      <p>v0_2 had no Web Asistan manifest (the G4 default first product) and no ARMES column. It also had no
+      name for the thing that makes one product differ from another. That thing is now <span class="mono">profile.cue</span>.</p>
+    </div>
+    <div class="pr">
+      <h4>The runtime's substrate is temporary</h4>
+      <p>cwf_yaprak lives on Vercel + hosted Supabase <i>for convenience</i>. Tomorrow it runs in a container
+      against EAIP's own Postgres, talking to EAIP bricks. §10 budgets that port honestly.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 2 -->
+<section>
+  <div class="eyebrow">2 · The two axes</div>
+  <h2>The organising idea of v0_3</h2>
+  <p class="lede">Every complexity fear about "one codebase serving many services" dissolves the moment two
+  axes stop being called by the same word. They are orthogonal, they compose, and each is already half-solved.</p>
+
+  <div class="axis">
+    <div class="formula">one codebase → one release lifecycle → <b>N</b> deployments → <b>M</b> backends per deployment</div>
+    <p><b>The N axis (products).</b> A product is a <i>deployment</i>. It has its own tenancy tier, telemetry tier,
+    channels, golden suite, and customer perimeter. GU is <span class="mono">pooled·full-export</span>; CWF is
+    <span class="mono">silo·class-ab</span>; Insurance is <span class="mono">silo·sealed</span>. These tiers are
+    mutually incompatible — <b>they cannot share a deployment.</b></p>
+    <p><b>The M axis (backends).</b> A backend is an <i>MCP data source</i> inside one deployment. ARMES is a
+    backend. Superset is a backend. They coexist in the same running instance, discovered and scoped per request.</p>
+  </div>
+
+  <div class="two">
+    <div class="ax">
+      <h4>M — solved, in production <span class="tag">shipped</span></h4>
+      <p>cwf_yaprak P4.7: <i>backend identity is first-class DATA (<span class="mono">backends</span> table + FK);
+      adding a backend is a row, not a migration.</i> Proven by two live packs
+      (<span class="mono">prompt/backends/armes</span>, <span class="mono">prompt/backends/superset</span>), a kind
+      registry with CORE (Zod-locked) and SOFT (DB-editable) classes, a backend-agnostic prompt core plus
+      backend-aware assembler, and per-backend RBAC scoping. Roadmap P7+ already names the target:
+      <i>"more backends behind the same seam; per-tenant scoping."</i></p>
+    </div>
+    <div class="ax">
+      <h4>N — this document's job <span class="tag open">to build</span></h4>
+      <p>The runtime becomes a <b>container brick</b> in an EAIP instance: it binds to EAIP's
+      <span class="mono">data-core</span> (Postgres, not hosted Supabase) and speaks to the other EAIP bricks
+      over MCP. One instance per product. Product difference is expressed <b>only</b> through
+      <span class="mono">profile.cue</span> — never through product-conditional code, never through a fork.</p>
+    </div>
+  </div>
+
+  <div class="rule">
+    <h4>The composition rule</h4>
+    <p><b>Many tenants inside one instance; never many products inside one instance.</b> GU's thousands of shops
+    share one pooled deployment (Keycloak Organizations). GU and CWF never share a deployment. This is not a
+    preference — it is what the tenancy and telemetry tiers already say, and it is what makes the insurance
+    firewall (defined as the <i>absence</i> of manufacturing bricks) structurally true rather than merely intended.</p>
+  </div>
+</section>
+
+<!-- 3 -->
+<section>
+  <div class="eyebrow">3 · Principles</div>
+  <h2>Purposeful bricks on an immutable substrate</h2>
+  <p class="lede">Everything is a file in the fleet repo — from the operating system of a node to the profile of
+  a product. One repo, one approval gate, one audit trail. v0_2's five principles hold; three are added.</p>
+
+  <div class="principles">
+    <div class="pr"><h4>Foundation vs capability</h4><p>Foundation bricks are singletons per instance. Capability bricks declare dependencies on foundation contracts; they never own shared infrastructure.</p></div>
+    <div class="pr"><h4>Brick contract</h4><p>Versioned inputs, outputs, registered MCP tools, semver — now a <b>machine-checked CUE schema</b>, not a convention (§8).</p></div>
+    <div class="pr"><h4>Release BOM</h4><p>An EAIP Release pins tested-together brick versions. Promotion into a BOM is <b>gated</b> on attestation and per-profile golden canary (§9).</p></div>
+    <div class="pr"><h4>Granularity test</h4><p>"Ships in one product but not another?" Yes → brick. No → internal detail of a brick.</p></div>
+    <div class="pr"><h4>Whose cluster, whose controls</h4><p>Management channels end at ownership boundaries. Customer perimeters are pull-only via the fleet repo, gated by customer PR approval.</p></div>
+    <div class="pr"><h4>Configuration, not forks <span class="mono" style="color:var(--coral-dk)">NEW</span></h4><p>Product difference is declared in <span class="mono">profile.cue</span>. Product-conditional code in the runtime is a contract violation, rejected in CI.</p></div>
+    <div class="pr"><h4>Closed topology, governed content <span class="mono" style="color:var(--coral-dk)">NEW</span></h4><p>The runtime's stage list, prompt-segment ids, and CORE kind schemas are closed code sets. Governance edits their <i>content</i>, never their <i>topology</i>. (The pattern cwf_yaprak already enforces.)</p></div>
+    <div class="pr"><h4>Escape hatch = MCP <span class="mono" style="color:var(--coral-dk)">NEW</span></h4><p>A need that will not fit the schema goes one of two ways: a kernel PR into the closed stage set, or across the MCP boundary into LangGraph. Never a free-form hook in YAML.</p></div>
+  </div>
+</section>
+
+<!-- 4 -->
+<section>
+  <div class="eyebrow">4 · The assembly model</div>
+  <h2>Six nested definition layers, all in git</h2>
+
+  <div class="ladder">
+    <div class="rung"><div class="rn">fleet repo</div><div class="rd">One directory per instance. The management brain. PR merge = the only write path into any environment.</div></div>
+    <div class="rung"><div class="rn">instance manifest</div><div class="rd">Deployment identity: brick list, release pin, tenancy tier, telemetry tier, customer values. <b>The N axis.</b></div></div>
+    <div class="rung hot"><div class="rn">product profile <span style="font-size:10px">NEW</span></div><div class="rd">Runtime identity: channels, enabled stages + params, prompt segments, kind families, <b>backend rows</b>, models, retrieval profile, trust/quota policy, golden suite. <b>The M axis + the product's behaviour.</b></div></div>
+    <div class="rung"><div class="rn">release BOM</div><div class="rd"><span class="mono">eaip-YYYY.N</span> — tested-together brick versions. Manifests reference it; never loose brick versions. Promotion is gated (§9).</div></div>
+    <div class="rung"><div class="rn">bricks</div><div class="rd">OpenTofu module + Helm chart + <span class="mono">brick.cue</span> per brick; OCI artifacts in Harbor, signed and SBOM-bearing; materialized by ArgoCD app-of-apps.</div></div>
+    <div class="rung"><div class="rn">machine configs</div><div class="rd">Node OS config per node. The OS itself is a declarative file — no SSH, no drift, no snowflakes. (Substrate pilot-gated: D1.)</div></div>
+  </div>
+
+  <h3>Birth sequence of an instance</h3>
+  <ol class="seq">
+    <li>Open <span class="mono">instances/&lt;name&gt;/</span> in the fleet repo: manifest + profile + machine configs + values.</li>
+    <li>OpenTofu boots nodes and applies machine configs — the cluster exists.</li>
+    <li>Bootstrap ArgoCD (infra-core) pointed at the instance directory and Harbor. Outbound-only; zero inbound access.</li>
+    <li>App-of-apps materializes the 10 foundation bricks, then capability bricks per manifest. <b>Admission control verifies signature + SBOM before any image runs</b> (§9).</li>
+    <li><span class="mono">tenantprov</span> runs day-1: realm/Organizations, schemas, routes, collections per tenancy tier.</li>
+    <li><span class="mono">conversation-runtime</span> seeds itself from the profile: backend rows, kind registry, prompt segments, agent params, trust ceilings — <b>the profile is the seed, the DB is the running state.</b></li>
+    <li><span class="mono">fleet-control</span> (ARDICTECH side) registers the instance: heartbeat expectation armed, BOM recorded.</li>
+  </ol>
+  <p style="margin-top:12px">Every subsequent change — app version, K8s version, <b>OS version, profile content</b> — is a PR to the
+  instance directory, merged on customer approval, synced by ArgoCD. One gate for all four change classes.</p>
+</section>
+
+<!-- 5 -->
+<section>
+  <div class="eyebrow">5 · Foundation bricks — 10 singletons per instance</div>
+  <h2>The kernel: nobody brings their own</h2>
+  <p class="lede">Nine in v0_2; ten in v0_3. <span class="mono">agent-runtime</span> is dissolved and replaced by
+  the two runtimes SPINE-FRONT actually names.</p>
+
+  <div class="bricks">
+
+    <div class="brick fnd">
+      <div class="bh"><span class="bn">cluster-substrate</span><span class="bp gate">D1 PILOT-GATED</span></div>
+      <div class="bd">The layer below Kubernetes as declarative files: node OS, boot images, upgrade plans. OS+K8s upgrade as one API-driven rolling action. <b>Nothing above this brick depends on which substrate wins</b> — everything upward is plain Kubernetes. The verdict swaps one brick.</div>
+      <div class="bc"><b>primary:</b> Talos Linux machine configs · boot image pipeline (Harbor) · upgrade plans via fleet repo<br><b>fallback:</b> RKE2 (+Rancher on own clusters only)<br><b>gate deadline:</b> before the first customer perimeter is provisioned (Kale CWF, M7)</div>
+    </div>
+
+    <div class="brick fnd">
+      <div class="bh"><span class="bn">infra-core</span><span class="bp upd">UPDATED</span></div>
+      <div class="bd">GitOps, CI, registry, secrets, network, autoscaling, ops glass — <b>plus the supply-chain chain-of-custody</b> (SOTA gap 1; CRA reporting clock ≈Sept 2026).</div>
+      <div class="bc">ArgoCD · CI Pipeline (<b>GitHub Actions</b> — the CWF working precedent) · Harbor · Vault · Cert-Mgr + Wireguard · KEDA · Headlamp<br><b>new:</b> Cosign signing at push · SBOM per artifact (Syft) · SLSA provenance from CI · <b>Kyverno admission-verify</b> (no signature, no SBOM ⇒ no run)</div>
+    </div>
+
+    <div class="brick fnd">
+      <div class="bh"><span class="bn">observability</span><span class="bp upd">UPDATED</span></div>
+      <div class="bd">Metrics, logs, traces, cost, <b>and LLM observability</b>. Telemetry tier decides what leaves the perimeter. Langfuse is <b>deployed per instance</b> — one configuration, N deployments. This is what makes SC-4 and the Class C contract simultaneously true (§7).</div>
+      <div class="bc">Grafana + Prometheus (Alertmanager) · Loki + OTel · OpenCost · <b>Langfuse (in-perimeter)</b></div>
+    </div>
+
+    <div class="brick fnd">
+      <div class="bh"><span class="bn">data-core</span><span class="bp p0">P0</span></div>
+      <div class="bd">Shared relational, cache, object storage + platform scheduler. Owns schemas; leases them to capability bricks. <b>Now also the home of the conversation runtime's state</b> — sessions, ledger, governed rules, golden specimens (the Supabase port target, §10).</div>
+      <div class="bc">PostgreSQL 16 + pgvector (<b>RLS-enforced</b>) · Redis · MinIO · Airflow</div>
+    </div>
+
+    <div class="brick fnd">
+      <div class="bh"><span class="bn">identity-gateway</span><span class="bp upd">UPDATED</span></div>
+      <div class="bd">AuthN/AuthZ and the north-south perimeter. Tenancy tiers: <span class="mono">silo</span> (realm-per-tenant) / <span class="mono">pooled</span> (single realm + Keycloak Organizations). Keycloak fronts kube-apiserver — cluster RBAC without a management middleman. <b>SC-2: authority migrates here; the runtime's capability matrix stays as authorization semantics, mapped onto realm roles / OPA policies.</b></div>
+      <div class="bc">Keycloak · OPA · Kong · Tenant Provisioning</div>
+    </div>
+
+    <div class="brick fnd">
+      <div class="bh"><span class="bn">api-core</span><span class="bp p0">P0</span></div>
+      <div class="bd">Application server, channel normalization, admin panel. <b>No longer the home of conversation</b> — it fronts and normalizes; the runtime reasons.</div>
+      <div class="bc">FastAPI · Channel Gateway · Min. Dashboard</div>
+    </div>
+
+    <div class="brick fnd">
+      <div class="bh"><span class="bn">llm-serving</span><span class="bp p0">P0</span></div>
+      <div class="bd">Model runtime and its governance ring. <b>SC-4 fence: both runtimes reach models only through LiteLLM.</b> The runtime's provider layer already exposes an <span class="mono">openai-compatible</span> slot — this is a config row, not a rebuild.</div>
+      <div class="bc">vLLM · LiteLLM · Ollama · Guardrails AI · MLflow<br><b>note:</b> Prompt Store is <i>not</i> here — prompt governance lives in the runtime (20 enum-locked segments, golden-gated publishes)</div>
+    </div>
+
+    <div class="brick core">
+      <div class="bh"><span class="bn">conversation-runtime</span><span class="bp new">NEW · replaces agent-runtime</span></div>
+      <div class="bd"><b>The one conversational runtime; serves every channel.</b> Single-agent, deterministic stage order over one TurnContext, per-stage spans, one turn id. Owns user + session + prompt governance + tool registry + trust ceilings + eval. All external data access is MCP-mediated — <b>it connects to no database but its own</b>. Ships as a container brick; instantiated per product by <span class="mono">profile.cue</span>. <span style="color:var(--coral-dk)"><b>The brick is not named "cwf" — CWF is a profile, not a brick.</b></span></div>
+      <div class="bc"><b>from:</b> cwf_yaprak (TS · Vercel AI SDK multi-provider · MCP SDK)<br><b>closed sets (code):</b> stage list · 20 prompt-segment ids · CORE kind Zod schemas · routing floor<br><b>governed (DB, per profile):</b> segment text · agent params · SOFT kinds · backend rows · learned routing map · trust registry · quotas · rollouts<br><b>eval:</b> L3 golden canary (Wilson CI, publish-gating) — <b>per profile</b> (§9)<br><b>state:</b> data-core Postgres + RLS</div>
+    </div>
+
+    <div class="brick core">
+      <div class="bh"><span class="bn">workflow-runtime</span><span class="bp new">NEW · rescoped</span></div>
+      <div class="bd">Anything that does not fit in one user turn: multi-step, multi-agent, event-triggered, scheduled (OEE alert → root-cause → report → ARMES ticket; nightly audits; class-5/6 graph jobs). <b>Invoked as MCP tools</b> (launch → handle → poll). <b>Never addresses the user directly</b> — the conversation runtime remains sole session owner. SC-1: multi-agent needs cross this boundary; they are never embedded in the pipeline.</div>
+      <div class="bc">LangGraph · Hybrid Decision Engine (LLM ranks, rules decide) · Memori (workflow memory)<br><b>SC-4:</b> carries no production workflow until the L3 canary pattern is ported to it</div>
+    </div>
+
+    <div class="brick fnd">
+      <div class="bh"><span class="bn">data-governance</span><span class="bp p0">P0</span></div>
+      <div class="bd">Quality scans, transformation framework, catalog/lineage. dbt Gold models are half of the semantic contract (§6).</div>
+      <div class="bc">Soda Core · dbt Core · OpenMetadata</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- 6 -->
+<section>
+  <div class="eyebrow">6 · Capability bricks — 21</div>
+  <h2>Composed per product</h2>
+  <p class="lede">Boundaries unchanged from v0_1/v0_2. One of them is promoted out of a parenthesis.</p>
+
+  <div class="mwrap">
+  <table>
+    <tr><th style="width:200px">Category</th><th>Bricks</th></tr>
+    <tr><td>Channels</td><td class="mono">channel-whatsapp · channel-teams · channel-web · channel-email · stt-voice</td></tr>
+    <tr><td>Knowledge &amp; retrieval</td><td class="mono">rag (Qdrant + File Upload) · rag-graph (LightRAG → Graphiti)</td></tr>
+    <tr><td>Manufacturing data plane</td><td class="mono">armes-link · <b>analytics</b> · timeseries-iot · cdc-streaming</td></tr>
+    <tr><td>Workflow &amp; documents</td><td class="mono">automation (n8n) · doc-ingest (NiFi) · compliance-pdf · workflow-durable</td></tr>
+    <tr><td>Commercial &amp; enterprise</td><td class="mono">billing · enterprise-sso · enrichment · lakehouse · ml-monitoring · connector-erp</td></tr>
+  </table>
+  </div>
+
+  <div class="call">
+    <h4>analytics — the semantic contract lives here, and it is on the critical path</h4>
+    <p>v0_2 buried it: <i>"analytics (ClickHouse + Airbyte + MCP + query gate)"</i>. Under SPINE-FRONT the runtime
+    reaches <b>all</b> external data through MCP — so the ClickHouse-MCP server hosting the <b>deterministic
+    NL→SQL query gate</b> is not a feature of a brick, it is the brick's contract. Its tool schemas, together with
+    the dbt Gold models, <b>are the semantic contract</b> (v5.1 SOTA gaps 2 + 3 both live here). It carries its own
+    workstream and its own spec; it is not a parenthesis. Effort class: medium, gated.</p>
+  </div>
+</section>
+
+<!-- 7 -->
+<section>
+  <div class="eyebrow">7 · Fleet plane &amp; telemetry</div>
+  <h2>One control brick that never ships to customers</h2>
+
+  <div class="bricks" style="grid-template-columns:1fr;max-width:760px">
+    <div class="brick ctl">
+      <div class="bh"><span class="bn">fleet-control</span><span class="bp p0">ARDICTECH-ONLY</span></div>
+      <div class="bd">Monitoring face: Class A/B telemetry receiver, dead-man rules (absence of heartbeat = the alarm), per-instance cost anomaly views. Management face: fleet-repo state — which instance on which BOM pin, which PRs await customer approval, last sync per instance. v1 UI = Grafana panels; no bespoke frontend.</div>
+      <div class="bc">Prometheus remote-write receiver · Grafana (fleet views) · dead-man ruleset · BOM inventory (from ArgoCD status)</div>
+    </div>
+  </div>
+
+  <h3>Telemetry classes (contract language)</h3>
+  <div class="mwrap">
+  <table>
+    <tr><th>Class</th><th>Content</th><th>Crosses perimeter?</th><th>Mechanism</th></tr>
+    <tr><td><b>A — heartbeat</b></td><td>Alive, version, last backup OK</td><td class="y">yes (default)</td><td>push, minimal cardinality; absence triggers dead-man alarm</td></tr>
+    <tr><td><b>B — aggregates</b></td><td>p95 latency, error rates, token/cost totals, quality-scan pass %, <b>golden-canary verdicts</b></td><td class="l">contract opt-in</td><td>Prometheus remote_write, labels stripped, zero payloads</td></tr>
+    <tr><td><b>C — traces/logs</b></td><td>Prompts, queries, documents, <b>Langfuse traces</b></td><td class="n">never</td><td>stays local in the in-perimeter Langfuse; debugging via customer-approved, time-boxed Wireguard session</td></tr>
+  </table>
+  </div>
+
+  <div class="rule">
+    <h4>Resolving the SC-4 ↔ Class C contradiction</h4>
+    <p>SC-4 says <i>one Langfuse</i>. The Class C contract says <i>prompts never leave</i>. For a sovereign silo both
+    cannot be true of a single central instance. The resolution is a distinction v0_2 did not draw:
+    <b>one Langfuse configuration and host-trust posture (ADR-007), deployed per instance.</b> Traces stay inside
+    the perimeter; only Class B aggregates — including canary verdicts — cross. "One Langfuse" is a statement about
+    <i>uniformity</i>, not about <i>centralisation</i>. The AWS-hosted instance the CWF line uses today is a
+    development convenience, not the deployment model.</p>
+  </div>
+
+  <p style="margin-top:14px">Sealed instances disable A and B. Consequence written into the sealed contract: outage
+  detection is the customer NOC's obligation and support SLA is priced accordingly — a dead-man switch cannot hear a
+  heartbeat that is never sent (D5).</p>
+</section>
+
+<!-- 8 -->
+<section>
+  <div class="eyebrow">8 · Contracts</div>
+  <h2>Two schemas and one rule that binds them</h2>
+  <p class="lede">This is the section that turns "brick" from a slide into a system. Until these exist, the brick
+  contract is a convention and the release BOM is a YAML list. (SOTA gap 5.)</p>
+
+  <h3>brick.cue — the packaging contract</h3>
+  <pre class="code"><span class="c">// every brick ships one. CI rejects a brick without it.</span>
+<span class="k">#Brick</span>: {
+  name:        <span class="s">string</span>                        <span class="c">// stable id</span>
+  version:     <span class="s">=~"^\\d+\\.\\d+\\.\\d+$"</span>        <span class="c">// semver</span>
+  class:       <span class="s">"foundation" | "capability" | "control"</span>
+  requires:    [...<span class="k">#BrickRef</span>]                <span class="c">// declared deps on foundation contracts only</span>
+  provides: {
+    mcpTools:  [...<span class="k">#McpToolDecl</span>]             <span class="c">// name + input/output schema + trust class</span>
+    schemas:   [...<span class="s">string</span>]                   <span class="c">// data-core schemas it leases</span>
+    endpoints: [...<span class="k">#Endpoint</span>]
+  }
+  tiers: {
+    tenancy:   [...<span class="s">"silo" | "pooled"</span>]        <span class="c">// which tiers it supports</span>
+    telemetry: [...<span class="s">"full-export" | "class-ab" | "sealed"</span>]
+  }
+  supplyChain: {                              <span class="c">// §9 — no exceptions</span>
+    signed:    <span class="s">true</span>
+    sbom:      <span class="s">string</span>                        <span class="c">// artifact ref</span>
+    provenance:<span class="s">string</span>                        <span class="c">// SLSA attestation ref</span>
+  }
+}</pre>
+
+  <h3>profile.cue — the product contract</h3>
+  <pre class="code"><span class="c">// one per product. The ONLY place a product may differ.</span>
+<span class="k">#Profile</span>: {
+  product:   <span class="s">string</span>
+  channels:  [...<span class="s">"web" | "whatsapp" | "teams" | "email" | "voice"</span>]
+  stages:    { [<span class="k">#StageId</span>]: { enabled: <span class="s">bool</span>, params?: {...} } }   <span class="c">// CLOSED set — code</span>
+  prompts:   { [<span class="k">#SegmentId</span>]: <span class="s">string</span> }                          <span class="c">// 20 enum-locked ids; TEXT is governed</span>
+  kinds:     { core: [...<span class="k">#CoreKindRef</span>], soft: [...<span class="k">#SoftKindDef</span>] }
+  backends:  [...<span class="k">#BackendRow</span>]                                <span class="c">// ← the M axis</span>
+  models:    { router: <span class="s">"litellm"</span>, providers: [...<span class="k">#ProviderRow</span>] }
+  retrieval: { rag?: <span class="s">"light" | "full"</span>, graph?: <span class="s">bool</span> }
+  policy:    { trustCeilings: {...}, quotas: {...}, guardrails: [...<span class="k">#GuardrailId</span>] }
+  rollout:   { strategy: <span class="s">"direct" | "progressive"</span>, guardrails?: {...} }
+  golden:    { suite: <span class="s">string</span>, minTurnsPerArm: <span class="s">int</span> }        <span class="c">// ← §9 gate input</span>
+}
+<span class="c">// NO free-form escape: no `script:`, no `customHook:`, no embedded expressions.</span>
+<span class="c">// A need that will not fit → kernel PR (closed stage set) or an MCP tool (workflow-runtime).</span></pre>
+
+  <div class="rule">
+    <h4>The binding rule — manifest ↔ profile consistency</h4>
+    <p><b>Every backend a profile declares must map to an MCP brick the instance manifest deploys.</b> A backend row
+    pointing at a brick that is not in the manifest is an undeployable product, and CI rejects it. This single rule
+    is what fuses the two axes: the manifest says <i>what exists in this perimeter</i>, the profile says <i>what the
+    runtime is allowed to reach</i>, and they must agree. cwf_yaprak already enforces the in-repo version of this with
+    a foreign key on <span class="mono">backends(id)</span>; v0_3 promotes it to the fleet-repo level.</p>
+  </div>
+
+  <div class="call">
+    <h4>What "product-conditional code" means, precisely</h4>
+    <p>Forbidden in the runtime source: branching on product identity
+    (<span class="mono">if (product === 'GU')</span>), per-product branches, per-product forks. Permitted and expected:
+    new closed-set stages, new CORE kind schemas, new channel adapters, new backend packs — all of which are
+    <b>kernel changes that every product inherits</b> and every product's golden suite must survive. The discipline is
+    already in the codebase (<i>"the id set is CLOSED… governance edits segment TEXT, never segment TOPOLOGY"</i>);
+    <span class="mono">profile.cue</span> makes it enforceable one level up.</p>
+  </div>
+</section>
+
+<!-- 9 -->
+<section>
+  <div class="eyebrow">9 · The release train</div>
+  <h2>BOM promotion gate</h2>
+  <p class="lede">One kernel now carries every product. That inverts the blast radius: a runtime regression hits all
+  N products at once. Two mechanisms hold the line, and both are gates on entry to a release BOM — not
+  recommendations.</p>
+
+  <div class="mwrap">
+  <table>
+    <tr><th style="width:180px">Gate</th><th>Condition</th><th style="width:160px">Status</th></tr>
+    <tr>
+      <td><b>Chain of custody</b></td>
+      <td>Every brick artifact is Cosign-signed, carries an SBOM and SLSA provenance from CI; Kyverno admission refuses anything unsigned or SBOM-less. The BOM records the attestation refs. <b>CRA reporting obligations ≈Sept 2026.</b></td>
+      <td class="l">absent both sides (DR-8) — SOTA gap #1</td>
+    </tr>
+    <tr>
+      <td><b>Per-profile canary</b></td>
+      <td>A <span class="mono">conversation-runtime</span> version enters no BOM until <b>every active profile's</b> golden canary returns a green verdict — longitudinal Wilson CIs, goldenSetHash-matched baseline, "underpowered never phrased safe".</td>
+      <td class="y">L3 exists in-house — <b>port</b>, not design</td>
+    </tr>
+  </table>
+  </div>
+
+  <div class="call">
+    <h4>The bill for one kernel</h4>
+    <p>Eval cost now grows <b>linearly with product count</b>: each profile needs its own golden suite, curated by
+    people who know that product's domain. This is the price of the single codebase and it must be budgeted, not
+    discovered. It also reclassifies SOTA gap 3 (port L3 → release train) from "would be nice" to <b>load-bearing</b>:
+    without it, the N-axis is an unmonitored fleet of shared-kernel deployments. The canary verdict is a Class B
+    aggregate — it crosses the perimeter, so fleet-control can see a red profile without seeing a single prompt.</p>
+  </div>
+</section>
+
+<!-- 10 -->
+<section>
+  <div class="eyebrow">10 · The container port</div>
+  <h2>Vercel + Supabase → container + data-core</h2>
+  <p class="lede">The runtime's current home was chosen for speed, not architecture. The port is not a Dockerfile.
+  It is a set of <b>semantic</b> changes, because serverless assumptions are baked into behaviour. Budget it honestly
+  or it surfaces as a surprise in a sovereign install.</p>
+
+  <div class="mwrap">
+  <table>
+    <tr><th style="width:180px">Item</th><th>What actually changes</th><th style="width:110px">Class</th></tr>
+    <tr>
+      <td><b>Warm caches</b></td>
+      <td>The OBS-1 epoch bump was designed to <i>"self-cold every warm serverless instance without a redeploy"</i> — i.e. invocation lifetime was a natural cache ceiling. In a long-lived container that ceiling disappears: the epoch becomes the <b>only</b> invalidation path. Provider registry, trust registry, knowledge provider, MCP discovery cache — each needs its invalidation semantics re-verified under a process that lives for days.</td>
+      <td class="l">medium</td>
+    </tr>
+    <tr>
+      <td><b>Flush ordering</b></td>
+      <td><span class="mono">forceFlushObservability()</span> runs sequentially before <span class="mono">res.end()</span> because serverless freezes the process after the response. A container has a real background exporter — the cost can be <b>removed</b>. A gain, not a burden, but only if taken deliberately; otherwise we keep paying latency for a constraint that no longer exists.</td>
+      <td class="y">small (net win)</td>
+    </tr>
+    <tr>
+      <td><b>SSE + heartbeat + timeouts</b></td>
+      <td>Built against a function timeout. No timeout in a container; different failure modes (connection leak, unbounded stream). Needs explicit limits.</td>
+      <td class="l">small–medium</td>
+    </tr>
+    <tr>
+      <td><b>Supabase → Postgres (DB)</b></td>
+      <td>Straight port to data-core Postgres 16. Migrations already SQL.</td>
+      <td class="y">small</td>
+    </tr>
+    <tr>
+      <td><b>Supabase → Postgres (RLS)</b></td>
+      <td>Policies are largely portable; what is Supabase-specific is the <span class="mono">auth.uid()</span> family. Needs a session-context shim mapping the authenticated principal into Postgres. The service-role-only tables (golden specimens, routing audit) map to a dedicated role.</td>
+      <td class="l">medium</td>
+    </tr>
+    <tr>
+      <td><b>Supabase Auth → Keycloak</b></td>
+      <td><b>The one real rewrite (SC-2).</b> Authority moves to Keycloak/OPA; the capability matrix survives as authorization <i>semantics</i>, mapped to realm roles and OPA policies. A mapping table is a deliverable. Kale = Entra federation (D8).</td>
+      <td class="l">medium–large</td>
+    </tr>
+    <tr>
+      <td><b>Packaging</b></td>
+      <td>Container + Helm chart + <span class="mono">brick.cue</span>; profile-as-seed on first boot; signed image (§9).</td>
+      <td class="l">medium</td>
+    </tr>
+  </table>
+  </div>
+
+  <p class="matrix-note"><b>Precondition, not a nice-to-have:</b> a sealed insurance instance and a sovereign Kale silo
+  cannot reach hosted Supabase. Until this port lands, <span class="mono">conversation-runtime</span> is an excellent
+  Vercel product and cannot be an EAIP brick.</p>
+</section>
+
+<!-- 11 -->
+<section>
+  <div class="eyebrow">11 · Composition matrix</div>
+  <h2>Which brick ships where</h2>
+  <p class="lede">Two columns v0_2 was missing: Web Asistan (the G4 default first product) and ARMES.</p>
+
+  <div class="mwrap">
+  <table>
+    <tr>
+      <th>Brick</th>
+      <th>Web Asistan<br><span class="mono" style="font-weight:400;font-size:11px">pooled · full-export</span></th>
+      <th>GU<br><span class="mono" style="font-weight:400;font-size:11px">pooled · full-export</span></th>
+      <th>CWF v1<br><span class="mono" style="font-weight:400;font-size:11px">silo · class-ab</span></th>
+      <th>Insurance<br><span class="mono" style="font-weight:400;font-size:11px">silo · sealed</span></th>
+      <th>ARMES<br><span class="mono" style="font-weight:400;font-size:11px">silo · class-ab</span></th>
+      <th>ARDICTECH HQ<br><span class="mono" style="font-weight:400;font-size:11px">control</span></th>
+    </tr>
+    <tr><td><b>foundation ×10</b></td><td class="y">✓</td><td class="y">✓</td><td class="y">✓</td><td class="y">✓</td><td class="l">✓ minus conv/workflow</td><td class="y">✓</td></tr>
+    <tr><td class="mono">conversation-runtime</td><td class="y">✓ profile: wa</td><td class="y">✓ profile: gu</td><td class="y">✓ profile: cwf</td><td class="y">✓ profile: ins</td><td class="n">—</td><td class="n">—</td></tr>
+    <tr><td class="mono">workflow-runtime</td><td class="n">—</td><td class="l">later</td><td class="y">✓</td><td class="y">✓ triage flows</td><td class="n">—</td><td class="n">—</td></tr>
+    <tr><td class="mono">fleet-control</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="y">✓ only here</td></tr>
+    <tr><td class="mono">channel-web</td><td class="y">✓ embed widget</td><td class="y">✓ patron dash</td><td class="y">✓</td><td class="n">—</td><td class="n">—</td><td class="n">—</td></tr>
+    <tr><td class="mono">channel-whatsapp · stt-voice</td><td class="n">—</td><td class="y">✓</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="n">—</td></tr>
+    <tr><td class="mono">channel-teams</td><td class="n">—</td><td class="n">—</td><td class="y">✓</td><td class="n">—</td><td class="n">—</td><td class="n">—</td></tr>
+    <tr><td class="mono">channel-email</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="y">✓ broker intake</td><td class="n">—</td><td class="n">—</td></tr>
+    <tr><td class="mono">rag</td><td class="l">light · catalog</td><td class="l">light</td><td class="y">✓</td><td class="y">✓</td><td class="n">—</td><td class="n">—</td></tr>
+    <tr><td class="mono">rag-graph</td><td class="n">—</td><td class="n">—</td><td class="y">✓</td><td class="n">—</td><td class="n">—</td><td class="n">—</td></tr>
+    <tr><td class="mono">armes-link</td><td class="n">—</td><td class="n">—</td><td class="y">✓</td><td class="n">—</td><td class="y">✓ is the source</td><td class="n">—</td></tr>
+    <tr><td class="mono">analytics <span style="font-size:11px">(+ query gate)</span></td><td class="n">—</td><td class="y">✓ benchmark</td><td class="y">✓ + gate</td><td class="n">—</td><td class="y">✓</td><td class="n">—</td></tr>
+    <tr><td class="mono">automation</td><td class="n">—</td><td class="n">—</td><td class="y">✓ ext. surface</td><td class="n">—</td><td class="l">optional</td><td class="n">—</td></tr>
+    <tr><td class="mono">doc-ingest</td><td class="l">catalog load</td><td class="n">—</td><td class="n">—</td><td class="y">✓</td><td class="n">—</td><td class="n">—</td></tr>
+    <tr><td class="mono">compliance-pdf</td><td class="n">—</td><td class="y">✓ IATF karne</td><td class="l">optional</td><td class="y">✓ audit</td><td class="y">✓ DPP</td><td class="n">—</td></tr>
+    <tr><td class="mono">billing</td><td class="y">✓</td><td class="y">✓</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="n">—</td></tr>
+    <tr><td class="mono">enterprise-sso</td><td class="n">—</td><td class="n">—</td><td class="y">✓</td><td class="y">✓ day-one (D8)</td><td class="y">✓</td><td class="n">—</td></tr>
+    <tr><td class="mono">timeseries-iot</td><td class="n">—</td><td class="l">graduation path</td><td class="n">—</td><td class="n">—</td><td class="y">✓</td><td class="n">—</td></tr>
+    <tr><td class="mono">cdc-streaming · ml-monitoring</td><td class="n">—</td><td class="n">—</td><td class="l">CWF v2</td><td class="n">—</td><td class="l">later</td><td class="n">—</td></tr>
+    <tr><td class="mono">workflow-durable · enrichment · lakehouse · connector-erp</td><td class="n">—</td><td class="n">—</td><td class="l">FIN phase</td><td class="n">—</td><td class="l">FIN phase</td><td class="n">—</td></tr>
+  </table>
+  </div>
+
+  <p class="matrix-note"><b>The insurance firewall remains structural:</b> no manufacturing bricks in its manifest, and
+  — under the §8 binding rule — no manufacturing backend row can exist in its profile, because there is no brick to
+  map to. The firewall is now <i>machine-checked</i>, not merely intended.</p>
+  <p class="matrix-note"><b>ARMES is a special case:</b> it is a Layer-2 product-business but not a conversational
+  product — it is the <i>source system</i> the CWF profile reaches through <span class="mono">armes-link</span>. It gets
+  an instance and a manifest; it does not get a <span class="mono">conversation-runtime</span> profile.
+  <span class="mono">[open:]</span> whether ARMES ships as an EAIP instance at all, or stays an external system EAIP
+  merely integrates with — a business decision, not an architectural one.</p>
+</section>
+
+<!-- 12 -->
+<section>
+  <div class="eyebrow">12 · Product profiles</div>
+  <h2>Product = manifest (deployment) + profile (behaviour)</h2>
+
+  <div class="manifests">
+
+    <div class="man wa">
+      <div class="mh"><span>web-asistan</span><span class="mode">pooled · G4 first product</span></div>
+      <pre><span class="c"># instances/web-asistan/manifest.yaml</span>
+<span class="k">release</span>: eaip-2026.3
+<span class="k">substrate</span>: talos        <span class="c"># D1 fallback: rke2</span>
+<span class="k">tenancy</span>: pooled
+<span class="k">telemetry</span>: full-export
+<span class="k">bricks</span>:
+  - conversation-runtime
+  - channel-web           <span class="c"># embed widget</span>
+  - rag                   <span class="c"># light</span>
+  - doc-ingest            <span class="c"># catalog load</span>
+  - billing
+
+<span class="c"># profile.cue (excerpt)</span>
+<span class="k">product</span>: "wa"
+<span class="k">channels</span>: ["web"]
+<span class="k">backends</span>: [catalog]    <span class="c"># ← maps to rag/doc-ingest</span>
+<span class="k">retrieval</span>: { rag: "light" }
+<span class="k">golden</span>: { suite: "wa-v1" }</pre>
+    </div>
+
+    <div class="man gu">
+      <div class="mh"><span>galip-usta</span><span class="mode">pooled · own cluster</span></div>
+      <pre><span class="c"># instances/galip-usta/manifest.yaml</span>
+<span class="k">release</span>: eaip-2026.3
+<span class="k">substrate</span>: talos
+<span class="k">tenancy</span>: pooled       <span class="c"># realm + Keycloak Orgs</span>
+<span class="k">telemetry</span>: full-export
+<span class="k">bricks</span>:
+  - conversation-runtime
+  - channel-whatsapp
+  - stt-voice
+  - channel-web
+  - rag                   <span class="c"># light</span>
+  - analytics             <span class="c"># benchmark store</span>
+  - compliance-pdf
+  - billing
+
+<span class="c"># profile.cue (excerpt)</span>
+<span class="k">product</span>: "gu"
+<span class="k">channels</span>: ["whatsapp","voice","web"]
+<span class="k">backends</span>: [benchmark]
+<span class="k">golden</span>: { suite: "gu-v1" }</pre>
+    </div>
+
+    <div class="man cwf">
+      <div class="mh"><span>chat-with-factory</span><span class="mode">silo · sovereign</span></div>
+      <pre><span class="c"># instances/kale-cwf/manifest.yaml</span>
+<span class="k">release</span>: eaip-2026.3
+<span class="k">substrate</span>: talos        <span class="c"># customer nodes</span>
+<span class="k">tenancy</span>: silo
+<span class="k">telemetry</span>: class-ab     <span class="c"># contract opt-in</span>
+<span class="k">bricks</span>:
+  - conversation-runtime
+  - workflow-runtime
+  - channel-teams
+  - channel-web
+  - rag
+  - rag-graph
+  - armes-link
+  - analytics             <span class="c"># + query gate</span>
+  - automation
+  - enterprise-sso
+
+<span class="c"># profile.cue (excerpt)</span>
+<span class="k">product</span>: "cwf"
+<span class="k">backends</span>: [armes, superset]
+<span class="k">retrieval</span>: { rag:"full", graph:true }
+<span class="k">golden</span>: { suite: "cwf-v1" }</pre>
+    </div>
+
+    <div class="man ins">
+      <div class="mh"><span>insurance-uc</span><span class="mode">silo · firewalled</span></div>
+      <pre><span class="c"># instances/insurance-uc/manifest.yaml</span>
+<span class="k">release</span>: eaip-2026.3
+<span class="k">substrate</span>: talos
+<span class="k">tenancy</span>: silo
+<span class="k">telemetry</span>: sealed       <span class="c"># D5 NOC clause</span>
+<span class="k">bricks</span>:
+  - conversation-runtime
+  - workflow-runtime      <span class="c"># triage flows</span>
+  - channel-email
+  - doc-ingest
+  - rag
+  - compliance-pdf
+  - enterprise-sso        <span class="c"># D8 day-one</span>
+
+<span class="c"># profile.cue (excerpt)</span>
+<span class="k">product</span>: "ins"
+<span class="k">backends</span>: [docs]
+<span class="c"># firewall = no mfg brick in manifest</span>
+<span class="c"># ⇒ no mfg backend row can validate</span>
+<span class="k">golden</span>: { suite: "ins-v1" }</pre>
+    </div>
+
+    <div class="man hq">
+      <div class="mh"><span>ardictech-hq</span><span class="mode">control · own cluster</span></div>
+      <pre><span class="c"># instances/ardictech-hq/manifest.yaml</span>
+<span class="k">release</span>: eaip-2026.3
+<span class="k">substrate</span>: talos
+<span class="k">tenancy</span>: n/a
+<span class="k">telemetry</span>: full-export
+<span class="k">bricks</span>:
+  - fleet-control         <span class="c"># A/B receiver, dead-man,</span>
+                          <span class="c"># BOM view, canary verdicts</span>
+
+<span class="c"># no conversation-runtime profile:</span>
+<span class="c"># HQ serves no users</span></pre>
+    </div>
+
+  </div>
+</section>
+
+<!-- 13 -->
+<section>
+  <div class="eyebrow">13 · Decision records</div>
+  <h2>Choices made, gates defined</h2>
+
+  <div class="dec">
+    <h4>D1 — Cluster substrate: Talos Linux <span class="mono">· pilot NOT YET RUN · deadline set</span></h4>
+    <p>Immutable, API-only OS (no SSH, no shell, no package manager); OS+K8s lifecycle as one declarative action; CIS
+    hardening built in; native fit for sealed offline-bundle upgrades. <b>Status 2026-07-13: the pilot has not been run.</b>
+    v0_3 is written so that this does not block: nothing above <span class="mono">cluster-substrate</span> depends on the
+    verdict — everything upward is plain Kubernetes, so the verdict swaps exactly one brick and zero contracts.
+    <b>Gate:</b> two-week staging pilot; the team must sustain API-only debugging; GU/ARMES workloads must show no friction.
+    <b>Deadline:</b> before the first customer perimeter is provisioned (Kale CWF, M7) — after that, a substrate change stops
+    being a brick swap and becomes a rebuild of a live customer cluster. <b>Fallback (not shameful):</b> RKE2 + Rancher.
+    <b>What the fallback costs:</b> not architecture — <i>narrative</i>. "There is no SSH to audit" is a sentence that earns
+    money in defence and insurance conversations. RKE2 gives it back.</p>
+  </div>
+
+  <div class="dec">
+    <h4>D2 — No Rancher for customer perimeters <span class="mono">· 3-condition re-evaluation gate</span></h4>
+    <p>Rancher's persistent agent channel is remote control into the customer cluster — incompatible with the
+    PR-approval promise and defence accreditation. Re-open only if all three hold: (1) ARDICTECH-operated clusters
+    &gt; ~10–15, (2) heterogeneous infra, (3) ops team large enough to need a central UI/RBAC as a first-class tool.
+    Even then: own clusters only.</p>
+  </div>
+
+  <div class="dec">
+    <h4>D3 — Omni deferred <span class="mono">· licensing stance</span></h4>
+    <p>Omni server is BSL-1.1; production use needs a commercial licence. OSS-first, same reflex as Terraform-BUSL →
+    OpenTofu: start with talosctl + OpenTofu Talos provider + Headlamp. A deliberate purchase decision later, not a
+    default dependency.</p>
+  </div>
+
+  <div class="dec">
+    <h4>D4 — Fleet repo is the management plane <span class="mono">· pull-only</span></h4>
+    <p>Git as brain: instance directories, PR merge as the single write path, customer approval as a first-class merge
+    gate, ArgoCD pull as the single sync mechanism. Zero inbound access. Sealed variant: signed offline bundles from
+    the same directories. Comfortable to ~50 instances.</p>
+  </div>
+
+  <div class="dec">
+    <h4>D5 — Sealed-customer NOC obligation <span class="mono">· contract clause</span></h4>
+    <p>Where telemetry is sealed, outage detection is contractually the customer NOC's duty and support SLA is priced
+    for blind operation.</p>
+  </div>
+
+  <div class="dec newd">
+    <h4>D6 — conversation-runtime is a foundation brick; CWF is a profile <span class="mono">· NEW · supersedes agent-runtime</span></h4>
+    <p>Follows SPINE-FRONT and the A6 amendment: <i>one conversational runtime serves every channel; LangGraph orchestrates
+    behind the MCP boundary and never addresses the user.</i> The brick therefore cannot carry a product's name —
+    <span class="mono">cwf_yaprak</span> as a brick id would leak product semantics into the kernel and licence the first fork.
+    <b>Resolves the ADR's internal inconsistency</b> (§5 A6 text = foundation; §6 seam-9 "cwf_yaprak brick, silo tier" = capability):
+    the A6 text wins; seam 9 is relabelled. <b>Falsification gate — Web Asistan:</b> WA must stand up with zero
+    product-conditional lines in the runtime — configuration, a channel adapter, and a segment set only. Pass ⇒ the
+    general-front-agent thesis is proven on the cheapest product. Fail ⇒ we learn it for the price of WA, not for the price of CWF.
+    <b>Honest residual risk:</b> whether GU's WhatsApp/voice/asynchronous usta flow sits cleanly on a pipeline designed for factory
+    chat is <i>unknown</i>. WA surfaces that early; GU is deliberately second.</p>
+  </div>
+
+  <div class="dec newd">
+    <h4>D7 — Two axes, never conflated <span class="mono">· NEW</span></h4>
+    <p>N = deployments (products; incompatible tenancy/telemetry tiers ⇒ never co-resident). M = backends (MCP sources;
+    co-resident by design, added as a row). The word "service" is banned from architectural prose without an axis
+    qualifier. Enforcement: the §8 binding rule (every profile backend must map to a manifest brick).</p>
+  </div>
+
+  <div class="dec newd">
+    <h4>D8 — Langfuse per instance <span class="mono">· NEW · resolves SC-4 ↔ Class C</span></h4>
+    <p>One Langfuse <i>configuration and host-trust posture</i> (ADR-007), deployed inside every perimeter. Traces are Class C
+    and never leave; canary verdicts are Class B and do. "One Langfuse" is uniformity, not centralisation. The AWS-hosted
+    instance in use today is a development convenience.</p>
+  </div>
+</section>
+
+<!-- 14 -->
+<section>
+  <div class="eyebrow">14 · Open items</div>
+  <h2>What v0_3 does not settle</h2>
+  <div class="open">
+    <ul>
+      <li><code>[open:]</code> <b>D1 Talos pilot</b> — not run. Two-week staging pilot, GU + armes-link workloads, API-only debugging. Deadline: before the first customer perimeter.</li>
+      <li><code>[open:]</code> <b>Container port effort</b> — §10 lists the items and their classes; no hour figure until a repo audit at <span class="mono">b753783</span> (Antigravity task candidate). The Keycloak item (SC-2) is the only genuine rewrite.</li>
+      <li><code>[open:]</code> <b>Web Asistan profile</b> — the D6 falsification gate. Needs: catalog kind family, embed-widget channel adapter, WA segment set, WA golden suite. This is the next concrete build.</li>
+      <li><code>[open:]</code> <b>Semantic contract / query gate</b> — ClickHouse-MCP + deterministic NL→SQL gate + dbt Gold tool schemas. Own workstream, own spec (SOTA gaps 2+3).</li>
+      <li><code>[open:]</code> <b>Golden-suite ownership per profile</b> — who curates GU's, WA's, insurance's? Eval cost scales with N and the curator must know the domain. Unassigned.</li>
+      <li><code>[open:]</code> <b>Pooled-tier detail</b> — Keycloak Organizations at GU scale, shared-namespace quotas, ClickHouse tenant isolation, LiteLLM per-tenant budgets. The runtime's quota tables are per-user, not per-org — gap.</li>
+      <li><code>[open:]</code> <b>ARMES as an EAIP instance or an external system</b> — business decision (§11 note).</li>
+      <li><code>[open:]</code> <b>Injection hardening for untrusted tool output</b> — carried from the v1_2 bootstrap, still unconfirmed at <span class="mono">b753783</span>. With one kernel across four products this is now a fleet-wide exposure, not a CWF one.</li>
+      <li><code>[open:]</code> <b>fleet-control v1 scope cut</b> — which Grafana panels, which dead-man thresholds, PR-status surfacing, canary-verdict panel.</li>
+    </ul>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <span>EAIP_Brick_Architecture_v0_3.html — 10 foundation + 21 capability + 1 control brick · two axes · two contracts · one gated release train</span>
+  <span>refs: brick v0_2 · ADR_SPINE_FRONT v0_1 · sota_verdict_v2 · DR-4/5/8/13 · cwf_yaprak @ b753783 (rev 70)</span>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Big Picture — Revolutionize developer & runtime topology</title>
+<style>
+  :root{
+    --bg:#0D1117; --bg2:#161B22; --bg3:#21262D;
+    --border:#30363D; --border2:#444C56;
+    --text:#E6EDF3; --text2:#8B949E; --text3:#6E7681;
+    --blue:#58A6FF; --green:#3FB950; --amber:#E3B341; --red:#F85149; --purple:#BC8CFF;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);
+    font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;line-height:1.6;font-size:15px}
+  .wrap{max-width:1040px;margin:0 auto;padding:24px 20px 64px}
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;
+    border-bottom:1px solid var(--border);padding-bottom:16px;margin-bottom:8px;flex-wrap:wrap}
+  .topbar h1{font-size:22px;margin:0;font-weight:600}
+  .topbar .sub{color:var(--text2);font-size:13px;margin-top:2px}
+  .controls{display:flex;gap:8px;align-items:center}
+  button{background:var(--bg3);color:var(--text);border:1px solid var(--border2);
+    border-radius:6px;padding:6px 12px;font-size:13px;cursor:pointer;font-family:inherit}
+  button:hover{border-color:var(--blue)}
+  button.active{border-color:var(--blue);color:var(--blue)}
+  h2{font-size:18px;margin:34px 0 10px;font-weight:600;border-left:3px solid var(--blue);padding-left:10px}
+  h3{font-size:15px;margin:20px 0 8px;color:var(--text);font-weight:600}
+  p{margin:8px 0}
+  a{color:var(--blue);text-decoration:none}
+  a:hover{text-decoration:underline}
+  code{font-family:ui-monospace,'JetBrains Mono','SFMono-Regular',Menlo,monospace;
+    background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:1px 5px;font-size:13px}
+  pre{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px 16px;
+    overflow:auto;font-family:ui-monospace,'JetBrains Mono','SFMono-Regular',Menlo,monospace;font-size:12.5px;line-height:1.5}
+  .panel{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px 18px;margin:14px 0}
+  .panel.warn{border-color:#7d5e1f;background:#1c1707}
+  .panel.note{border-color:#1f4d7a;background:#0b1726}
+  .fig{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;margin:14px 0}
+  .fig svg{width:100%;height:auto;display:block}
+  .cap{color:var(--text2);font-size:12.5px;margin-top:8px}
+  table{border-collapse:collapse;width:100%;margin:12px 0;font-size:13px}
+  th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;vertical-align:top}
+  th{background:var(--bg3);color:var(--text);font-weight:600}
+  td code{font-size:12px}
+  .badge{display:inline-block;border-radius:10px;padding:1px 8px;font-size:11px;border:1px solid;white-space:nowrap}
+  .b-live{color:var(--green);border-color:#1c5230;background:#0c1f13}
+  .b-plan{color:var(--amber);border-color:#7d5e1f;background:#1c1707}
+  .b-open{color:var(--red);border-color:#6e2b27;background:#1f0d0c}
+  ul{margin:8px 0 8px 4px;padding-left:18px}
+  li{margin:4px 0}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-size:12px;color:var(--text2);margin-top:6px}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .sw{width:14px;height:3px;border-radius:2px;display:inline-block}
+  .sw.box{width:12px;height:12px;border-radius:3px;border:1px solid}
+  body.lang-en [data-lang="tr"]{display:none}
+  body.lang-tr [data-lang="en"]{display:none}
+  .svg-bypass{opacity:.35;transition:opacity .25s}
+  body.show-bypass .svg-bypass{opacity:1}
+  .clk{cursor:pointer}
+  .clk:hover{opacity:.82}
+  text{font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
+</style>
+</head>
+<body class="lang-en">
+<div class="wrap">
+
+  <div class="topbar">
+    <div>
+      <h1 data-lang="en">Big Picture — Revolutionize developer &amp; runtime topology</h1>
+      <h1 data-lang="tr">Büyük Resim — Revolutionize geliştirici ve runtime topolojisi</h1>
+      <div class="sub" data-lang="en">How every developer connects · what the system is made of · where the code lives</div>
+      <div class="sub" data-lang="tr">Her geliştirici nasıl bağlanır · sistem nelerden oluşur · kod nerede yaşar</div>
+    </div>
+    <div class="controls">
+      <button id="btn-en" class="active" onclick="setLang('en')">EN</button>
+      <button id="btn-tr" onclick="setLang('tr')">TR</button>
+    </div>
+  </div>
+
+  <div class="panel note">
+    <p data-lang="en">This page combines two planes into one map: the <b>developer workflow plane</b> (which IDE each engineer uses and the single point they connect to) and the <b>Rev1 runtime plane</b> (all components to be built in Phase 1 and where they run). Diagram nodes are clickable — they jump to the section that explains them.</p>
+    <p data-lang="tr">Bu sayfa iki düzlemi tek haritada birleştirir: <b>geliştirici iş akışı düzlemi</b> (her mühendisin hangi IDE'yi kullandığı ve bağlandığı tek nokta) ve <b>Rev1 runtime düzlemi</b> (Phase 1'de inşa edilecek tüm bileşenler ve nerede çalıştıkları). Diagram düğümleri tıklanabilir — onları açıklayan bölüme atlar.</p>
+  </div>
+
+  <!-- ============ SECTION 1: Developer connection topology ============ -->
+  <h2 id="sec-dev" data-lang="en">1 · Developer connection topology</h2>
+  <h2 data-lang="tr">1 · Geliştirici bağlantı topolojisi</h2>
+
+  <p data-lang="en">The rule of this picture is one sentence: <b>each workstation has four connections, but exactly one connection point for model calls</b> — the gateway wrapper. Developers do not talk to each other directly; coordination flows through GitHub (PRs + shared stage prompts). Git is the collaboration bus.</p>
+  <p data-lang="tr">Bu resmin kuralı tek cümle: <b>her workstation'ın dört bağlantısı var, ama model çağrıları için tam olarak tek bağlantı noktası</b> — gateway wrapper. Geliştiriciler birbirleriyle doğrudan konuşmaz; koordinasyon GitHub üzerinden akar (PR'lar + ortak stage prompt'ları). Git, collaboration bus'tır.</p>
+
+  <div class="controls" style="margin:6px 0 0">
+    <button id="btn-bypass" onclick="toggleBypass()" data-lang="en">Highlight AG bypass path</button>
+    <button onclick="toggleBypass()" data-lang="tr">AG bypass yolunu vurgula</button>
+  </div>
+
+  <div class="fig">
+    <svg viewBox="0 0 920 560" role="img" aria-label="Developer connection topology">
+      <defs>
+        <marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
+      </defs>
+
+      <!-- Band A: actors -->
+      <g class="clk" onclick="jump('sec-roles')">
+        <rect x="40" y="40" width="220" height="70" rx="8" fill="#0b1726" stroke="#1f4d7a"/>
+        <text x="150" y="68" text-anchor="middle" fill="#58A6FF" font-size="15" font-weight="600">Maymun — Conductor</text>
+        <text x="150" y="90" text-anchor="middle" fill="#8B949E" font-size="12.5">queues prompts · approves gates</text>
+      </g>
+      <g class="clk" onclick="jump('sec-ide')">
+        <rect x="350" y="40" width="220" height="70" rx="8" fill="#0b1726" stroke="#58A6FF"/>
+        <text x="460" y="68" text-anchor="middle" fill="#58A6FF" font-size="15" font-weight="600">Developer #1 … #n</text>
+        <text x="460" y="90" text-anchor="middle" fill="#8B949E" font-size="12.5">VS Code + Roo Code · per-dev key</text>
+      </g>
+      <g class="clk" onclick="jump('sec-ag')">
+        <rect x="660" y="40" width="220" height="70" rx="8" fill="#1c1707" stroke="#E3B341"/>
+        <text x="770" y="68" text-anchor="middle" fill="#E3B341" font-size="15" font-weight="600">AG executor</text>
+        <text x="770" y="90" text-anchor="middle" fill="#8B949E" font-size="12.5">git · filesystem · deploy</text>
+      </g>
+
+      <!-- Band B: connection plane -->
+      <g class="clk" onclick="jump('sec-gateway')">
+        <rect x="40" y="220" width="210" height="74" rx="8" fill="#161B22" stroke="#58A6FF" stroke-width="1.4"/>
+        <text x="145" y="248" text-anchor="middle" fill="#E6EDF3" font-size="15" font-weight="600">Gateway wrapper</text>
+        <text x="145" y="268" text-anchor="middle" fill="#8B949E" font-size="12">/v1 · /v1/model/info</text>
+        <text x="145" y="284" text-anchor="middle" fill="#8B949E" font-size="12">virtual key · Keycloak JWT</text>
+      </g>
+      <g class="clk" onclick="jump('sec-mcp')">
+        <rect x="270" y="220" width="190" height="74" rx="8" fill="#161B22" stroke="#30363D"/>
+        <text x="365" y="252" text-anchor="middle" fill="#E6EDF3" font-size="15" font-weight="600">MCP tool servers</text>
+        <text x="365" y="272" text-anchor="middle" fill="#8B949E" font-size="12">fs · web · git · sandbox</text>
+      </g>
+      <g class="clk" onclick="jump('sec-repo')">
+        <rect x="480" y="220" width="190" height="74" rx="8" fill="#161B22" stroke="#30363D"/>
+        <text x="575" y="246" text-anchor="middle" fill="#E6EDF3" font-size="15" font-weight="600">GitHub repo</text>
+        <text x="575" y="266" text-anchor="middle" fill="#8B949E" font-size="12">git · PR · stage prompts</text>
+        <text x="575" y="282" text-anchor="middle" fill="#6E7681" font-size="11">collaboration bus</text>
+      </g>
+      <g class="clk" onclick="jump('sec-runtime')">
+        <rect x="690" y="220" width="190" height="74" rx="8" fill="#161B22" stroke="#30363D"/>
+        <text x="785" y="252" text-anchor="middle" fill="#E6EDF3" font-size="15" font-weight="600">Observability</text>
+        <text x="785" y="272" text-anchor="middle" fill="#8B949E" font-size="12">Grafana · Metabase (read)</text>
+      </g>
+
+      <!-- Band C: backends -->
+      <g class="clk" onclick="jump('sec-gateway')">
+        <rect x="40" y="400" width="210" height="64" rx="8" fill="#161B22" stroke="#30363D"/>
+        <text x="145" y="428" text-anchor="middle" fill="#E6EDF3" font-size="15" font-weight="600">LiteLLM proxy</text>
+        <text x="145" y="448" text-anchor="middle" fill="#8B949E" font-size="12">routing · fallback · cache</text>
+      </g>
+      <g class="clk" onclick="jump('sec-gateway')">
+        <rect x="300" y="400" width="190" height="64" rx="8" fill="#0c1f13" stroke="#1c5230"/>
+        <text x="395" y="428" text-anchor="middle" fill="#3FB950" font-size="14.5" font-weight="600">Vault</text>
+        <text x="395" y="448" text-anchor="middle" fill="#8B949E" font-size="12">provider keys (never on IDE)</text>
+      </g>
+      <g class="clk" onclick="jump('sec-gateway')">
+        <rect x="640" y="400" width="240" height="64" rx="8" fill="#1c1707" stroke="#E3B341"/>
+        <text x="760" y="428" text-anchor="middle" fill="#E3B341" font-size="14.5" font-weight="600">LLM providers</text>
+        <text x="760" y="448" text-anchor="middle" fill="#8B949E" font-size="12">Anthropic · Vertex (Gemini)</text>
+      </g>
+
+      <!-- Compliant arrows (developer fan) -->
+      <line x1="430" y1="110" x2="180" y2="218" stroke="#58A6FF" stroke-width="1.4" marker-end="url(#ar)"/>
+      <line x1="455" y1="110" x2="360" y2="218" stroke="#58A6FF" stroke-width="1.4" marker-end="url(#ar)"/>
+      <line x1="485" y1="110" x2="565" y2="218" stroke="#58A6FF" stroke-width="1.4" marker-end="url(#ar)"/>
+      <line x1="510" y1="110" x2="775" y2="218" stroke="#58A6FF" stroke-width="1.4" marker-end="url(#ar)"/>
+      <!-- Maymun -> GitHub -->
+      <line x1="180" y1="110" x2="555" y2="218" stroke="#58A6FF" stroke-width="1" stroke-dasharray="2 3" marker-end="url(#ar)"/>
+      <!-- Gateway -> LiteLLM -> providers, gateway -> vault -->
+      <line x1="145" y1="294" x2="145" y2="398" stroke="#58A6FF" stroke-width="1.4" marker-end="url(#ar)"/>
+      <line x1="200" y1="294" x2="360" y2="398" stroke="#58A6FF" stroke-width="1" marker-end="url(#ar)"/>
+      <line x1="250" y1="432" x2="638" y2="432" stroke="#58A6FF" stroke-width="1.4" marker-end="url(#ar)"/>
+      <!-- AG -> GitHub (compliant for code ops) -->
+      <line x1="700" y1="110" x2="600" y2="218" stroke="#E3B341" stroke-width="1.2" marker-end="url(#ar)"/>
+      <!-- AG bypass -> providers direct -->
+      <line class="svg-bypass" x1="800" y1="110" x2="775" y2="398" stroke="#E3B341" stroke-width="1.6" stroke-dasharray="6 4" marker-end="url(#ar)"/>
+      <text class="svg-bypass" x="828" y="250" fill="#E3B341" font-size="11.5">bypass:</text>
+      <text class="svg-bypass" x="828" y="266" fill="#E3B341" font-size="11.5">no budget /</text>
+      <text class="svg-bypass" x="828" y="282" fill="#E3B341" font-size="11.5">no telemetry</text>
+
+      <!-- band labels -->
+      <text x="40" y="160" fill="#6E7681" font-size="11">ACTORS</text>
+      <text x="40" y="200" fill="#6E7681" font-size="11">CONNECTION PLANE (Zone 1 edge)</text>
+      <text x="40" y="380" fill="#6E7681" font-size="11">BACKEND (Zone 2 / 3)</text>
+    </svg>
+    <div class="legend">
+      <span><span class="sw" style="background:#58A6FF"></span><span data-lang="en">developer path via gateway</span><span data-lang="tr">gateway üzerinden geliştirici yolu</span></span>
+      <span><span class="sw" style="background:#E3B341"></span><span data-lang="en">AG path — dashed = bypasses gateway</span><span data-lang="tr">AG yolu — kesik = gateway'i atlar</span></span>
+    </div>
+    <div class="cap" data-lang="en">Fig. 1 — Every model call funnels through the gateway wrapper. The wrapper sits at the Zone 1 edge; LiteLLM and the providers sit behind it. AG's code operations go to GitHub, but its LLM calls bypass the gateway entirely.</div>
+    <div class="cap" data-lang="tr">Şekil 1 — Her model çağrısı gateway wrapper'dan geçer. Wrapper Zone 1 edge'inde durur; LiteLLM ve provider'lar arkasındadır. AG'nin kod işlemleri GitHub'a gider ama LLM çağrıları gateway'i tamamen atlar.</div>
+  </div>
+
+  <h3 id="sec-ide" data-lang="en">Which IDE each developer uses</h3>
+  <h3 data-lang="tr">Her geliştirici hangi IDE'yi kullanır</h3>
+  <p data-lang="en">Production path is VS Code with an agent extension that supports a custom OpenAI-compatible base URL — Roo Code (recommended, native LiteLLM provider with model auto-discovery), Cline, or Continue. Each engineer points the extension at the gateway wrapper and authenticates with their own virtual key.</p>
+  <p data-lang="tr">Production yolu, custom OpenAI-uyumlu base URL'i destekleyen agent extension'lı VS Code'dur — Roo Code (önerilen, native LiteLLM provider + model auto-discovery), Cline veya Continue. Her mühendis extension'ı gateway wrapper'a yönlendirir ve kendi virtual key'iyle auth olur.</p>
+
+  <h3 id="sec-ag" data-lang="en">Why AG cannot sit behind the gateway</h3>
+  <h3 data-lang="tr">AG neden gateway'in arkasına geçemez</h3>
+  <p data-lang="en">Antigravity does not expose a custom-provider / BYOK hook for swapping its in-editor agent model. A raw Anthropic key entered in AG goes straight to Anthropic, bypassing the gateway — so per-agent attribution, per-minute burst limits, canonical telemetry and prefix-cache emission are all lost. Reverse-proxy hacks exist but are reverse-engineered and prohibited by Google. Therefore AG stays a swappable executor for git / filesystem / deploy, while budget-sensitive model work routes through VS Code + gateway.</p>
+  <p data-lang="tr">Antigravity, in-editor agent modelini değiştirmek için custom-provider / BYOK hook'u sunmaz. AG'ye girilen ham Anthropic key doğrudan Anthropic'e gider, gateway'i atlar — böylece per-agent attribution, per-minute burst limit, canonical telemetry ve prefix-cache emission'ın hepsi kaybolur. Reverse-proxy hack'leri var ama reverse-engineered ve Google tarafından yasaklı. Bu yüzden AG, git / filesystem / deploy için swappable executor olarak kalır; budget-hassas model işi VS Code + gateway'den geçer.</p>
+
+  <h3 id="sec-roles" data-lang="en">Roles</h3>
+  <h3 data-lang="tr">Roller</h3>
+  <ul>
+    <li data-lang="en"><b>Maymun (Conductor)</b> — queues prompts, reviews PR diffs, approves at operator gates; never writes code directly.</li>
+    <li data-lang="tr"><b>Maymun (Conductor)</b> — prompt'ları sıraya koyar, PR diff'lerini inceler, operator gate'lerinde onaylar; asla doğrudan kod yazmaz.</li>
+    <li data-lang="en"><b>Developer #1…#n</b> — Takım-1 (builds Revolutionize Phase 1); VS Code + Roo Code through the gateway.</li>
+    <li data-lang="tr"><b>Developer #1…#n</b> — Takım-1 (Revolutionize Phase 1'i inşa eder); gateway üzerinden VS Code + Roo Code.</li>
+    <li data-lang="en"><b>AG executor</b> — mechanical git / GitHub / filesystem / deploy operations.</li>
+    <li data-lang="tr"><b>AG executor</b> — mekanik git / GitHub / filesystem / deploy işlemleri.</li>
+    <li data-lang="en"><b>Claude</b> — sole architect and single author of all stage prompts and canonical docs (incl. this one).</li>
+    <li data-lang="tr"><b>Claude</b> — tek mimar ve tüm stage prompt'larının ve canonical dökümanların (bu dahil) tek yazarı.</li>
+  </ul>
+
+  <!-- ============ SECTION 2: Runtime by zone ============ -->
+  <h2 id="sec-runtime" data-lang="en">2 · Rev1 runtime components by network zone</h2>
+  <h2 data-lang="tr">2 · Network zone'a göre Rev1 runtime bileşenleri</h2>
+  <p data-lang="en">The gateway wrapper the developer connects to (Fig. 1) physically lives at the Zone 1 edge. LiteLLM and the agents run in the internal application zone; all data stores sit in the data zone with no internet egress.</p>
+  <p data-lang="tr">Geliştiricinin bağlandığı gateway wrapper (Şekil 1) fiziksel olarak Zone 1 edge'inde durur. LiteLLM ve agent'lar iç application zone'unda çalışır; tüm veri depoları internet egress'i olmayan data zone'unda durur.</p>
+
+  <div class="fig">
+    <svg viewBox="0 0 920 470" role="img" aria-label="Rev1 runtime components by network zone">
+      <!-- Zone 1 -->
+      <rect x="30" y="30" width="280" height="410" rx="16" fill="#0b1726" stroke="#1f4d7a"/>
+      <text x="48" y="58" fill="#58A6FF" font-size="15" font-weight="600">Zone 1 — edge</text>
+      <text x="48" y="76" fill="#8B949E" font-size="12">public</text>
+      <g><rect x="48" y="92" width="244" height="56" rx="8" fill="#161B22" stroke="#30363D"/>
+        <text x="60" y="116" fill="#E6EDF3" font-size="14">Gateway wrapper</text>
+        <text x="60" y="134" fill="#8B949E" font-size="12">/v1 · model catalog</text>
+        <text x="278" y="116" text-anchor="end" font-size="11" fill="#E3B341">○ 1.4.2</text></g>
+      <g><rect x="48" y="160" width="244" height="56" rx="8" fill="#161B22" stroke="#30363D"/>
+        <text x="60" y="184" fill="#E6EDF3" font-size="14">TheBluePrint23</text>
+        <text x="60" y="202" fill="#8B949E" font-size="12">web · governance UI</text>
+        <text x="278" y="184" text-anchor="end" font-size="11" fill="#3FB950">● live</text></g>
+      <g><rect x="48" y="228" width="244" height="56" rx="8" fill="#161B22" stroke="#30363D"/>
+        <text x="60" y="252" fill="#E6EDF3" font-size="14">Edge / WAF</text>
+        <text x="60" y="270" fill="#8B949E" font-size="12">TLS · SSO</text>
+        <text x="278" y="252" text-anchor="end" font-size="11" fill="#3FB950">● live</text></g>
+
+      <!-- Zone 2 -->
+      <rect x="330" y="30" width="270" height="410" rx="16" fill="#160c26" stroke="#5a3a8a"/>
+      <text x="348" y="58" fill="#BC8CFF" font-size="15" font-weight="600">Zone 2 — application</text>
+      <text x="348" y="76" fill="#8B949E" font-size="12">internal only</text>
+      <g><rect x="348" y="92" width="234" height="50" rx="8" fill="#161B22" stroke="#30363D"/>
+        <text x="360" y="114" fill="#E6EDF3" font-size="14">LiteLLM proxy</text>
+        <text x="360" y="132" fill="#8B949E" font-size="11.5">multi-provider · fallback</text>
+        <text x="570" y="114" text-anchor="end" font-size="11" fill="#E3B341">○ 1.4.1</text></g>
+      <g><rect x="348" y="152" width="234" height="50" rx="8" fill="#161B22" stroke="#30363D"/>
+        <text x="360" y="174" fill="#E6EDF3" font-size="14">MCP tool servers</text>
+        <text x="360" y="192" fill="#8B949E" font-size="11.5">allowlist at boot</text>
+        <text x="570" y="174" text-anchor="end" font-size="11" fill="#E3B341">○ 1.7</text></g>
+      <g><rect x="348" y="212" width="234" height="50" rx="8" fill="#161B22" stroke="#30363D"/>
+        <text x="360" y="234" fill="#E6EDF3" font-size="14">v1 agents</text>
+        <text x="360" y="252" fill="#8B949E" font-size="11.5">base class · gateway+MCP</text>
+        <text x="570" y="234" text-anchor="end" font-size="11" fill="#E3B341">○ 1.5</text></g>
+      <g><rect x="348" y="272" width="234" height="50" rx="8" fill="#161B22" stroke="#30363D"/>
+        <text x="360" y="294" fill="#E6EDF3" font-size="14">Telemetry export</text>
+        <text x="360" y="312" fill="#8B949E" font-size="11.5">OpenTelemetry</text>
+        <text x="570" y="294" text-anchor="end" font-size="11" fill="#E3B341">○ OTel</text></g>
+
+      <!-- Zone 3 -->
+      <rect x="620" y="30" width="270" height="410" rx="16" fill="#0c1f13" stroke="#1c5230"/>
+      <text x="638" y="58" fill="#3FB950" font-size="15" font-weight="600">Zone 3 — data</text>
+      <text x="638" y="76" fill="#8B949E" font-size="12">no internet egress</text>
+      <g><rect x="638" y="92" width="234" height="44" rx="8" fill="#161B22" stroke="#30363D"/>
+        <text x="650" y="112" fill="#E6EDF3" font-size="13.5">Redpanda · ClickHouse</text>
+        <text x="650" y="128" fill="#8B949E" font-size="11">events + analytics</text>
+        <text x="862" y="112" text-anchor="end" font-size="11" fill="#3FB950">● 1.1/1.2</text></g>
+      <g><rect x="638" y="146" width="234" height="44" rx="8" fill="#161B22" stroke="#30363D"/>
+        <text x="650" y="166" fill="#E6EDF3" font-size="13.5">MinIO</text>
+        <text x="650" y="182" fill="#8B949E" font-size="11">object store</text>
+        <text x="862" y="166" text-anchor="end" font-size="11" fill="#3FB950">● live</text></g>
+      <g><rect x="638" y="200" width="234" height="44" rx="8" fill="#161B22" stroke="#30363D"/>
+        <text x="650" y="220" fill="#E6EDF3" font-size="13.5">Qdrant · PostgreSQL</text>
+        <text x="650" y="236" fill="#8B949E" font-size="11">vectors · state</text>
+        <text x="862" y="220" text-anchor="end" font-size="11" fill="#3FB950">● live</text></g>
+      <g><rect x="638" y="254" width="234" height="44" rx="8" fill="#161B22" stroke="#30363D"/>
+        <text x="650" y="274" fill="#E6EDF3" font-size="13.5">MariaDB Galera</text>
+        <text x="650" y="290" fill="#8B949E" font-size="11">relational state</text>
+        <text x="862" y="274" text-anchor="end" font-size="11" fill="#3FB950">● live</text></g>
+      <g><rect x="638" y="308" width="234" height="44" rx="8" fill="#0c1f13" stroke="#1c5230"/>
+        <text x="650" y="328" fill="#3FB950" font-size="13.5">Vault · Keycloak</text>
+        <text x="650" y="344" fill="#8B949E" font-size="11">secrets · auth</text>
+        <text x="862" y="328" text-anchor="end" font-size="11" fill="#3FB950">● live</text></g>
+    </svg>
+    <div class="legend">
+      <span><span class="badge b-live">● live</span><span data-lang="en">sovereign substrate (exists)</span><span data-lang="tr">sovereign substrate (mevcut)</span></span>
+      <span><span class="badge b-plan">○ stage</span><span data-lang="en">built in Phase 1 (stage ID)</span><span data-lang="tr">Phase 1'de inşa edilir (stage ID)</span></span>
+    </div>
+    <div class="cap" data-lang="en">Fig. 2 — Stage IDs (○) are Phase 1 deliverables; substrate (●) already exists and is shared by both EAIP and Revolutionize.</div>
+    <div class="cap" data-lang="tr">Şekil 2 — Stage ID'leri (○) Phase 1 teslimatlarıdır; substrate (●) zaten mevcut ve hem EAIP hem Revolutionize tarafından paylaşılır.</div>
+  </div>
+
+  <!-- ============ SECTION 3: Repo structure ============ -->
+  <h2 id="sec-repo" data-lang="en">3 · Git / GitHub structure</h2>
+  <h2 data-lang="tr">3 · Git / GitHub yapısı</h2>
+  <p data-lang="en">Platform code is a monorepo under the content repo. The app (this command center) is a separate repo and fetches canonical docs at runtime via DocumentFrame.</p>
+  <p data-lang="tr">Platform kodu, content repo altında bir monorepo'dur. App (bu komuta merkezi) ayrı bir repo'dur ve canonical dökümanları runtime'da DocumentFrame ile çeker.</p>
+
+  <pre>maymun207/revolutionize          <span style="color:#6E7681"># content + platform monorepo (private)</span>
+├── adrs/                ADR-001 (LiteLLM) · ADR-002 (MCP) · ADR-003 (patterns)
+├── docs/
+│   ├── architecture/    v6 SSoT bilingual · 08 charter · <span style="color:#58A6FF">big_picture_bilingual.html</span>
+│   ├── phase0/          manifest + 25 governance items
+│   └── phase1/          stage prompts · outputs · lessons.md
+├── services/            <span style="color:#6E7681"># Phase 1 code</span>
+│   ├── gateway-wrapper/  1.4.2  (~500 LOC · /v1 + /v1/model/info)
+│   ├── mcp-filesystem/   1.7.4  (first MCP · calibration)
+│   ├── mcp-web-docs/     1.7
+│   ├── mcp-git-github/   1.7
+│   ├── mcp-sandbox/      1.7
+│   └── agents/           1.5    (EM · architect · FE/BE/DB/DevOps · reviewer · security)
+├── infra/               <span style="color:#6E7681"># infrastructure-as-code</span>
+│   ├── litellm/          1.4.1  (Helm/compose + provider config + Vault refs)
+│   ├── redpanda/ clickhouse/ tempo/ minio/ qdrant/ postgres/   1.1–1.2
+│   └── observability/    1.3    (Grafana · Metabase · dashboards-as-code)
+└── .github/  CODEOWNERS · workflows/ (CI)
+
+maymun207/TheBluePrint23         <span style="color:#6E7681"># program command-center UI (separate repo)</span></pre>
+
+  <!-- ============ SECTION 4: Gateway + integration ============ -->
+  <h2 id="sec-gateway" data-lang="en">4 · LLM gateway — LiteLLM + wrapper</h2>
+  <h2 data-lang="tr">4 · LLM gateway — LiteLLM + wrapper</h2>
+  <p data-lang="en">Per ADR-001 the gateway is LiteLLM (the OSS proxy) wrapped by a thin (~500 LOC) project layer. Agents never import LiteLLM directly — they call the wrapper. The wrapper holds the four capabilities LiteLLM does not cover: agent-aware cost attribution, per-minute token-burst limits, prefix-cache hit emission to the telemetry pipeline, and Living-Knowledge-driven routing.</p>
+  <p data-lang="tr">ADR-001'e göre gateway, ince (~500 LOC) bir proje katmanıyla sarılmış LiteLLM'dir (OSS proxy). Agent'lar LiteLLM'i doğrudan import etmez — wrapper'ı çağırır. Wrapper, LiteLLM'in kapsamadığı dört yeteneği tutar: agent-aware cost attribution, per-minute token-burst limit, telemetry pipeline'a prefix-cache hit emission, ve Living-Knowledge tabanlı routing.</p>
+
+  <div class="panel warn">
+    <p data-lang="en"><b>Single shared gateway, but one virtual key per developer.</b> A single gateway endpoint is correct (central attribution, budget, telemetry only work with one shared gateway). But every developer/agent gets a distinct virtual key with its own budget — sharing one key would destroy attribution. Production IDEs connect to the wrapper (which must expose <code>/v1/chat/completions</code> and <code>/v1/model/info</code>), not raw LiteLLM, or the four custom capabilities are bypassed. The endpoint is a network-reachable, auth-guarded address — never <code>localhost</code>.</p>
+    <p data-lang="tr"><b>Tek paylaşılan gateway, ama geliştirici başına bir virtual key.</b> Tek gateway endpoint'i doğrudur (central attribution, budget, telemetry yalnızca tek paylaşılan gateway ile çalışır). Ama her geliştirici/agent kendi budget'iyle ayrı bir virtual key alır — tek key paylaşmak attribution'ı yok eder. Production IDE'leri raw LiteLLM'e değil wrapper'a bağlanır (wrapper <code>/v1/chat/completions</code> ve <code>/v1/model/info</code> expose etmeli), yoksa dört custom capability atlanır. Endpoint ağdan erişilebilir, auth-korumalı bir adrestir — asla <code>localhost</code> değil.</p>
+  </div>
+
+  <h3 data-lang="en">What each developer pulls in common</h3>
+  <h3 data-lang="tr">Her geliştiricinin ortak çektiği şey</h3>
+  <table>
+    <tr><th data-lang="en">Shared item</th><th data-lang="tr">Ortak öğe</th><th data-lang="en">Source</th><th data-lang="tr">Kaynak</th></tr>
+    <tr><td data-lang="en">Model catalog</td><td data-lang="tr">Model kataloğu</td><td colspan="2"><code>gateway /v1/model/info</code> <span data-lang="en">(runtime, no reconfigure)</span><span data-lang="tr">(runtime, reconfigure yok)</span></td></tr>
+    <tr><td data-lang="en">Stage prompts · SSoT · charter</td><td data-lang="tr">Stage prompt'ları · SSoT · charter</td><td colspan="2"><code>content repo /docs</code></td></tr>
+    <tr><td data-lang="en">Tool surface (allowlisted)</td><td data-lang="tr">Tool yüzeyi (allowlist'li)</td><td colspan="2"><span data-lang="en">MCP servers (Zone 2)</span><span data-lang="tr">MCP serverlar (Zone 2)</span></td></tr>
+    <tr><td data-lang="en">Provider keys</td><td data-lang="tr">Provider key'leri</td><td colspan="2"><span data-lang="en"><b>never pulled</b> — stay in Vault behind the gateway; the IDE holds only its own virtual key</span><span data-lang="tr"><b>hiç çekilmez</b> — gateway arkasında Vault'ta kalır; IDE sadece kendi virtual key'ini tutar</span></td></tr>
+    <tr><td data-lang="en">Telemetry / dashboards</td><td data-lang="tr">Telemetry / dashboard'lar</td><td colspan="2"><span data-lang="en">Grafana · Metabase (read-only)</span><span data-lang="tr">Grafana · Metabase (salt-okunur)</span></td></tr>
+  </table>
+
+  <!-- ============ SECTION 5: MCP ============ -->
+  <h2 id="sec-mcp" data-lang="en">5 · MCP tool servers</h2>
+  <h2 data-lang="tr">5 · MCP tool serverlar</h2>
+  <p data-lang="en">Per ADR-002 the external tool surface is MCP, with a per-agent capability allowlist enforced at server boot. The filesystem server (1.7.4) ships first as the calibration stage, then web/docs, git/github, and sandbox.</p>
+  <p data-lang="tr">ADR-002'ye göre dış tool yüzeyi MCP'dir; server boot'ta enforce edilen per-agent capability allowlist ile. Filesystem server (1.7.4) kalibrasyon stage'i olarak ilk çıkar, ardından web/docs, git/github ve sandbox.</p>
+
+  <!-- ============ SECTION 6: Component to stage map ============ -->
+  <h2 data-lang="en">6 · Component → stage map</h2>
+  <h2 data-lang="tr">6 · Bileşen → stage haritası</h2>
+  <table>
+    <tr><th>Component</th><th data-lang="en">Stage</th><th data-lang="tr">Stage</th><th data-lang="en">Status</th><th data-lang="tr">Durum</th></tr>
+    <tr><td>LiteLLM proxy</td><td colspan="2"><code>1.4.1</code></td><td colspan="2"><span class="badge b-plan">○ Phase 1</span></td></tr>
+    <tr><td>Gateway wrapper</td><td colspan="2"><code>1.4.2</code></td><td colspan="2"><span class="badge b-plan">○ Phase 1</span></td></tr>
+    <tr><td>MCP tool servers</td><td colspan="2"><code>1.7 (1.7.4 first)</code></td><td colspan="2"><span class="badge b-plan">○ Phase 1</span></td></tr>
+    <tr><td>v1 agents</td><td colspan="2"><code>1.5</code></td><td colspan="2"><span class="badge b-plan">○ Phase 1</span></td></tr>
+    <tr><td>Telemetry pipeline</td><td colspan="2"><code>1.1 / 1.2</code></td><td colspan="2"><span class="badge b-plan">○ Phase 1</span></td></tr>
+    <tr><td>Observability surface</td><td colspan="2"><code>1.3</code></td><td colspan="2"><span class="badge b-plan">○ Phase 1</span></td></tr>
+    <tr><td>First product</td><td colspan="2"><code>1.6</code></td><td colspan="2"><span class="badge b-open">○ gated (OPEN #1)</span></td></tr>
+    <tr><td>Substrate (Redpanda/ClickHouse/MinIO/Qdrant/Postgres/MariaDB/Vault/Keycloak)</td><td colspan="2">—</td><td colspan="2"><span class="badge b-live">● live</span></td></tr>
+  </table>
+
+  <!-- ============ SECTION 7: Open decisions ============ -->
+  <h2 data-lang="en">7 · Open decisions (not yet locked)</h2>
+  <h2 data-lang="tr">7 · Açık kararlar (henüz kilitlenmedi)</h2>
+  <div class="panel">
+    <ul>
+      <li><span class="badge b-open" data-lang="en">OPEN</span><span class="badge b-open" data-lang="tr">AÇIK</span>
+        <span data-lang="en"> <b>Conductor vs hands-on.</b> Do Takım-1 engineers code hands-on in VS Code + gateway, or is all execution via AG with engineers reviewing only? This determines whether the developer plane in Fig. 1 is fully active.</span>
+        <span data-lang="tr"> <b>Conductor vs hands-on.</b> Takım-1 mühendisleri VS Code + gateway'de fiilen kod mu yazıyor, yoksa tüm execution AG ile ve mühendisler yalnız review mı yapıyor? Bu, Şekil 1'deki geliştirici düzleminin tam aktif olup olmadığını belirler.</span></li>
+      <li><span class="badge b-open">OPEN</span>
+        <span data-lang="en"> <b>Monorepo vs split.</b> Platform code in the content monorepo (<code>services/</code> + <code>infra/</code>) vs a separate platform repo.</span>
+        <span data-lang="tr"> <b>Monorepo vs ayrım.</b> Platform kodu content monorepo'da (<code>services/</code> + <code>infra/</code>) mı yoksa ayrı platform repo'da mı.</span></li>
+      <li><span class="badge b-open">OPEN</span>
+        <span data-lang="en"> <b>n = ?</b> Rev1 developer count (Takım-1 = 3?).</span>
+        <span data-lang="tr"> <b>n = ?</b> Rev1 geliştirici sayısı (Takım-1 = 3?).</span></li>
+      <li><span class="badge b-open">OPEN</span>
+        <span data-lang="en"> <b>Wrapper <code>/v1/model/info</code></b> as a hard acceptance criterion for Stage 1.4.2 (enables Roo Code auto-discovery).</span>
+        <span data-lang="tr"> <b>Wrapper <code>/v1/model/info</code></b> Stage 1.4.2 için zorunlu acceptance kriteri olsun mu (Roo Code auto-discovery'yi sağlar).</span></li>
+    </ul>
+  </div>
+
+  <h2 data-lang="en">References</h2>
+  <h2 data-lang="tr">Referanslar</h2>
+  <ul>
+    <li>ADR-001 — LiteLLM LLM gateway</li>
+    <li>ADR-002 — MCP external tool protocol</li>
+    <li><span data-lang="en">v6 SSoT (bilingual) · 08 leadership charter</span><span data-lang="tr">v6 SSoT (bilingual) · 08 leadership charter</span></li>
+    <li><span data-lang="en">dev_schedule_patch_v1 — Stage Group 1.4 reduced 7 → 2</span><span data-lang="tr">dev_schedule_patch_v1 — Stage Group 1.4 7 → 2'ye indirildi</span></li>
+  </ul>
+
+</div>
+<script>
+  function setLang(l){
+    document.body.classList.remove('lang-en','lang-tr');
+    document.body.classList.add('lang-'+l);
+    document.getElementById('btn-en').classList.toggle('active', l==='en');
+    document.getElementById('btn-tr').classList.toggle('active', l==='tr');
+    document.documentElement.lang = l;
+  }
+  function toggleBypass(){ document.body.classList.toggle('show-bypass'); }
+  function jump(id){ var el=document.getElementById(id); if(el) el.scrollIntoView({behavior:'smooth',block:'start'}); }
+</script>
+</body>
+</html>

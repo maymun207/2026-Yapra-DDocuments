@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CWF — LLM Control Surface · Detailed Design · v1</title>
+<style>
+  :root{
+    --bg:#0a0e14; --panel:#111a26; --panel2:#0f1722;
+    --line:#1f2d3d; --line2:#2a3b4f;
+    --ink:#dbe6f0; --ink-dim:#8aa0b6; --ink-faint:#5c7186;
+    --cyan:#34d6e6;
+    /* moments */
+    --m-in:#34d6e6;     /* input-shaping */
+    --m-call:#d07bff;   /* call-constraint */
+    --m-out:#2dd4bf;    /* output-gate */
+    --m-meta:#f5a742;   /* write-meta / governance */
+    /* binding */
+    --hard:#3ad29f; --soft:#e0a93b; --gap:#ff6b7a;
+    /* source */
+    --db:#5fa8ff; --code:#9aa8bd;
+    --mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+    --sans:ui-sans-serif,system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:
+      radial-gradient(1100px 560px at 80% -8%, #10202c 0%, transparent 60%),
+      radial-gradient(820px 460px at -8% 16%, #121a14 0%, transparent 55%),
+      var(--bg); color:var(--ink); font-family:var(--sans);
+      -webkit-font-smoothing:antialiased; padding:26px 18px 64px}
+  .wrap{max-width:1140px;margin:0 auto}
+
+  header.top{border:1px solid var(--line);border-radius:14px;padding:22px 24px;
+    background:linear-gradient(180deg,var(--panel),var(--panel2));position:relative;overflow:hidden}
+  header.top::after{content:"";position:absolute;inset:0;
+    background:repeating-linear-gradient(90deg,transparent 0 38px, rgba(52,214,230,.025) 38px 39px);pointer-events:none}
+  .kick{font-family:var(--mono);font-size:11px;letter-spacing:.32em;text-transform:uppercase;color:var(--cyan);margin:0 0 8px}
+  h1{font-size:26px;margin:0;letter-spacing:-.01em;font-weight:680}
+  h1 .sub{color:var(--ink-dim);font-weight:400;font-size:19px}
+  .stamp{position:absolute;top:18px;right:22px;font-family:var(--mono);font-size:10.5px;color:var(--ink-faint);text-align:right;line-height:1.75}
+  .stamp b{color:var(--hard)}
+  .thesis{margin:14px 0 0;padding:14px 16px;border:1px solid var(--line2);border-left:3px solid var(--cyan);border-radius:10px;
+    background:linear-gradient(180deg,#0c1a20,#0b1318);font-size:14px;line-height:1.65;color:var(--ink)}
+  .thesis b{color:#9fe9f3}
+
+  h2.sec{font-size:13px;font-family:var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--cyan);
+    margin:32px 4px 14px;display:flex;align-items:center;gap:10px}
+  h2.sec::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line2),transparent)}
+  .lead{color:var(--ink-dim);font-size:13px;line-height:1.6;margin:-6px 4px 16px;max-width:96ch}
+
+  /* reading model legend */
+  .legends{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  @media(max-width:820px){.legends{grid-template-columns:1fr}}
+  .legend{border:1px solid var(--line);border-radius:11px;padding:12px 14px;background:#0c141d}
+  .legend .lh{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:9px}
+  .legend .row{display:flex;align-items:flex-start;gap:9px;font-size:12px;color:var(--ink-dim);margin:7px 0;line-height:1.4}
+  .pill{font-family:var(--mono);font-size:9.5px;font-weight:700;letter-spacing:.05em;padding:2px 8px;border-radius:6px;white-space:nowrap;flex-shrink:0;margin-top:1px}
+  .b-hard{background:rgba(58,210,159,.13);color:var(--hard);border:1px solid rgba(58,210,159,.45)}
+  .b-soft{background:rgba(224,169,59,.13);color:var(--soft);border:1px solid rgba(224,169,59,.45)}
+  .b-gap{background:rgba(255,107,122,.13);color:var(--gap);border:1px solid rgba(255,107,122,.45)}
+  .m-in{background:rgba(52,214,230,.12);color:var(--m-in);border:1px solid rgba(52,214,230,.4)}
+  .m-call{background:rgba(208,123,255,.13);color:#df9bff;border:1px solid rgba(208,123,255,.45)}
+  .m-out{background:rgba(45,212,191,.12);color:var(--m-out);border:1px solid rgba(45,212,191,.42)}
+  .m-meta{background:rgba(245,167,66,.13);color:var(--m-meta);border:1px solid rgba(245,167,66,.45)}
+  .src-db{background:rgba(95,168,255,.1);color:#a9cdff;border:1px solid rgba(95,168,255,.4)}
+  .src-code{background:rgba(154,168,189,.1);color:#b4c2d4;border:1px solid rgba(154,168,189,.35)}
+  .src-none{background:rgba(92,113,134,.1);color:var(--ink-faint);border:1px solid rgba(92,113,134,.35)}
+
+  /* the sandwich hero */
+  .sandwich{border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,var(--panel),var(--panel2));padding:16px;margin-top:6px}
+  .sw-grid{display:grid;grid-template-columns:1.25fr 0.7fr 1fr 1.1fr;gap:10px;align-items:stretch}
+  @media(max-width:900px){.sw-grid{grid-template-columns:1fr}}
+  .sw-col{border:1px solid var(--line2);border-radius:11px;padding:11px;display:flex;flex-direction:column;gap:7px;background:#0b121b}
+  .sw-col .ch{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;margin-bottom:2px}
+  .sw-in{border-top:3px solid var(--m-in)} .sw-in .ch{color:var(--m-in)}
+  .sw-call{border-top:3px solid var(--m-call);justify-content:center} .sw-call .ch{color:#df9bff}
+  .sw-core{border:1px dashed var(--gap);background:repeating-linear-gradient(135deg,#160f14 0 9px,#120d11 9px 18px);justify-content:center;text-align:center}
+  .sw-out{border-top:3px solid var(--m-out)} .sw-out .ch{color:var(--m-out)}
+  .cpx{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--ink-dim);padding:4px 7px;border-radius:7px;background:#0d1620;border:1px solid var(--line)}
+  .cpx .id{font-family:var(--mono);font-size:9.5px;font-weight:700;color:var(--bg);padding:1px 5px;border-radius:4px}
+  .cpx .bd{margin-left:auto;width:9px;height:9px;border-radius:3px;flex-shrink:0}
+  .corelabel{font-weight:700;font-size:15px;color:#ffb3bc}
+  .coresub{font-size:11px;color:var(--ink-dim);margin-top:4px;line-height:1.45}
+  .sw-meta{margin-top:10px;border:1px solid var(--m-meta);border-radius:11px;padding:11px 14px;background:linear-gradient(180deg,#19140a,#120f0a);
+    display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .sw-meta .ch{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--m-meta)}
+  .sw-meta p{margin:0;font-size:12px;color:var(--ink-dim);line-height:1.5;flex:1;min-width:240px}
+  .flowarrow{text-align:center;color:var(--ink-faint);font-family:var(--mono);font-size:11px;margin:4px 0}
+
+  /* CP catalog cards */
+  .cpcard{border:1px solid var(--line);border-radius:13px;background:linear-gradient(180deg,var(--panel),var(--panel2));
+    padding:0;margin-bottom:12px;overflow:hidden}
+  .cph{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line);background:#0c141d;flex-wrap:wrap}
+  .cph .cid{font-family:var(--mono);font-weight:700;font-size:13px;color:var(--bg);padding:3px 9px;border-radius:7px}
+  .cph .cname{font-size:14.5px;font-weight:680;color:var(--ink)}
+  .cph .badges{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap}
+  .cpb{padding:13px 16px;display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:12.7px;line-height:1.52}
+  .ck{font-family:var(--mono);font-size:9px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-faint);padding-top:2px;white-space:nowrap}
+  .cv{color:var(--ink-dim)}
+  .cv b{color:var(--ink);font-weight:600}
+  .cv code{font-family:var(--mono);font-size:11px;background:#0b141d;border:1px solid var(--line);border-radius:5px;padding:1px 5px;color:#cfe0ef}
+  .srcchip{font-family:var(--mono);font-size:10px;font-weight:600;padding:2px 7px;border-radius:6px;margin-right:5px;display:inline-block;margin-top:3px}
+  .gapcard{border-color:rgba(255,107,122,.4)} .gapcard .cph{background:#160e10}
+
+  /* consolidated matrix */
+  table.mx{width:100%;border-collapse:collapse;font-size:11.6px;margin-top:2px}
+  table.mx th,table.mx td{text-align:left;padding:8px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+  table.mx th{font-family:var(--mono);font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);background:#0c141d;position:sticky;top:0}
+  table.mx td code{font-family:var(--mono);font-size:10.5px;color:#cfe0ef}
+  table.mx tr:hover td{background:rgba(52,214,230,.03)}
+  .tb{font-family:var(--mono);font-size:9px;font-weight:700;padding:1px 6px;border-radius:5px}
+  .mono{font-family:var(--mono);font-size:10.5px;color:var(--ink-dim)}
+
+  .note{margin:12px 0;border:1px solid var(--line2);border-left:3px solid var(--gap);border-radius:11px;padding:13px 16px;background:linear-gradient(180deg,#1c1012,#140d0e)}
+  .note.key{border-left-color:var(--soft);background:linear-gradient(180deg,#1a160c,#13110a)}
+  .note h4{margin:0 0 5px;font-size:12px;font-family:var(--mono);letter-spacing:.04em;text-transform:uppercase;color:#ffb3bc}
+  .note.key h4{color:#ffe6ad}
+  .note p{margin:0 0 6px;font-size:12.6px;color:var(--ink-dim);line-height:1.58}
+  .note p:last-child{margin-bottom:0}
+  .note code{font-family:var(--mono);font-size:11px;color:#cfe0ef}
+
+  .principles{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+  @media(max-width:760px){.principles{grid-template-columns:1fr}}
+  .pcard{border:1px solid var(--line2);border-radius:11px;padding:12px 14px;background:#0c141d}
+  .pcard h4{margin:0 0 5px;font-size:13px;color:var(--ink)}
+  .pcard p{margin:0;font-size:12px;color:var(--ink-dim);line-height:1.5}
+  .pcard code{font-family:var(--mono);font-size:10.5px;color:#cfe0ef}
+
+  footer{margin-top:28px;font-family:var(--mono);font-size:10.5px;color:var(--ink-faint);text-align:center;line-height:1.85}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <p class="kick">CWF · EAIP — detailed design · LLM control surface</p>
+    <h1>Where we steer the model <span class="sub">— every control point, its data source, and how hard it binds</span></h1>
+    <div class="stamp">rev 1 · 2026-06-28<br>HEAD <b>a8bd531</b><br>code-grounded</div>
+    <div class="thesis">
+      The system is a <b>deterministic control sandwich wrapped around a non-deterministic core</b>. We constrain the
+      <b>input</b> as much as possible (what the model may see), call the stochastic model under <b>hard call limits</b>,
+      re-impose <b>determinism on the output</b> (what we do with what it said), and <b>gate the data</b> that feeds the input
+      levers. The model is free only in the middle — only at <b>routing + prose</b>, never at <b>correctness</b>. This document
+      enumerates the 13 control points, the DB table (or code) behind each, and — the load-bearing distinction — whether each is
+      <b>HARD</b> (the model cannot violate it) or <b>SOFT</b> (a request it may ignore).
+    </div>
+  </header>
+
+  <!-- READING MODEL -->
+  <h2 class="sec">Reading model · three axes</h2>
+  <div class="legends">
+    <div class="legend"><div class="lh">axis 1 — moment (when we steer)</div>
+      <div class="row"><span class="pill m-in">INPUT</span> what the model is allowed to <b>see</b> — the primary lever, before generation.</div>
+      <div class="row"><span class="pill m-call">CALL</span> <b>how</b> it generates — provider, temperature, token &amp; loop caps.</div>
+      <div class="row"><span class="pill m-out">OUTPUT</span> what we do with <b>what it said</b> — checks &amp; corrections, after generation.</div>
+      <div class="row"><span class="pill m-meta">WRITE-META</span> what may enter the <b>input-control data</b> — the controller of the controller.</div>
+    </div>
+    <div class="legend"><div class="lh">axis 2 — binding (how hard)</div>
+      <div class="row"><span class="pill b-hard">HARD</span> deterministic; the model <b>physically cannot</b> violate it (tool not offered, mandatory time tool, gate, RLS, capped params).</div>
+      <div class="row"><span class="pill b-soft">SOFT</span> advisory; a <b>prompt request</b> or a <b>measure-don't-block</b>. The model can ignore it.</div>
+      <div class="row"><span class="pill b-gap">GAP</span> no control exists yet — a named hole, not a guarantee.</div>
+    </div>
+    <div class="legend"><div class="lh">axis 3 — source (what's behind it)</div>
+      <div class="row"><span class="pill src-db">DB · table</span> governed data, <b>runtime-editable via the gated publish path</b>.</div>
+      <div class="row"><span class="pill src-code">code-fixed</span> pinned in source — <b>changing it needs a deploy</b> (by design, for identity/safety/limits).</div>
+      <div class="row"><span class="pill src-none">none</span> derived from NTP / the live request — no stored table.</div>
+    </div>
+  </div>
+
+  <!-- THE SANDWICH -->
+  <h2 class="sec">The control sandwich · at a glance</h2>
+  <p class="lead">Read left→right. Each control point is colored by <b>binding</b> (green=hard, amber=soft, red=gap). Note how
+    correctness leans on <b>hard input/tool/time controls + a hard write-meta gate</b>, while the two empty≠zero defenses are both <b>soft</b>.</p>
+  <div class="sandwich">
+    <div class="sw-grid">
+
+      <div class="sw-col sw-in">
+        <div class="ch">▸ input-shaping · what the model sees</div>
+        <div class="cpx"><span class="id" style="background:var(--m-in)">CP1</span>system-prompt knowledge slice<span class="bd" style="background:var(--soft)"></span></div>
+        <div class="cpx"><span class="id" style="background:var(--m-in)">CP2</span>core prompt modules<span class="bd" style="background:var(--soft)"></span></div>
+        <div class="cpx"><span class="id" style="background:var(--m-in)">CP3</span>tool surface (which backend)<span class="bd" style="background:var(--hard)"></span></div>
+        <div class="cpx"><span class="id" style="background:var(--m-in)">CP4</span>tool relevance / routing<span class="bd" style="background:var(--soft)"></span></div>
+        <div class="cpx"><span class="id" style="background:var(--m-in)">CP5</span>time inputs (now + range)<span class="bd" style="background:var(--hard)"></span></div>
+        <div class="cpx"><span class="id" style="background:var(--m-in)">CP6</span>memory window (last-N)<span class="bd" style="background:var(--hard)"></span></div>
+        <div class="cpx"><span class="id" style="background:var(--m-in)">CP7</span>MCP reachability + token<span class="bd" style="background:var(--hard)"></span></div>
+      </div>
+
+      <div class="sw-col sw-call">
+        <div class="ch">▸ call-constraint</div>
+        <div class="cpx"><span class="id" style="background:var(--m-call)">CP8</span>provider · temp · token &amp; loop caps<span class="bd" style="background:var(--hard)"></span></div>
+        <div class="flowarrow">prompt + tools ↓ in</div>
+        <div class="coresub" style="text-align:center">temperature · maxOutputTokens=8192 · maxToolRounds=8 · provider</div>
+      </div>
+
+      <div class="sw-col sw-core">
+        <div class="corelabel">⟁ stochastic core</div>
+        <div class="coresub">the LLM. Free here — and <b>only</b> here — to choose <b>which tool</b> and to write <b>prose</b>. Never the authority on what is true.</div>
+        <div class="flowarrow" style="margin-top:10px">text + tool-calls ↓ out</div>
+      </div>
+
+      <div class="sw-col sw-out">
+        <div class="ch">▸ output-gate · what we do with it</div>
+        <div class="cpx"><span class="id" style="background:var(--m-out)">CP9</span>grounding check (empty≠zero / scope)<span class="bd" style="background:var(--soft)"></span></div>
+        <div class="cpx"><span class="id" style="background:var(--m-out)">CP10</span>scope-divergence correction<span class="bd" style="background:var(--hard)"></span></div>
+        <div class="cpx"><span class="id" style="background:var(--m-out)">CP11</span>guaranteed final message<span class="bd" style="background:var(--gap)"></span></div>
+        <div class="cpx"><span class="id" style="background:var(--m-out)">CP12</span>Superset runtime empty≠zero<span class="bd" style="background:var(--gap)"></span></div>
+      </div>
+    </div>
+
+    <div class="sw-meta">
+      <span class="ch">▸ write-meta · CP13</span>
+      <p><b>Eval-gate</b> — the only path that sets what CP1 will inject. A draft rule becomes <code>published</code> only after schema→referential→behavioral checks pass; RLS denies any other write. This is the <b>HARD guard on the soft input lever</b>: CP1's compliance is soft, but the <i>data</i> CP1 injects is gate-clean.</p>
+    </div>
+  </div>
+
+  <!-- CP CATALOG -->
+  <h2 class="sec">Control-point catalog · the engineering detail</h2>
+  <p class="lead">Each card: the <b>lever</b> (what it controls), the <b>source</b> (table or code), the <b>mechanism</b> (the code path that enforces it),
+    the <b>lifecycle step</b> (cross-ref to cwf-request-lifecycle-v2), the <b>failure / blast radius</b>, and whether it is <b>runtime-governed</b> or deploy-only.</p>
+
+  <!-- INPUT -->
+  <div class="cpcard">
+    <div class="cph"><span class="cid" style="background:var(--m-in)">CP1</span><span class="cname">System-prompt knowledge slice</span>
+      <span class="badges"><span class="pill m-in">INPUT</span><span class="pill b-soft">SOFT (comply)</span><span class="pill src-db">DB</span></span></div>
+    <div class="cpb">
+      <div class="ck">lever</div><div class="cv">The injected critical knowledge: <b>blind-spot rules (IKINCILUST barkodsuz → empty≠zero), canonical OEE tool, tool-graph entry/sequencing, metric defs, formats, glossary, governed persona</b>. The single biggest data-backed lever on the answer.</div>
+      <div class="ck">source</div><div class="cv"><span class="srcchip src-db">domain_rules (published)</span><span class="srcchip src-db">rule_kinds (structure)</span></div>
+      <div class="ck">mechanism</div><div class="cv"><code>buildArmesPack</code> → <code>dbKnowledgeProvider.getDomainContext()</code> serves the <b>warmed published slice</b> (composed from DB at step 15), else the <b>code-baseline floor</b>. Injection is deterministic (HARD that it's present); <b>obeying it is the model's choice (SOFT)</b>.</div>
+      <div class="ck">step</div><div class="cv">15 (warm) → 16 (assemble)</div>
+      <div class="ck">blast radius</div><div class="cv">A bad/poisoned published rule corrupts CP1 for <b>every user on that backend</b>. Defended by CP13 gate + CORE shape-lock + reset-to-reference.</div>
+      <div class="ck">governed?</div><div class="cv"><b>Yes</b> — runtime-editable via the gated publish path. Values live in DB; field shape locked to code (CORE).</div>
+    </div>
+  </div>
+
+  <div class="cpcard">
+    <div class="cph"><span class="cid" style="background:var(--m-in)">CP2</span><span class="cname">Core prompt modules</span>
+      <span class="badges"><span class="pill m-in">INPUT</span><span class="pill b-soft">SOFT (comply)</span><span class="pill src-code">code-fixed</span></span></div>
+    <div class="cpb">
+      <div class="ck">lever</div><div class="cv">The backend-agnostic prefix actually composed: <code>identity()</code> · <code>safety()</code> · <code>outputFormat()</code> · <code>toolProtocol(toolNames)</code>. Identity, refusal rules, the injection boundary, output discipline, tool-call protocol.</div>
+      <div class="ck">source</div><div class="cv"><span class="srcchip src-code">prompt/core/*.ts (code)</span></div>
+      <div class="ck">mechanism</div><div class="cv"><code>buildSystemPrompt</code>: <code>[identity, safety, outputFormat].join + toolProtocol</code>, then domain packs. <b>Note:</b> <code>time</code> is NOT in this cached prefix — it rides per-message (CP5); <b>grounding</b> is enforced as deterministic code post-stream (CP9), not as a prompt line here.</div>
+      <div class="ck">step</div><div class="cv">16</div>
+      <div class="ck">blast radius</div><div class="cv">A safety/identity regression affects all backends — but it's a code review + deploy, not a live data edit (intentional: you can't hot-swap safety from a DB row).</div>
+      <div class="ck">governed?</div><div class="cv"><b>No</b> — deploy-only, by design.</div>
+    </div>
+  </div>
+
+  <div class="cpcard">
+    <div class="cph"><span class="cid" style="background:var(--m-in)">CP3</span><span class="cname">Tool surface — which backend's tools exist this turn</span>
+      <span class="badges"><span class="pill m-in">INPUT</span><span class="pill b-hard">HARD</span><span class="pill src-db">DB</span></span></div>
+    <div class="cpb">
+      <div class="ck">lever</div><div class="cv">The model can only call a tool it is <b>offered</b>. We drop every tool whose backend ∉ active set, so an out-of-scope backend's data is physically unreachable this turn.</div>
+      <div class="ck">source</div><div class="cv"><span class="srcchip src-db">backends</span><span class="srcchip src-db">user_backend_scopes</span></div>
+      <div class="ck">mechanism</div><div class="cv"><code>resolveActiveBackends</code> (enabled servers ∩ RBAC scopes, super_admin bypass) → <code>scopeToolsToBackends</code> drops non-active tools <b>before</b> they reach the model. This is a HARD gate — not a prompt request.</div>
+      <div class="ck">step</div><div class="cv">9 (resolve) · 13 (scope)</div>
+      <div class="ck">blast radius</div><div class="cv">A scope misconfiguration grants/denies a backend; it cannot make the model invent a tool it never saw.</div>
+      <div class="ck">governed?</div><div class="cv"><b>Yes</b> — scopes via admin Users tab; <code>backends</code> is the registry.</div>
+    </div>
+  </div>
+
+  <div class="cpcard">
+    <div class="cph"><span class="cid" style="background:var(--m-in)">CP4</span><span class="cname">Tool relevance / routing</span>
+      <span class="badges"><span class="pill m-in">INPUT</span><span class="pill b-soft">SOFT</span><span class="pill src-db">DB + router LLM</span></span></div>
+    <div class="cpb">
+      <div class="ck">lever</div><div class="cv">Which <b>subset</b> of the (already backend-scoped) tools is shown — to keep the prompt small for non-Anthropic providers. A relevance hint, not a security boundary.</div>
+      <div class="ck">source</div><div class="cv"><span class="srcchip src-db">tool_category_cache</span><span class="srcchip src-code">router LLM (off-gateway)</span></div>
+      <div class="ck">mechanism</div><div class="cv"><code>filterToolsByMessage</code>: keyword→category cache; on miss, a single-shot <code>gemini-flash-lite</code> classifier picks categories (then learned). <b>Anthropic bypasses this</b> (gets the full sorted set for cache stability).</div>
+      <div class="ck">step</div><div class="cv">13</div>
+      <div class="ck">blast radius</div><div class="cv">Bad routing can hide a needed tool → a weaker answer, recoverable. SOFT because it's an optimization, not a guarantee.</div>
+      <div class="ck">governed?</div><div class="cv">Self-learning (advisory). The only autonomously-mutated table in the chat path.</div>
+    </div>
+  </div>
+
+  <div class="cpcard">
+    <div class="cph"><span class="cid" style="background:var(--m-in)">CP5</span><span class="cname">Time inputs — now &amp; ranges</span>
+      <span class="badges"><span class="pill m-in">INPUT</span><span class="pill b-hard">HARD</span><span class="pill src-none">NTP / code</span></span></div>
+    <div class="cpb">
+      <div class="ck">lever</div><div class="cv">"Now" and any window ("this week") are <b>computed deterministically</b> and handed to the model; it is forbidden to compute epochs itself.</div>
+      <div class="ck">source</div><div class="cv"><span class="srcchip src-none">networkTime (NTP)</span><span class="srcchip src-code">timeTools.ts</span></div>
+      <div class="ck">mechanism</div><div class="cv"><code>getNetworkTime</code> → <code>buildTimeContext</code> (per-message) + the <code>resolve_time_range</code> meta-tool (TZ-aware code). HARD: the epoch math never depends on the model.</div>
+      <div class="ck">step</div><div class="cv">6 · 12 · 19</div>
+      <div class="ck">blast radius</div><div class="cv">None at the model — wrong time would be a code/NTP fault, not a hallucination.</div>
+      <div class="ck">governed?</div><div class="cv"><b>No</b> — code/NTP.</div>
+    </div>
+  </div>
+
+  <div class="cpcard">
+    <div class="cph"><span class="cid" style="background:var(--m-in)">CP6</span><span class="cname">Conversation memory window</span>
+      <span class="badges"><span class="pill m-in">INPUT</span><span class="pill b-hard">HARD</span><span class="pill src-db">DB</span></span></div>
+    <div class="cpb">
+      <div class="ck">lever</div><div class="cv">How much prior conversation the model sees — bounded to the last N turns (server trims to ~6; client sends ~10). We choose N; the model can't widen it.</div>
+      <div class="ck">source</div><div class="cv"><span class="srcchip src-db">messages</span><span class="srcchip src-db">conversations</span></div>
+      <div class="ck">mechanism</div><div class="cv">In-memory history (client) reconciled with the server-written <code>messages</code> rows; <code>aiMessages</code> = <code>slice(-6)</code> + current turn.</div>
+      <div class="ck">step</div><div class="cv">2 (build) · 18 (send) · 25 (persist)</div>
+      <div class="ck">blast radius</div><div class="cv">Too large a window = context bleed/cost; bounded by the slice. HARD because the bound is code, not a request.</div>
+      <div class="ck">governed?</div><div class="cv">Window size = code constant; the data = owner-scoped rows.</div>
+    </div>
+  </div>
+
+  <div class="cpcard">
+    <div class="cph"><span class="cid" style="background:var(--m-in)">CP7</span><span class="cname">MCP reachability + credential</span>
+      <span class="badges"><span class="pill m-in">INPUT</span><span class="pill b-hard">HARD</span><span class="pill src-db">DB</span></span></div>
+    <div class="cpb">
+      <div class="ck">lever</div><div class="cv">Which MCP backends are reachable at all, and with which token — resolved server-side. Determines the universe of fetchable data.</div>
+      <div class="ck">source</div><div class="cv"><span class="srcchip src-db">mcp_settings</span></div>
+      <div class="ck">mechanism</div><div class="cv"><code>McpSettingsRepository.getByUserId</code> (owner-only, service-role). The token is resolved here and <b>never reaches the browser or the model</b>.</div>
+      <div class="ck">step</div><div class="cv">7</div>
+      <div class="ck">blast radius</div><div class="cv">Wrong/missing config = no or foreign data source; the credential never leaks into prompt/trace by construction.</div>
+      <div class="ck">governed?</div><div class="cv">Owner edits its own server configs.</div>
+    </div>
+  </div>
+
+  <!-- CALL -->
+  <div class="cpcard">
+    <div class="cph"><span class="cid" style="background:var(--m-call)">CP8</span><span class="cname">Call constraints — provider, temperature, token &amp; loop caps</span>
+      <span class="badges"><span class="pill m-call">CALL</span><span class="pill b-hard">HARD</span><span class="pill src-code">config / env</span></span></div>
+    <div class="cpb">
+      <div class="ck">lever</div><div class="cv">How the stochastic core runs: which provider/model, sampling temperature, max output tokens, and — critically — <b>how many tool rounds the agentic loop may take</b>.</div>
+      <div class="ck">source</div><div class="cv"><span class="srcchip src-code">llm/config.ts</span><span class="srcchip src-code">env (CWF_*)</span></div>
+      <div class="ck">mechanism</div><div class="cv"><code>streamText</code> params: <code>temperature</code>, <code>maxOutputTokens=8192</code>, <code>stopWhen: stepCountIs(MAX_TOOL_ROUNDS=8)</code>, provider = forced-or-default (gemini). <code>stepCountIs</code> is a HARD ceiling on agentic recursion.</div>
+      <div class="ck">step</div><div class="cv">18</div>
+      <div class="ck">blast radius</div><div class="cv">Loose params → drift or a runaway tool loop; the step cap + token cap bound both.</div>
+      <div class="ck">governed?</div><div class="cv"><b>No</b> — config/env (deploy / ops), by design.</div>
+    </div>
+  </div>
+
+  <!-- OUTPUT -->
+  <div class="cpcard">
+    <div class="cph"><span class="cid" style="background:var(--m-out)">CP9</span><span class="cname">Grounding check — empty≠zero · count · scope-divergence</span>
+      <span class="badges"><span class="pill m-out">OUTPUT</span><span class="pill b-soft">SOFT (advisory)</span><span class="pill src-db">DB</span></span></div>
+    <div class="cpb">
+      <div class="ck">lever</div><div class="cv">Deterministically measures whether the streamed answer obeyed empty≠zero, record-count integrity, and stayed in-scope — <b>without re-running tools</b>. Never an LLM judge or score.</div>
+      <div class="ck">source</div><div class="cv"><span class="srcchip src-db">backends</span><span class="srcchip src-db">backend_authority</span><span class="srcchip src-none">in-memory provenance metas</span></div>
+      <div class="ck">mechanism</div><div class="cv"><code>runGroundingCheck</code> against <code>toolResultMetas</code> + <code>backendAuthority</code> (authoritativeMetrics). <b>Mode-A: measures + emits telemetry; it does NOT block or rewrite.</b></div>
+      <div class="ck">step</div><div class="cv">23</div>
+      <div class="ck">blast radius / why SOFT</div><div class="cv"><b>The violation already streamed to the user before this runs.</b> It records and (for scope) appends — it cannot retract. This is the key softness in the output gate.</div>
+      <div class="ck">governed?</div><div class="cv">Authority metrics governed (<code>backend_authority</code>); the check logic is code.</div>
+    </div>
+  </div>
+
+  <div class="cpcard">
+    <div class="cph"><span class="cid" style="background:var(--m-out)">CP10</span><span class="cname">Scope-divergence correction (Phase C)</span>
+      <span class="badges"><span class="pill m-out">OUTPUT</span><span class="pill b-hard">HARD (append)</span><span class="pill src-db">DB</span></span></div>
+    <div class="cpb">
+      <div class="ck">lever</div><div class="cv">On a <code>scope_divergence</code> verdict, deterministically appends a system correction after the streamed text (e.g. "this is Granit data, not KB7").</div>
+      <div class="ck">source</div><div class="cv"><span class="srcchip src-db">backends</span><span class="srcchip src-db">backend_authority</span></div>
+      <div class="ck">mechanism</div><div class="cv"><code>scopeDivergenceNotice</code> → <code>finalText = fullText + notice</code>, streamed deterministically. The append is HARD; but it is <b>post-paint</b> — it corrects the record, it cannot un-show what already streamed.</div>
+      <div class="ck">step</div><div class="cv">24</div>
+      <div class="ck">blast radius</div><div class="cv">Residual: the model may have shown wrong-scope data mid-stream. Eliminating that residual is the job of CP1 guards + ultimately redundancy (Phase D).</div>
+      <div class="ck">governed?</div><div class="cv">Authority data governed; logic code.</div>
+    </div>
+  </div>
+
+  <div class="cpcard gapcard">
+    <div class="cph"><span class="cid" style="background:var(--gap)">CP11</span><span class="cname">Guaranteed final message — THE GAP</span>
+      <span class="badges"><span class="pill m-out">OUTPUT</span><span class="pill b-gap">GAP</span><span class="pill src-none">none</span></span></div>
+    <div class="cpb">
+      <div class="ck">lever</div><div class="cv">When the model emits tool calls and then <b>zero text</b>, there is no deterministic fallback to produce a final answer.</div>
+      <div class="ck">mechanism</div><div class="cv"><code>fullText===''</code> → the client renders the literal <code>'No response generated.'</code>. A UI render, not a backend guarantee.</div>
+      <div class="ck">step</div><div class="cv">22 / 26 (absent)</div>
+      <div class="ck">resolution</div><div class="cv"><b>Phase F</b> — a deterministic guaranteed-final-message (never a blank bubble). One of the two reasons the ARMES-on test still depends on model capability.</div>
+    </div>
+  </div>
+
+  <div class="cpcard gapcard">
+    <div class="cph"><span class="cid" style="background:var(--gap)">CP12</span><span class="cname">Superset runtime empty≠zero — THE GAP</span>
+      <span class="badges"><span class="pill m-out">OUTPUT</span><span class="pill b-gap">GAP</span><span class="pill src-none">none</span></span></div>
+    <div class="cpb">
+      <div class="ck">lever</div><div class="cv">For Superset there is <b>no deterministic runtime catch</b> for empty≠zero — only the prompt (code-floor) layer and the publish-time eval-gate (2 layers vs ARMES's 3).</div>
+      <div class="ck">mechanism</div><div class="cv">ARMES has a zone-specific runtime facts-ledger validator; Superset does not yet.</div>
+      <div class="ck">step</div><div class="cv">23 (ARMES-only coverage)</div>
+      <div class="ck">resolution</div><div class="cv"><b>P7</b> — a Superset-scoped runtime validator. Do not bolt on a fragile regex.</div>
+    </div>
+  </div>
+
+  <!-- WRITE-META -->
+  <div class="cpcard">
+    <div class="cph"><span class="cid" style="background:var(--m-meta)">CP13</span><span class="cname">Eval-gate — the write-meta chokepoint</span>
+      <span class="badges"><span class="pill m-meta">WRITE-META</span><span class="pill b-hard">HARD</span><span class="pill src-db">DB</span></span></div>
+    <div class="cpb">
+      <div class="ck">lever</div><div class="cv">Governs what may enter CP1's data — i.e. what the model will be told as fact. The controller of the controller.</div>
+      <div class="ck">source</div><div class="cv"><span class="srcchip src-db">domain_rules (draft→published)</span><span class="srcchip src-db">rule_versions</span><span class="srcchip src-db">rule_audit</span></div>
+      <div class="ck">mechanism</div><div class="cv"><code>runGate</code>: schema → referential → behavioral. A poisoned rule (e.g. "IKINCILUST barcoded / scrap=0") is <b>rejected</b>. Only on pass is <code>status='published'</code> set, server-side; <b>RLS denies any direct client publish (42501)</b>. + CORE shape-lock + reset-to-reference.</div>
+      <div class="ck">step</div><div class="cv">A2 (admin lane)</div>
+      <div class="ck">blast radius</div><div class="cv">This is the guard that makes CP1's softness tolerable: compliance is soft, but the injected <i>data</i> is gate-clean and traceable.</div>
+      <div class="ck">governed?</div><div class="cv"><b>It is the governance.</b></div>
+    </div>
+  </div>
+
+  <!-- THE KEY FINDING -->
+  <h2 class="sec">The finding this lens forces into the open</h2>
+  <div class="note">
+    <h4>⚠ empty≠zero is guarded by TWO soft controls and ZERO hard runtime blocks</h4>
+    <p>Trace the IKINCILUST blind-spot across the surface: it is a <b>prompt instruction at CP1 (soft — the model may ignore it)</b> and a
+      <b>measured-but-not-blocking check at CP9 (soft — it records, doesn't retract)</b>. There is <b>no hard runtime gate</b> that stops a
+      false "sıfır fire" from reaching the user. That is the structural reason the ARMES-on acceptance test still tracks model capability:
+      3/4 models honoring the blind-spot is not a guarantee the architecture enforces — it is the strongest model complying with a soft request.</p>
+    <p>This is not a bug to patch casually — it's a deliberate current state with two named fixes already on the roadmap (<b>CP11/Phase F</b> for the
+      blank-answer path, <b>CP12/P7</b> for a Superset runtime validator) and a deeper answer (<b>Phase D redundancy</b> — a single self-consistent in-scope
+      lie is made <i>harmless</i>, not <i>detectable</i>, without a second source). The control surface simply makes the soft/hard split impossible to overlook.</p>
+  </div>
+
+  <!-- CONSOLIDATED MATRIX -->
+  <h2 class="sec">Consolidated matrix · all 13 control points</h2>
+  <div class="cpcard"><div style="padding:6px 14px 12px">
+    <table class="mx">
+      <thead><tr><th>CP</th><th>control</th><th>moment</th><th>binding</th><th>source table / code</th><th>step</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>system-prompt knowledge slice</td><td><span class="tb m-in">INPUT</span></td><td><span class="tb b-soft">SOFT</span></td><td><code>domain_rules</code> · <code>rule_kinds</code></td><td class="mono">15→16</td></tr>
+        <tr><td>2</td><td>core prompt modules</td><td><span class="tb m-in">INPUT</span></td><td><span class="tb b-soft">SOFT</span></td><td><span class="mono">code (prompt/core)</span></td><td class="mono">16</td></tr>
+        <tr><td>3</td><td>tool surface (backend scope)</td><td><span class="tb m-in">INPUT</span></td><td><span class="tb b-hard">HARD</span></td><td><code>backends</code> · <code>user_backend_scopes</code></td><td class="mono">9·13</td></tr>
+        <tr><td>4</td><td>tool relevance / routing</td><td><span class="tb m-in">INPUT</span></td><td><span class="tb b-soft">SOFT</span></td><td><code>tool_category_cache</code> + router LLM</td><td class="mono">13</td></tr>
+        <tr><td>5</td><td>time inputs (now + range)</td><td><span class="tb m-in">INPUT</span></td><td><span class="tb b-hard">HARD</span></td><td><span class="mono">NTP / code</span></td><td class="mono">6·12·19</td></tr>
+        <tr><td>6</td><td>conversation memory window</td><td><span class="tb m-in">INPUT</span></td><td><span class="tb b-hard">HARD</span></td><td><code>messages</code> · <code>conversations</code></td><td class="mono">2·18·25</td></tr>
+        <tr><td>7</td><td>MCP reachability + token</td><td><span class="tb m-in">INPUT</span></td><td><span class="tb b-hard">HARD</span></td><td><code>mcp_settings</code></td><td class="mono">7</td></tr>
+        <tr><td>8</td><td>provider · temp · token/loop caps</td><td><span class="tb m-call">CALL</span></td><td><span class="tb b-hard">HARD</span></td><td><span class="mono">llm/config.ts · env</span></td><td class="mono">18</td></tr>
+        <tr><td>9</td><td>grounding check (empty≠zero/scope)</td><td><span class="tb m-out">OUTPUT</span></td><td><span class="tb b-soft">SOFT</span></td><td><code>backends</code> · <code>backend_authority</code></td><td class="mono">23</td></tr>
+        <tr><td>10</td><td>scope-divergence correction</td><td><span class="tb m-out">OUTPUT</span></td><td><span class="tb b-hard">HARD*</span></td><td><code>backends</code> · <code>backend_authority</code></td><td class="mono">24</td></tr>
+        <tr><td>11</td><td>guaranteed final message</td><td><span class="tb m-out">OUTPUT</span></td><td><span class="tb b-gap">GAP</span></td><td><span class="mono">— (Phase F)</span></td><td class="mono">22·26</td></tr>
+        <tr><td>12</td><td>Superset runtime empty≠zero</td><td><span class="tb m-out">OUTPUT</span></td><td><span class="tb b-gap">GAP</span></td><td><span class="mono">— (P7)</span></td><td class="mono">23</td></tr>
+        <tr><td>13</td><td>eval-gate (publish chokepoint)</td><td><span class="tb m-meta">META</span></td><td><span class="tb b-hard">HARD</span></td><td><code>domain_rules</code> · <code>rule_versions</code> · <code>rule_audit</code></td><td class="mono">A2</td></tr>
+      </tbody>
+    </table>
+    <p class="lead" style="margin:10px 4px 2px">* CP10's append is deterministic (HARD), but it lands <b>after</b> first paint — it corrects the record, it does not prevent the model from having shown wrong-scope data mid-stream.</p>
+  </div>
+
+  <!-- PRINCIPLES -->
+  <h2 class="sec">Design principles this surface encodes</h2>
+  <div class="principles">
+    <div class="pcard"><h4>The model is the authority on routing + prose, never correctness</h4>
+      <p>Every correctness/safety lever (CP3, CP5, CP8, CP10, CP13) is HARD and deterministic. The model's freedom is fenced to <i>which tool</i> and <i>how to phrase</i>.</p></div>
+    <div class="pcard"><h4>DB-governed where values must flex; code-fixed where identity must not</h4>
+      <p>Knowledge values (CP1) and scopes (CP3) are gated-DB. Identity, safety, time, call-caps, and the gate logic itself (CP2, CP5, CP8, CP13) are code — you cannot hot-swap safety from a row.</p></div>
+    <div class="pcard"><h4>Inject hard, comply soft — so gate the injected data</h4>
+      <p>CP1 is definitely <i>present</i> but obeyed only by grace. The architecture's answer isn't "trust the model" — it's <b>CP13</b>: make the data the model is told gate-clean, shape-locked, and resettable.</p></div>
+    <div class="pcard"><h4>Output determinism is real but post-paint</h4>
+      <p>CP9/CP10 re-impose determinism, but streaming means the user may see a violation before the correction. Closing that needs CP11/CP12 and, ultimately, redundancy (Phase D).</p></div>
+  </div>
+
+  <footer>
+    CWF · EAIP — LLM control surface · detailed design · rev 1 · 2026-06-28 · grounded against HEAD a8bd531<br>
+    13 control points · 3 axes (moment · binding · source) · companion to cwf-request-lifecycle-v2 (the sequential view) &amp; cwf-architecture-map-v6 (the layered map)<br>
+    open gaps: CP11 (Phase F · guaranteed final message) · CP12 (P7 · Superset runtime empty≠zero)
+  </footer>
+
+</div>
+</body>
+</html>

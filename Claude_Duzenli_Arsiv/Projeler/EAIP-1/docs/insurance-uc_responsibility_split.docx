@@ -1,0 +1,285 @@
+**insurance-uc: Deterministic vs LLM Responsibility Split**
+
+*Audit-trail design for the Türk Reasürans offer triage assistant*
+
+# **1. Why this document exists**
+
+Insurance underwriting is a regulated, audit-heavy domain. When an offer is misclassified as Yenileme instead of Yeni İş (or vice versa), the wrong pricing model gets applied and the wrong reinsurance treaty gets engaged. The reviewer who looks at a takip row must be able to answer one question instantly:
+
+***"******Why did the system classify this offer this way?******"***
+
+If the answer is "the LLM said so," the system fails the audit. If the answer is "rule R3 fired because folder X exists, dated Y, within the 2-year window," the system passes.
+
+This document defines exactly which steps are LLM-driven (probabilistic, fast, fuzzy) and which are deterministic (rule-based, slow, auditable). The classification decision is always deterministic. The LLM's role is bounded to evidence gathering.
+
+# **2. The five processing stages**
+
+Every incoming offer passes through five stages in order. Each stage has a defined owner (LLM or deterministic engine), a defined input/output schema, and a logged audit record.
+
+| **Stage** | **Owner** | **Input** | **Output** | **Audit log content** |
+| --- | --- | --- | --- | --- |
+| 1. Extraction | LLM | Raw email body + attachments | Structured JSON: insured, VKN, address, broker, dates | Prompt version, model, token usage, extracted fields, confidence per field |
+| 2. Validation | Deterministic | Extracted JSON | Validated JSON or rejection | Each field: pass/fail + reason (e.g. VKN failed checksum) |
+| 3. Lookup | Hybrid (mostly deterministic) | Validated JSON | Match results from 4 sources | Each source: query sent, candidates returned, match scores, selected match |
+| 4. Classification | Deterministic | Match results | Yeni İş / Yenileme / Geçmişte Görüldü | Rule ID fired, all rule inputs, decision reasoning |
+| 5. Enrichment | Hybrid | Classified offer + activity description | Faaliyet kodu + Branş | Top-N candidates with scores, selected code |
+
+# **3. Stage-by-stage detail**
+
+## **3.1 Stage 1: Extraction (LLM)**
+
+The LLM reads unstructured mail content and emits a structured JSON object. This is the only stage where the LLM has creative freedom — and even here it is heavily constrained by GuardrailsAI schemas.
+
+### **What the LLM does**
+
+- Reads mail subject, body, and attachment text (PDFs are OCR'd first, attachments parsed by deterministic parsers per format)
+
+- Identifies and extracts: sigortalı adı, VKN/TCKN, iş adı, riziko adresi, broker/sedan, talep tarihi, vade başlangıcı, vade bitişi
+
+- For each extracted field, emits a confidence score 0.0–1.0
+
+- Flags ambiguous fields for human review rather than guessing
+
+### **What the LLM does NOT do**
+
+- Does not classify the offer (no "this looks like a renewal")
+
+- Does not decide if a field is valid (VKN checksum, date format)
+
+- Does not query lookup sources
+
+- Does not write to the takip table
+
+### **Output schema (enforced by GuardrailsAI)**
+
+{
+
+  "sigortali_adi": "string, required, max 200 chars",
+
+  "vkn": "string, optional, 10 or 11 digits",
+
+  "is_adi": "string, required, max 300 chars",
+
+  "riziko_adresi": "string, optional",
+
+  "broker_sedan": "string, required",
+
+  "talep_tarihi": "ISO 8601 date",
+
+  "vade_baslangic": "ISO 8601 date | null",
+
+  "vade_bitis": "ISO 8601 date | null",
+
+  "field_confidences": { ... },
+
+  "ambiguous_fields": ["string"]
+
+}
+
+### **Audit log**
+
+Every extraction call is logged to Langfuse with the full prompt, model version, input tokens, output JSON, and field-level confidences. The reviewer can replay any extraction exactly.
+
+## **3.2 Stage 2: Validation (Deterministic)**
+
+Pure code. Validates the LLM output against business rules before it enters the lookup pipeline. Any failure here halts processing and routes to a human.
+
+### **Validation rules**
+
+- VKN is exactly 10 (legal entity) or 11 (natural person) digits
+
+- VKN passes the algorithmic checksum (Turkish VKN/TCKN check digit algorithm)
+
+- Dates parse to valid ISO 8601 and fall within reasonable ranges (talep_tarihi ≤ today, vade_bitis > vade_baslangic)
+
+- Required fields are non-empty
+
+- Address (if provided) is at least 10 characters and contains at least one numeric component
+
+- Broker/sedan is on the known list (or flagged for new-broker review)
+
+### **Audit log**
+
+Each validation check logs to the takip row's validation_log column: rule name, input value, pass/fail, failure reason if any.
+
+## **3.3 Stage 3: Lookup (Hybrid)**
+
+Four sources are queried in parallel. The LLM is involved only in semantic reranking; matching itself is deterministic.
+
+### **Source 1: ARU/KARU (deterministic)**
+
+Direct API or DB query (depending on what the discovery meeting reveals). The query is deterministic SQL or API call. Match candidates are ranked by exact-then-fuzzy on VKN, then sigortalı adı, then iş adı.
+
+LLM involvement: none.
+
+### **Source 2: Outlook search (deterministic + LLM rerank)**
+
+Microsoft Graph API search returns up to 25 candidate mails. A deterministic scorer ranks candidates by field overlap (insured name, VKN, address present in mail body or subject).
+
+LLM involvement: only when the top 10 candidates have similar scores. The LLM is asked, in a constrained prompt, to pick the most likely match from a numbered list. It cannot generate text — only return an index.
+
+### **Source 3: Bound Accounts SMB share (deterministic)**
+
+NiFi crawls the share nightly and writes folder metadata to a Galera table and a Qdrant vector index. The runtime lookup does:
+
+- Exact match on normalized insured name (case-folded, accent-stripped, whitespace-collapsed)
+
+- Fuzzy match using Levenshtein on insured name (threshold ≥ 0.85)
+
+- Semantic match using vector similarity on insured name + address (threshold ≥ 0.80)
+
+- Filter all matches by folder date within last 2 years (the renewal window from the Excel)
+
+LLM involvement: none. The fuzzy and semantic matching are algorithmic — no LLM call. The thresholds are configurable.
+
+### **Source 4: Submissions SMB share (deterministic, same as Source 3)**
+
+Same logic as Bound Accounts, but no date filter — submissions can be old, and the "Geçmişte Görüldü" classification specifically targets older submissions.
+
+### **Audit log**
+
+Each lookup writes a structured record to the takip row:
+
+{
+
+  "source": "bound_accounts",
+
+  "query": { "insured_normalized": "...", "vkn": "..." },
+
+  "candidates_found": 3,
+
+  "matches": [
+
+    {
+
+      "folder_path": "\\10.34.106.24\turkre ortak alan\...\Şirket_X_2024",
+
+      "match_type": "fuzzy_insured_name",
+
+      "match_score": 0.92,
+
+      "folder_date": "2024-08-12",
+
+      "within_2y_window": true
+
+    }
+
+  ]
+
+}
+
+## **3.4 Stage 4: Classification (DETERMINISTIC — never LLM)**
+
+This is the most important stage. The classification decision is a pure function of the lookup results. No LLM call. No probabilistic reasoning. Three rules, evaluated in order, first match wins.
+
+| **Rule ID** | **Condition** | **Classification** |
+| --- | --- | --- |
+| R1 | Bound Accounts has a match within the last 24 months | Yenileme |
+| R2 | No Bound Accounts match in 24 months, but ANY of (ARU/KARU, Outlook, Submissions, old Bound) has a match | Yeni İş - Geçmişte Görüldü |
+| R3 | No match in any source | Yeni İş |
+
+That is the entire decision logic. ~30 lines of Python. Fully testable, fully auditable, never "the LLM thinks…"
+
+### **Audit log**
+
+Every takip row stores:
+
+{
+
+  "rule_fired": "R1",
+
+  "rule_input": {
+
+    "bound_accounts_matches_in_2y": 1,
+
+    "matching_folder": "...\Şirket_X_2024",
+
+    "folder_date": "2024-08-12",
+
+    "days_since_folder": 287
+
+  },
+
+  "classification": "Yenileme",
+
+  "explanation_tr": "Bound Accounts altında 12 Ağustos 2024 tarihli eşleşme bulundu, son 24 ay içinde. R1 kuralı: Yenileme."
+
+}
+
+The reviewer sees this in the takip UI. They can click the folder_path link and see the exact bound record that triggered the classification.
+
+## **3.5 Stage 5: Enrichment (Hybrid)**
+
+Activity code (Faaliyet Kodu) suggestion uses the LLM for semantic matching against the ~1,000-row reference list, but emits the top-3 candidates with scores — the LLM does not pick one definitively.
+
+### **How it works**
+
+- Pre-compute embeddings for all rows in the Faaliyet Kodları reference list (one-time)
+
+- At runtime: embed the activity description extracted from the mail, find top-10 candidates by vector similarity
+
+- LLM reranks the top-10 to top-3 with one sentence of justification per candidate
+
+- All three are written to the takip row; underwriter selects the final one
+
+### **Why this is not deterministic**
+
+Activity descriptions in broker mails are free-text and often imprecise ("plastik enjeksiyon ve metal kalıp birlikte"). A deterministic regex/keyword matcher would fail too often. Semantic embedding + LLM rerank is the right tool — but only with human-in-the-loop final selection.
+
+### **Audit log**
+
+Top-3 candidates with similarity scores and LLM justifications, plus underwriter's final pick (logged when they save the takip row).
+
+# **4. Why this split passes audit**
+
+### **4.1 The classification rule never depends on an LLM call**
+
+Even if the LLM is offline, hallucinating, or returns garbage, the classification decision uses only the deterministic lookup results. The worst case is "extraction failed, routed to human" — never "misclassified by AI".
+
+### **4.2 Every classification is traceable to a specific file or record**
+
+"Renewal" is never an opinion. It is always "this specific folder, dated this specific day, within the 2-year window." The reviewer can navigate to the folder and verify.
+
+### **4.3 The LLM****'****s role is confined and observable**
+
+Extraction prompts are versioned in MLflow. Every call is traced in Langfuse with full input/output. If a misextraction caused an issue, the team can replay the exact LLM call, see what was sent, and fix the prompt — not retrain a model.
+
+### **4.4 Field-level confidences create natural escalation paths**
+
+If the LLM extracts a VKN with confidence 0.6, validation fails the VKN checksum 5% of the time anyway — but the confidence score lets us flag for human review before we even reach validation. This catches errors early.
+
+### **4.5 Underwriter retains final authority**
+
+Faaliyet kodu has three candidates; the human picks. Borderline classifications can be flagged for review. The takip row has a status field — AI-suggested vs. human-confirmed. Nothing flows downstream as authoritative until a human signs off, until the underwriter has demonstrated trust over time and chooses to enable auto-confirm for high-confidence cases.
+
+# **5. What we tell the Türk Re audit team**
+
+Single sentence to internalize and repeat:
+
+***"******The LLM extracts and ranks; deterministic rules decide and write.******"***
+
+Every conversation about model risk, AI governance, or audit comes back to this. The LLM is a smart reader. The classification is law-shaped code.
+
+# **6. What this rules out**
+
+Some things we deliberately do NOT do, and the reason:
+
+- We do not train a classifier on historical takip rows. A classifier would conceal its reasoning behind weights; the rule-based approach is transparent and editable by underwriting management.
+
+- We do not let the LLM "override" rule results based on nuance. If the rules say Yenileme but the LLM thinks Geçmişte Görüldü, the rules win and the LLM's view is logged as an advisory note for human review.
+
+- We do not auto-classify with no human in the loop in the pilot. Every classification is reviewed for the first 4-6 weeks; auto-confirm thresholds are tuned from observed accuracy.
+
+- We do not use a black-box vendor LLM for extraction without versioning. Either we host the model (vLLM) or we wrap the vendor call with strict schema enforcement and full logging.
+
+# **7. Open questions that affect this split**
+
+The following discovery answers (from the parallel Discovery Questions document) will refine the split:
+
+- If ARU/KARU has a strong fuzzy search API, we may eliminate the LLM rerank in Stage 3 Source 2 (Outlook), since ARU/KARU becomes the primary fuzzy source.
+
+- If Türk Re requires a fully air-gapped deployment with no LLM at all, Stage 1 falls back to a deterministic extractor (regex + NER model, lower accuracy, but auditable). We would scope and price this as an alternative.
+
+- If the takip data shows that 95%+ of activity descriptions cleanly map to a code via keyword match, we may make Stage 5 fully deterministic and demote the LLM to ambiguous-case fallback only.
+
+This document will be revised after the discovery meeting. The structure (5 stages, hybrid responsibility, audit-trail-first) is the architectural commitment. Specific tools and thresholds are tunable.

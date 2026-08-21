@@ -1,0 +1,115 @@
+
+<style>
+  .mp{padding:1rem 0;font-family:var(--font-sans)}
+  .stage{display:flex;gap:8px;margin-bottom:6px;align-items:stretch}
+  .stage-label{width:80px;min-width:80px;display:flex;align-items:center;justify-content:center;border-radius:6px;padding:6px;text-align:center}
+  .stage-label span{font-size:11px;font-weight:500;line-height:1.2}
+  .stage-content{flex:1;display:flex;flex-wrap:wrap;gap:4px;padding:8px;border-radius:6px;border:0.5px solid var(--color-border-tertiary);background:var(--color-background-secondary)}
+  .step{padding:6px 10px;border-radius:4px;font-size:11px;line-height:1.4;border:0.5px solid;min-width:100px}
+  .step .t{font-weight:500;font-size:11px}.step .d{font-size:9px;opacity:.6;margin-top:2px}
+  .arrow-row{display:flex;align-items:center;justify-content:center;padding:4px 0;color:var(--color-text-secondary)}
+  .arrow-row svg{width:20px;height:20px}
+  .gate{display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:4px;border:1px dashed;font-size:10px;font-weight:500}
+  .q-pass{border-color:#22C55E;color:#16A34A;background:#F0FDF4}
+  .q-fail{border-color:#EF4444;color:#DC2626;background:#FEF2F2}
+  .tool-tag{font-size:8px;padding:1px 5px;border-radius:3px;font-weight:500;display:inline-block;margin-top:2px}
+  .t-soda{background:#DCFCE7;color:#14532D}
+  .t-dbt{background:#EDE9FE;color:#3C3489}
+  .t-om{background:#DBEAFE;color:#0C447C}
+  .t-llm{background:#FEE2E2;color:#791F1F}
+  .t-af{background:#FFF7ED;color:#633806}
+
+  .s-bronze .stage-label{background:#F59E0B;color:#fff}
+  .s-silver .stage-label{background:#9CA3AF;color:#fff}
+  .s-gold .stage-label{background:#EAB308;color:#fff}
+  .s-ingest .stage-label{background:#7C3AED;color:#fff}
+  .s-serve .stage-label{background:#2563EB;color:#fff}
+
+  .st-bronze{background:#FEF3C7;color:#92400E;border-color:#F59E0B}
+  .st-silver{background:#F3F4F6;color:#374151;border-color:#9CA3AF}
+  .st-gold{background:#FEF9C3;color:#713F12;border-color:#EAB308}
+  .st-ingest{background:#EDE9FE;color:#3C3489;border-color:#AFA9EC}
+  .st-serve{background:#DBEAFE;color:#0C447C;border-color:#85B7EB}
+  .st-check{background:#F0FDF4;color:#14532D;border-color:#22C55E}
+  .st-enrich{background:#FEE2E2;color:#791F1F;border-color:#F09595}
+
+  .flow-label{font-size:10px;color:var(--color-text-secondary);text-align:center;padding:2px 0;font-style:italic}
+  .uc-examples{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
+  .uc-ex{font-size:10px;padding:6px 10px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);background:var(--color-background-primary);line-height:1.4;flex:1;min-width:140px}
+  .uc-ex strong{font-size:10px}
+</style>
+
+<div class="mp">
+
+  <div class="stage s-ingest">
+    <div class="stage-label"><span>Ingest</span></div>
+    <div class="stage-content">
+      <div class="step st-ingest"><div class="t">External sources</div><div class="d">SAP, PIM XML, KBY, SharePoint, Salesforce, Excel</div></div>
+      <div class="step st-ingest"><div class="t">Airflow DAGs</div><div class="d">Schedule, extract, load raw</div><span class="tool-tag t-af">Airflow</span></div>
+      <div class="step st-ingest"><div class="t">Redpanda / Debezium</div><div class="d">CDC + event streaming</div></div>
+      <div class="step st-ingest"><div class="t">Doc Intelligence</div><div class="d">PDF, transcript OCR</div></div>
+    </div>
+  </div>
+
+  <div class="arrow-row"><svg viewBox="0 0 20 20"><path d="M10 4v12M6 12l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+
+  <div class="stage s-bronze">
+    <div class="stage-label"><span>Bronze<br>(Raw)</span></div>
+    <div class="stage-content">
+      <div class="step st-bronze"><div class="t">Raw as-ingested</div><div class="d">No transformation. Append-only. Full history preserved. Source schema intact.</div></div>
+      <div class="step st-bronze"><div class="t">Storage targets</div><div class="d">MinIO bronze/ bucket, PG uc*_bronze schema, CH bronze tables</div></div>
+      <div class="step st-check"><div class="t">Soda checkpoint #1</div><div class="d">Freshness, row count, null %, schema drift detection</div><span class="tool-tag t-soda">Soda Core</span></div>
+      <div class="step st-check"><div class="t">OpenMetadata scan</div><div class="d">Auto-discover tables, profile columns, register lineage</div><span class="tool-tag t-om">OpenMetadata</span></div>
+    </div>
+  </div>
+
+  <div class="arrow-row">
+    <div class="gate q-pass">Quality pass → proceed</div>
+    <span style="margin:0 8px;color:var(--color-text-secondary);font-size:10px">or</span>
+    <div class="gate q-fail">Quality fail → quarantine + alert</div>
+  </div>
+
+  <div class="stage s-silver">
+    <div class="stage-label"><span>Silver<br>(Cleaned)</span></div>
+    <div class="stage-content">
+      <div class="step st-silver"><div class="t">dbt: Deduplication</div><div class="d">Window functions, hash-based dedup across sources</div><span class="tool-tag t-dbt">dbt Core</span></div>
+      <div class="step st-silver"><div class="t">dbt: Standardization</div><div class="d">Currency, date formats, code mapping (TR locale)</div><span class="tool-tag t-dbt">dbt Core</span></div>
+      <div class="step st-silver"><div class="t">dbt: Missing values</div><div class="d">Imputation rules, null handling, default assignment</div><span class="tool-tag t-dbt">dbt Core</span></div>
+      <div class="step st-silver"><div class="t">dbt: Cross-ref keys</div><div class="d">SAP material → PIM product → SF product ID mapping</div><span class="tool-tag t-dbt">dbt Core</span></div>
+      <div class="step st-check"><div class="t">Soda checkpoint #2</div><div class="d">Uniqueness, referential integrity, business rules, value ranges</div><span class="tool-tag t-soda">Soda Core</span></div>
+    </div>
+  </div>
+
+  <div class="arrow-row"><svg viewBox="0 0 20 20"><path d="M10 4v12M6 12l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+
+  <div class="stage s-gold">
+    <div class="stage-label"><span>Gold<br>(Business)</span></div>
+    <div class="stage-content">
+      <div class="step st-enrich"><div class="t">LLM: Doc classification</div><div class="d">Board content: logistics vs substance (UC-3 security boundary)</div><span class="tool-tag t-llm">LLM Enrichment</span></div>
+      <div class="step st-enrich"><div class="t">LLM: Entity extraction</div><div class="d">Product IDs, cost centers, company codes from Turkish text</div><span class="tool-tag t-llm">LLM Enrichment</span></div>
+      <div class="step st-enrich"><div class="t">LLM: Quality scoring</div><div class="d">Product catalog completeness: specs, images, descriptions</div><span class="tool-tag t-llm">LLM Enrichment</span></div>
+      <div class="step st-gold"><div class="t">dbt: UC-optimized views</div><div class="d">Materialized views, aggregations, segmentation results</div><span class="tool-tag t-dbt">dbt Core</span></div>
+      <div class="step st-gold"><div class="t">Qdrant enriched</div><div class="d">Embeddings with classification tags + quality scores as payload</div></div>
+      <div class="step st-check"><div class="t">Soda checkpoint #3</div><div class="d">Final business rule validation before serving to agents</div><span class="tool-tag t-soda">Soda Core</span></div>
+    </div>
+  </div>
+
+  <div class="arrow-row"><svg viewBox="0 0 20 20"><path d="M10 4v12M6 12l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+
+  <div class="stage s-serve">
+    <div class="stage-label"><span>Serve<br>(Agents)</span></div>
+    <div class="stage-content">
+      <div class="step st-serve"><div class="t">RLS Core Engine</div><div class="d">Scope-filtered access to Gold data per user identity</div></div>
+      <div class="step st-serve"><div class="t">LangGraph agents</div><div class="d">Query Gold tables, search enriched Qdrant, call external APIs</div></div>
+      <div class="step st-serve"><div class="t">LlamaIndex RAG</div><div class="d">Semantic search over enriched document embeddings</div></div>
+    </div>
+  </div>
+
+  <div class="flow-label">Per-UC examples of what happens at each tier</div>
+  <div class="uc-examples">
+    <div class="uc-ex"><strong>UC-1 Financial</strong><br>Bronze: raw SAP BW MDX extract<br>Silver: deduped, TRY/EUR standardized<br>Gold: pre-aggregated by CC, country, GL</div>
+    <div class="uc-ex"><strong>UC-2 Inventory</strong><br>Bronze: SAP stock + KBY dealer + Excel forecast<br>Silver: cross-referenced product IDs, deduped dealers<br>Gold: 6-category segmentation results</div>
+    <div class="uc-ex"><strong>UC-3 Governance</strong><br>Bronze: raw SharePoint docs, meeting transcripts<br>Silver: OCR-validated, metadata-tagged<br>Gold: LLM-classified (logistics vs substance)</div>
+    <div class="uc-ex"><strong>UC-4 Product</strong><br>Bronze: PIM XML, SF CRM export<br>Silver: product ID cross-map, schema normalized<br>Gold: quality-scored, image-tagged, search-indexed</div>
+  </div>
+</div>

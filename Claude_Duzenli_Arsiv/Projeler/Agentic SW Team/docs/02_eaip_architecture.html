@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EAIP — ARDICTECH Unified Platform · Architecture (10 layers)</title>
+<style>
+:root{
+  --bg:#0D1117;--bg2:#161B22;--bg3:#21262D;--border:#30363D;--border2:#444C56;
+  --text:#E6EDF3;--text2:#8B949E;--text3:#6E7681;
+  --blue:#58A6FF;--blue-bg:rgba(88,166,255,.14);
+  --green:#3FB950;--green-bg:rgba(63,185,80,.14);
+  --amber:#E3B341;
+  --mono:ui-monospace,'JetBrains Mono','SFMono-Regular',Menlo,monospace;
+  --sans:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);line-height:1.5;-webkit-font-smoothing:antialiased;padding:0 0 60px}
+.hdr{background:linear-gradient(135deg,var(--bg2),#1C2333);border-bottom:1px solid var(--border);padding:22px 32px;position:sticky;top:0;z-index:10}
+.hdr h1{font-size:18px;font-weight:700;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.vb{font-family:var(--mono);font-size:10px;font-weight:700;background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue);border-radius:20px;padding:2px 9px}
+.hdr .sub{font-size:12px;color:var(--text2);font-family:var(--mono);margin-top:5px}
+.main{max-width:1180px;margin:0 auto;padding:24px 32px}
+.lede{font-size:13px;color:var(--text2);line-height:1.65;margin-bottom:18px;max-width:820px}
+.cap{font-size:12px;color:var(--text2);margin:0 2px 16px;display:flex;flex-wrap:wrap;gap:16px;align-items:center}
+.dot{display:inline-block;width:11px;height:11px;border-radius:3px;vertical-align:-1px;margin-right:6px}
+.row{display:flex;border:1px solid var(--border);border-radius:8px;background:var(--bg2);overflow:hidden;margin-bottom:7px}
+.lbl{flex:0 0 185px;padding:12px 14px;border-right:1px solid var(--border);position:relative;background:var(--bg3)}
+.acc{position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--blue)}
+.ln{font-family:var(--mono);font-size:11px;color:var(--text3)}
+.lname{font-size:13.5px;font-weight:600;color:var(--text);margin-top:1px}
+.ltag{font-family:var(--mono);font-size:10.5px;color:var(--amber);margin-top:3px}
+.chips{flex:1;display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;align-content:center}
+.chip{display:inline-flex;align-items:center;gap:5px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:5px 9px;font-size:12px;color:var(--text)}
+.chip.hl{border-color:var(--green);background:var(--green-bg);color:var(--green)}
+.mtag{font-family:var(--mono);font-size:10.5px;border-radius:10px;padding:0 6px;border:1px solid var(--green);color:var(--green);background:var(--green-bg)}
+.note{background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--green);border-radius:0 8px 8px 0;padding:12px 15px;font-size:12.5px;color:var(--text2);line-height:1.6;margin-top:20px;max-width:880px}
+footer{max-width:1180px;margin:0 auto;padding:20px 32px;font-size:11px;color:var(--text3);font-family:var(--mono);border-top:1px solid var(--border);margin-top:30px}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <h1>EAIP — ARDICTECH Unified Intelligence Platform <span class="vb">10 LAYERS · 67 COMPONENTS</span></h1>
+  <div class="sub">architecture · the product platform the team delivers · self-hosted sovereign + cloud-adapter hybrid</div>
+</div>
+<div class="main">
+  <div class="lede">Ten layers from customer channels (L0) down to sovereign infrastructure (L9). The platform is multi-tenant from day one (Keycloak realm + Postgres RLS + Qdrant collection isolation). The two decisions formalised for Revolutionize are already native here: <span style="color:var(--green)">LiteLLM</span> is the L3 model gateway, and <span style="color:var(--green)">MCP</span> is how agents reach external enterprise systems — highlighted in green below.</div>
+  <div class="cap">
+    <span><span class="dot" style="background:var(--blue-bg);border:1px solid var(--blue)"></span>platform component</span>
+    <span><span class="dot" style="background:var(--green-bg);border:1px solid var(--green)"></span>LiteLLM / MCP (shared with Revolutionize)</span>
+    <span style="color:var(--amber);font-family:var(--mono)">amber tag = layer doctrine</span>
+  </div>
+
+  <div class="row"><div class="lbl"><span class="acc"></span><div class="ln">L0</div><div class="lname">Channels</div><div class="ltag">first-class · day one</div></div><div class="chips">
+    <span class="chip">WhatsApp</span><span class="chip">Whisper STT</span><span class="chip">Embed widget</span><span class="chip">Outlook / Graph</span><span class="chip">Web chat</span><span class="chip">Teams bot</span><span class="chip">Min. dashboard</span><span class="chip">Channel gateway</span>
+  </div></div>
+
+  <div class="row"><div class="lbl"><span class="acc"></span><div class="ln">L1</div><div class="lname">API &amp; Identity</div></div><div class="chips">
+    <span class="chip">Kong</span><span class="chip">FastAPI</span><span class="chip">Keycloak</span><span class="chip">OPA</span><span class="chip">Tenant provisioning</span><span class="chip">Entra federation</span>
+  </div></div>
+
+  <div class="row"><div class="lbl"><span class="acc"></span><div class="ln">L2</div><div class="lname">Reasoning &amp; Orchestration</div><div class="ltag">LLM ranks · rules decide</div></div><div class="chips">
+    <span class="chip">LangGraph</span><span class="chip">Hybrid decision engine</span><span class="chip">n8n</span><span class="chip">Temporal</span>
+  </div></div>
+
+  <div class="row"><div class="lbl"><span class="acc"></span><div class="ln">L3</div><div class="lname">AI / LLM core</div></div><div class="chips">
+    <span class="chip">vLLM</span><span class="chip hl">LiteLLM <span class="mtag">gateway</span></span><span class="chip">Ollama</span><span class="chip">MLflow</span><span class="chip">Prompt store</span><span class="chip">Langfuse</span><span class="chip">Guardrails AI</span>
+  </div></div>
+
+  <div class="row"><div class="lbl"><span class="acc"></span><div class="ln">L4</div><div class="lname">Knowledge &amp; Memory</div></div><div class="chips">
+    <span class="chip">LlamaIndex</span><span class="chip">Qdrant / pgvector</span><span class="chip">Memori</span><span class="chip">LightRAG</span><span class="chip">Graphiti + FalkorDB</span>
+  </div></div>
+
+  <div class="row"><div class="lbl"><span class="acc"></span><div class="ln">L5</div><div class="lname">Data cleansing &amp; Governance</div><div class="ltag">first-class · must-have</div></div><div class="chips">
+    <span class="chip">Soda Core</span><span class="chip">dbt Core</span><span class="chip">OpenMetadata</span><span class="chip">Audit / SPC PDF</span><span class="chip">LLM enrichment</span>
+  </div></div>
+
+  <div class="row"><div class="lbl"><span class="acc"></span><div class="ln">L6</div><div class="lname">Storage</div><div class="ltag">PostgreSQL-default</div></div><div class="chips">
+    <span class="chip">PostgreSQL</span><span class="chip">Redis</span><span class="chip">MinIO</span><span class="chip">Qdrant</span><span class="chip">ClickHouse</span><span class="chip">TimescaleDB</span><span class="chip">Iceberg</span><span class="chip">MariaDB</span>
+  </div></div>
+
+  <div class="row"><div class="lbl"><span class="acc"></span><div class="ln">L7</div><div class="lname">Ingestion &amp; Pipelines</div></div><div class="chips">
+    <span class="chip">Airflow</span><span class="chip">File upload</span><span class="chip">NiFi SMB crawler</span><span class="chip">Airbyte</span><span class="chip">Debezium + Redpanda</span>
+  </div></div>
+
+  <div class="row"><div class="lbl"><span class="acc"></span><div class="ln">L8</div><div class="lname">External sources</div><div class="ltag">adapters — don't build</div></div><div class="chips">
+    <span class="chip">IoT-Ignite</span><span class="chip hl">ARMES MES <span class="mtag">MCP ✓</span></span><span class="chip">Exchange / Graph</span><span class="chip">ARU / KARU</span><span class="chip">SMB shares</span><span class="chip hl">SAP <span class="mtag">MCP</span></span><span class="chip hl">SharePoint <span class="mtag">MCP</span></span><span class="chip hl">Salesforce <span class="mtag">MCP</span></span>
+  </div></div>
+
+  <div class="row"><div class="lbl"><span class="acc"></span><div class="ln">L9</div><div class="lname">Infrastructure &amp; Ops</div><div class="ltag">sovereign / container-cloud</div></div><div class="chips">
+    <span class="chip">Kubernetes</span><span class="chip">ArgoCD</span><span class="chip">OpenTofu</span><span class="chip">CI pipeline</span><span class="chip">Container registry</span><span class="chip">Grafana + Prometheus</span><span class="chip">Loki + OTel</span><span class="chip">Vault</span><span class="chip">Cert mgr + Wireguard</span><span class="chip">Evidently AI</span><span class="chip">Netaş / OSB cloud</span>
+  </div></div>
+
+  <div class="note">Why no patch deltas here: the two ADRs only changed the Revolutionize Phase-1 backlog. EAIP already runs LiteLLM as its L3 gateway and already reaches MES, SAP, SharePoint and Salesforce over MCP — including the ARMES MCP server, which is pre-built (✓). The two platforms therefore share the same gateway and tool-protocol decisions, which is what makes the bridge clean.</div>
+</div>
+<footer>ARDICTECH A.Ş. · EAIP Unified Platform architecture · regenerated clean · L0 channels → L9 sovereign infra · internal technical reference</footer>
+</body>
+</html>

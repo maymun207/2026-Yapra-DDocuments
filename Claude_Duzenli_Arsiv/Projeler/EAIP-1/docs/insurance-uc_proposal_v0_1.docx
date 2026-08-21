@@ -1,0 +1,447 @@
+**ARDICTECH**
+
+Proposal
+
+**Fire ****&**** Engineering Facultative**
+
+**Offer Triage Assistant**
+
+*AI-assisted intake, classification, and tracking for inbound reinsurance offers*
+
+Prepared for:
+
+**[Customer Name]**
+
+Prepared by:
+
+**ARDICTECH**
+
+Draft v0.1 — for discussion
+
+# **Executive summary**
+
+Inbound facultative reinsurance offers arrive by email from brokers and cedants with no fixed format. Underwriters spend a significant portion of their day determining whether each new offer is genuinely new business, a renewal of an existing bound account, or a re-submission of a previously seen risk — and then enriching each one with the correct activity classification and branch.
+
+This proposal describes a system that automates that intake workflow. The system reads each inbound offer, extracts the structured data fields the underwriter needs, cross-references four authoritative internal sources, classifies the offer using deterministic business rules, and writes the result to a structured tracking list that the underwriting team uses as their daily worklist.
+
+The system is designed to do one thing well and to fit into the existing workflow without disrupting it. The underwriter remains the decision-maker; the system removes the manual lookup work that precedes the decision.
+
+ARDICTECH proposes a fixed-scope, milestone-based engagement structured around a short discovery phase followed by six build milestones. Total calendar duration is six to seven months, depending on the integration profile of the customer's internal ARU/KARU system, which will be confirmed in discovery.
+
+# **1. Background and objective**
+
+The customer's Fire & Engineering Facultative Reinsurance underwriting team receives offer requests from brokers and cedants through email. Each offer must be evaluated against existing records before pricing or acceptance work begins. The current process requires the underwriter to:
+
+- Read the inbound email and any attached slip
+
+- Manually identify the insured name, VKN, job name, and risk address
+
+- Query ARU/KARU to determine if the same job has been seen before
+
+- Search recent Outlook history for related correspondence
+
+- Browse the shared file system under Bound Accounts and Submissions for matching folders
+
+- Decide whether the offer is New Business, Renewal, or New Business — Seen Before
+
+- Identify the correct Activity Code and Branch by referring to a 1,000+ row reference list
+
+- Record the offer and decision in the tracking spreadsheet
+
+This sequence is repeated for every incoming offer. The variability of email formats, the volume of historical records to search, and the cognitive load of holding multiple sources in mind at once create friction that the AI assistant is designed to remove.
+
+### **Project objective**
+
+Deliver a production system that reduces the manual intake work for each inbound offer from minutes to seconds, while preserving full audit traceability and leaving the classification decision-making logic transparent and editable by underwriting management.
+
+# **2. Proposed solution**
+
+The system has five processing stages. Each stage has a defined input, output, and audit log. The classification decision itself is deterministic and rule-based — the AI is used for reading and ranking, not for deciding.
+
+| **Stage** | **What it does** | **Owner** |
+| --- | --- | --- |
+| 1. Extraction | Reads the inbound email and attachments; emits structured fields (insured, VKN, address, broker, dates) | AI (with schema enforcement) |
+| 2. Validation | Verifies that extracted fields conform to format rules (VKN checksum, date ranges, required fields) | Deterministic |
+| 3. Lookup | Queries the four authoritative sources in parallel: ARU/KARU, Outlook, Bound Accounts share, Submissions share | Hybrid (mostly deterministic) |
+| 4. Classification | Applies three deterministic rules to lookup results: New Business / Renewal / Seen Before | Deterministic |
+| 5. Enrichment | Suggests the top three Activity Code candidates from the reference list; underwriter selects final | AI suggests, human confirms |
+
+The output is written to a tracking list with the same column structure the underwriting team already uses, accessible through a web dashboard, exportable to Excel, and surfaced as a reply in Outlook so the underwriter can act on it without changing tool.
+
+### **Deployment model**
+
+The proposed deployment is hybrid:
+
+- A lightweight connector runs inside the customer network with read-only access to the SMB share, the ARU/KARU system, and the Exchange mailbox
+
+- Core processing — extraction, classification logic, dashboard, audit logs — runs on ARDICTECH's managed infrastructure
+
+- All inbound mails, extracted fields, and audit records remain logically isolated to the customer; no data is co-mingled with other tenants
+
+- KVKK and data residency requirements are addressed at the deployment-design stage during discovery
+
+# **3. Scope**
+
+## **3.1 In scope**
+
+- Email intake via Microsoft Exchange (Online or on-premises)
+
+- Extraction of structured fields from email body and attachments (PDF, Word, Excel) in Turkish and English
+
+- Integration with the four lookup sources: ARU/KARU, Outlook search, Bound Accounts SMB share, Submissions SMB share
+
+- Deterministic classification engine implementing the three rules defined in the customer's procedure document
+
+- Activity Code suggestion using the customer's Faaliyet Kodları reference list as the canonical source
+
+- Tracking dashboard listing all classified offers with the agreed column structure
+
+- Excel export of the tracking list in the customer's existing template format
+
+- Outlook reply automation: enriched response back to the originating underwriter mailbox
+
+- Audit log per offer: full trace of extraction, lookup results, and classification rule fired
+
+- Role-based access control: underwriters see their portfolio, managers see all
+
+- Training, documentation, and handover for the pilot underwriting team
+
+- Three months of post-go-live support at agreed service levels
+
+## **3.2 Out of scope**
+
+- Pricing or risk assessment logic (the system classifies and enriches; it does not price)
+
+- Treaty reinsurance offers (this engagement covers facultative only; treaty intake can be addressed in a follow-up engagement if scope is similar)
+
+- Branches other than Fire & Engineering Facultative (extending to other branches is a separate engagement)
+
+- Replacement of ARU/KARU or any other existing system
+
+- Migration of historical records into new storage (the system reads existing sources in place)
+
+- Custom underwriting analytics or reporting beyond the tracking dashboard
+
+- Modifications to broker-facing email templates or workflows
+
+- Mobile applications
+
+## **3.3 Boundary clarifications**
+
+These items are deliberately called out to avoid ambiguity:
+
+- The system does not auto-confirm any classification during the pilot. Every classification is reviewed by the underwriter for the first four to six weeks. Auto-confirm thresholds are tuned based on observed accuracy and enabled only at the customer's discretion.
+
+- Activity Code is presented as a top-three ranked suggestion. The underwriter always selects the final code.
+
+- The system reads the SMB share and Exchange mailboxes; it does not write to either.
+
+- ARDICTECH retains all intellectual property in the underlying platform components. The customer receives a license to use the deployed application for the agreed term.
+
+# **4. Engagement structure**
+
+The engagement is structured in two stages to manage the principal technical unknown — the integration profile of the ARU/KARU system — without forcing either party to commit to a full build before that unknown is resolved.
+
+### **Stage 1: Discovery (M0)**
+
+A three-week fixed-price discovery phase. ARDICTECH meets with the customer's business owner, application owner for ARU/KARU, infrastructure team, and information security lead. Outputs are a confirmed architecture, a confirmed scope, a confirmed timeline, and a confirmed commercial structure for the build phase.
+
+If discovery reveals that the work is materially larger or smaller than assumed in this proposal, the build commercial terms are revised before either party commits. If either party decides not to proceed after discovery, the engagement ends with no further obligation.
+
+### **Stage 2: Build and pilot (M1 through M5)**
+
+Six build milestones over approximately five to six months. Each milestone has defined deliverables and acceptance criteria. Payment is milestone-triggered on customer acceptance.
+
+# **5. Timeline and milestones**
+
+Calendar duration: 24 to 30 weeks total. The variability is concentrated in milestone M3, which depends on what discovery reveals about ARU/KARU integration.
+
+| **Milestone** | **Name** | **Duration** |
+| --- | --- | --- |
+| M0 | Discovery and architecture lock | 3 weeks |
+| M1 | Foundation: extraction and validation | 5 weeks |
+| M2 | Lookup integration: file shares and Exchange | 5 weeks |
+| M3 | Lookup integration: ARU/KARU | 4 to 8 weeks (variable) |
+| M4 | Classification, enrichment, and user interface | 4 weeks |
+| M5 | Pilot, production, and handover | 3 to 4 weeks |
+|  | Total | 24 to 30 weeks |
+
+# **6. Milestone deliverables**
+
+## **M0 — Discovery and architecture lock (3 weeks)**
+
+### **Activities**
+
+- Three working sessions with the customer team: architecture and integration; business rules and edge cases; commercial and operational
+
+- Review of the existing tracking template, procedure document, and Faaliyet Kodları reference list
+
+- Confirmation of ARU/KARU integration approach (API, database read replica, or RPA fallback)
+
+- Sample folder structure walkthrough on the SMB share
+
+- KVKK and information security review
+
+### **Deliverables**
+
+- Discovery report: technical findings, integration profiles for each source, identified risks
+
+- Locked architecture document: confirmed components, data flows, deployment topology
+
+- Locked scope confirmation: any adjustments from the initial scope in this proposal
+
+- Locked timeline and milestone definitions for M1 through M5
+
+- Commercial terms confirmation for the build phase
+
+### **Acceptance criteria**
+
+- Both parties sign off on the architecture and scope documents
+
+- Build phase commercial terms agreed in writing
+
+## **M1 — Foundation: extraction and validation (5 weeks)**
+
+### **Activities**
+
+- Build the email ingestion connector against the customer's Exchange environment
+
+- Develop and tune the LLM-based extraction prompts for Turkish and English offer mails
+
+- Implement deterministic validation: VKN checksum, date format, required fields, broker normalization
+
+- Construct a test corpus of 50 to 100 historical offer mails (anonymized) for accuracy measurement
+
+- Set up the development and staging environments
+
+### **Deliverables**
+
+- Working extraction service that reads an inbound email and produces structured JSON
+
+- Working validation engine that flags malformed extractions
+
+- Test corpus with manually-labeled ground truth
+
+- Extraction accuracy report against the test corpus
+
+- Development and staging environments accessible to the customer's technical team
+
+### **Acceptance criteria**
+
+- Extraction accuracy on the test corpus is at least 85% on required fields (insured name, VKN, dates)
+
+- Validation engine correctly flags 100% of synthetic malformed cases
+
+## **M2 — Lookup integration: file shares and Exchange (5 weeks)**
+
+### **Activities**
+
+- Build the SMB crawler that indexes Bound Accounts and Submissions folders nightly
+
+- Implement fuzzy and semantic matching against indexed folder metadata
+
+- Integrate Microsoft Graph search for Outlook lookup with LLM reranking of top candidates
+
+- Build the unified lookup service that orchestrates parallel queries across all three of these sources
+
+- Backfill the index with the full history available on the shares
+
+### **Deliverables**
+
+- Working SMB crawler with monitoring and re-index capability
+
+- Bound Accounts and Submissions search indexes covering the agreed historical depth
+
+- Working Outlook search integration
+
+- Unified lookup API that accepts an extracted offer and returns matches from all three sources
+
+- Lookup accuracy report on a labeled set of historical offer-to-match pairs
+
+### **Acceptance criteria**
+
+- Lookup correctly identifies the matching record on at least 95% of historical bound or submission cases where a match exists
+
+- Full re-index of the SMB shares completes within an agreed window
+
+## **M3 — Lookup integration: ARU/KARU (4 to 8 weeks)**
+
+Duration depends on the integration approach confirmed in discovery. An API-based integration is the four-week case; an RPA-based fallback is the eight-week case.
+
+### **Activities**
+
+- Build the ARU/KARU connector following the integration approach confirmed in M0
+
+- Integrate the connector into the unified lookup service
+
+- Tune fuzzy matching parameters for ARU/KARU's specific data shape
+
+- End-to-end testing of the full four-source lookup orchestration
+
+### **Deliverables**
+
+- Working ARU/KARU connector
+
+- Full four-source lookup operating end-to-end
+
+- Integration test report
+
+### **Acceptance criteria**
+
+- ARU/KARU lookup returns expected matches on a customer-defined test set
+
+- Combined four-source lookup completes within the agreed per-request latency target
+
+## **M4 — Classification, enrichment, and user interface (4 weeks)**
+
+### **Activities**
+
+- Implement the three-rule classification engine with full audit logging
+
+- Implement the Activity Code matcher with top-three ranked suggestion
+
+- Build the tracking dashboard with the agreed column structure
+
+- Implement Excel export matching the customer's existing template
+
+- Implement the Outlook reply automation
+
+- Role-based access control configuration
+
+### **Deliverables**
+
+- Classification engine with audit trail visible per offer
+
+- Activity Code suggestion service
+
+- Tracking dashboard accessible to pilot underwriters
+
+- Excel export function
+
+- Outlook reply automation deployed to the pilot mailbox or shared mailbox
+
+- User documentation
+
+### **Acceptance criteria**
+
+- Classification on a 100-mail blind test set matches manual underwriter review on at least 90% of cases
+
+- Activity Code top-three contains the underwriter's chosen code on at least 85% of cases
+
+- Dashboard, Excel export, and Outlook reply functions verified by the pilot team
+
+## **M5 — Pilot, production, and handover (3 to 4 weeks)**
+
+### **Activities**
+
+- Production deployment of the system
+
+- Pilot rollout to the agreed underwriter group
+
+- Two weeks of monitored operation with daily review of outputs
+
+- Tuning based on observed cases
+
+- Knowledge transfer to the customer's IT and underwriting operations team
+
+- Handover documentation
+
+### **Deliverables**
+
+- System running in production
+
+- Pilot underwriter team trained and using the system
+
+- Operations runbook
+
+- Monitoring dashboard for system health and accuracy metrics
+
+- Final accuracy report on the first 30 days of live operation
+
+- Handover sign-off
+
+### **Acceptance criteria**
+
+- 30 consecutive days of production operation with no critical incidents
+
+- Pilot underwriters confirm the system is reducing intake time on their offers
+
+- Operations team confirms readiness to run the system in steady state with ARDICTECH support
+
+# **7. Team and operating model**
+
+ARDICTECH staffs the engagement with a delivery team led by a senior solution architect and supported by mid-level engineers. The team operates in two-week sprints with a weekly status update to the customer's project owner and a milestone review at the end of each milestone.
+
+### **ARDICTECH team**
+
+- Solution architect (senior, part-time across milestones)
+
+- Project lead (full-time)
+
+- Two AI and integration engineers (full-time)
+
+- Quality and acceptance engineer (part-time, peaks at milestone boundaries)
+
+- KVKK and security lead (part-time, peaks during discovery and pre-production)
+
+### **Customer counterpart roles expected**
+
+- Project owner from underwriting operations (the primary decision-maker)
+
+- Subject matter expert from the underwriting team (for business-rule clarifications and acceptance)
+
+- IT infrastructure liaison (for access provisioning, network, identity)
+
+- ARU/KARU application owner (engaged during M0 and M3)
+
+- Information security and KVKK liaison (engaged during M0 and pre-production)
+
+# **8. Commercial framework**
+
+This proposal defines the engagement scope and structure. The full commercial terms — milestone pricing, payment schedule, support and license terms after go-live, change-order procedure — will be agreed in a separate commercial annex prior to the start of M0.
+
+### **Principles to be reflected in the commercial annex**
+
+- Discovery (M0) is a small fixed-price phase, payable on completion regardless of whether the build phases proceed
+
+- Each build milestone is fixed-price, payable on customer acceptance against the defined acceptance criteria
+
+- Post-go-live support is offered as an annual subscription with defined service levels
+
+- The deployed application is licensed to the customer for the agreed term; ARDICTECH retains ownership of the underlying platform components
+
+- Change requests during build are handled through a defined change-order process to keep the fixed-price commitment honest for both parties
+
+# **9. Assumptions and dependencies**
+
+### **Key assumptions**
+
+- Customer provides timely access to the four data sources: ARU/KARU, Exchange mailboxes, the SMB share, and the Faaliyet Kodları reference list
+
+- ARU/KARU exposes a queryable interface; if RPA is required as a fallback, M3 extends as noted in the timeline
+
+- The pilot scope is limited to Fire & Engineering Facultative; extending to additional branches is a follow-on engagement
+
+- Customer designates a project owner empowered to make decisions and a subject matter expert available for the duration of the build
+
+- KVKK and information security review can proceed in parallel with technical work; significant security requirements emerging late may extend timelines
+
+### **Key dependencies**
+
+- Discovery (M0) confirms the architectural assumptions in this proposal. If material changes are required, scope and timeline are revised before build phases begin.
+
+- Access to a historical mail corpus for the test set is available within the first two weeks of M1
+
+- Customer's internal procurement and contracting timeline aligns with the proposed schedule
+
+# **10. Next steps**
+
+- Review of this proposal by the customer's business owner and technical leadership
+
+- Joint walkthrough session to address questions and agree on any adjustments
+
+- Commercial annex drafted and agreed
+
+- Discovery (M0) kick-off scheduled
+
+*This proposal is a draft for discussion. ARDICTECH welcomes the opportunity to walk through it with the customer team and to refine it based on feedback before finalizing the commercial annex.*

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EAIP OS Analogy v0_1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F3F4F1; --ink:#1B1E22; --muted:#5C6168; --line:#D8DAD4;
+  --amber:#B87513; --amber-bg:#FAEEDA; --amber-dk:#633806;
+  --teal:#0F6E56;  --teal-bg:#E1F5EE;  --teal-dk:#085041;
+  --purple:#534AB7;--purple-bg:#EEEDFE;--purple-dk:#3C3489;
+  --gray:#5F5E5A;  --gray-bg:#ECEBE4;  --gray-dk:#2C2C2A;
+  --card:#FFFFFF;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:'IBM Plex Sans',sans-serif;line-height:1.6;font-size:16px}
+.mono{font-family:'IBM Plex Mono',monospace}
+header{border-bottom:1px solid var(--line);padding:22px 36px;display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:8px}
+header h1{font-size:18px;font-weight:600;letter-spacing:.01em}
+header .ver{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted)}
+nav{display:flex;gap:0;border-bottom:1px solid var(--line);padding:0 36px;background:var(--paper);position:sticky;top:0;z-index:5}
+nav button{appearance:none;border:none;background:none;font:inherit;font-size:14px;font-weight:500;color:var(--muted);padding:14px 20px;cursor:pointer;border-bottom:2px solid transparent}
+nav button.active{color:var(--ink);border-bottom-color:var(--amber)}
+nav button:focus-visible{outline:2px solid var(--amber);outline-offset:-2px}
+main{max-width:1060px;margin:0 auto;padding:40px 36px 80px}
+.page{display:none}
+.page.active{display:block}
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--amber-dk);margin-bottom:10px}
+h2{font-size:26px;font-weight:600;margin-bottom:10px;letter-spacing:-.01em}
+.lede{color:var(--muted);max-width:66ch;margin-bottom:36px}
+/* ── stack grid ── */
+.stack{display:grid;grid-template-columns:1fr 34px 1fr;gap:12px 0;align-items:stretch}
+.stack.single{grid-template-columns:1fr;max-width:560px;margin:0 auto}
+.colhead{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:500;text-align:center;color:var(--muted);padding-bottom:4px}
+.eq{display:flex;align-items:center;justify-content:center;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:13px}
+.cell{border:1px solid;border-radius:10px;padding:14px 18px;background:var(--card)}
+.cell .t{font-weight:600;font-size:15px}
+.cell .s{font-size:13px;margin-top:2px}
+.c-purple{border-color:var(--purple);background:var(--purple-bg)}
+.c-purple .t{color:var(--purple-dk)}.c-purple .s{color:var(--purple)}
+.c-teal{border-color:var(--teal);background:var(--teal-bg)}
+.c-teal .t{color:var(--teal-dk)}.c-teal .s{color:var(--teal)}
+.c-gray{border-color:var(--gray);background:var(--gray-bg)}
+.c-gray .t{color:var(--gray-dk)}.c-gray .s{color:var(--gray)}
+/* signature: the gate */
+.gate{grid-column:1 / -1;position:relative;margin:6px 0}
+.stack.single .gate{grid-column:1}
+.gate .bar{border:1px solid var(--amber);background:var(--amber-bg);border-radius:10px;padding:14px 18px;display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:4px}
+.gate .t{font-weight:600;font-size:15px;color:var(--amber-dk)}
+.gate .s{font-size:13px;color:var(--amber)}
+.gate::before,.gate::after{content:"";position:absolute;top:50%;width:14px;height:1px;background:var(--amber)}
+.gate::before{left:-14px}.gate::after{right:-14px}
+.ring{grid-column:1 / -1;display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:2px 4px}
+.stack.single .ring{grid-column:1}
+.legend{display:flex;gap:22px;flex-wrap:wrap;margin-top:26px;font-size:13px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.sw{width:12px;height:12px;border-radius:3px;border:1px solid;display:inline-block}
+/* notes */
+.notes{margin-top:44px;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
+.note{border-top:2px solid var(--line);padding-top:14px}
+.note.hot{border-top-color:var(--amber)}
+.note h3{font-size:14px;font-weight:600;margin-bottom:6px}
+.note p{font-size:14px;color:var(--muted)}
+.note code{font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--ink)}
+footer{border-top:1px solid var(--line);margin-top:60px;padding:16px 36px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px}
+@media (max-width:720px){
+  .stack{grid-template-columns:1fr}
+  .eq,.colhead.right-only{display:none}
+  .gate{grid-column:1}
+  .ring{grid-column:1}
+  main{padding:28px 20px 60px}
+  header,nav,footer{padding-left:20px;padding-right:20px}
+}
+@media (prefers-reduced-motion:no-preference){
+  .page.active{animation:fade .25s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>EAIP — işletim sistemi analojisi</h1>
+  <span class="ver">EAIP_OS_Analogy_v0_1 · ARDICTECH internal · Temmuz 2026</span>
+</header>
+
+<nav>
+  <button class="active" data-page="p1" onclick="go('p1',this)">1 · İç mimari analoji</button>
+  <button data-page="p2" onclick="go('p2',this)">2 · Müşteri anlatısı</button>
+</nav>
+
+<main>
+
+<!-- ════════ SAYFA 1 ════════ -->
+<section id="p1" class="page active">
+  <div class="eyebrow">İç mimari dil — dış pozisyonlamada kullanılmaz</div>
+  <h2>Klasik bilgisayar yığını ↔ EAIP substratı</h2>
+  <p class="lede">EAIP'yi bir işletim sistemi gibi oku: çekirdeği ARDICTECH işletir, kullanıcı alanında hem first-party uygulamalar hem de müşterinin kendi yazdığı workflow'lar koşar. İki alanı birbirinden ayıran şey tek bir amber kapıdır — kullanıcı alanından veriye giden her yol oradan geçer.</p>
+
+  <div class="stack">
+    <div class="colhead">Klasik bilgisayar</div>
+    <div></div>
+    <div class="colhead">EAIP</div>
+
+    <div class="ring"><span>▲ kullanıcı alanı</span><span>müşteri kodu buradan yukarıda ▲</span></div>
+
+    <div class="cell c-purple"><div class="t">Kullanıcının Excel tablosu</div><div class="s">envanter takibi, makrolar — kullanıcı yazar</div></div>
+    <div class="eq">=</div>
+    <div class="cell c-purple"><div class="t">Müşterinin workflow / agent'ı</div><div class="s">kendi IT ekibi yazar — desteklenmez, engellenmez</div></div>
+
+    <div class="cell c-teal"><div class="t">Excel + VBA</div><div class="s">OS ile gelen uygulama yazma aracı</div></div>
+    <div class="eq">=</div>
+    <div class="cell c-teal"><div class="t"><span class="mono">n8n + LangGraph</span></div><div class="s">workflow ve agent inşa araçları</div></div>
+
+    <div class="cell c-teal"><div class="t">Hazır uygulamalar</div><div class="s">Word, Outlook — vendor'un kendi ürünleri</div></div>
+    <div class="eq">=</div>
+    <div class="cell c-teal"><div class="t">GU · CWF · Insurance</div><div class="s">first-party uygulamalar — vitrin bunlardır</div></div>
+
+    <div class="gate">
+      <div class="bar">
+        <span class="t">Win32 API&nbsp;&nbsp;=&nbsp;&nbsp;<span class="mono">MCP tools + semantic contract + query gate (OPA)</span></span>
+        <span class="s">kararlı syscall tablosu — tek geçiş noktası</span>
+      </div>
+    </div>
+
+    <div class="ring"><span>▼ çekirdek alanı</span><span>yalnızca ARDICTECH dokunur ▼</span></div>
+
+    <div class="cell c-gray"><div class="t">Kernel servisleri</div><div class="s">dosya sistemi, kullanıcılar, izinler, bellek</div></div>
+    <div class="eq">=</div>
+    <div class="cell c-gray"><div class="t"><span class="mono">Keycloak · OPA · PostgreSQL · MinIO · Redis</span></div><div class="s">scheduler: K8s · sürücüler: vLLM / LiteLLM</div></div>
+
+    <div class="cell c-gray"><div class="t">CPU · RAM · Disk</div><div class="s">donanım</div></div>
+    <div class="eq">=</div>
+    <div class="cell c-gray"><div class="t">GPU / CPU sunucular</div><div class="s">Netaş / OSB sovereign altyapı</div></div>
+  </div>
+
+  <div class="legend">
+    <span><i class="sw" style="background:var(--purple-bg);border-color:var(--purple)"></i>müşteriye ait</span>
+    <span><i class="sw" style="background:var(--teal-bg);border-color:var(--teal)"></i>platformla gelir</span>
+    <span><i class="sw" style="background:var(--amber-bg);border-color:var(--amber)"></i>syscall sınırı — kapı</span>
+    <span><i class="sw" style="background:var(--gray-bg);border-color:var(--gray)"></i>çekirdek + donanım</span>
+  </div>
+
+  <div class="notes">
+    <div class="note hot">
+      <h3>Syscall tablosu henüz derlenmedi</h3>
+      <p>Windows'un hendeği Win32'nin otuz yıllık kırılmazlığıdır. EAIP karşılığı — MCP tool imzaları + makine-tüketilebilir <code>semantic contract</code> — SOTA açığı 3 olarak açık. Bu kutu doldurulmadan OS iddiası doktrin, mühendislik değil.</p>
+    </div>
+    <div class="note hot">
+      <h3>Ring ayrımını kapı zorlar, kültür değil</h3>
+      <p>LLM'li workflow'da davranışı yazan değil, içinden akan veri de belirler (prompt injection). Müşteri kodu governed-truth verisine yalnızca deterministik <code>query gate</code> üzerinden erişir — SOTA açığı 2'nin kapsamı budur.</p>
+    </div>
+    <div class="note">
+      <h3>Destek sınırı analojiden bedava gelir</h3>
+      <p>Kimse bozuk makrosu için Microsoft'u aramaz. "Sizin Excel'iniz, sizin sorumluluğunuz" çizgisi OS çerçevesinde kültürel olarak kendiliğinden kurulur; sözleşmede yalnızca teyit edilir.</p>
+    </div>
+    <div class="note">
+      <h3>OS içeride kalır, uygulama satılır</h3>
+      <p>Müşteri Windows'u Excel için alır. Dış anlatıda vitrin GU ve CWF'dir; "işletim sistemi" kelimesi yatay platform savaşına davetiyedir ve dışarı taşınmaz. Müşteri yüzü için 2. sayfaya bak.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ════════ SAYFA 2 ════════ -->
+<section id="p2" class="page">
+  <div class="eyebrow">Müşteri anlatısı — sovereignty çerçevesi</div>
+  <h2>Sizin perimetrenizde çalışan özel AI platformu</h2>
+  <p class="lede">Aynı yığın, müşterinin gözünden: tek parça, kendi kendine yeten, veri düzlemi perimetreyi hiç terk etmeyen bir kurulum. Sol kolon yok, "işletim sistemi" kelimesi yok — yalnızca müşterinin sınırları içindeki katmanlar ve tek denetimli kapı.</p>
+
+  <div class="stack single">
+    <div class="ring"><span>▲ sizin alanınız</span><span>ekibinizin kodu ▲</span></div>
+
+    <div class="cell c-purple"><div class="t">Kendi uygulamalarınız</div><div class="s">IT ekibiniz platform araçlarıyla kendi workflow'larını yazar — vendor lock-in yok</div></div>
+
+    <div class="cell c-teal"><div class="t">İnşa araçları</div><div class="s">görsel workflow tasarımı ve agent geliştirme — perimetre içinde</div></div>
+
+    <div class="cell c-teal"><div class="t">Chat With Factory</div><div class="s">üretim verinizle konuşan, denetlenebilir yanıt veren hazır uygulama</div></div>
+
+    <div class="gate">
+      <div class="bar">
+        <span class="t">Governed erişim kapısı</span>
+        <span class="s">her sorgu denetimli · her karar iz bırakır (IATF / KVKK uyumlu audit)</span>
+      </div>
+    </div>
+
+    <div class="ring"><span>▼ platform çekirdeği</span><span>tamamı perimetre içinde ▼</span></div>
+
+    <div class="cell c-gray"><div class="t">Kimlik, veri ve model servisleri</div><div class="s">kurumsal SSO entegrasyonu · yerel veri depoları · model ağırlıkları lokal</div></div>
+
+    <div class="cell c-gray"><div class="t">Sizin altyapınız</div><div class="s">GPU/CPU sunucular — on-prem veya seçtiğiniz sovereign bulut</div></div>
+  </div>
+
+  <div class="notes">
+    <div class="note hot">
+      <h3>Veri düzlemi hava geçirmez</h3>
+      <p>LLM çıkarımı dahil hiçbir üretim verisi perimetreyi terk etmez. Model ağırlıkları yerelde koşar; harici AI servisleri varsayılan olarak kapalıdır ve yalnızca sizin açık onayınızla etkinleşir.</p>
+    </div>
+    <div class="note">
+      <h3>Kontrol düzlemi sizin onayınızla</h3>
+      <p>Yazılım ve model güncellemeleri planlı, imzalı ve onayınıza tabidir; tam çevrimdışı (mirror'lı) işletim desteklenir. Dürüst sınır: "airtight" bir spektrumdur ve egress listesi ilk günden şeffaftır.</p>
+    </div>
+    <div class="note">
+      <h3>Genişletilebilir, bağımlı değil</h3>
+      <p>Ekibiniz platform üzerinde kendi otomasyonlarını kurar. Kapı sayesinde hiçbir özel kod, denetimli veri erişim disiplinini delemez — özgürlük ve governance aynı anda.</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <span>EAIP_OS_Analogy_v0_1.html — Sayfa 1: iç mimari analoji · Sayfa 2: müşteri anlatısı</span>
+  <span>refs: EAIP v5.1 SSoT · SOTA review gaps 2–3 · v5_2 changeset adayı</span>
+</footer>
+
+<script>
+function go(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b===btn));
+  window.scrollTo({top:0});
+}
+</script>
+</body>
+</html>

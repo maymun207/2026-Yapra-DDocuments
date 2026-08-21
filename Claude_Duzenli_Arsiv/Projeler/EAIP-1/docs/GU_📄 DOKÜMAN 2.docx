@@ -1,0 +1,21 @@
+**📄**** DOKÜMAN 2: Pazar Analizi ve İş Modeli (Business Case)**
+
+*(Bu doküman, NotebookLM'e yatırımcıları ikna edecek finansal metrikleri, birim ekonomisini ve pazar çapını verecektir.)*
+
+**Başlık: SFaaS Milyar Dolarlık İş Modeli, Birim Ekonomisi ve Dağıtım Stratejisi**
+
+**1. Hedef Segment ve Fiyatlama Çapası:**
+
+- **Hedef Kitle:** 10 ile 250 arası çalışanı olan, kendi IT departmanı olmayan imalatçı KOBİ'ler. (1-9 çalışanlı mikrolar hedef dışıdır).
+
+- **Fiyatlama:** Aylık 200 USD (Basic) ile 350 USD (Mid) arası SaaS aboneliği (Donanım dahil). KOBİ başı Blended (Ortalama) ARPU: **300 USD / Ay** (Yıllık 3.600 USD). **2. Adreslenebilir Pazar Büyüklüğü (Market Sizing / ARR - Yıllık Tekrarlayan Gelir):**
+
+- **SOM (Türkiye / Faz 1):** ~45.000 KOBİ (Türkiye'deki 416 Organize Sanayi Bölgesi baz alınarak). Pazar Hacmi: Yıllık **162 Milyon USD ARR.**
+
+- **SAM (Doğu Avrupa ve MENA / Faz 2):** Polonya, Romanya, Çekya ve MENA dahil ~150.000 KOBİ. Pazar Hacmi: Yıllık **540 Milyon USD ARR.**
+
+- **TAM (Global "Underserved" Pazar / Faz 3):** ABD Rust Belt, Almanya Mittelstand dahil dünyada hizmet alamayan ~1.5 Milyon KOBİ. Pazar Hacmi: Yıllık **5.4 Milyar USD ARR.** **3. Rekabet Kalkanı ve Birim Ekonomisi (CAC Avantajı):** Amazon Monitron, Augury veya Samsara gibi global devlerin KOBİ segmentinde Müşteri Edinme Maliyeti (CAC) 1.500 ile 10.000 USD arasındadır. Rakiplerin finansal modeli, ayda 250 dolar ödeyen binlerce KOBİ'ye inmeye uygun değildir. Doğrudan satış (kapı kapı) yapmadığımız için bizim CAC maliyetimiz sıfıra yakındır ve yatırım geri dönüş (Payback) süresi 1-4 aydır. **4. Dağıtım Kanalları (B2B2B Truva Atı Modeli):**
+
+- **Kanal 1 (Ana Sanayi / OEM):** Otomotiv ve havacılık ana sanayisi, "sıfır hata" için alt tedarikçilerine bizim ürünümüzü kurmayı "Sipariş Alım Şartı" (Sopa) olarak zorunlu kılar veya teşvik eder.
+
+- **Kanal 2 (Netaş / ZTE ve OSB İttifakı):** Netaş'ın OSB'lere kurduğu "Konteyner Bulut" sunucuları ve Telekom 5G paketleri için sistemimiz bir "Vitrin Uygulaması / Katil Uygulama (Killer App)" olarak konumlandırılır. Dağıtımı Netaş ve Telkolar yapar.

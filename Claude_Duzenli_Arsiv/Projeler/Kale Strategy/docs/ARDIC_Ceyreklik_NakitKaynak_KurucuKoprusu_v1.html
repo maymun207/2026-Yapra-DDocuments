@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARDIÇ · Nakit Açığı Kaynak Haritası & Kurucu Köprüsü — İÇSEL</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root{
+    --navy:#1F3864; --teal:#13A89E; --amber:#D98E04; --red:#C0392B; --redL:#E08A76;
+    --ink:#1B2430; --muted:#6B7280; --line:#D9DEE7; --bg:#F4F6F9; --card:#FFFFFF; --well:#F0F3F7;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:Calibri,'Segoe UI',Arial,sans-serif; background:var(--bg); color:var(--ink); padding:0 0 34px;}
+  .band{background:var(--navy); color:#fff; padding:22px 28px 20px;}
+  .band h1{font-size:21px; font-weight:700;}
+  .band .sub{font-size:12.5px; color:#B9C6DE; margin-top:4px;}
+  .band .tag{display:inline-block; margin-top:10px; font-size:10.5px; font-weight:700; letter-spacing:1px; color:var(--navy); background:#F0B429; border-radius:4px; padding:3px 9px;}
+  .wrap{max-width:1000px; margin:0 auto; padding:18px 16px 0; display:flex; flex-direction:column; gap:16px;}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:20px 22px; box-shadow:0 1px 3px rgba(31,56,100,0.06);}
+  .card h2{font-size:16px; color:var(--navy); font-weight:700;}
+  .card .cap{font-size:12px; color:var(--muted); margin:3px 0 14px;}
+  .kpis{display:flex; gap:10px; margin-top:12px; flex-wrap:wrap;}
+  .kpi{flex:1; min-width:150px; background:var(--well); border:1px solid var(--line); border-radius:10px; padding:11px 13px;}
+  .kpi .v{font-size:19px; font-weight:700;}
+  .kpi .d{font-size:10.5px; color:var(--muted); margin-top:3px; line-height:1.35;}
+  .chartbox{position:relative; width:100%; height:300px;}
+  .chartbox2{position:relative; width:100%; height:250px;}
+  .gnote{font-size:11.5px; color:var(--muted); margin-top:12px; line-height:1.55;}
+  .gnote b{color:var(--ink); font-weight:600;}
+  table{width:100%; border-collapse:collapse; font-size:11px; margin-top:8px;}
+  th{background:var(--navy); color:#fff; padding:6px 7px; text-align:right; font-weight:600; white-space:nowrap;}
+  th:first-child{text-align:left; border-radius:6px 0 0 0;}
+  th:last-child{border-radius:0 6px 0 0;}
+  td{padding:5px 7px; text-align:right; border-bottom:1px solid var(--line); white-space:nowrap;}
+  td:first-child{text-align:left; font-weight:600; color:var(--navy);}
+  tr.yr td{background:var(--well); font-weight:700;}
+  .neg{color:var(--red);} .pos{color:var(--teal);}
+  .yb{color:var(--muted); font-style:italic;}
+  footer{max-width:1000px; margin:16px auto 0; padding:0 16px; font-size:10.5px; color:var(--muted); line-height:1.6;}
+  footer code{font-family:Consolas,monospace; font-size:10px; background:var(--well); padding:1px 4px; border-radius:3px;}
+</style>
+</head>
+<body>
+
+<div class="band">
+  <h1>Nakit Açığı Kaynak Haritası &amp; Kurucu Köprüsü — 2023 → 2026, çeyrek çeyrek</h1>
+  <div class="sub">Açığı kim kapattı: gelir (tahsilat) + banka + TK + HK · her hücre deftere izli (431.01.002 cari defteri · ACTPL aylık cashflow · Ftr tahsilat · mizan)</div>
+  <span class="tag">DISTRESS-İÇSEL · YK — DIŞARI ÇIKMAZ</span>
+</div>
+
+<div class="wrap">
+
+  <!-- ============ PANEL 1: HERO — KURUCU KÖPRÜSÜ ============ -->
+  <div class="card">
+    <h2>1 · Kurucu köprüsü — çıplak rakam</h2>
+    <div class="cap">TK cari defteri (431.01.002, altın-endeksli) · 2023-01 → 2026-05</div>
+    <div class="kpis">
+      <div class="kpi"><div class="v" style="color:var(--navy);">₺35,4M</div><div class="d">TK'nın kişisel hesabından şirkete akan BRÜT nakit (2023→May-26) — döner köprü trafiği</div></div>
+      <div class="kpi"><div class="v" style="color:var(--teal);">₺7,25M</div><div class="d">içeride kalan NET nakit (2023 +2,63M · 2024 +0,55M · 2025 +2,48M · 2026 +1,59M) — yıllıklar defterle birebir ✓</div></div>
+      <div class="kpi"><div class="v" style="color:var(--amber);">₺28,1M · 4.610 gr</div><div class="d">TK alacak stoğu 2025YE (431.01.002, altın-endeksli; kökü 2019'a gider) — kurucunun şirkete park etmiş serveti</div></div>
+      <div class="kpi"><div class="v" style="color:var(--red);">₺18,2M</div><div class="d">bu köprüye RAĞMEN doğan devlet cezası + banka faizi (2024-25) — köprü olmasa tablo çok daha ağırdı</div></div>
+    </div>
+    <div class="gnote"><b>Döner köprü mekaniği:</b> kurucu parayı verip beklemiyor — Kale takvimine göre <b>verip geri alıp yeniden veriyor</b>. 2024Q4: ₺7,52M verildi / ₺9,54M geri (Aralık KB7 tahsilatı gelince). 2025Q1: ₺11,71M verildi / ₺10,00M geri (Q1 kuyruk tahsilatı ₺11,5M gelince). Kurucunun kişisel likiditesi, şirketin <b>fiili işletme sermayesi</b> olarak çalışmış.</div>
+  </div>
+
+  <!-- ============ PANEL 2: ÇEYREKLİK HARİTA ============ -->
+  <div class="card">
+    <h2>2 · Çeyrek çeyrek: Kale açığı vs kurucu enjeksiyonu</h2>
+    <div class="cap">kırmızı/yeşil = Kale çeyrek açık-değişimi (fatura − tahsilat; + = ARDIÇ taşıdı) · lacivert = TK net nakit · korelasyona bak</div>
+    <div class="chartbox"><canvas id="qmap"></canvas></div>
+    <div class="gnote"><b>Kırılma çeyreği 2024Q3:</b> Kale ₺12,61M fatura / ₺6,31M tahsilat → tek çeyrekte <b>+₺6,30M açık</b> ARDIÇ'ın sırtına bindi (SCL ön ödeme dönemi). 2024Q4 +₺1,49M daha → yıl-sonu ₺5,74M kuyruk kışı devretti. Aynı pencerede TK brüt ₺9,39M pompaladı, vergi/SGK ertelemesi +₺10,41M'e fırladı — 2025'in ₺15,48M cezasının fitili tam burada ateşlendi. 2025Q1'de Kale kuyruk ödedi (tahsilat ₺11,50M), kurucu kısmen geri aldı; döngü 2025 boyunca küçülerek sürdü.</div>
+  </div>
+
+  <!-- ============ PANEL 3: KAYNAK MATRİSİ ============ -->
+  <div class="card">
+    <h2>3 · Kaynak matrisi — kim, ne zaman, ne kadar</h2>
+    <div class="cap">₺bin · T1 hücreler; <i>italik</i> = yıl-blok (çeyreklik kaynak yok, dürüst etiket) · erteleme bandı yıllık</div>
+    <table>
+      <tr><th>Çeyrek</th><th>Kale tahsilat</th><th>Kale Δaçık</th><th>TK net</th><th>HK</th><th>Banka net</th><th>Toplam tahsilat*</th></tr>
+      <tr><td>2023Q1</td><td>783</td><td class="pos">−600</td><td>0</td><td>—</td><td rowspan="4" class="yb">yıl: −1.607</td><td rowspan="4" class="yb">yıl-grain yok</td></tr>
+      <tr><td>2023Q2</td><td>341</td><td class="pos">−133</td><td>0</td><td>—</td></tr>
+      <tr><td>2023Q3</td><td>2.244</td><td class="pos">−1.903</td><td class="pos">+1.108</td><td>—</td></tr>
+      <tr><td>2023Q4</td><td>2.199</td><td class="neg">+276</td><td class="pos">+1.520</td><td>—</td></tr>
+      <tr class="yr"><td>2023 Σ</td><td>5.566</td><td class="pos">−2.359</td><td class="pos">+2.628</td><td>0</td><td class="neg">−1.607</td><td class="yb">—</td></tr>
+      <tr><td>2024Q1</td><td>2.992</td><td class="neg">+1.703</td><td class="pos">+247</td><td>—</td><td rowspan="4" class="yb">yıl: +2.166</td><td rowspan="4" class="yb">yıl-grain yok</td></tr>
+      <tr><td>2024Q2</td><td>4.306</td><td class="pos">−1.399</td><td class="pos">+1.056</td><td>—</td></tr>
+      <tr><td><b>2024Q3</b></td><td>6.312</td><td class="neg"><b>+6.298</b></td><td class="pos">+1.274</td><td>—</td></tr>
+      <tr><td>2024Q4</td><td>8.257</td><td class="neg">+1.494</td><td class="neg">−2.027 <span class="yb">(brüt +7.516/−9.544)</span></td><td>—</td></tr>
+      <tr class="yr"><td>2024 Σ</td><td>21.867</td><td class="neg">+8.097</td><td class="pos">+549</td><td>0</td><td class="pos">+2.166</td><td class="yb">—</td></tr>
+      <tr><td>2025Q1</td><td>11.504</td><td class="pos">−4.903</td><td class="pos">+1.710 <span class="yb">(brüt +11.710/−10.001)</span></td><td>—</td><td class="pos">+1.574</td><td>14.593</td></tr>
+      <tr><td>2025Q2</td><td>5.159</td><td class="neg">+701</td><td class="pos">+88</td><td>—</td><td class="neg">−44</td><td>13.460</td></tr>
+      <tr><td>2025Q3</td><td>8.623</td><td class="neg">+898</td><td class="pos">+95</td><td>—</td><td class="pos">+97</td><td>12.248</td></tr>
+      <tr><td>2025Q4</td><td>10.981</td><td class="pos">−1.587</td><td class="pos">+589 <span class="yb">(brüt +8.604/−8.015)</span></td><td class="pos">+265</td><td class="neg">−247</td><td>10.789</td></tr>
+      <tr class="yr"><td>2025 Σ</td><td>36.266</td><td class="pos">−4.891</td><td class="pos">+2.481</td><td class="pos">+265</td><td class="pos">+1.354</td><td>51.090</td></tr>
+      <tr><td>2026Q1</td><td>8.455</td><td class="pos">−2.258</td><td class="pos">+774</td><td>—</td><td class="neg">−5</td><td>—</td></tr>
+      <tr><td>2026Q2*</td><td>4.573</td><td class="neg">+1.231</td><td class="pos">+819</td><td>—</td><td class="yb">Nis-May yok</td><td>—</td></tr>
+    </table>
+    <div class="gnote">Erteleme bandı (yıllık, Δ stok): vergi/SGK <b>2023 +1,94M · 2024 +10,41M · 2025 −5,18M</b> (ödeme+ceza yılı) · kurucu ertelenen maaş 2023 +1,42M · 2024 +0,09M · 2025 +2,60M · çalışan 2023 +1,09M · 2024 +0,80M · 2025 +2,34M. *2026Q2 = Nis-May kısmi. Toplam tahsilat = tüm müşteriler (ACTPL); 2023-24 aylık cashflow yüklü sette yok → o yıllarda Kale-tahsilat T1, toplam yıl-grain.</div>
+  </div>
+
+  <!-- ============ PANEL 4: DÖNER KÖPRÜ + KONTRFAKTÜEL ============ -->
+  <div class="card">
+    <h2>4 · Döner köprünün anatomisi &amp; "zamanında ödeseydin" hesabı</h2>
+    <div class="cap">TK brüt trafik (verilen vs geri-ödenen, ₺M) — kurucu likiditesi işletme sermayesi olarak</div>
+    <div class="chartbox2"><canvas id="rev"></canvas></div>
+    <div class="kpis">
+      <div class="kpi"><div class="v" style="color:var(--red);">+₺8,1M</div><div class="d">2024'te Kale'nin yıl içinde ARDIÇ'a taşıttığı açık (Q3 tek başına +6,3M) — 30 günde ödense sıfır olurdu</div></div>
+      <div class="kpi"><div class="v" style="color:var(--red);">₺15,48M + ₺1,92M</div><div class="d">bunun 2025 faturası: devlet gecikme zammı (689) + banka faizi (780) — vergi stoku 2024'te ₺2,6M→₺13,0M patlamasaydı doğmazdı (≈)</div></div>
+      <div class="kpi"><div class="v" style="color:var(--navy);">₺35,4M</div><div class="d">kurucunun döndürmek zorunda kaldığı brüt köprü — zamanında ödemede büyük bölümü gereksizdi</div></div>
+      <div class="kpi"><div class="v" style="color:var(--amber);">₺8,18M + ₺4,25M</div><div class="d">üstüne: kurucuların defterlenmiş ertelenen maaşı (İİK 206 ₺4,11M dahil) + defterlenmemiş içsel eksik-ücret farkı — fedakârlığın maaş ayağı</div></div>
+    </div>
+    <div class="gnote"><b>Tek cümle:</b> Kale %97 ödedi ama <b>kendi takviminde</b> ödedi; aradaki her çeyreklik boşluğu önce kurucunun kişisel hesabı (₺35,4M brüt döngü, ₺7,25M net + ₺28,1M altın-endeksli alacak stoğu), sonra devletin %4,5/ay'lık ceza rejimi (₺15,5M) ve 20 mikro-krediyle bankalar (₺2,65M faiz) doldurdu — şirket sahibi olarak alınan risk: kişisel servetin şirkete rehin edilmesi + öncelikli ücret alacağının bile içeride bırakılması.</div>
+  </div>
+
+</div>
+
+<footer>
+Kaynak (T1, hücre-izli): <code>Fin3_TUNÇ_KAHVECİ_CARİ_DEĞERLEME.xls / _2025.xls</code> — 431.01.002 tarihli defter (ALINAN/ÖDENEN), yıllık netler mizan/şelale ile birebir (2023 +2.628.000 · 2024 +549.284 · 2025 +2.481.252 ✓) · <code>ARDIC_NakitAcigi_Finansman_Selale_2022_2026_v1.xlsx</code> — 2025 aylık (ACTPL) + 2026 Oca-May + yıllık banka/erteleme (banka Δ = 300+400+309 mizan) · <code>Ftr_Kale_fatura_rapor_20222026_tk_v4.xlsx / konsolide (2)</code> — Kale çeyreklik fatura/tahsilat (KDV-dahil) · <code>Fin2_20Mayis…Ortaklar / OzetinOzeti · TMK ÖZET · TMK HK 2025 ÖZET</code> — HK 265K (Eki-25), içsel eksik ücret (TK 5,11M + HK 3,07M), 2026 akış 1.593.350 ✓ · mizan 689/780/360-369 (ceza/faiz/vergi stoku). 2026Q2 = Nis-May kısmi; 2023-24 banka &amp; toplam-tahsilat yıl-grain (aylık cashflow yüklü sette yok — dürüst etiket). Kontrfaktüel "≈" işaretli: ceza-önlenirdi bağı 2024 vergi-stok patlamasının zamanlamasına dayanır (attribution-notu Mind Map §20.5). <b>DISTRESS-İÇSEL — kurucu likiditesi/maaş/ceza detayı owner/Kale-facing belgeye GİRMEZ.</b>
+</footer>
+
+<script>
+(function(){
+  var labels=['23Q1','23Q2','23Q3','23Q4','24Q1','24Q2','24Q3','24Q4','25Q1','25Q2','25Q3','25Q4','26Q1','26Q2*'];
+  var kale=[-600,-133,-1903,276,1703,-1399,6298,1494,-4903,701,898,-1587,-2258,1231];   // ₺K, + = açık büyüdü
+  var tk=[0,0,1108,1520,247,1056,1274,-2027,1710,88,95,589,774,819];                     // ₺K net
+  var kaleCol=kale.map(function(v){return v>0? '#C0392B':'#13A89E';});
+  new Chart(document.getElementById('qmap'),{ type:'bar',
+    data:{ labels:labels, datasets:[
+      { label:'Kale çeyrek Δaçık (fatura−tahsilat)', data:kale, backgroundColor:kaleCol, borderRadius:3, maxBarThickness:22 },
+      { label:'TK net nakit enjeksiyon', data:tk, backgroundColor:'#1F3864', borderRadius:3, maxBarThickness:22 }
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false, layout:{padding:{top:8}},
+      plugins:{ legend:{ position:'bottom', labels:{ font:{family:'Calibri', size:11.5}, boxWidth:14,
+          generateLabels:function(ch){ var l=Chart.defaults.plugins.legend.labels.generateLabels(ch); l[0].fillStyle='#C0392B'; return l; } } },
+        tooltip:{ callbacks:{ label:function(c){ return c.dataset.label+': ₺'+(c.parsed.y/1000).toFixed(2)+'M'; } } } },
+      scales:{ x:{ grid:{display:false}, border:{color:'#D9DEE7'}, ticks:{ color:'#1B2430', font:{family:'Calibri', size:10.5, weight:'600'} } },
+        y:{ grid:{color:'#E7EBF1', drawTicks:false}, border:{display:false},
+            ticks:{ color:'#6B7280', font:{family:'Calibri', size:11}, callback:function(v){return '₺'+(v/1000)+'M';} } } } }
+  });
+
+  var rl=['24Q3','24Q4','25Q1','25Q4'];
+  var ver=[1.87,7.52,11.71,8.60];
+  var geri=[-0.60,-9.54,-10.00,-8.02];
+  new Chart(document.getElementById('rev'),{ type:'bar',
+    data:{ labels:rl, datasets:[
+      { label:'TK → şirket (verilen)', data:ver, backgroundColor:'#1F3864', borderRadius:3, maxBarThickness:40 },
+      { label:'Şirket → TK (geri ödenen, tahsilat gelince)', data:geri, backgroundColor:'#8FA3C7', borderRadius:3, maxBarThickness:40 }
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ position:'bottom', labels:{ font:{family:'Calibri', size:11.5}, boxWidth:14 } },
+        tooltip:{ callbacks:{ label:function(c){ return c.dataset.label+': ₺'+Math.abs(c.parsed.y).toFixed(2)+'M'; } } } },
+      scales:{ x:{ stacked:true, grid:{display:false}, border:{color:'#D9DEE7'}, ticks:{ color:'#1B2430', font:{family:'Calibri', size:11.5, weight:'600'} } },
+        y:{ stacked:true, grid:{color:'#E7EBF1', drawTicks:false}, border:{display:false},
+            ticks:{ color:'#6B7280', font:{family:'Calibri', size:11}, callback:function(v){return '₺'+v+'M';} } } } }
+  });
+})();
+</script>
+</body>
+</html>

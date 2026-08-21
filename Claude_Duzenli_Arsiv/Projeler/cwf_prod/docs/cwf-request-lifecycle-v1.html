@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CWF — Request Lifecycle · v1</title>
+<style>
+  :root{
+    --bg:#0a0e14; --panel:#111a26; --panel2:#0f1722;
+    --line:#1f2d3d; --line2:#2a3b4f;
+    --ink:#dbe6f0; --ink-dim:#8aa0b6; --ink-faint:#5c7186;
+    --cyan:#34d6e6;
+    --jwt:#34d6e6;     /* browser ↔ vercel: user JWT, token-free */
+    --rls:#3ad29f;     /* browser ↔ supabase: RLS owner-scoped */
+    --priv:#f5b942;    /* vercel → supabase: service-role (privileged) */
+    --mcp:#8a7dff;     /* vercel → MCP backends */
+    --llm:#d07bff;     /* vercel → LLM providers */
+    --meta:#7fe1a8;    /* deterministic in-process meta-tools */
+    --danger:#ff6b7a;
+    --mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+    --sans:ui-sans-serif,system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:
+      radial-gradient(1100px 560px at 80% -8%, #10202c 0%, transparent 60%),
+      radial-gradient(820px 460px at -8% 16%, #121a14 0%, transparent 55%),
+      var(--bg); color:var(--ink); font-family:var(--sans);
+      -webkit-font-smoothing:antialiased; padding:26px 20px 60px}
+  .wrap{max-width:1060px;margin:0 auto}
+
+  header.top{border:1px solid var(--line);border-radius:14px;padding:20px 22px;
+    background:linear-gradient(180deg,var(--panel),var(--panel2));position:relative;overflow:hidden}
+  header.top::after{content:"";position:absolute;inset:0;
+    background:repeating-linear-gradient(90deg,transparent 0 38px, rgba(52,214,230,.025) 38px 39px);pointer-events:none}
+  .kick{font-family:var(--mono);font-size:11px;letter-spacing:.32em;text-transform:uppercase;color:var(--cyan);margin:0 0 8px}
+  h1{font-size:26px;margin:0;letter-spacing:-.01em;font-weight:680}
+  h1 .sub{color:var(--ink-dim);font-weight:400}
+  .tagline{color:var(--ink-dim);margin:11px 0 0;max-width:84ch;font-size:13.5px;line-height:1.6}
+  .stamp{position:absolute;top:18px;right:20px;font-family:var(--mono);font-size:10.5px;color:var(--ink-faint);text-align:right;line-height:1.75}
+  .stamp b{color:var(--rls)}
+  .ex{margin-top:14px;display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;
+    color:var(--ink);background:#0c1620;border:1px solid var(--line2);border-radius:9px;padding:7px 12px}
+  .ex .lbl{color:var(--cyan);font-size:10px;letter-spacing:.16em;text-transform:uppercase}
+
+  .legend{display:flex;flex-wrap:wrap;gap:7px 16px;margin:16px 2px 4px;font-family:var(--mono);font-size:11px;color:var(--ink-dim)}
+  .legend span{display:inline-flex;align-items:center;gap:7px}
+  .dot{width:10px;height:10px;border-radius:3px;display:inline-block}
+
+  /* zone band */
+  .zone{margin-top:22px;border:1px solid var(--line);border-radius:14px;overflow:hidden;
+    background:linear-gradient(180deg,var(--panel),var(--panel2))}
+  .zone-h{display:flex;align-items:center;gap:12px;padding:13px 18px;border-bottom:1px solid var(--line);
+    background:#0c141d}
+  .zone-h .zn{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;font-weight:700}
+  .zone-h .zd{font-size:12px;color:var(--ink-dim)}
+  .zone-h .zt{margin-left:auto;font-family:var(--mono);font-size:10.5px;color:var(--ink-faint)}
+  .zbar{width:4px;align-self:stretch;border-radius:3px}
+  .zone-body{padding:14px 18px 18px}
+
+  /* step card */
+  .step{position:relative;display:grid;grid-template-columns:46px 1fr;gap:14px;padding:12px 0}
+  .step + .step{border-top:1px dashed var(--line)}
+  .num{font-family:var(--mono);font-weight:700;font-size:15px;color:var(--bg);
+    width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .card .mod{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .card .mod b{font-size:14.5px;font-weight:680;color:var(--ink)}
+  .card .mod .path{font-family:var(--mono);font-size:11px;color:var(--ink-faint)}
+  .tag{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;
+    padding:2px 7px;border-radius:6px;border:1px solid var(--line2);color:var(--ink-dim);white-space:nowrap}
+  .rows{margin-top:8px;display:grid;grid-template-columns:auto 1fr;gap:3px 12px;font-size:12.6px;line-height:1.5}
+  .rk{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);
+    padding-top:2px;white-space:nowrap}
+  .rv{color:var(--ink-dim)}
+  .rv b{color:var(--ink);font-weight:600}
+  .rv code{font-family:var(--mono);font-size:11.5px;background:#0b141d;border:1px solid var(--line);
+    border-radius:5px;padding:1px 5px;color:#cfe0ef}
+  .nx{color:var(--ink);font-weight:600}
+  .arrow{color:var(--ink-faint)}
+
+  /* edge chips on a step (external call coloring) */
+  .edge{font-family:var(--mono);font-size:9px;letter-spacing:.06em;text-transform:uppercase;
+    padding:2px 7px;border-radius:6px;font-weight:700}
+  .e-jwt{background:rgba(52,214,230,.12);color:var(--jwt);border:1px solid rgba(52,214,230,.4)}
+  .e-rls{background:rgba(58,210,159,.12);color:var(--rls);border:1px solid rgba(58,210,159,.4)}
+  .e-priv{background:rgba(245,185,66,.12);color:var(--priv);border:1px solid rgba(245,185,66,.4)}
+  .e-mcp{background:rgba(138,125,255,.14);color:#a99dff;border:1px solid rgba(138,125,255,.45)}
+  .e-llm{background:rgba(208,123,255,.14);color:#df9bff;border:1px solid rgba(208,123,255,.45)}
+  .e-meta{background:rgba(127,225,168,.12);color:var(--meta);border:1px solid rgba(127,225,168,.4)}
+
+  /* callout */
+  .note{margin:10px 0 2px;border:1px solid var(--line2);border-left:3px solid var(--priv);border-radius:10px;
+    padding:10px 13px;background:linear-gradient(180deg,#19150b,#12100a)}
+  .note.trap{border-left-color:var(--danger);background:linear-gradient(180deg,#1c1012,#140d0e)}
+  .note.fact{border-left-color:var(--cyan);background:linear-gradient(180deg,#0c1a20,#0b1318)}
+  .note h4{margin:0 0 4px;font-size:11.5px;font-family:var(--mono);letter-spacing:.04em;text-transform:uppercase}
+  .note.trap h4{color:#ffb3bc} .note h4{color:#ffe6ad} .note.fact h4{color:#9fe9f3}
+  .note p{margin:0;font-size:12.2px;color:var(--ink-dim);line-height:1.55}
+  .note code{font-family:var(--mono);font-size:11px;color:#cfe0ef}
+
+  footer{margin-top:26px;font-family:var(--mono);font-size:10.5px;color:var(--ink-faint);text-align:center;line-height:1.8}
+  .seam{margin:20px 2px 0;font-size:12px;color:var(--ink-dim);font-family:var(--mono)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <p class="kick">CWF · EAIP — runtime request lifecycle</p>
+    <h1>First query → screen <span class="sub">· module-by-module, in execution order</span></h1>
+    <div class="stamp">rev 1 · 2026-06-28<br>HEAD <b>a8bd531</b><br>code-grounded</div>
+    <p class="tagline">The complete causal path of a single turn: what each module is, what it received, what it did (generic terms),
+      and which module / interface / API it calls next — from the keystroke to the rendered answer. Colors mark the trust boundary an
+      edge crosses. This is the human-readable companion to the (parked) OTel→Langfuse trace tree: every numbered step below is a span.</p>
+    <div class="ex"><span class="lbl">worked example</span> "KB7 OEE this week"</div>
+  </header>
+
+  <div class="legend">
+    <span><i class="dot" style="background:var(--jwt)"></i> browser ↔ vercel · user JWT</span>
+    <span><i class="dot" style="background:var(--rls)"></i> browser ↔ supabase · RLS owner</span>
+    <span><i class="dot" style="background:var(--priv)"></i> vercel → supabase · service-role</span>
+    <span><i class="dot" style="background:var(--mcp)"></i> vercel → MCP backends</span>
+    <span><i class="dot" style="background:var(--llm)"></i> vercel → LLM providers</span>
+    <span><i class="dot" style="background:var(--meta)"></i> deterministic in-process</span>
+  </div>
+
+  <!-- ───────────────────────── ZONE 1 — BROWSER ───────────────────────── -->
+  <section class="zone">
+    <div class="zone-h"><span class="zbar" style="background:var(--jwt)"></span>
+      <span class="zn" style="color:var(--jwt)">Zone 1 · Browser</span>
+      <span class="zd">React SPA — the keystroke leaves the client token-free</span>
+      <span class="zt">src/…</span>
+    </div>
+    <div class="zone-body">
+
+      <div class="step"><div class="num" style="background:var(--jwt)">1</div>
+        <div class="card">
+          <div class="mod"><b>ChatShell</b> <span class="path">src/components/ui/ChatShell.tsx</span> <span class="tag">UI · interface</span></div>
+          <div class="rows">
+            <div class="rk">role</div><div class="rv">The chat surface: textarea, send button, message list, raw-tool toggle.</div>
+            <div class="rk">in</div><div class="rv">User types <code>KB7 OEE this week</code>, presses <b>Enter</b> (no Shift).</div>
+            <div class="rk">did</div><div class="rv"><code>handleKeyDown</code> → <code>handleSend()</code> trims input, guards on <code>isLoading</code>.</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> <span class="nx">cwfStore.sendMessage(text, lang)</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step"><div class="num" style="background:var(--jwt)">2</div>
+        <div class="card">
+          <div class="mod"><b>cwfStore.sendMessage</b> <span class="path">src/store/cwfStore.ts</span> <span class="tag">state · zustand</span></div>
+          <div class="rows">
+            <div class="rk">role</div><div class="rv">Turn orchestrator on the client: identity, optimistic UI, history window.</div>
+            <div class="rk">did</div><div class="rv">Ensures an <b>activeConversationId</b> (lazy <code>crypto.randomUUID()</code> — P5.6 client-mint); appends the user message + an empty <b>streaming assistant placeholder</b>; builds <code>conversationHistory</code> = last 10 non-system messages.</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> <span class="nx">cwfService.cwfApiCall(req, onChunk)</span> with a typewriter callback.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step"><div class="num" style="background:var(--jwt)">3</div>
+        <div class="card">
+          <div class="mod"><b>cwfService.cwfApiCall</b> <span class="path">src/lib/cwfService.ts</span> <span class="tag">transport · SSE</span> <span class="edge e-jwt">POST · JWT</span></div>
+          <div class="rows">
+            <div class="rk">role</div><div class="rv">The single API seam: request formatting + SSE stream consumer.</div>
+            <div class="rk">did</div><div class="rv">Reads the Supabase JWT (<code>getAccessToken</code>), <code>POST /api/cwf/chat</code> with <code>Authorization: Bearer</code> and body <code>{message, conversationHistory, language, forceProvider, conversationId}</code>. <b>No MCP tokens / server configs leave the browser.</b> Then reads the response body stream and dispatches by event type.</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> <span class="nx">api/cwf/chat.ts handler</span> (Vercel). Awaits SSE: <code>text-delta</code> / <code>tool-result-raw</code> / <code>done</code>.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <p class="seam">⇣ network boundary — HTTPS POST, user JWT only ⇣</p>
+
+  <!-- ───────────────────────── ZONE 2 — VERCEL ───────────────────────── -->
+  <section class="zone">
+    <div class="zone-h"><span class="zbar" style="background:var(--cyan)"></span>
+      <span class="zn" style="color:var(--cyan)">Zone 2 · Vercel serverless</span>
+      <span class="zd">api/cwf/chat.ts — one streaming function owns the whole turn</span>
+      <span class="zt">api/cwf/…</span>
+    </div>
+    <div class="zone-body">
+
+      <!-- 2A auth -->
+      <div class="step"><div class="num" style="background:var(--cyan)">4</div>
+        <div class="card">
+          <div class="mod"><b>handler</b> — method &amp; auth gate <span class="path">chat.ts · getAuthContext</span> <span class="tag">auth · RBAC</span> <span class="edge e-rls">verify JWT</span></div>
+          <div class="rows">
+            <div class="rk">role</div><div class="rv">Establish the trusted identity. <b>No client-supplied role is trusted.</b></div>
+            <div class="rk">did</div><div class="rv">POST-only guard; <code>getAuthContext(authorization)</code> verifies the Bearer token against Supabase Auth → <b>userId + role + per-backend scopes</b>. Missing/invalid → <code>401</code>.</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> body parse + conversation identity.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step"><div class="num" style="background:var(--cyan)">5</div>
+        <div class="card">
+          <div class="mod"><b>Identity &amp; pre-mint</b> <span class="path">chat.ts</span> <span class="tag">setup</span></div>
+          <div class="rows">
+            <div class="rk">did</div><div class="rv">Validates <code>message</code> (400 if empty); resolves <b>conversationId</b> (client value, else server <code>randomUUID()</code>); <b>pre-mints assistantMessageId</b> so the client can reconcile from the <code>done</code> event.</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> networkTime, then backend resolution.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step"><div class="num" style="background:var(--cyan)">6</div>
+        <div class="card">
+          <div class="mod"><b>getNetworkTime</b> <span class="path">_lib/networkTime.ts</span> <span class="tag">meta</span> <span class="edge e-meta">NTP "now"</span></div>
+          <div class="rows">
+            <div class="rk">role</div><div class="rv">Authoritative wall-clock — the model is forbidden to invent "now".</div>
+            <div class="rk">did</div><div class="rv">Resolves real network time → <code>epochMs</code> (basis for "this week" later).</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> server-side MCP resolution.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2B backend resolution -->
+      <div class="step"><div class="num" style="background:var(--priv)">7</div>
+        <div class="card">
+          <div class="mod"><b>loadUserMcpServers</b> <span class="path">chat.ts · McpSettingsRepository</span> <span class="tag">repo</span> <span class="edge e-priv">service-role</span></div>
+          <div class="rows">
+            <div class="rk">role</div><div class="rv">Fetch the user's MCP config — incl. the ARMES URL + bearer — server-side only.</div>
+            <div class="rk">did</div><div class="rv"><code>getByUserId(userId)</code> reads the owner-only <code>mcp_settings</code> row; keeps <code>enabled !== false</code> servers. <b>The token is resolved here and never touches the browser.</b></div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> tool discovery.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step"><div class="num" style="background:var(--mcp)">8</div>
+        <div class="card">
+          <div class="mod"><b>discoverMcpTools</b> <span class="path">chat.ts · connectMcp / listTools</span> <span class="tag">MCP · discovery</span> <span class="edge e-mcp">connect · listTools</span></div>
+          <div class="rows">
+            <div class="rk">role</div><div class="rv">Learn each backend's tool surface (ARMES ≈140 flat; Superset = gateway).</div>
+            <div class="rk">did</div><div class="rv">Per server: <code>connectMcp</code> (transport order: SSE-first if configured, else StreamableHTTP→SSE), <code>listTools()</code> under a per-call timeout; <b>warm-cached per server signature</b> (TTL) so it doesn't re-list every turn → unified tool list.</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> active-backend resolution.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step"><div class="num" style="background:var(--cyan)">9</div>
+        <div class="card">
+          <div class="mod"><b>resolveActiveBackends</b> <span class="path">_lib/backends/resolveActiveBackends.ts</span> <span class="tag">policy</span></div>
+          <div class="rows">
+            <div class="rk">role</div><div class="rv">Decide which backends this turn may actually use (identity = data, not enum).</div>
+            <div class="rk">did</div><div class="rv">Maps enabled servers → <code>backend_id</code>, intersects with RBAC scopes (<code>super_admin</code> bypass). Empty set → the byte-identical backend-agnostic core.</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> turn setup + persistence open.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2C setup + persist open -->
+      <div class="step"><div class="num" style="background:var(--cyan)">10</div>
+        <div class="card">
+          <div class="mod"><b>Turn scaffold</b> <span class="path">ResultStore · TelemetryRepository</span> <span class="tag">setup</span></div>
+          <div class="rows">
+            <div class="rk">did</div><div class="rv">Creates the per-request <b>ResultStore</b> (large-result handles), the <code>toolResultMetas[]</code> grounding ledger, and the <b>fire-and-forget</b> telemetry/persistence queues. Emits a <code>message</code> telemetry event (role/lang — <b>no PII</b>).</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> ownership guard.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step"><div class="num" style="background:var(--priv)">11</div>
+        <div class="card">
+          <div class="mod"><b>ConversationRepository</b> · open writes <span class="path">_lib/persistence/…</span> <span class="tag">repo</span> <span class="edge e-priv">service-role</span></div>
+          <div class="rows">
+            <div class="rk">role</div><div class="rv">The server is the single message-writer; ownership re-checked in code.</div>
+            <div class="rk">did</div><div class="rv"><code>assertOwned</code> (defense-in-depth vs RLS — service role is RLS-exempt). New conversation → <code>upsert</code> with a <b>deterministic truncated title (never LLM)</b>; enqueue the <b>user message</b> insert. Foreign id → stream anyway, persist nothing.</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> prompt &amp; tool assembly.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step"><div class="num" style="background:var(--meta)">12</div>
+        <div class="card">
+          <div class="mod"><b>buildTimeContext</b> <span class="path">_lib/prompt/core/time.ts</span> <span class="tag">core module</span></div>
+          <div class="rows">
+            <div class="rk">role</div><div class="rv">Single source for time/epoch rules given to the model.</div>
+            <div class="rk">did</div><div class="rv">Builds the time block from <code>networkTime</code>+<code>epochMs</code>. <b>Rides on the user message, NOT the cached system prefix</b> (it changes every ms; keeping it out preserves Anthropic prefix caching).</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> provider + tool registration.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2D tool + prompt assembly -->
+      <div class="step"><div class="num" style="background:var(--cyan)">13</div>
+        <div class="card">
+          <div class="mod"><b>scopeToolsToBackends</b> + provider split <span class="path">_lib/backends/scopeTools.ts · toolCategories.ts</span> <span class="tag">policy · filter</span></div>
+          <div class="rows">
+            <div class="rk">role</div><div class="rv">Decide exactly which tools the model SEES (and thus can call).</div>
+            <div class="rk">did</div><div class="rv">Drops tools whose backend ∉ active. Then the caching tradeoff: <b>Anthropic</b> → full set, name-sorted (byte-stable prefix → cache-read ~10%); <b>others</b> → <code>filterToolsByMessage</code> relevance filter (may call a small router LLM).</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> wrap each surviving tool as an executable.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step"><div class="num" style="background:var(--cyan)">14</div>
+        <div class="card">
+          <div class="mod"><b>Tool wrapping</b> — <code>execute</code> closures <span class="path">chat.ts · ai.tool()</span> <span class="tag">wiring</span></div>
+          <div class="rows">
+            <div class="rk">role</div><div class="rv">Give the AI SDK a callable per MCP tool; this closure is the live data path.</div>
+            <div class="rk">did</div><div class="rv">Registers the deterministic meta-tools alongside MCP tools: <code>resolve_time_range</code> (TZ-aware code), <code>aggregate_records</code> / <code>query_records</code> (operate on ResultStore). The MCP <code>execute</code> body is <b>step 21</b> (runs only when the model calls it).</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> knowledge warm + system prompt.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step"><div class="num" style="background:var(--priv)">15</div>
+        <div class="card">
+          <div class="mod"><b>dbKnowledgeProvider.warm</b> <span class="path">_lib/knowledge/DbKnowledgeProvider.ts</span> <span class="tag">knowledge</span> <span class="edge e-priv">DB read</span></div>
+          <div class="rows">
+            <div class="rk">role</div><div class="rv">Runtime single source of truth = the governed DB (warm→read).</div>
+            <div class="rk">did</div><div class="rv">Async-reads published rule_kinds/domain_rules for the active backends into cache <b>before</b> the sync assembler. <b>On DB-down/empty → transparent code-floor</b> so blind-spot rules never vanish (empty≠zero survives a Supabase outage).</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> buildSystemPrompt.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step"><div class="num" style="background:var(--cyan)">16</div>
+        <div class="card">
+          <div class="mod"><b>buildSystemPrompt</b> <span class="path">_lib/prompt/assemble.ts</span> <span class="tag">assembler</span></div>
+          <div class="rows">
+            <div class="rk">role</div><div class="rv">Backend-aware prompt composition (the reuse contract).</div>
+            <div class="rk">did</div><div class="rv">Composes <b>core modules</b> (identity · safety · time · toolProtocol · grounding · outputFormat) + per-backend <b>domain packs</b> (persona + knowledge, incl. canonical OEE tool + IKINCILUST blind-spot) for <code>activeBackends</code> → one system string.</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> trust warm.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step"><div class="num" style="background:var(--cyan)">17</div>
+        <div class="card">
+          <div class="mod"><b>trustRegistry.warm</b> <span class="path">_lib/backends/trustRegistry.ts</span> <span class="tag">trust</span></div>
+          <div class="rows">
+            <div class="rk">role</div><div class="rv">Resolve each backend's authority ceiling for the post-stream check.</div>
+            <div class="rk">did</div><div class="rv">Warms governed authority (code reference on outage); builds <code>backendAuthority</code> = authoritativeMetrics per backend (ARMES = system-of-record for OEE; Superset = reporting-mirror, []). <b>Feeds step 23 only — does NOT touch the prompt or stream.</b></div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> assemble messages, open SSE.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2E stream -->
+      <div class="step"><div class="num" style="background:var(--llm)">18</div>
+        <div class="card">
+          <div class="mod"><b>streamChat → streamText</b> <span class="path">_lib/llm/gateway.ts</span> <span class="tag">LLM gateway</span> <span class="edge e-llm">provider call</span></div>
+          <div class="rows">
+            <div class="rk">role</div><div class="rv">The one and only LLM call site (Vercel AI SDK; all providers, no per-provider path).</div>
+            <div class="rk">in</div><div class="rv"><code>system</code> + <code>messages</code> (history + timeBlock+query) + wrapped <code>tools</code>; provider = forced or default (Gemini).</div>
+            <div class="rk">did</div><div class="rv">Opens SSE headers, then <code>streamText</code> with <code>stepCountIs(MAX_TOOL_ROUNDS)</code> — a <b>multi-step tool loop</b>. <code>onFinish</code> emits an <code>llm_call</code> telemetry event (tokens/latency/cost — <b>no content</b>).</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> the model reasons and may emit tool calls (step 19/21).</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step"><div class="num" style="background:var(--meta)">19</div>
+        <div class="card">
+          <div class="mod"><b>resolve_time_range</b> (model-invoked) <span class="path">_lib/timeTools.ts</span> <span class="tag">meta-tool · deterministic</span> <span class="edge e-meta">in-process</span></div>
+          <div class="rows">
+            <div class="rk">in</div><div class="rv">Model calls it with <code>{ "this week" }</code>.</div>
+            <div class="rk">did</div><div class="rv">Real TZ-aware code → <code>{startMs, endMs, …, interpretation:"Bu hafta (Pazartesi → şimdi)"}</code>; streams it as <code>tool-result-raw</code>. <b>No epoch math is left to the model.</b></div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> model now calls an MCP data tool (step 21).</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step"><div class="num" style="background:var(--mcp)">20</div>
+        <div class="card">
+          <div class="mod"><b>getFactoryLines → getOeeValuesForZones</b> (model-invoked) <span class="path">via tool <code>execute</code></span> <span class="tag">MCP · data</span></div>
+          <div class="rows">
+            <div class="rk">role</div><div class="rv">The actual ARMES data fetch for KB7 zones, per the domain pack's tool graph.</div>
+            <div class="rk">did</div><div class="rv">Model resolves KB7 → zone ids via <code>getFactoryLines</code>, then per-zone hourly OEE via <code>getOeeValuesForZones</code> for the window from step 19. Each call enters the wrapped <code>execute</code> (step 21).</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> executeMCPTool transport.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step"><div class="num" style="background:var(--mcp)">21</div>
+        <div class="card">
+          <div class="mod"><b>executeMCPTool</b> + format <span class="path">chat.ts · toolResult.ts · resultStore.ts · grounding</span> <span class="tag">MCP · transport</span> <span class="edge e-mcp">callTool</span></div>
+          <div class="rows">
+            <div class="rk">role</div><div class="rv">The single tool round-trip: call → stream raw → format → ledger.</div>
+            <div class="rk">did</div><div class="rv">Connects + <code>callTool</code> (retry on transient transport errors, per-call timeout). Then: emit <code>tool_call</code> telemetry (name/latency/ok — <b>no args/result</b>); <code>learnToolMapping</code> (router self-learning); <b>stream the capped raw result to the client</b> as <code>tool-result-raw</code> (instant, zero output tokens) + buffer for persistence; <code>formatToolResult</code> (whole records, true count, ResultStore handle if huge); <code>parseToolResultMeta</code> stamps <b>B1 envelope provenance from the resolved server config (unforgeable)</b> → <code>toolResultMetas[]</code>; returns the formatted result to the model.</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> back into the loop (step 18); more steps or final text.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step"><div class="num" style="background:var(--llm)">22</div>
+        <div class="card">
+          <div class="mod"><b>textStream loop</b> <span class="path">chat.ts</span> <span class="tag">stream</span> <span class="edge e-jwt">SSE text-delta</span></div>
+          <div class="rows">
+            <div class="rk">did</div><div class="rv">When the model finally writes prose, each chunk → <code>fullText += chunk</code> and <code>res.write(text-delta)</code>. A 15s heartbeat keeps the socket alive across silent tool gaps.</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> post-stream validation.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="note trap"><h4>⚠ trap — the blank-bubble path (the test's "No response generated")</h4>
+        <p>If the model emits tool calls and then <b>zero text deltas</b>, <code>fullText === ''</code>. chat.ts has <b>no deterministic fallback</b> for that, so the client renders the literal string from <code>cwfService</code> (<code>fullText || metadata.text || 'No response generated.'</code>). This is a <b>UI render</b>, not a backend message — and it is exactly the parked <b>Phase F</b> item: a guaranteed final message.</p></div>
+
+      <!-- 2F post-stream -->
+      <div class="step"><div class="num" style="background:var(--cyan)">23</div>
+        <div class="card">
+          <div class="mod"><b>runGroundingCheck</b> <span class="path">_lib/grounding/groundingCheck.ts</span> <span class="tag">grounding · advisory</span></div>
+          <div class="rows">
+            <div class="rk">role</div><div class="rv">Mode-A deterministic check on the COMPLETE answer — never an LLM judge/score.</div>
+            <div class="rk">did</div><div class="rv">Runs on <code>fullText</code> + <code>toolResultMetas</code> + <code>backendAuthority</code> <b>without re-running tools</b>: empty≠zero / count-integrity / scope-divergence. It does not buffer or rewrite — first paint already happened. Violation → emit an <code>error</code> telemetry event (kinds/count only).</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> scope-divergence append.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step"><div class="num" style="background:var(--cyan)">24</div>
+        <div class="card">
+          <div class="mod"><b>scopeDivergenceNotice</b> (Phase C) <span class="path">chat.ts · grounding</span> <span class="tag">correction</span> <span class="edge e-jwt">SSE text-delta</span></div>
+          <div class="rows">
+            <div class="rk">did</div><div class="rv">On a <code>scope_divergence</code> verdict, deterministically <b>appends</b> a correction after the streamed text (<code>finalText = fullText + notice</code>) and streams it. It corrects the record; it can't un-paint what already streamed (that residual is the prompt-guards' + redundancy's job).</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> persist assistant message + done.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step"><div class="num" style="background:var(--priv)">25</div>
+        <div class="card">
+          <div class="mod"><b>MessageRepository.insert</b> <span class="path">_lib/persistence/…</span> <span class="tag">repo</span> <span class="edge e-priv">service-role</span></div>
+          <div class="rows">
+            <div class="rk">did</div><div class="rv">Enqueues the <b>assistant message</b> (<code>finalText</code>, toolCallCount, capped raw tool results, error flag) under the pre-minted id. Best-effort; a null service client is a silent no-op (the degradation contract).</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> done event.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step"><div class="num" style="background:var(--jwt)">26</div>
+        <div class="card">
+          <div class="mod"><b>done event</b> <span class="path">chat.ts</span> <span class="tag">terminal</span> <span class="edge e-jwt">SSE done</span></div>
+          <div class="rows">
+            <div class="rk">did</div><div class="rv">Writes the terminal <code>done</code> SSE: <code>{text:finalText, toolCallCount, model, grounding, conversationId, messageId}</code> — lets the client adopt ids and reconcile. (Mid-stream error → a terminal note + <code>done(error:true)</code> instead, so the socket never dangles.)</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> flush + end.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step"><div class="num" style="background:var(--priv)">27</div>
+        <div class="card">
+          <div class="mod"><b>finally — flush</b> <span class="path">chat.ts · Promise.allSettled</span> <span class="tag">serverless</span> <span class="edge e-priv">telemetry + persistence</span></div>
+          <div class="rows">
+            <div class="rk">role</div><div class="rv">Land all fire-and-forget writes before the function freezes.</div>
+            <div class="rk">did</div><div class="rv">Clears the heartbeat; <code>Promise.allSettled([...telemetryWrites, ...persistenceWrites])</code> (never rejects; every repo method non-throwing) → <code>res.end()</code>.</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> stream closes; control returns to the browser.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="note fact"><h4>◆ this finally-flush is exactly where the parked tracing layer hooks</h4>
+        <p>The OTel→Langfuse trace must <b>force-flush spans here too</b> — serverless can't rely on a background batch exporter. Every numbered step above maps to a span; the LLM/tool sub-tree (steps 18–21) comes near-free from AI SDK <code>experimental_telemetry</code>; steps 7/8/15/21/25 need manual spans. <code>telemetry_events</code> (the emits above) stays the separate RBAC-safe business ledger — not the debug trace.</p></div>
+
+    </div>
+  </section>
+
+  <p class="seam">⇡ SSE stream (text-delta · tool-result-raw · done) ⇡</p>
+
+  <!-- ───────────────────────── ZONE 3 — RENDER ───────────────────────── -->
+  <section class="zone">
+    <div class="zone-h"><span class="zbar" style="background:var(--rls)"></span>
+      <span class="zn" style="color:var(--rls)">Zone 3 · Browser render</span>
+      <span class="zd">the stream becomes the answer on screen</span>
+      <span class="zt">src/…</span>
+    </div>
+    <div class="zone-body">
+
+      <div class="step"><div class="num" style="background:var(--rls)">28</div>
+        <div class="card">
+          <div class="mod"><b>onChunk → placeholder</b> <span class="path">cwfService ↔ cwfStore</span> <span class="tag">typewriter</span></div>
+          <div class="rows">
+            <div class="rk">did</div><div class="rv">As each <code>text-delta</code> arrives, <code>cwfApiCall</code> fires <code>onChunk</code> → the store appends to the <b>streaming placeholder</b> (live typewriter). <code>tool-result-raw</code> events accumulate into <code>rawToolResults[]</code>.</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> on <code>done</code>: finalize.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step"><div class="num" style="background:var(--rls)">29</div>
+        <div class="card">
+          <div class="mod"><b>finalize + reconcile</b> <span class="path">cwfStore.sendMessage</span> <span class="tag">state</span> <span class="edge e-rls">refresh · RLS</span></div>
+          <div class="rows">
+            <div class="rk">did</div><div class="rv">Client guard: empty response → <code>CWF_FALLBACK_RESPONSE</code>. Replaces the placeholder with the final message (content, toolCallCount, rawToolResults, <code>isStreaming:false</code>); adopts a server-minted conversationId if any; <code>refreshConversations()</code> (RLS owner-scoped read).</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">→</span> ChatShell re-renders the bubble.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step"><div class="num" style="background:var(--rls)">30</div>
+        <div class="card">
+          <div class="mod"><b>MessageChartContent + RawToolResults</b> <span class="path">src/components/ui/cwf/… · chatParser.ts</span> <span class="tag">UI · render</span></div>
+          <div class="rows">
+            <div class="rk">role</div><div class="rv">Turn the final text + raw results into the on-screen answer.</div>
+            <div class="rk">did</div><div class="rv"><code>MessageChartContent</code> runs the answer through <code>chatParser</code> (chart / table / table-from-tool macros) and markdown; <code>RawToolResults</code> renders the collapsible "Ham tool çıktısı" blocks from <code>rawToolResults</code>. <b>Tables-from-tool render directly from the raw payload</b> — bypassing lossy LLM regeneration.</div>
+            <div class="rk">next</div><div class="rv"><span class="arrow">✓</span> <span class="nx">user sees the KB7 OEE answer — per-zone values, Glazur1 "veri dönmedi" (≠0), IKINCILUST blind-spot honored.</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer>
+    CWF · EAIP — request lifecycle · rev 1 · 2026-06-28 · grounded against HEAD a8bd531 · api/cwf/chat.ts + src/ request path<br>
+    companion to: cwf-runtime-topology-v2 (static topology) · cwf-architecture-map-v6 (layered map) — this is the sequential per-turn view
+  </footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,223 @@
+# CWF — Open Items Register · v62
+<!-- cwf-open-items-register-v62 · 2026-07-23 · amends v61 after S61
+     ("THE DEBT DAY"). GOLDEN LEDGER: append-only; items leave ONLY via a
+     terminal marker; carry-diff pasted in §0; open items carried BY NAME with
+     a pointer to v61 for last full wording; prose may shorten, no item
+     omitted. NOTE: minted with PHASE LOG-TRUTH-1 IN FLIGHT (fresh AG). -->
+
+## VERIFIED FLOOR (v62 / S61 close)
+master `f551bc068a10714b7d43e35e614cd32f9e060a48` · rev 141 · 350 test files
+(~3711 tests, CI-arbitrated) · 56 migrations · **ZERO pending migrations** ·
+drift `[OK]`.
+**S61 lineage (all three two-parent `--no-ff`, Architect-verified):**
+`a8ecd6d`(S60) → `ebdc020`(TOOL-DOC-1 v1+FIX-1, PR#105, rev 138) →
+`aeda744`(S61-CLEAN-1, PR#106, rev 139) → `f551bc0`(S61-CLEAN-2 v1_2, PR#107,
+rev 141). Zero Operator migrations this session. All three merge messages
+landed as authored (S60's `--subject/--body` lesson held every time).
+
+## 0 · CARRY-DIFF PROOF — v61 → v62
+**S61 terminal markers (items leaving OPEN):**
+- **F163 → CLOSED@ebdc020+live** — the fourth tool-information source. Governed
+  `<backend>.tool_doc` kind minted GENERICALLY over `BACKEND_IDS`
+  (`buildToolDocKindDefs` — a future backend mints its overlay kind with zero
+  code), effective description = server text + addendum (`append` delimits,
+  `replace` discards), two-layer anti-bloat (Zod ≤400 row ceiling + independent
+  120-char capability-index truncation), additive `stageReferentialToolDoc`
+  rejecting orphans on EVERY backend, `Sentezle` one-shot draft assist
+  (semanticRouter precedent, never a second `streamText` site, never gates the
+  owner). Zero migrations — self-provisions via a NEW generic
+  `SeedDomain.kindsOnly`. **LIVE-SEALED:** `[Seed] kind-provisioned
+  kind=armes.tool_doc` + trace `464665f1` `[ToolDoc] backend=armes composed=1
+  mode=append` with a full completion (`Token Usage`/`LLMFinish`/`Params`).
+  First overlay published: `armes.tool_doc` key `getLineStopsReport`, rule
+  `f720918f`, gate verdict `published`.
+- **TOOL-DOC-1 FIX-1 → CLOSED@ebdc020** — Architect FAST-GATE caught a blocking
+  latent defect BEFORE merge: the catalog-assembly trigger was DRAFT-scoped
+  while `runGate`'s candidate is the WHOLE published backend set, so the first
+  `superset.tool_doc` row would have locked the entire Superset governance lane
+  ("tool_doc: catalog not synced", accusing the wrong kind). Moved to
+  candidate scope; armes byte-unchanged; service-level red→green.
+- **F170 → CLOSED@aeda744** — false HIGH clarification on a ZONE/LINE
+  entity_ref carrying a Turkish noun. `normalizeZoneEntitySurface` (own
+  `ZONE_LINE_SUFFIX_WORDS`, FACTORY path byte-unchanged) peels the noun off the
+  INPUT SURFACE before ONE more EXACT governed lookup. Polarity law intact —
+  `Glazur4 hattı` still clarifies honestly. Live: trace `cfb412f5`
+  (`[EntityResolve] alias refs=…`) ran the new path and did NOT over-fire.
+- **F171 → CLOSED@aeda744 (freeze-safe half)** — deterministic short-circuit
+  messages now render bilingually `TR · EN`, identical regardless of the
+  `ctx.language` interface toggle, reusing the grounding-note chip's separator.
+  **The other half is a NAMED DEFERRAL, not a close** (see §5 F171-B).
+- **F167 → CLOSED@f551bc0** — a governed kind minted in `KIND_REGISTRY` was
+  invisible until an unrelated chat turn ran first (`runSelfSeed()` fired only
+  from `DbKnowledgeProvider.warm()`). Admin kind GET now calls the same
+  reconciler, same fail-open shape, before reading; `getKinds()` gained a
+  deterministic `(backend_id, kind_id)` order.
+- **F168 → CLOSED@f551bc0 (at the ROOT, not labelled)** —
+  `ToolGraphNodeSchema.description` was REQUIRED while nothing ever showed it
+  to the agent (`composeArmes` reads only the entry node's `tool`; every other
+  consumer uses the ROWS, never the content). Owner REJECTED v1's
+  label-and-defer compromise → `.min(1).optional()` + field-spec mirror
+  lock-step + a new pure `reconcileCoreFieldSpecs` serving a CORE kind's
+  `field_spec`/`code_schema_ref` from `KIND_REGISTRY` at read time (SOFT
+  DB-sourced, retired-CORE falls back — the ABSENCE-ONLY LAW was NOT amended).
+  **Class closed, not instance:** an invariant test walks EVERY CORE kind
+  asserting mirror-vs-Zod optionality agreement, with a deliberate-mismatch
+  companion proving the checker can fail.
+- **v1's F168 named deferral → CLOSED-BY-G2**, not carried.
+**Carry-diff check:** every v61 item is present below OR carries a terminal
+marker above. "Absent without marker" set = **EMPTY** ✓. F-BW11/12/13 carried
+OPEN (§4). §2 freeze, §3 spine, §6 rules, §7 parked/watch carried by name.
+
+## 1 · v5_2 RELEASE TRACK — position
+GATE-0 ✓ → B1 ✓ → B2 ✓ → **F163 ✓ CLOSED** → **debt sweep (S61-CLEAN-1/-2) ✓**
+→ **LOG-TRUTH-1 IN FLIGHT (fresh AG)** → F169 fix round → **B3 Memory
+(MEMORY-1, F166-aware design note FIRST)** → F166 → B4 → B5 → B6 → B7 → Path B.
+**IN FLIGHT: PHASE LOG-TRUTH-1 v1** (anchor `f551bc0`, fresh AG instance).
+G0 = F169 instrumentation ONLY then STOP; **G1 deliberately empty, reserved for
+F169's evidence-authored fix**; G2 = F173 boundary guard. Zero migrations.
+
+## 2 · 🧊 GOLDEN FREEZE (engaged, unchanged) — pointer v61 §2 / v59_7 §2.
+Lifts at B5. Golden-runner 1075/18h watch unchanged.
+
+## 3 · REMAINING SPINE — B3/B4/B5/B6/B7/Path-B carried by name (pointer v61 §3
+/ v59_7 §3). B5 security-cleanup (mcp_settings 6/6 raw→apiKeyRef + ksadmin
+stale personal rows) unchanged — **note F173 lands adjacent to that table.**
+
+## 4 · BOARD-WALK — F-BW01-10 CLOSED · **F-BW11/12/13 OPEN** (pointer v61 §4;
+re-home to B5 or an early-B3 batch). Owner's "ASLA unutma" stands.
+
+## 5 · FINDINGS
+**OPEN (new this session):**
+- **F169 · OPEN — INSTRUMENTED NOT FIXED, first patch FAILED in production.**
+  `golden-runner` cron: `[Obs] flush failed … 5000 ms` every quiet minute.
+  S61-CLEAN-1 stopped the response BLOCKING on the flush; the symptom is
+  unchanged. Uncontaminated post-incident re-measure (06:57–07:05 UTC, SHA
+  `aeda744`): **7 of 9 no-op ticks still fail, 2 clean** — the same ~20 % clean
+  rate as the earlier, contaminated sample, so the 12-min Supabase outage was
+  NOT the cause. AG's "no wall-clock cushion" mechanism explains the ASYMMETRY
+  vs chat turns but **not the 5000 ms MAGNITUDE**. Stable ~20 % clean = a
+  structural signal. Leading hypothesis TO BE FALSIFIED: cold-container
+  connection/TLS setup to the self-hosted Langfuse host. Next: LOG-TRUTH-1 G0
+  measures (which processor · duration · settled-late vs never · cold/warm ·
+  pending span count), Architect reads production, fix authored on data.
+  **Binding: no second guessed patch, and `OTEL_FLUSH_TIMEOUT_MS` must not be
+  widened.**
+- **F172 · OPEN (low)** — the first published tool_doc overlay is TAUTOLOGICAL
+  ("Hat duraklarının listesini döndürür."), i.e. it restates the server
+  description. Mechanical proof of the pipeline: complete. Knowledge
+  contribution: zero. The overlay carries real value only once it states what
+  the SERVER does not know. Candidate content named from live logs:
+  `reasonSource` (`GLAZUR`/`PACKAGING`/`POLISHING`) semantics · `stopType`
+  null = unplanned vs not-entered · whether `KB7_StopAlternative`
+  ("Alternatif Hat Kullanımı") is a real stop or an accounting record.
+  Owner-owned; a v2 publish closes it.
+- **F173 · OPEN — fix in LOG-TRUTH-1 G2.** `22P02 invalid input syntax for
+  type uuid: "preview"`. `src/dev/AdminPreview.tsx` seeds `useAuthStore` with
+  `userId:'preview'`; `mcpStore.loadFromSupabase()` issues
+  `.eq('user_id','preview')` against `public.mcp_settings.user_id` (uuid) as
+  role `anon`/`authenticated`. Operator-confirmed: **591 executions** of this
+  template since DB reset, first seen ~2026-07-09 (commit `12f7917`). No leak
+  (cast fails pre-row), no corruption — but a dev harness reaching the LIVE
+  data plane, on the very table B5's raw→apiKeyRef sweep targets, and error
+  noise that masked signal (separating it from the benign `seed_state`
+  claim-race cost a full diagnostic round). Fix = boundary guard (a non-uuid
+  identity never becomes a `user_id` filter, born loud) + harness uses the
+  seam-mock. Live confirmation is an ARCHITECT Operator-read post-deploy.
+- **F171-B · NAMED DEFERRAL (B5, behind the freeze)** — unifying the two
+  language policies. Deterministic messages follow `ctx.language` (the
+  interface toggle); the model's prose follows the user's message language
+  because `api/cwf/_lib/prompt/**` contains NO language instruction at all
+  (grep-verified empty). Making the model honor one policy needs a
+  `prompt.segment` publish → GOLDEN FREEZE. Do not drop.
+**CARRIED OPEN from v61 (full wording v61 §5):** F153 (external ops PARK; CWF
+side G3-suppressed) · F158 (render 0 ≠ empty table cell) · F160 (multi-series
+single chart, VIZ-BIND lane) · F164 (Superset search robustness, OPEN-LATENT) ·
+F165 (unbounded-list tool budget + i18n, B5) · F166 (cross-turn viz binding —
+AFTER B3 per owner-ratified sequence; memory must NEVER be a viz data source) ·
+blind_spot row option (MOOT under the coverage-is-config law — do NOT add).
+
+## 6 · RULES / RECORDS — all prior survive by name (pointer v61 §6 + KB).
+**NEW THIS SESSION:**
+- **S61-1 (Architect + AG lesson, standing):** `git stash` inside the SAME
+  working sandbox is **NOT** a clean checkout. `computeTabHash`'s
+  `mode:'worktree'` reads file CONTENT off disk, and stash reverts only TRACKED
+  changes — node_modules, build caches and untracked files survive, so a stash
+  can manufacture a FALSE "pre-existing drift". **A fresh `git clone` to the
+  target SHA is the only trustworthy clean-checkout test.** Born from AG's
+  false pre-existing-drift claim (corrected in-place pre-merge, all three
+  artifacts); reinforced the same day by a `git stash` without `-u` producing a
+  false "7 failures" baseline (untracked new test files survived the revert).
+- **S61-2 (owner-legislated, standing) — NO DEBT LEFT BEHIND:** *"bunları
+  temizlemeden hiçbir yere gitmiyoruz; arkada çöp bırakarak ilerlemek yok."*
+  Findings surfaced while VERIFYING a phase are cleaned before the next BLOCK
+  opens, and **a warning label on a broken thing is not a fix** — the owner
+  explicitly rejected "label the dead field + defer the requirement" and forced
+  the root removal (F168 G2). Deferral remains legitimate ONLY when named and
+  recorded (F171-B, F166); a cosmetic workaround never counts as a close.
+- **S61-3 (delivery, standing):** a cross-lane relay payload can arrive
+  **silently TRUNCATED**. AG correctly refused to merge on a cut-off
+  `--body` rather than improvising the rest. Every merge instruction now ends
+  with a TAIL ANCHOR ("the last line must read …") so the executor can verify
+  completeness itself; on mismatch it reports instead of merging. Sibling of
+  S60's empty-`--subject/--body` lesson.
+- **Reaffirmed in practice:** S37-1 (v1 immutable → v1_2 minted mid-flight for
+  the F168 root fix) · S55-2 (mid-flight version → fold as one in-branch
+  commit, never restart the AG) · S55-1 (AG investigated the rule26 CI failure
+  instead of blind-retrying — it was the documented pane-scroll flake class,
+  not its own test) · S37-2 (CI re-verified on the NEW head after a docs
+  amendment moved it).
+**ARCHITECT PREMISE-ERROR TALLY (arc S59→S61 = 12; every one caught before it
+shipped into a governed artifact):** (1) catCount=12 · (2) TOTAL-45 · (3)
+"Granit=KB7's line" · (4) "Superset=Granit-only VERIFIED" · (5-8) design v1's
+four mechanism claims (kind derivation / "zero new reads" / "one small
+completion" / the unnamed gate-catalog gap), all caught by the Architect's own
+pre-authoring sweep · (9) the TOOL-DOC-1 phase-prompt wording that created the
+draft-scope catalog asymmetry, caught by the Architect's own FAST-GATE · (10)
+"panel-first gives a raw FK error" (the kind is simply INVISIBLE) · (11)
+`frame.object!=='FACTORY'` as F170's cause (AG-corrected: `object` names the
+query's SUBJECT DOMAIN, not the entity_ref's kind) · (12) "F169's log line will
+disappear" (the `void`-ed promise still logs; falsified by live re-measurement).
+**Discipline note:** #9 and #12 were caught by the Architect's own verification
+of the Architect's own work — the loop is closing on itself, which is the
+intended end-state.
+
+## 7 · WATCHES / PARKED
+- **PANE-SCROLL Replay CI-flake — RECURRED AGAIN** (S61-CLEAN-2's first rule26
+  run, `e2e/pane-scroll-admin.spec.ts` "Replay pane" timeout). AG diagnosed
+  rather than blind-retried (correct), but the recurrence count keeps rising.
+  v61's ruling stands: **do not band-aid forever** — permanent fix =
+  PANE-SCROLL-2 / CI-worker root cause.
+- **Supabase availability incident 2026-07-23 06:44–06:56 UTC** (Cloudflare
+  522; Operator-confirmed ZERO PostgREST logs for 12 minutes). **ARCHITECTURE
+  VINDICATED:** the app degraded honestly — `[fetchSystemParamRows] fetch
+  failed — code floor will serve`, no fabrication, no silent green. The
+  DB-first/code-floor law proved itself under a real outage. Watch for
+  recurrence; CWF-external.
+- **`seed_state` 23505 duplicate-key errors = BENIGN BY DESIGN** — the ROW
+  ITSELF is the concurrency claim (`SeedStateRepository` header); a loser of
+  the race hits 23505 and gets `false`. **Expect these to INCREASE now that
+  F167 wires `runSelfSeed()` into the panel read path.** Not a defect; recorded
+  so a future reader does not re-diagnose it.
+- **docVersion 139→141 (+2)** benign jump (two reseals across v1 → v1_2);
+  monotonic, drift gate keys on content hashes. Sibling of v57's 125→126 note.
+- Carried from v61 by name: JWT ES256 transient · GatewayEnum full double-sweep
+  per health tick (freshness-gate polish candidate) · enumeration swallowed
+  errors ×2 (`get_instance_info`, `search_tools(metadata)`) · NTP transient ·
+  keyword layer learning stopword-ish tokens (traffic-window locked) ·
+  stale-branch sweep still owed (obs-trace-2b · flake-sweep-1 · pane-scroll-1/2
+  · hotfix/f152); `tool-doc-1`, `s61-clean-1`, `s61-clean-2` deleted at merge ✓.
+
+## 8 · YOUR ACTION ITEMS (owner, at v62 write / S61 close)
+- Add to the project: this register `v62`, `CWF-SESSION-GRAPH-KB-v60`,
+  `CWF-BOOTSTRAP-AND-NEW-SESSION-PROMPT-v60`, plus today's phase/design files
+  (`cwf-tool-doc-overlay-design-v2` · `claude-code-PHASE-TOOL-DOC-1-v1` ·
+  `claude-code-PHASE-S61-CLEAN-1-v1` · `claude-code-PHASE-S61-CLEAN-2-v1` and
+  `-v1_2` · `claude-code-PHASE-LOG-TRUTH-1-v1`).
+- To start S62: paste bootstrap `v60` into a fresh session — it boots
+  MID-FLIGHT at LOG-TRUTH-1 (a fresh AG holds it; paste its report there).
+- **Optional, owner-owned judgment (F172):** publish a v2 `getLineStopsReport`
+  overlay carrying real operating knowledge (see §5 F172 for the three
+  candidate questions the live logs raised).
+- Relay stays the only owner surface.
+
+<!-- END · cwf-open-items-register-v62 · 2026-07-23 -->
