@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CWF/EAIP · Anlama Katmanı — Hedef Mimari · v1_2</title>
+<!-- cwf-understanding-layer-architecture-v1_2 · rev 1.2 · 2026-07-25 · Architect-authored.
+     Anchor: origin/master 194f6a8 (rev 142).
+     SUPERSEDES v1 (S37-1: v1 immutable kalır; bu belge yeni versiyondur).
+     AMENDMENT vs v1 — S63/S64 "sesli düşünme" turlarının altı düğümü işlendi:
+       D-N1 bağlamsallık   → kenar ölçümü, üçlü kanıt, 8-satırlık oda kartı
+       D-N2 attention      → turn_context akışı (append-only), güven taşınır,
+                             ağırlık=katkı, güven-çürümesi, seyreklik kısıtı
+       D-N3 karar mercii   → ⑤ teşhis / ⑥ yürütme kararı / ⑦ cevaplama ayrımı
+       D-N4 kök            → ayrımlayıcı vs kapsam kökleri, action×doluluk
+       D-N5 örtük kapsam   → sinyal tablosu (yönetilen satır), çıkarım atıflanır
+       D-N6 kapsam sorusu  → güven kapısı: açık yok ∧ güçlü sinyal yok → SOR
+     + ③ iki kanallı (DL + BM25, RRF füzyon) — v1'de skor kaynağı tanımsızdı
+     + ② desenleri yönetilen satır (D3) · + kapsama-grafı ARAYÜZ odası (D4+)
+     + AŞAMA C: OWNER-APPROVED 2026-07-25, iki bağıyla (deterministik atıf +
+       tek-turda düzeltilebilirlik). Artık açık karar DEĞİL.
+     STATUS: TARGET-STATE DESIGN. Build order §9. Kod, ölçüm kapısına bağlı
+     (S62-2). Versioning rule: amendments mint v1_3 — never in-place. -->
+<style>
+  :root{
+    --ink:#1C2422; --paper:#F5F6F3; --card:#FFFFFF; --line:#2A3330;
+    --mut:#5C6662; --t:#2A3330;
+    --pu:#6D4FC4; --pu-f:#EFEAFB;
+    --te:#0E6B54; --te-f:#E3F1EB;
+    --gr:#667080; --gr-f:#ECEFF1;
+    --am:#A8620A; --am-f:#FBF3E4;
+    --rd:#B3261E; --rd-f:#FBEAE8;
+    --bl:#1D5FA8; --bl-f:#E6EFF9;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--paper);color:var(--ink);
+    font-family:"Avenir Next","Segoe UI",system-ui,sans-serif;
+    font-size:15px;line-height:1.55;padding:0 0 64px}
+  header{border-bottom:2px solid var(--line);background:var(--card);padding:26px 34px 20px}
+  header .docid{font-family:ui-monospace,monospace;font-size:12px;color:var(--mut);letter-spacing:.04em}
+  header h1{font-size:25px;font-weight:600;margin:6px 0 4px}
+  header p.sub{color:var(--mut);max-width:920px}
+  .status{display:inline-block;margin-top:10px;background:var(--te-f);border:1px solid var(--te);
+    color:#0A5240;border-radius:6px;padding:4px 12px;font-family:ui-monospace,monospace;font-size:12px}
+  main{max-width:1120px;margin:0 auto;padding:0 24px}
+  section{margin-top:40px}
+  h2{font-size:19px;font-weight:600;border-left:4px solid var(--line);padding-left:12px;margin-bottom:14px}
+  h2 .sn{font-family:ui-monospace,monospace;font-size:12px;color:var(--mut);margin-right:8px}
+  h3.sub{font-size:15.5px;font-weight:600;margin:18px 0 8px}
+  p{margin:10px 0}
+  .note{background:var(--card);border:1px solid #D8DDD9;border-radius:8px;padding:14px 18px;margin:12px 0}
+  .note.am{background:var(--am-f);border-color:var(--am)}
+  .note.te{background:var(--te-f);border-color:var(--te)}
+  .note.rd{background:var(--rd-f);border-color:var(--rd)}
+  .note.bl{background:var(--bl-f);border-color:var(--bl)}
+  .diagwrap{background:var(--card);border:1px solid #D8DDD9;border-radius:10px;padding:18px 10px;overflow-x:auto}
+  .diagwrap svg{display:block;width:100%;min-width:980px;height:auto}
+  svg text{fill:var(--ink)}
+  svg .th{font:600 13px "Avenir Next","Segoe UI",sans-serif}
+  svg .ts{font:11.5px "Avenir Next","Segoe UI",sans-serif}
+  svg .tm{font:600 11px ui-monospace,monospace;fill:#5C6662}
+  svg .arr{stroke:var(--t);stroke-width:1.1;fill:none}
+  svg .arrd{stroke:var(--te);stroke-width:1.2;fill:none;stroke-dasharray:5 4}
+  svg .arrb{stroke:var(--bl);stroke-width:1.2;fill:none;stroke-dasharray:5 4}
+  svg .c-gray rect{fill:var(--gr-f);stroke:var(--gr)}
+  svg .c-purple rect{fill:var(--pu-f);stroke:var(--pu)}
+  svg .c-teal rect{fill:var(--te-f);stroke:var(--te)}
+  svg .c-amber rect{fill:var(--am-f);stroke:var(--am)}
+  svg .c-red rect{fill:var(--rd-f);stroke:var(--rd)}
+  svg .c-blue rect{fill:var(--bl-f);stroke:var(--bl)}
+  .legend{font-size:13px;color:var(--mut);margin-top:10px;line-height:1.7}
+  .card{background:var(--card);border:1px solid #D8DDD9;border-radius:10px;margin:16px 0;overflow:hidden}
+  .card .head{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid #E4E8E5;flex-wrap:wrap}
+  .card .num{font-family:ui-monospace,monospace;font-weight:700;font-size:14px;
+    min-width:42px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+    border:2px solid var(--line);padding:0 6px}
+  .card h3{font-size:16px;font-weight:600;flex:1;min-width:220px}
+  .tag{font-family:ui-monospace,monospace;font-size:11px;border-radius:5px;padding:3px 8px;white-space:nowrap}
+  .tag.pu{background:var(--pu-f);color:var(--pu);border:1px solid var(--pu)}
+  .tag.te{background:var(--te-f);color:var(--te);border:1px solid var(--te)}
+  .tag.gr{background:var(--gr-f);color:#3E4650;border:1px solid var(--gr)}
+  .tag.bl{background:var(--bl-f);color:var(--bl);border:1px solid var(--bl)}
+  .tag.am{background:var(--am-f);color:#7A4A08;border:1px solid var(--am)}
+  .tag.rd{background:var(--rd-f);color:var(--rd);border:1px solid var(--rd)}
+  .card.pu{border-left:5px solid var(--pu)}
+  .card.te{border-left:5px solid var(--te)}
+  .card.gr{border-left:5px solid var(--gr)}
+  .card.am{border-left:5px solid var(--am)}
+  .card.bl{border-left:5px solid var(--bl)}
+  .card.rd{border-left:5px solid var(--rd)}
+  .rows{padding:6px 18px 12px}
+  .row{display:grid;grid-template-columns:150px 1fr;gap:10px;padding:7px 0;border-bottom:1px dashed #E4E8E5}
+  .row:last-child{border-bottom:none}
+  .row .k{font-family:ui-monospace,monospace;font-size:11.5px;color:var(--mut);letter-spacing:.03em;padding-top:2px}
+  .row .v{font-size:14px}
+  .tweak{background:#F4F6F3;border-top:1px solid #E4E8E5;padding:10px 18px;font-size:13.5px}
+  .tweak .k{font-family:ui-monospace,monospace;font-size:11.5px;color:var(--mut);letter-spacing:.03em;display:block;margin-bottom:4px}
+  table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid #D8DDD9;
+    border-radius:10px;overflow:hidden;margin:12px 0;font-size:13.5px}
+  th{background:#F1F3EF;text-align:left;font-weight:600;padding:10px 12px;border-bottom:2px solid var(--line);
+    font-size:12.5px;letter-spacing:.02em}
+  td{padding:9px 12px;border-bottom:1px solid #E9ECE9;vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  code{font-family:ui-monospace,monospace;font-size:12.5px;background:#F1F3EF;
+    border:1px solid #E1E5E1;border-radius:4px;padding:1px 5px}
+  .math{font-family:ui-monospace,monospace;font-size:13px;background:#F8F9F7;border:1px solid #DFE4E0;
+    border-radius:8px;padding:14px 18px;white-space:pre;overflow-x:auto;line-height:1.75;margin:12px 0}
+  ol,ul{margin:10px 0 10px 22px}
+  li{margin:5px 0}
+  .kill{color:var(--rd);font-weight:600}
+  .keep{color:var(--te);font-weight:600}
+  footer{max-width:1120px;margin:48px auto 0;padding:16px 24px 0;border-top:1px solid #D8DDD9;
+    font-family:ui-monospace,monospace;font-size:12px;color:var(--mut);line-height:1.8}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="docid">cwf-understanding-layer-architecture-v1_2 · rev 1.2 · 2026-07-25 · anchor 194f6a8 (rev 142) · supersedes v1</div>
+  <h1>Anlama Katmanı — Hedef Mimari</h1>
+  <p class="sub">Turu bir zincir değil bir akış olarak kuran; teşhisi, yürütme kararını ve cevaplamayı üç ayrı
+  mercie veren; her mention'ı bir köke asan; her çıkarımı atıflayan ve her odayı komşusuna karşı ölçen mimari.
+  Altı "sesli düşünme" düğümünün kararlarını kayda geçirir — yenilik yok, kayıt var.</p>
+  <div class="status">STATUS: TARGET-STATE DESIGN · AŞAMA C OWNER-APPROVED 2026-07-25 (iki bağıyla) · build order §9 · kod ölçüm kapısına bağlı (S62-2)</div>
+</header>
+
+<main>
+
+<section>
+  <h2><span class="sn">§0</span>v1'den bu yana ne değişti — altı düğüm</h2>
+  <table>
+    <tr><th style="width:64px">Düğüm</th><th style="width:250px">Soru (sahip)</th><th>Karar (bu belgeye işlenen)</th></tr>
+    <tr><td>D-N1</td><td>«Komponentin tüme katkısını ölçmüyoruz»</td><td>Kenar ölçümü + üçlü kanıt + 8-satırlık oda kartı (§7) · <em>bir oda kendi çıktısını puanlayamaz; tüketicisi puanlar</em></td></tr>
+    <tr><td>D-N2</td><td>«Attention mekanizması lazım gibi»</td><td><code>turn_context</code> akışı: append-only, tipli, güvenli katkılar; ağırlık=katkı ölçümü; güven-çürümesi (§3)</td></tr>
+    <tr><td>D-N3</td><td>«Doğru kararı KİM verdi?»</td><td>⑤ teşhis / ⑥ yürütme kararı / ⑦ cevaplama — üç ayrı merci (§2, §5). ⑥ v1'de yoktu; işini ya kapı (öldürerek) ya model (uydurarak) yapıyordu</td></tr>
+    <tr><td>D-N4</td><td>«Her şeyin öznesi fabrika»</td><td>Kök omurgası: ayrımlayıcı kök (boşsa SOR / toplu action'da TÜMÜ) vs kapsam kökü (boşsa ÇIKAR ya da VARSAY) (§4)</td></tr>
+    <tr><td>D-N5</td><td>«"ortalama" dersem 1–3 ay bakarım»</td><td>Örtük kapsam = sinyal tablosundan deterministik çıkarım; tablo yönetilen satır; her çıkarım atıflanır (§4.2)</td></tr>
+    <tr><td>D-N6</td><td>«Kestirimci olma, sor»</td><td>Kapsam soru kapısı: açık ifade yok ∧ güçlü sinyal yok → SOR. Çakışan sinyal = güven yok = SOR (öncelik tablosu iptal) (§4.2)</td></tr>
+  </table>
+  <div class="note te"><strong>AŞAMA C — OWNER-APPROVED 2026-07-25.</strong> Sistem, belirsizlik gerçek değilse
+  sormadan devam eder ve yorumunu görünür kılar. İki bağıyla geçerli: <strong>(1)</strong> atıf deterministiktir —
+  yapısal kayıt (<code>mention → canonical_id → skor → yöntem</code>), render gösterir, model yazmaz;
+  <strong>(2)</strong> tek-turda düzeltilebilirlik C'nin parçasıdır — «hayır, KB7» tek turda ⑥'ya döner.
+  Kapsam çıkarımları da aynı beyan sınıfındadır: «son 3 ay ortalaması olarak yorumladım».</div>
+</section>
+
+<section>
+  <h2><span class="sn">§1</span>Tek cümlelik fark</h2>
+  <div class="note rd"><strong>Bugün:</strong> tur bir zincirdir (<code>pipeline.ts: for(stage of stages)</code>);
+  her aşama çantaya <em>değer</em> bırakır, <em>güven</em> bırakamaz; üç ayrı problem tek sert kapıya çöker
+  (<code>stageClarify.ts:97</code>) ve kapı, sistemin kendi arama başarısızlığını kullanıcıya soru olarak keser —
+  hazırlanmış 60 aracı imha ederek.</div>
+  <div class="note te"><strong>Hedef:</strong> tur bir akıştır. Her katkı güveniyle gelir, güven yalnız aşağı taşınır,
+  teşhis (⑤) ile yürütme kararı (⑥) ayrılır, üç sonucun üçü de turu sürdürür ve her yorum — varlık da kapsam da —
+  atıflı beyandır. Soru yalnız iki yerde meşrudur: gerçek aleatorik muğlaklık ve doldurulamayan çapa.</div>
+</section>
+
+<section>
+  <h2><span class="sn">§2</span>Akış — zincir değil</h2>
+  <div class="diagwrap">
+  <svg viewBox="0 0 1060 900" xmlns="http://www.w3.org/2000/svg" role="img"
+       aria-label="v1_2 akış: turn_context ortak akımı üzerinde normalizer, typer, resolve, teşhis, yürütme kararı, araç getirimi, ana LLM, render; düzeltme geri beslemesi">
+    <defs>
+      <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="#2A3330"/>
+      </marker>
+      <marker id="ahg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="#0E6B54"/>
+      </marker>
+      <marker id="ahb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="#1D5FA8"/>
+      </marker>
+    </defs>
+
+    <!-- turn_context akım şeridi (sol) -->
+    <rect x="24" y="70" width="118" height="760" rx="10" fill="#E3F1EB" stroke="#0E6B54" stroke-dasharray="6 5"/>
+    <text class="th" x="40" y="94">turn_context</text>
+    <text class="ts" x="40" y="112">append-only</text>
+    <text class="ts" x="40" y="128">tipli · atıflı</text>
+    <text class="ts" x="40" y="144">güven taşır</text>
+    <text class="ts" x="40" y="168">kimse kimsenin</text>
+    <text class="ts" x="40" y="184">katkısını SİLEMEZ</text>
+    <text class="ts" x="40" y="208">tur bitince =</text>
+    <text class="ts" x="40" y="224">telemetri kaydı</text>
+    <text class="ts" x="40" y="240">(tek turn id,</text>
+    <text class="ts" x="40" y="256">RULE-28)</text>
+    <text class="tm" x="40" y="292">her kutu buradan</text>
+    <text class="tm" x="40" y="308">OKUR + buraya</text>
+    <text class="tm" x="40" y="324">YAZAR; okuduğu</text>
+    <text class="tm" x="40" y="340">ağırlığı BEYAN eder</text>
+
+    <!-- kullanıcı -->
+    <g class="c-gray"><rect x="190" y="16" width="600" height="34" rx="7"/></g>
+    <text class="th" x="206" y="38">Kullanıcı: «Ganit fabrikasında sırlama 3-4-5 hattının fire ortalaması»</text>
+    <path class="arr" d="M490,50 L490,70" marker-end="url(#ah)"/>
+
+    <!-- ② normalizer -->
+    <g class="c-purple"><rect x="190" y="70" width="830" height="66" rx="8"/></g>
+    <text class="th" x="206" y="92">② Normalizer / IR Router — LLM · yüzeyi YAKALAR, yorumlamaz</text>
+    <text class="ts" x="206" y="110">yazar: frame{action·object·entity_ref[]·metric·time-surface} + HER SLOTA GÜVEN (object: düşük ⚠)</text>
+    <text class="ts" x="206" y="126">prompt.segment DEĞİŞMEZ — GOLDEN FREEZE'e temas yok · tip yayınlamaz (karar: Yol B, reddedilen: Yol A)</text>
+    <path class="arr" d="M490,136 L490,156" marker-end="url(#ah)"/>
+
+    <!-- ③ typer -->
+    <g class="c-teal"><rect x="190" y="156" width="830" height="58" rx="8"/></g>
+    <text class="th" x="206" y="178">③ Mention Typer — deterministik · NEGATİF sınıflandırıcı</text>
+    <text class="ts" x="206" y="196">«4-12 vardiyası»=shift ✗ · «ortalama»=kapsam-sinyali → EL'e girmez, sayıma girmez · desenler YÖNETİLEN SATIR (D3), profil kapsamlı — kodda regex sabiti yok</text>
+    <path class="arr" d="M490,214 L490,234" marker-end="url(#ah)"/>
+
+    <!-- ④ resolve -->
+    <g class="c-teal"><rect x="190" y="234" width="830" height="88" rx="8"/></g>
+    <text class="th" x="206" y="256">④ Resolve — deterministik · İKİ KANAL + füzyon</text>
+    <text class="ts" x="206" y="274">kanal-1: TR-fold + prefix + DL≤2 (yazım hatası: «Ganit»→«Granit», mesafe 1) · kanal-2: BM25 ad+alias (çok-token: «sırlama 3-4-5»→«Sırlama Hattı 3»)</text>
+    <text class="ts" x="206" y="290">füzyon: RRF → normalize s₁ ≥ s₂ ≥ … · kanallar YÖNETİLEN SATIR (D2): gömme/graf-komşuluk = migration satırı, ameliyat değil</text>
+    <text class="ts" x="206" y="308">arama uzayı = DOLU ÇAPALARIN KAPSAMI (kapsama-grafı arayüzünden okunur, §6) · object slotuna düşük ağırlık verdi — beyanı akışta</text>
+    <path class="arr" d="M490,322 L490,342" marker-end="url(#ah)"/>
+
+    <!-- ⑤ teşhis -->
+    <g class="c-amber"><rect x="190" y="342" width="830" height="102" rx="8"/></g>
+    <text class="th" x="206" y="364">⑤ Teşhis — deterministik · KARAR DEĞİL, belirsizliğin durum raporu</text>
+    <text class="ts" x="206" y="382">varlık: s₁&lt;τ → NIL (epistemik) · (s₁−s₂)≥β → LINK · else → AMBIGUOUS (aleatorik) — τ,β = governed agent.param</text>
+    <text class="ts" x="206" y="398">çapa: ayrımlayıcı kök boş? → action'a bak (tekil=BOŞLUK · RANK/AGG=TÜMÜ) · kapsam kökü: açık→oku · sinyal→çıkar · yok→SOR-adayı</text>
+    <text class="ts" x="206" y="414">taşıyıcılık = YAPISAL: çapası çözülmeden anlamı tamamlanmayan mention taşıyıcıdır — yorum değil, doluluk kontrolü</text>
+    <text class="ts" x="206" y="432">yazar: her mention/kök için teşhis + skorlar + adaylar — HİÇBİR ŞEY İPTAL ETMEZ</text>
+    <path class="arr" d="M490,444 L490,464" marker-end="url(#ah)"/>
+
+    <!-- ⑥ yürütme kararı -->
+    <g class="c-blue"><rect x="190" y="464" width="830" height="128" rx="8"/></g>
+    <text class="th" x="206" y="486">⑥ Yürütme Kararı — deterministik · v1'DE YOKTU · «bu teşhisle model çağrılır mı, neyle»</text>
+    <text class="ts" x="206" y="506">LINK → çöz, kanonik id + ATIF akışa · devam</text>
+    <text class="ts" x="206" y="522">AMBIGUOUS + taşıyıcı → modeli ÇAĞIRMA; seçenek sun («Granit'in mi, Seramik'in mi Glazur3'ü?») — seçenekler ÇAPADAN türer</text>
+    <text class="ts" x="206" y="538">AMBIGUOUS + taşıyıcı-değil → en iyi adayla devam, belirsizlik akışa ETİKETLİ → model «bu varsayımla» uyarısıyla çalışır</text>
+    <text class="ts" x="206" y="554">NIL + taşıyıcı → modeli ÇAĞIRMA; bildir (soru değil): «'X' kayıtlı değil; kapsamınızdakiler: …» — liste ÇAĞIRANIN KAPSAMIYLA sınırlı</text>
+    <text class="ts" x="206" y="570">NIL + taşıyıcı-değil → mention'ı düşür, kalanla devam, düşürme akışta görünür</text>
+    <text class="ts" x="206" y="586">kapsam: açık/sinyalli → kullan + ATIFLA · ikisi de yok → SOR (kapalı seçenek: 24s/hafta/ay) — D-N6, sahip kararı</text>
+    <path class="arr" d="M490,592 L490,612" marker-end="url(#ah)"/>
+
+    <!-- ⑦ araç -->
+    <g class="c-gray"><rect x="190" y="612" width="830" height="56" rx="8"/></g>
+    <text class="th" x="206" y="634">⑦ Araç getirimi — Yol A: (action×object) sembolik tablo · BUGÜN | Yol B: hybrid retrieval · IR-4 sözleşmesi</text>
+    <text class="ts" x="206" y="652">ölçü: Recall@k (routerAbLens hesaplıyor, tetiği F129) · bekçi: sunulan set genişliği — tek metrik yalan söyler (E1)</text>
+    <path class="arr" d="M490,668 L490,688" marker-end="url(#ah)"/>
+
+    <!-- ⑧ ana LLM -->
+    <g class="c-purple"><rect x="190" y="688" width="830" height="58" rx="8"/></g>
+    <text class="th" x="206" y="710">⑧ Ana LLM — cevaplama · ÇÖZÜLMÜŞ veri + ETİKETLİ belirsizlik üzerinde</text>
+    <text class="ts" x="206" y="728">güven-çürümesi: cevabın güveni zincirin EN ZAYIF halkasını aşamaz — güven uydurulamaz, yalnız aşağı taşınır (ADR-001'in tur-içi hâli)</text>
+    <path class="arr" d="M490,746 L490,766" marker-end="url(#ah)"/>
+
+    <!-- ⑨ render -->
+    <g class="c-teal"><rect x="190" y="766" width="560" height="64" rx="8"/></g>
+    <text class="th" x="206" y="788">⑨ Grounding + Render</text>
+    <text class="ts" x="206" y="806">atıflar AKIŞTAN okunur, model yazmaz: «Granit olarak yorumladım» ·</text>
+    <text class="ts" x="206" y="822">«son 3 ay ortalaması olarak yorumladım» — aynı beyan sınıfı</text>
+
+    <!-- P3c düzeltme -->
+    <g class="c-blue"><rect x="790" y="766" width="230" height="64" rx="8"/></g>
+    <text class="th" x="804" y="788">P3c · Düzeltme</text>
+    <text class="ts" x="804" y="806">«hayır, KB7» →</text>
+    <text class="ts" x="804" y="822">⑥'ya döner, TEK turda</text>
+    <path class="arrb" d="M905,766 L905,528 L1024,528" marker-end="url(#ahb)"/>
+    <text class="tm" x="920" y="750">geri besleme</text>
+
+    <!-- akım bağlantıları (temsili) -->
+    <path class="arrd" d="M190,103 L142,103" marker-end="url(#ahg)"/>
+    <path class="arrd" d="M142,185 L190,185" marker-end="url(#ahg)"/>
+    <path class="arrd" d="M190,278 L142,278" marker-end="url(#ahg)"/>
+    <path class="arrd" d="M142,393 L190,393" marker-end="url(#ahg)"/>
+    <path class="arrd" d="M190,528 L142,528" marker-end="url(#ahg)"/>
+    <path class="arrd" d="M142,640 L190,640" marker-end="url(#ahg)"/>
+    <path class="arrd" d="M190,717 L142,717" marker-end="url(#ahg)"/>
+    <path class="arrd" d="M142,798 L190,798" marker-end="url(#ahg)"/>
+
+    <!-- alt bant -->
+    <rect x="24" y="850" width="996" height="40" rx="8" fill="#FBF3E4" stroke="#A8620A" stroke-dasharray="6 5"/>
+    <text class="th" x="40" y="870">L5 · entity-miss ledger — ⑤/⑥'nın her NIL ve AMBIGUOUS olayı buraya düşer</text>
+    <text class="ts" x="40" y="885">mention · s₁ · s₂ · adaylar · turn id → 🤖 öneri (alias / τ-β ayarı / sinyal satırı) → 🗄️ insan + eval-gate → yayın. Etiketli veriyi KENDİSİ üretir.</text>
+  </svg>
+  </div>
+  <p class="legend"><strong>Renk sözleşmesi:</strong> mor = LLM (hâlâ İKİ çağrı: ② ve ⑧ — sayı artmadı) ·
+  yeşil = deterministik anlama · amber = teşhis/ledger (empty≠zero ailesi) · mavi = kullanıcı etkileşimi + ⑥ ·
+  gri = mevcut, değişmeyen. Soldaki şerit <code>turn_context</code>: her kutu ondan okur, ona yazar; kesikli
+  yeşil oklar temsilidir. <strong>Okunması gereken:</strong> ⑤ hiçbir şeyi iptal etmez; iptal yetkisi yalnız
+  ⑥'dadır ve yalnız «modeli çağırmama» biçimindedir — hazırlanmış iş hiçbir dalda imha edilmez.</p>
+</section>
+
+<section>
+  <h2><span class="sn">§3</span>Akış modeli — attention'ın bu anayasadaki hâli (D-N2)</h2>
+  <p>Transformer'dan taşınan şey softmax değil, <strong>artık akım</strong> fikridir: hiçbir katman bir sonrakine
+  özel boruyla bağlı değildir; herkes ortak akıştan okur, ortak akışa yazar. <code>frame-primary flip</code>
+  felaketi özel borunun eseriydi: ③ v1-öncesi kapı <code>frame.object</code>'i kelimesi kelimesine okudu ve
+  <code>object!=='FACTORY'</code> olan her turda varlık yolu hiç çalışmadı.</p>
+  <div class="math">katkı   = { değer, güven, üretici }                    — her yazım bu üçlüyle
+ağırlık = tüketicinin_BAĞIMSIZ_eşiği( katkı.güven )    — üretici güvenini şişirse de tüketicinin τ'su sabit
+beyan   : tüketici, okuduğu katkıya verdiği ağırlığı akışa GERİ YAZAR
+          → «④, ②.object'e 0.2 verdi çünkü güven düşüktü» — akışın içinde, panelde değil</div>
+  <table>
+    <tr><th style="width:210px">İlke</th><th>Kural</th></tr>
+    <tr><td><strong>Append-only</strong></td><td>Kimse kimsenin katkısını silemez/ezemez; yalnız üstüne ekler. GOLDEN LEDGER'ın turun içine inişi. Tur bitince akış = tam telemetri kaydı; ayrıca «loglama» yok.</td></tr>
+    <tr><td><strong>Güven-çürümesi</strong></td><td>⑧'in cevabının güveni, zincirdeki en zayıf halkayı <em>aşamaz</em>. Güven çarpımsaldır; zayıf frame üstüne kuvvetli cevap bir yalandır.</td></tr>
+    <tr><td><strong>Ağırlık = katkı ölçümü</strong></td><td>2. oda 1. odanın katkısına ~0 ağırlık veriyorsa, katkı yoktur — deneye gerek kalmadan, kablolama zaten enstrümante. Ablation (§7) bunu periyodik doğrular; ağırlıklar sürekli gözler.</td></tr>
+    <tr><td><strong>Seyreklik kısıtı</strong></td><td>Her şeyden «biraz» haberdar, hiçbir şeye <em>dayanmayan</em> cevap ADR-001'i çürütür. Ağırlıklar seyrek kalır — tasarım kısıtı, yan etki değil.</td></tr>
+    <tr><td><strong>Sert kararlar akışta yumuşamaz</strong></td><td>Softmax yönetişime uygulanmaz: izin/sunum kararları ikili ve denetlenebilir kalır (Path B: retrieval «alakalı mı», OPA «izinli mi»). Attention yalnız İLGİ tarafında yaşar.</td></tr>
+  </table>
+  <div class="note"><strong>Bilinen soy ve bilinen arıza:</strong> bu, blackboard mimarisidir (Hearsay-II).
+  Arızası: disiplinsiz ortak akış global-değişken çorbasına döner. Tutan disiplin: append-only + tipli +
+  atıflı + ağırlık beyanı. Dördü de zorunludur; biri düşerse akış boru çorbasından beter olur.</div>
+</section>
+
+<section>
+  <h2><span class="sn">§4</span>Kök omurgası (D-N4 · D-N5 · D-N6)</h2>
+  <p>Serbest gezen mention yoktur: her mention bir çapaya asılıdır, asılamayan çapa bulunması gereken bir
+  boşluktur. Kökler <strong>profil satırıdır</strong> — Kale'de <code>root_type:[factory]</code>; başka alanda
+  kuyu, gemi, sözleşme. «17» hiçbir yerde kodda değildir. Kök tipi <em>liste</em> olarak tiplenir (bugün tek
+  elemanlı) — federe çift-kök günü geldiğinde kırılmamak için; bugünkü maliyeti sıfır.</p>
+
+  <h3 class="sub">4.1 · İki kök cinsi</h3>
+  <table>
+    <tr><th style="width:180px"></th><th>Ayrımlayıcı kök («hangisi?»)</th><th>Kapsam kökü («ne kadarı?»)</th></tr>
+    <tr><td>Kale'de</td><td><code>factory</code> ve kapsama zinciri</td><td>zaman aralığı (+ rol/tenant/birim aynı cins)</td></tr>
+    <tr><td>Boşsa</td><td>action tekil → <strong>SOR</strong> (çapadan türeyen seçenekli soru) · action RANK/AGG → <strong>TÜMÜ</strong> (kökleri gez, sorma)</td><td>açık → oku · güçlü sinyal → <strong>ÇIKAR + ATIFLA</strong> · ikisi de yok → <strong>SOR</strong> (kapalı seçenek)</td></tr>
+    <tr><td>Neden fark</td><td>yanlış çapa = yanlış cevap</td><td>çıkarım çoğu zaman güvenli; güven yoksa sormak kestirimden iyi (D-N6, sahip)</td></tr>
+  </table>
+
+  <h3 class="sub">4.2 · Örtük kapsam — sinyal tablosu</h3>
+  <div class="math">«ortalama | genelde | tipik»   → geniş (30–90 gün)      — yönetilen satır, profil+dil kapsamlı
+«en çok | zirve | şu an»       → dar   (24 saat)
+açık ifade («dün», «son 3 ay») → oku
+sinyal ÇAKIŞIYOR               → güven yok → SOR         — öncelik tablosu YOK (iptal edildi, D-N6)
+hiçbiri                        → SOR (kapalı seçenek: 24s / hafta / ay)</div>
+  <p>Model tabloyu <em>uygulamaz</em>: «ortalama» kelimesini frame'e koyar (P1 — yüzey), tabloyu ⑥ deterministik
+  uygular. Her çıkarılmış kapsam atıflı beyandır ve P3c ile tek turda düzeltilebilir. Maliyet meselesi ayrı
+  mekanizma istemez: sinyalsiz sorgular zaten en geniş taramalardır — soru kapısı tam pahalı yerde kendiliğinden devrededir.</p>
+</section>
+
+<section>
+  <h2><span class="sn">§5</span>Üç merci — «kararı kim veriyor» (D-N3)</h2>
+  <table>
+    <tr><th style="width:120px">Merci</th><th style="width:150px">Doğa</th><th>Yetkisi</th><th>Yetkisi OLMAYAN</th></tr>
+    <tr><td><strong>⑤ Teşhis</strong></td><td>deterministik</td><td>belirsizliğin durum raporu: LINK/NIL/AMBIGUOUS + çapa doluluğu + taşıyıcılık</td><td class="kill">hiçbir şeyi iptal edemez, soru soramaz</td></tr>
+    <tr><td><strong>⑥ Yürütme</strong></td><td>deterministik</td><td>«model çağrılır mı, neyle» — teşhis×taşıyıcılık tablosundan okunur; tek iptal biçimi «modeli çağırmamak»</td><td class="kill">yorum üretemez, dil üretemez</td></tr>
+    <tr><td><strong>⑧ Cevaplama</strong></td><td>LLM</td><td>çözülmüş veri + etiketli belirsizlik üzerinde dil</td><td class="kill">varlık bağlayamaz, kapsam seçemez, atıf yazamaz, güven uyduramaz</td></tr>
+  </table>
+  <div class="note am"><strong>v1'in itirafı:</strong> ⑥ yoktu. İşini ya eski kapı yapıyordu (turu öldürerek)
+  ya v1 çizimindeki sessiz akış (belirsizliği ⑧'e sızdırarak). İkisi de yanlış aktördü — biri fazla sert,
+  öbürü denetlenemez.</div>
+</section>
+
+<section>
+  <h2><span class="sn">§6</span>Kapsama-grafı — kavram merkezde, motor arayüz arkasında</h2>
+  <div class="card te">
+    <div class="head"><div class="num">G</div><h3>Kapsama-grafı arayüzü</h3><span class="tag te">oda — kendi kartı var</span><span class="tag gr">D4'ün büyümüş hâli</span></div>
+    <div class="rows">
+      <div class="row"><div class="k">SÖZLEŞME</div><div class="v">Dört sorgu: <code>ancestors(n)</code> · <code>children(n,tip)</code> · <code>roots(tip)</code> · <code>in_scope(a,b)</code>. ⑤ ve ⑥ yalnız bu dördünü sorar.</div></div>
+      <div class="row"><div class="k">BUGÜN</div><div class="v">Postgres + recursive CTE. 17 fabrika × birkaç yüz düğüm — milisaniyeler. Yeni motor YOK.</div></div>
+      <div class="row"><div class="k">YARIN</div><div class="v">Aynı arayüz; arkada Neo4j / Apache AGE. ⑤–⑥ kodu değişmez. Motor = uygulama detayı («backend identity is DATA» ailesi).</div></div>
+      <div class="row"><div class="k">TETİK (alarmlı raf)</div><div class="v">Motor tartışması ANCAK şunlardan biriyle açılır: (a) kapsama çok-ebeveynli grafa dönerse (federasyon), (b) <code>in_scope</code> kritik yolda ms-bütçesini aşarsa. «İyi olurdu» tetik değildir.</div></div>
+      <div class="row"><div class="k">METRİK+BEKÇİ</div><div class="v">sorgu gecikmesi (p95) + zincir bütünlüğü (kopuk çapa sayısı=0 invariantı).</div></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="sn">§7</span>Ölçüm anayasası — oda kartı (8 satır) + üçlü kanıt (D-N1)</h2>
+  <p><em>Bir oda, çalıştığı için değil, kendi durumunu bildirebildiği için biter</em> — ve
+  <em>bir oda kendi çıktısını puanlayamaz; onu tüketicisi puanlar.</em> Kendi metriği yükselirken komşusunu
+  körelten oda bunu kendi ölçüsünde göremez (yaşandı: frame-primary flip P1'i iyileştirdi, P2'yi kapattı).</p>
+  <table>
+    <tr><th style="width:190px">Oda kartı satırı</th><th>İçerik — doldurulamıyorsa oda tanımlı değildir, kod başlamaz</th></tr>
+    <tr><td>SÖZLEŞME</td><td>Bu oda hangi kararı verir; girdi/çıktı</td></tr>
+    <tr><td>METRİK + BEKÇİ</td><td>Kalite sayısı + bozulmaması gereken sayı (E1: tek metrik yalan söyler — Recall@k'nın bekçisi set genişliği)</td></tr>
+    <tr><td>TABAN ÇİZGİSİ</td><td>Değişiklikten ÖNCE ölçülmüş sayı, ledger'a çivili (E5)</td></tr>
+    <tr><td>CANLILIK KANITI</td><td>Bilerek-bozuk vaka metriği KIRMIZIYA döndürür; dönmüyorsa metrik yoktur (E2 — FULL-TRACE dersi: guard yanlış şeyi zorluyordu, CI üç deploy yeşil kaldı)</td></tr>
+    <tr><td>KARAR BAĞI</td><td>«Bu sayı X'i aşarsa şu olur» — karar değiştirmeyen sayı süstür (E3)</td></tr>
+    <tr><td>DİKİŞLER</td><td>Genişleme hangi noktadan SATIR ekleyerek olur (D1 tür kaydı · D2 kanal kaydı · D3 desen kaydı · D4 kapsam arayüzü · D5 miss-ledger)</td></tr>
+    <tr><td><strong>KOMŞU SÖZLEŞMESİ</strong></td><td>Sonraki oda benden tam olarak neye ihtiyaç duyuyor ve bu kapıda ölçülüyor mu (yeni — D-N1)</td></tr>
+    <tr><td><strong>KATKI</strong></td><td>Oda zeminine indirilirse faydalı-tur oranı ne kadar düşer (ablation; yeni — D-N1)</td></tr>
+  </table>
+  <div class="note bl"><strong>Üçlü kanıt kuralı:</strong> bir iyileştirmenin kanıtı ① oda metriği + ② komşu
+  sözleşmesi bozulmadı + ③ bütün sonucu (faydalı-tur oranı). ① yükselip ③ düşerse iyileştirme SAHTEDİR ve geri
+  alınır. Sistem çapası: <strong>faydalı-tur oranı</strong> — tur, araç verisine dayalı, atıflı, duvara çarpmayan
+  cevapla bitti mi. Bekçileri: tur maliyeti/gecikmesi + atıf ihlali sayısı.</div>
+  <div class="note am"><strong>Ablation altyapısı zaten var, bağlı değil:</strong> routerAbLens = A/B düzeneği ·
+  donmuş kelime haritası = ablation zemini · sentetik korpus = sabit girdi. Sınır dürüstlüğü: leave-one-out
+  marjinal katkıyı verir, gerçek payı değil; komşu-çifti koşuları ikili telafileri yakalar, üçlüleri yakalamaz —
+  iddia edilmiyor. Ön koşul: <strong>F174 set genişliği</strong> (29 utterance kararlılık ölçer, kapsam ölçmez).</div>
+</section>
+
+<section>
+  <h2><span class="sn">§8</span>Bağlayıcı kısıtlar — v1'den taşınan + yeni</h2>
+  <div class="card te">
+    <div class="head"><div class="num">A</div><h3>Kapanmış — yeniden açılmaz</h3><span class="tag te">mühendislik</span></div>
+    <div class="rows">
+      <div class="row"><div class="k">A-1</div><div class="v">Tipleme deterministik koddadır; router sözleşmesi ve <code>prompt.segment</code> değişmez. Router'ın tip yayınlaması <span class="kill">reddedildi</span> — turu etkileyen sınıflandırma LLM yargısı olamaz.</div></div>
+      <div class="row"><div class="k">A-2</div><div class="v">Negatif sınıflandırıcı yeter; pozitif taksonomi çözümlemenin çıktısıdır. Başarısızlık modu güvenli: tanınmayan mention NIL'e düşer, NIL turu öldürmez.</div></div>
+      <div class="row"><div class="k">A-3</div><div class="v">LINK sessiz değildir; atıf yapısal kayıttır, render gösterir, <span class="kill">model yazamaz</span> (F82 ailesi).</div></div>
+      <div class="row"><div class="k">A-4</div><div class="v">Kelime haritası donmuş outage zemini olarak <span class="keep">KALIR</span> ve routerAbLens ile ölçülür; emekli olan yalnız öğrenme-hedefi rolü.</div></div>
+      <div class="row"><div class="k">A-5</div><div class="v">NIL listesi çağıranın kapsamıyla sınırlıdır; «tüm kayıtlılar» üretilmez (EAIP Sınıf C — mühürlü instance'ta sızıntı vektörü).</div></div>
+      <div class="row"><div class="k">A-6</div><div class="v">τ, β ve sinyal tablosu yönetilen satırdır — kodda sabit değil; yayınlı, ledger'a damgalı, geri alınabilir.</div></div>
+      <div class="row"><div class="k">A-7 <span class="tag te">yeni</span></div><div class="v">Skor kaynağı tanımlıdır: iki kanal (DL + BM25) + RRF. τ/β yalnız-DL üstüne kurulmaz — çok-token yüzeyler skor uzayına girmeden sessiz NIL'e düşer, τ ayarı bunu düzeltemez.</div></div>
+      <div class="row"><div class="k">A-8 <span class="tag te">yeni</span></div><div class="v">Akış append-only'dir; katkı üçlüsü (değer·güven·üretici) zorunludur; tüketici ağırlığını beyan eder; güven-çürümesi ihlal edilemez.</div></div>
+      <div class="row"><div class="k">A-9 <span class="tag te">yeni</span></div><div class="v">Kök tipleri ve kapsama ağacı profil verisidir; graf MOTORU arayüz arkasındadır ve tetiği adlandırılmıştır (§6). Runtime'da ürün-koşullu dallanma doğmaz (EAIP S2).</div></div>
+    </div>
+  </div>
+  <div class="card te">
+    <div class="head"><div class="num">C</div><h3>AŞAMA C — OWNER-APPROVED · 2026-07-25</h3><span class="tag te">kapalı</span></div>
+    <div class="rows">
+      <div class="row"><div class="k">KARAR</div><div class="v">Belirsizlik gerçek değilse sistem sormadan devam eder ve yorumunu görünür kılar — varlıkta da kapsamda da. ADR-001'in uzantısı: <em>yanlış çözümlemeyi imkânsız kılmaya çalışma, GÖRÜNÜR kıl.</em></div></div>
+      <div class="row"><div class="k">BAĞ 1</div><div class="v">Atıf deterministiktir (A-3).</div></div>
+      <div class="row"><div class="k">BAĞ 2</div><div class="v">Tek-turda düzeltilebilirlik (P3c) C'nin parçasıdır — görünür ama düzeltilemez tahmin, sessizden yalnız daha dürüsttür, daha iyi değildir.</div></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="sn">§9</span>Build order — ölçüm kapılı</h2>
+  <table>
+    <tr><th style="width:52px">#</th><th style="width:330px">Adım</th><th>Kapı / koşul</th></tr>
+    <tr><td>0</td><td><strong>F169 hotfix</strong> — flush yanıttan önce, awaited</td><td>Bağımsız; gözlemlenebilirlik yoksa hiçbir taban çizgisi güvenilmez</td></tr>
+    <tr><td>1</td><td><strong>ÖLÇ</strong> — F129 tetiği: Recall@k + mevcut kapı davranışı taban çizgisi · F174 set genişliği</td><td>S62-2: atlanamaz. F174 artık kritik yolda — ③ sütunu (bütün sonucu) set genişliği olmadan boş kalır</td></tr>
+    <tr><td>2</td><td><strong>turn_context iskeleti</strong> — katkı üçlüsü + append-only + ağırlık beyanı (mevcut ctx'in disiplinli hâli)</td><td>Oda kartı dolu; akış olmadan ⑤/⑥ güven okuyamaz</td></tr>
+    <tr><td>3</td><td><strong>⑤+⑥ — teşhis/yürütme ayrımı</strong>: τ/β + çapa/taşıyıcılık + üç davranış + kapsam kapısı + atıf (= A4+C birleşik)</td><td>AŞAMA C onaylı ✓ · kritik yolun ilk kod adımı</td></tr>
+    <tr><td>4</td><td><strong>③ typer + ④ ikinci kanal (BM25) + RRF</strong></td><td>Kalite; NIL mesajlarını akıllandırır, çok-token yüzeyleri skor uzayına sokar</td></tr>
+    <tr><td>5</td><td><strong>L5 entity-miss ledger</strong> + τ/β/sinyal ayar döngüsü</td><td>Etiketli veri buradan doğar; S55-1: «ayarladık, bitti» yasak</td></tr>
+    <tr><td>6</td><td>Kelime haritası rol değişimi + <code>router_proposals</code> kapanış halkası</td><td>F177 okumaları önce</td></tr>
+    <tr><td>7</td><td>Soru bütçesi <code>b</code> + AUROC · kenar ölçümleri (komşu-çifti ablation)</td><td>P3 metriği + D-N1'in tam kapanışı</td></tr>
+  </table>
+</section>
+
+<section>
+  <h2><span class="sn">§10</span>Çözülmemiş — bilerek, adlandırılmış rafta</h2>
+  <ul>
+    <li><strong>Çoklu-kök federasyonu</strong> (SAP↔ARMES iş emri) — kök-listesi tiplemesi hazır; mekanizma IR-4 ile gelir.</li>
+    <li><strong>Üçlü etkileşim ablation'ı</strong> — komşu-çifti ötesi iddia edilmiyor.</li>
+    <li><strong>Graf motoru</strong> — §6'daki iki tetikten biri olmadan açılmaz.</li>
+    <li><strong>P1 slot-F1</strong> — frame yanlışsa aşağısı kurtarmaz; ölçüm §9-1'in korpusuyla başlar, düzeltme ayrı fazdır.</li>
+    <li><strong>LB-11</strong> (araç-çıktısı enjeksiyon sertleştirmesi) — bu belgenin kapsamı dışı; F180 olarak açık, filo-geneli risk.</li>
+    <li><strong>«Taşıyıcı» tanımının sınır vakaları</strong> — çapa-doluluğu kuralı çekirdek; action'a göre incelik L5 verisiyle gelirse v1_3 konusu.</li>
+  </ul>
+</section>
+
+</main>
+
+<footer>
+END · cwf-understanding-layer-architecture-v1_2 · rev 1.2 · 2026-07-25 · anchor 194f6a8 (rev 142) · supersedes v1 (immutable)<br>
+sources: cwf-sota-understanding-layer-v1.md · cwf-ir-pathb-hybrid-logic-v1_3.html · cwf-prod-lineage-KB-v1.md · ARDICTECH_Load_Bearing_Core_v1_0.md · S63/S64 voice-thinking nodes D-N1…D-N6<br>
+AŞAMA C: OWNER-APPROVED 2026-07-25 · amendments mint v1_3 — never in-place
+</footer>
+
+</body>
+</html>
