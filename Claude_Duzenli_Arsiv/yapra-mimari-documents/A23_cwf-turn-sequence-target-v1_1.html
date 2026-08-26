@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A23 · CWF/EAIP · Turn Sekansı (hedef) · v1_1 (LOCKED)</title>
+<!-- A23_cwf-turn-sequence-target-v1_1 · rev 1.1 · 2026-07-25 · Architect-authored · LOCKED/FINAL.
+     Anchor: origin/master 194f6a8 (rev 142). Anlama katmanı v1_3 (binding) entegre.
+     Tek turun zaman-sıralı akışı: ⑤ teşhis / ⑥ yürütme kararı ayrımı, turn_context yazımları,
+     dallanma (NIL/LINK/AMBIGUOUS × taşıyıcılık), yanıttan-önce-flush, tur sonunda çapraz-tur taşıyıcı yazımı.
+     v1 → v1_1: P3c DÜZELTİLDİ — düzeltme ⑥'ya değil turun başına (②) döner (⑥ ham metin almaz); çapraz-tur
+     taşıyıcı (son-çözüm dilimi, A-10) eklendi. §2 P3c notu ve sekans sonu güncellendi.
+     Amendments mint v1_2 — never in-place (S37-1). -->
+<style>
+  :root{
+    --ink:#1C2422; --paper:#F5F6F3; --card:#FFFFFF; --line:#2A3330; --mut:#5C6662; --t:#2A3330;
+    --pu:#6D4FC4; --pu-f:#EFEAFB; --te:#0E6B54; --te-f:#E3F1EB; --gr:#667080; --gr-f:#ECEFF1;
+    --am:#A8620A; --am-f:#FBF3E4; --rd:#B3261E; --rd-f:#FBEAE8; --bl:#1D5FA8; --bl-f:#E6EFF9;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--paper);color:var(--ink);font-family:"Avenir Next","Segoe UI",system-ui,sans-serif;font-size:15px;line-height:1.55;padding:0 0 64px}
+  header{border-bottom:2px solid var(--line);background:var(--card);padding:26px 34px 20px}
+  header .docid{font-family:ui-monospace,monospace;font-size:12px;color:var(--mut);letter-spacing:.04em}
+  header h1{font-size:25px;font-weight:600;margin:6px 0 4px}
+  header p.sub{color:var(--mut);max-width:960px}
+  .status{display:inline-block;margin-top:10px;background:var(--te-f);border:1px solid var(--te);color:#0A5240;border-radius:6px;padding:4px 12px;font-family:ui-monospace,monospace;font-size:12px}
+  main{max-width:1340px;margin:0 auto;padding:0 24px}
+  section{margin-top:34px}
+  h2{font-size:19px;font-weight:600;border-left:4px solid var(--line);padding-left:12px;margin-bottom:14px}
+  h2 .sn{font-family:ui-monospace,monospace;font-size:12px;color:var(--mut);margin-right:8px}
+  .diagwrap{background:var(--card);border:1px solid #D8DDD9;border-radius:10px;padding:16px 10px;overflow-x:auto}
+  .diagwrap svg{display:block;width:100%;min-width:1260px;height:auto}
+  svg text{fill:var(--ink)}
+  svg .hh{font:600 12px "Avenir Next","Segoe UI",sans-serif}
+  svg .hs{font:10px ui-monospace,monospace;fill:#5C6662}
+  svg .ml{font:11px "Avenir Next","Segoe UI",sans-serif}
+  svg .ns{font:10.5px "Avenir Next","Segoe UI",sans-serif}
+  svg .nm{font:600 10px ui-monospace,monospace}
+  svg .ll{stroke:#A2ABA7;stroke-width:1.1;stroke-dasharray:3 5}
+  svg .msg{stroke:var(--t);stroke-width:1.3;fill:none}
+  svg .ret{stroke:var(--t);stroke-width:1.2;fill:none;stroke-dasharray:6 4}
+  svg .p3c{stroke:var(--bl);stroke-width:1.4;fill:none;stroke-dasharray:7 4}
+  svg .c-gray rect{fill:var(--gr-f);stroke:var(--gr);stroke-width:1.5}
+  svg .c-purple rect{fill:var(--pu-f);stroke:var(--pu);stroke-width:1.5}
+  svg .c-teal rect{fill:var(--te-f);stroke:var(--te);stroke-width:1.5}
+  svg .c-amber rect{fill:var(--am-f);stroke:var(--am);stroke-width:1.5}
+  svg .c-blue rect{fill:var(--bl-f);stroke:var(--bl);stroke-width:1.5}
+  svg .note-g rect{fill:#E9F5EF;stroke:#0E6B54;stroke-width:1}
+  svg .note-a rect{fill:#FBF3E4;stroke:#A8620A;stroke-width:1}
+  svg .note-b rect{fill:#E6EFF9;stroke:#1D5FA8;stroke-width:1}
+  svg .note-n rect{fill:#F5F6F3;stroke:#B8C0BC;stroke-width:1}
+  .legend{font-size:12.5px;color:var(--mut);margin-top:10px;line-height:1.9}
+  .legend b{color:var(--ink)}
+  .card{background:var(--card);border:1px solid #D8DDD9;border-radius:10px;margin:14px 0;overflow:hidden}
+  .card .head{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid #E4E8E5;flex-wrap:wrap}
+  .card .head h3{font-size:15.5px;font-weight:600;flex:1;min-width:200px}
+  .card.bl{border-left:5px solid var(--bl)}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{background:#F1F3EF;text-align:left;font-weight:600;padding:8px 12px;border-bottom:2px solid var(--line);font-size:12px}
+  td{padding:8px 12px;border-bottom:1px solid #E9ECE9;vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  code{font-family:ui-monospace,monospace;font-size:12px;background:#F1F3EF;border:1px solid #E1E5E1;border-radius:4px;padding:1px 5px}
+  .kill{color:var(--rd);font-weight:600}
+  .note{background:var(--card);border:1px solid #D8DDD9;border-radius:8px;padding:12px 16px;margin:12px 0;font-size:13.5px}
+  .note.am{background:var(--am-f);border-color:var(--am)}
+  footer{max-width:1340px;margin:44px auto 0;padding:16px 24px 0;border-top:1px solid #D8DDD9;font-family:ui-monospace,monospace;font-size:12px;color:var(--mut);line-height:1.8}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="docid">A23_cwf-turn-sequence-target-v1_1 · rev 1.1 · 2026-07-25 · anchor 194f6a8 (rev 142) · 🔒 LOCKED</div>
+  <h1>CWF / EAIP — Turn Sekansı (hedef) <span style="font-size:14px;color:var(--te);font-family:ui-monospace,monospace">v1_1 · FINAL</span></h1>
+  <p class="sub">Tek bir turun zaman-sıralı akışı. Örnek girdi: <em>«Ganit fabrikasında sırlama 3-4-5 hattının fire ortalaması»</em>
+  (kasıtlı: yazım hatası + çok-token varlık + örtük kapsam). Gösterilen: ⑤ teşhis / ⑥ yürütme kararı ayrımı,
+  <code>turn_context</code> yazımları, güven-çürümesi, yanıttan-önce force-flush ve tur sonunda <strong>çapraz-tur taşıyıcı</strong> yazımı. Dallanmalar + P3c §2'de.</p>
+  <div class="status">🔒 LOCKED · HAPPY PATH = LINK + çıkarılmış-kapsam · dört alternatif dal + P3c §2 · anlama katmanı v1_3 TARGET (S62-2)</div>
+</header>
+
+<main>
+
+<section>
+  <h2><span class="sn">§1</span>Sekans — LINK + çıkarılmış kapsam (mutlu yol)</h2>
+  <div class="diagwrap">
+  <svg viewBox="0 0 1300 1180" xmlns="http://www.w3.org/2000/svg" role="img"
+       aria-label="Turn sekans diyagramı: kullanıcı, turn shell, IR router, anlama giriş, kapsama-grafı, teşhis, yürütme, araç+ana LLM, grounding, MCP backend arasında zaman-sıralı mesajlar">
+    <defs>
+      <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2A3330"/></marker>
+      <marker id="ahb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1D5FA8"/></marker>
+    </defs>
+
+    <!-- ===== LIFELINE HEADERS ===== -->
+    <g class="c-gray"><rect x="40" y="54" width="112" height="42" rx="7"/></g>
+    <text class="hh" x="96" y="72" text-anchor="middle">Kullanıcı</text><text class="hs" x="96" y="88" text-anchor="middle">actor</text>
+    <g class="c-gray"><rect x="171" y="54" width="112" height="42" rx="7"/></g>
+    <text class="hh" x="227" y="72" text-anchor="middle">① Turn Shell</text><text class="hs" x="227" y="88" text-anchor="middle">chat.ts</text>
+    <g class="c-purple"><rect x="306" y="54" width="112" height="42" rx="7"/></g>
+    <text class="hh" x="362" y="72" text-anchor="middle">② IR Router</text><text class="hs" x="362" y="88" text-anchor="middle">LLM</text>
+    <g class="c-teal"><rect x="443" y="54" width="120" height="42" rx="7"/></g>
+    <text class="hh" x="503" y="72" text-anchor="middle">③④ Anlama giriş</text><text class="hs" x="503" y="88" text-anchor="middle">typer+resolve</text>
+    <g class="c-teal"><rect x="583" y="54" width="96" height="42" rx="7"/></g>
+    <text class="hh" x="631" y="72" text-anchor="middle">G · graf</text><text class="hs" x="631" y="88" text-anchor="middle">4 sorgu</text>
+    <g class="c-amber"><rect x="699" y="54" width="104" height="42" rx="7"/></g>
+    <text class="hh" x="751" y="72" text-anchor="middle">⑤ Teşhis</text><text class="hs" x="751" y="88" text-anchor="middle">det.</text>
+    <g class="c-blue"><rect x="823" y="54" width="110" height="42" rx="7"/></g>
+    <text class="hh" x="878" y="72" text-anchor="middle">⑥ Yürütme</text><text class="hs" x="878" y="88" text-anchor="middle">det. · karar</text>
+    <g class="c-purple"><rect x="953" y="54" width="120" height="42" rx="7"/></g>
+    <text class="hh" x="1013" y="72" text-anchor="middle">⑦⑧ Araç+LLM</text><text class="hs" x="1013" y="88" text-anchor="middle">streamText</text>
+    <g class="c-teal"><rect x="1093" y="54" width="110" height="42" rx="7"/></g>
+    <text class="hh" x="1148" y="72" text-anchor="middle">⑨ Grounding</text><text class="hs" x="1148" y="88" text-anchor="middle">det. · render</text>
+    <g class="c-gray"><rect x="1223" y="54" width="72" height="42" rx="7"/></g>
+    <text class="hh" x="1259" y="72" text-anchor="middle">MCP</text><text class="hs" x="1259" y="88" text-anchor="middle">backend</text>
+
+    <!-- ===== LIFELINES ===== -->
+    <line class="ll" x1="96" y1="96" x2="96" y2="1050"/>
+    <line class="ll" x1="227" y1="96" x2="227" y2="1050"/>
+    <line class="ll" x1="362" y1="96" x2="362" y2="1050"/>
+    <line class="ll" x1="503" y1="96" x2="503" y2="1050"/>
+    <line class="ll" x1="631" y1="96" x2="631" y2="1050"/>
+    <line class="ll" x1="751" y1="96" x2="751" y2="1050"/>
+    <line class="ll" x1="878" y1="96" x2="878" y2="1050"/>
+    <line class="ll" x1="1013" y1="96" x2="1013" y2="1050"/>
+    <line class="ll" x1="1148" y1="96" x2="1148" y2="1050"/>
+    <line class="ll" x1="1259" y1="96" x2="1259" y2="1050"/>
+
+    <!-- 1: user -> shell -->
+    <text class="ml" x="161" y="120" text-anchor="middle">mesaj</text>
+    <path class="msg" d="M96,126 L227,126" marker-end="url(#ah)"/>
+    <text class="nm" x="231" y="142" style="fill:#5C6662">turn id = OTel trace id (RULE-28)</text>
+
+    <!-- 2: shell -> IR -->
+    <text class="ml" x="294" y="166" text-anchor="middle">normalize</text>
+    <path class="msg" d="M227,172 L362,172" marker-end="url(#ah)"/>
+
+    <!-- 3: IR --> shell -->
+    <text class="ml" x="294" y="204" text-anchor="middle">frame + slot-güven</text>
+    <path class="ret" d="M362,210 L227,210" marker-end="url(#ah)"/>
+    <!-- green note: frame -->
+    <g class="note-g"><rect x="250" y="222" width="330" height="44" rx="6"/></g>
+    <text class="nm" x="260" y="238" style="fill:#0A5240">⊕ turn_context</text>
+    <text class="ns" x="260" y="253">frame{AGG · object=FACTORY⚠ · [Ganit fabrikası, sırlama 3-4-5] · fire · ortalama}</text>
+    <text class="ns" x="260" y="264" style="font-size:9.5px;fill:#5C6662">+ her slota güven · prompt.segment intakt (GOLDEN FREEZE)</text>
+
+    <!-- 4: shell -> AN -->
+    <text class="ml" x="365" y="292" text-anchor="middle">frame</text>
+    <path class="msg" d="M227,298 L503,298" marker-end="url(#ah)"/>
+
+    <!-- note: typer -->
+    <g class="note-n"><rect x="408" y="310" width="360" height="34" rx="6"/></g>
+    <text class="ns" x="418" y="325">③ «4-12 vardiyası»=shift ✗ · «ortalama»=kapsam-sinyali → EL dışı</text>
+    <text class="ns" x="418" y="337" style="font-size:9.5px;fill:#5C6662">desenler yönetilen satır (D3) — kodda regex sabiti yok</text>
+
+    <!-- 6/7: AN <-> G -->
+    <text class="ml" x="567" y="368" text-anchor="middle">roots · in_scope</text>
+    <path class="msg" d="M503,374 L631,374" marker-end="url(#ah)"/>
+    <text class="ml" x="567" y="392" text-anchor="middle" style="fill:#5C6662">kapsam(Granit ağacı)</text>
+    <path class="ret" d="M631,398 L503,398" marker-end="url(#ah)"/>
+
+    <!-- note: resolve channels -->
+    <g class="note-n"><rect x="408" y="410" width="420" height="44" rx="6"/></g>
+    <text class="ns" x="418" y="426">kanal-1 DL≤2 «Ganit»→«Granit» (d=1) · kanal-2 BM25 «sırlama 3-4-5»→«Sırlama Hattı 3»</text>
+    <text class="ns" x="418" y="440">füzyon RRF → s₁ ≥ s₂ · arama uzayı = dolu çapaların kapsamı (G)</text>
+    <text class="ns" x="418" y="451" style="font-size:9.5px;fill:#5C6662">kanallar yönetilen satır (D2): gömme/graf-komşuluk = migration satırı</text>
+
+    <!-- green note: candidates -->
+    <g class="note-g"><rect x="408" y="460" width="330" height="30" rx="6"/></g>
+    <text class="nm" x="418" y="476" style="fill:#0A5240">⊕ turn_context</text>
+    <text class="ns" x="510" y="476">adaylar+skorlar + «object'e düşük ağırlık» beyanı</text>
+
+    <!-- 9: AN -> ⑤ -->
+    <text class="ml" x="627" y="504" text-anchor="middle">skorlu adaylar + frame</text>
+    <path class="msg" d="M503,510 L751,510" marker-end="url(#ah)"/>
+
+    <!-- note: diagnosis -->
+    <g class="note-a"><rect x="556" y="522" width="392" height="46" rx="6"/></g>
+    <text class="ns" x="566" y="538"><tspan class="nm" style="fill:#7A4A08">⑤ TEŞHİS</tspan> · «Granit»: (s₁−s₂) ≥ β → LINK · s₁ ≥ τ (τ,β governed)</text>
+    <text class="ns" x="566" y="552">kapsam kökü: «ortalama» sinyal → geniş 30–90g ÇIKAR (sinyal tablosu)</text>
+    <text class="ns" x="566" y="564" style="font-size:9.5px;fill:#B3261E">HİÇBİR ŞEY İPTAL ETMEZ — yalnız durum raporu</text>
+
+    <!-- green note: diagnosis write -->
+    <g class="note-g"><rect x="556" y="574" width="330" height="30" rx="6"/></g>
+    <text class="nm" x="566" y="590" style="fill:#0A5240">⊕ turn_context</text>
+    <text class="ns" x="658" y="590">teşhis(LINK, çıkarılmış-kapsam) + atıf-adayı</text>
+
+    <!-- 11: ⑤ -> ⑥ -->
+    <text class="ml" x="815" y="618" text-anchor="middle">teşhis</text>
+    <path class="msg" d="M751,624 L878,624" marker-end="url(#ah)"/>
+
+    <!-- note: execution decision -->
+    <g class="note-b"><rect x="606" y="636" width="418" height="46" rx="6"/></g>
+    <text class="ns" x="616" y="652"><tspan class="nm" style="fill:#134A85">⑥ YÜRÜTME KARARI</tspan> · «bu teşhisle model çağrılır mı, neyle»</text>
+    <text class="ns" x="616" y="666">LINK → çöz + canonical_id + ATIF · kapsam sinyalli → kullan + ATIFLA</text>
+    <text class="ns" x="616" y="678" style="font-size:9.5px;fill:#134A85">→ modeli ÇAĞIR · bu dalda iptal YOK (hazırlanan iş imha edilmez)</text>
+
+    <!-- green note: canonical write -->
+    <g class="note-g"><rect x="606" y="688" width="360" height="30" rx="6"/></g>
+    <text class="nm" x="616" y="704" style="fill:#0A5240">⊕ turn_context</text>
+    <text class="ns" x="708" y="704">canonical_id(Granit) + scope[son 30–90g] + atıflar</text>
+
+    <!-- 13: ⑥ -> ⑦⑧ -->
+    <text class="ml" x="945" y="732" text-anchor="middle">(AGG × object) → Yol A · streamText</text>
+    <path class="msg" d="M878,738 L1013,738" marker-end="url(#ah)"/>
+    <text class="nm" x="1017" y="738" style="fill:#5C6662">çözülmüş veri + etiketli belirsizlik</text>
+    <text class="nm" x="882" y="754" style="fill:#5C6662">Recall@k (routerAbLens) · bekçi: set genişliği</text>
+
+    <!-- 14: ⑦⑧ -> MCP -->
+    <text class="ml" x="1136" y="780" text-anchor="middle">call_tool(ARMES · fire/OEE)</text>
+    <path class="msg" d="M1013,786 L1259,786" marker-end="url(#ah)"/>
+    <!-- 15: MCP --> ⑦⑧ -->
+    <text class="ml" x="1136" y="808" text-anchor="middle" style="fill:#5C6662">tool result</text>
+    <path class="ret" d="M1259,814 L1013,814" marker-end="url(#ah)"/>
+
+    <!-- green note: tool trace -->
+    <g class="note-g"><rect x="740" y="826" width="392" height="30" rx="6"/></g>
+    <text class="nm" x="750" y="842" style="fill:#0A5240">⊕ turn_context + Langfuse</text>
+    <text class="ns" x="880" y="842">araç INPUT+OUTPUT (FULL-TRACE · yalnız ham sır scrub)</text>
+
+    <!-- note: tool rounds + decay -->
+    <g class="note-n"><rect x="820" y="862" width="380" height="34" rx="6"/></g>
+    <text class="ns" x="830" y="878">araç turları (maxToolRounds) · cevap taslağı</text>
+    <text class="ns" x="830" y="890" style="font-size:9.5px;fill:#5C6662">güven ≤ zincirin en zayıf halkası (güven-çürümesi · ADR-001 tur-içi)</text>
+
+    <!-- 17: ⑦⑧ -> ⑨ -->
+    <text class="ml" x="1080" y="916" text-anchor="middle">taslak</text>
+    <path class="msg" d="M1013,922 L1148,922" marker-end="url(#ah)"/>
+
+    <!-- note: grounding -->
+    <g class="note-n"><rect x="760" y="934" width="470" height="34" rx="6"/></g>
+    <text class="ns" x="770" y="950"><tspan class="nm">⑨ GROUNDING</tspan> · atıflar AKIŞTAN okunur, model YAZMAZ (BAĞ 1) · empty≠zero</text>
+    <text class="ns" x="770" y="962" style="font-size:9.5px;fill:#5C6662">«Granit olarak yorumladım» / «son 3 ay ortalaması olarak yorumladım» — aynı beyan sınıfı</text>
+
+    <!-- 19: ⑨ --> shell -->
+    <text class="ml" x="687" y="988" text-anchor="middle" style="fill:#5C6662">render payload</text>
+    <path class="ret" d="M1148,994 L227,994" marker-end="url(#ah)"/>
+
+    <!-- amber note: telemetry flush -->
+    <g class="note-a"><rect x="140" y="1006" width="560" height="30" rx="6"/></g>
+    <text class="nm" x="150" y="1022" style="fill:#7A4A08">⊗ telemetry_events (LEDGER) + force-flush Langfuse (TRACE)</text>
+    <text class="ns" x="486" y="1022">YANITTAN ÖNCE (RULE-27 · F169) · tek turn id join</text>
+
+    <!-- 21: shell --> user -->
+    <text class="ml" x="161" y="1042" text-anchor="middle" style="fill:#5C6662">yanıt</text>
+    <path class="ret" d="M227,1048 L96,1048" marker-end="url(#ah)"/>
+
+    <!-- v1_1 · tur sonu: çapraz-tur taşıyıcı yazımı -->
+    <rect x="20" y="1064" width="1268" height="96" rx="8" fill="#E6EFF9" stroke="#1D5FA8" stroke-width="1.4" stroke-dasharray="6 5"/>
+    <text class="hh" x="34" y="1086" style="fill:#134A85">TUR SONU · ÇAPRAZ-TUR TAŞIYICI yazımı (son-çözüm dilimi · A-10 · D-N7)</text>
+    <text class="ns" x="34" y="1104">flush ile birlikte YAZILIR: önceki turun canonical_id'leri + scope + ⑥ kararı + sunulan adaylar · <tspan font-family="ui-monospace,monospace" font-size="10">turn_context</tspan> TUR-İÇİ (flush'lanır), BU ayrı/kalıcı/minimal</text>
+    <text class="ns" x="34" y="1121"><tspan font-weight="600" fill="#134A85">SONRAKİ tur (P3c düzeltme):</tspan> «hayır, KB7» yeni bir turdur → ② bu dilimi okur, «KB7»yi bir <tspan font-style="italic">delta</tspan> olarak yorumlar → tam-pipeline ②→③→④→⑤→⑥</text>
+    <text class="ns" x="34" y="1138" style="fill:#B3261E"><tspan font-weight="600">⑥ bu dilimi OKUMAZ, ham metin GÖRMEZ</tspan> — düzeltme oku ⑥'ya değil turun başına döner (D-N3 by construction) · <tspan font-family="ui-monospace,monospace" font-size="10">messages</tspan>'a yazmaz (C1) · digest'ten okumaz (ADR-008) · ham parse yasak</text>
+    <text class="ns" x="34" y="1154" style="fill:#134A85">minimal working-memory · B3/MEMORY-1 ile ileri-uyumlu (bespoke değil) · ⑤/⑥ ile gönderilir (AŞAMA C BAĞ 2, ertelenemez)</text>
+  </svg>
+  </div>
+  <p class="legend">
+    <b>Ok tipi:</b> düz = senkron çağrı · kesik = dönüş / async · <b>mavi kesik</b> = P3c düzeltme geri beslemesi (§2).
+    <b>Not tipi:</b> <span style="color:#0A5240">⊕ yeşil</span> = <code>turn_context</code>'e append (append-only, atıflı, güven taşır) ·
+    <span style="color:#7A4A08">⊗ amber</span> = telemetri emisyonu · gri = deterministik işlem mantığı.<br>
+    <b>Okunması gereken:</b> ⑤ hiçbir şeyi iptal etmez (durum raporu); iptal yetkisi yalnız ⑥'dadır ve tek biçimi «modeli çağırmamak».
+    Turda kullanıcıya konuşan tek üretken çağrı ⑧'dir; ② ayrı governed router'dır (ikinci completion). Force-flush yanıttan ÖNCE olmalı — serverless <code>res.json()</code> sonrası donar.
+  </p>
+</section>
+
+<section>
+  <h2><span class="sn">§2</span>⑥'nın diğer dalları — teşhis × taşıyıcılık</h2>
+  <p>Mutlu yol (§1) yalnızca <strong>LINK + çözülebilir kapsam</strong> hâlidir. ⑥ deterministik olarak şu tablodan okur; «taşıyıcı» =
+  çapası çözülmeden anlamı tamamlanmayan mention (yapısal doluluk kontrolü, yorum değil):</p>
+  <div class="card bl">
+    <div class="head"><h3>⑥ yürütme kararı tablosu</h3><span style="font-family:ui-monospace,monospace;font-size:11px;color:#5C6662">v1_2 §5 · her dal turu SÜRDÜRÜR</span></div>
+    <table>
+      <tr><th style="width:190px">Teşhis (⑤)</th><th style="width:120px">Taşıyıcı mı?</th><th>⑥ kararı</th><th style="width:150px">Kullanıcıya</th></tr>
+      <tr><td><strong>LINK</strong> (s₁−s₂ ≥ β)</td><td>—</td><td>Çöz → canonical_id + ATIF akışa · devam · modeli ÇAĞIR</td><td>cevap (§1)</td></tr>
+      <tr><td><strong>AMBIGUOUS</strong> (aleatorik)</td><td>evet</td><td>Modeli ÇAĞIRMA · seçenek sun — seçenekler ÇAPADAN türer</td><td>«Granit'in mi, Seramik'in mi Glazur3'ü?» + olay → L5</td></tr>
+      <tr><td><strong>AMBIGUOUS</strong></td><td>hayır</td><td>En iyi adayla devam · belirsizlik akışa ETİKETLİ</td><td>cevap + «bu varsayımla» uyarısı</td></tr>
+      <tr><td><strong>NIL</strong> (s₁ &lt; τ, epistemik)</td><td>evet</td><td>Modeli ÇAĞIRMA · BİLDİR (soru değil) — liste ÇAĞIRANIN kapsamıyla sınırlı (A-5)</td><td>«'X' kayıtlı değil; kapsamınızda: …» + olay → L5</td></tr>
+      <tr><td><strong>NIL</strong></td><td>hayır</td><td>Mention'ı düşür · kalanla devam · düşürme akışta görünür</td><td>cevap (düşürme beyan edilir)</td></tr>
+      <tr><td><strong>Kapsam kökü boş</strong></td><td>—</td><td>açık ifade → oku · güçlü sinyal → ÇIKAR + ATIFLA · <strong>ikisi de yok → SOR</strong> (D-N6)</td><td>«24 saat / hafta / ay?» (kapalı seçenek)</td></tr>
+    </table>
+  </div>
+  <div class="note am"><strong>P3c — tek turda düzeltilebilirlik (AŞAMA C · BAĞ 2 · v1_3/D-N7).</strong> Her çıkarılmış varlık/kapsam atıflı beyandır.
+  Düzeltme («hayır, KB7») <strong>bir YENİ turdur ve turun başına — ②'ye — döner, ⑥'ya DEĞİL</strong>: ⑥ deterministiktir, ham metin çözemez/çözmemeli (D-N3).
+  Akış ②→③→④→⑤→⑥ tam-pipeline'dan geçer; ② önceki turun <strong>son-çözüm dilimini</strong> (çapraz-tur taşıyıcı, A-10; SVG'de tur-sonu bandı) okuyarak «KB7»yi bir delta olarak yorumlar.
+  Görünür ama düzeltilemez tahmin, sessizden yalnız daha dürüsttür — daha iyi değil.
+  Her NIL/AMBIGUOUS olayı L5 entity-miss ledger'a düşer → 🤖 öneri → 🗄️ insan + eval-gate → yayın: sistem etiketli veriyi kendisi üretir.</div>
+</section>
+
+</main>
+
+<footer>
+END · A23_cwf-turn-sequence-target-v1_1 · rev 1.1 · 2026-07-25 · anchor 194f6a8 (rev 142) · 🔒 LOCKED<br>
+sibling (locked): A23_cwf-understanding-layer-architecture-v1_3.html (binding) · A23_cwf-target-component-architecture-v1_1.html<br>
+kaynaklar: A23_cwf-understanding-layer-architecture-v1_3 §2/§5.1 (binding) · A23_cwf-target-component-architecture-v1_1 · ADR-001/008 · RULE-27/28<br>
+amendments mint v1_2 — never in-place (S37-1)
+</footer>
+
+</body>
+</html>

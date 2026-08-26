@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CWF/EAIP · IR + Hybrid Retrieval (Path B) — Sequence Logic Reference · v1</title>
+<!-- cwf-ir-pathb-hybrid-logic-v1 · rev 1 · 2026-07-19 · Architect-authored.
+     Companions: cwf-ir-sequence-logic-v1.html (Path A runtime) ·
+     cwf-ir-architecture-roadmap-v1.md (IR-4 = this contract).
+     STATUS: FUTURE-STATE CONTRACT. Activates when a federated backend
+     (SAP / IoT-Ignite) is real. Not a build order.
+     Versioning rule: amendments mint v1_2 / rev 1.2 — never in-place. -->
+<style>
+  :root{
+    --ink:#1C2422; --paper:#F5F6F3; --card:#FFFFFF; --line:#2A3330;
+    --mut:#5C6662; --t:#2A3330; --bg2:#FFFFFF;
+    --pu:#6D4FC4; --pu-f:#EFEAFB;
+    --te:#0E6B54; --te-f:#E3F1EB;
+    --gr:#667080; --gr-f:#ECEFF1;
+    --am:#A8620A; --am-f:#FBF3E4;
+    --rd:#B3261E; --rd-f:#FBEAE8;
+    --bl:#1D5FA8; --bl-f:#E6EFF9;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--paper);color:var(--ink);
+    font-family:"Avenir Next","Segoe UI",system-ui,sans-serif;
+    font-size:15px;line-height:1.55;padding:0 0 64px}
+  header{border-bottom:2px solid var(--line);background:var(--card);padding:26px 34px 20px}
+  header .docid{font-family:ui-monospace,monospace;font-size:12px;color:var(--mut);letter-spacing:.04em}
+  header h1{font-size:25px;font-weight:600;margin:6px 0 4px}
+  header p.sub{color:var(--mut);max-width:920px}
+  .status{display:inline-block;margin-top:10px;background:var(--am-f);border:1px solid var(--am);
+    color:#7A4A08;border-radius:6px;padding:4px 12px;font-family:ui-monospace,monospace;font-size:12px}
+  main{max-width:1120px;margin:0 auto;padding:0 24px}
+  section{margin-top:40px}
+  h2{font-size:19px;font-weight:600;border-left:4px solid var(--line);padding-left:12px;margin-bottom:14px}
+  h2 .sn{font-family:ui-monospace,monospace;font-size:12px;color:var(--mut);margin-right:8px}
+  .note{background:var(--card);border:1px solid #D8DDD9;border-radius:8px;padding:14px 18px;margin:12px 0}
+  .diagwrap{background:var(--card);border:1px solid #D8DDD9;border-radius:10px;padding:18px 10px;overflow-x:auto}
+  svg text{fill:var(--ink)}
+  svg .th{font:600 13px "Avenir Next","Segoe UI",sans-serif}
+  svg .ts{font:11.5px "Avenir Next","Segoe UI",sans-serif}
+  svg .arr{stroke:var(--t);stroke-width:1.1;fill:none}
+  svg .c-gray rect{fill:var(--gr-f);stroke:var(--gr)}
+  svg .c-purple rect{fill:var(--pu-f);stroke:var(--pu)}
+  svg .c-teal rect{fill:var(--te-f);stroke:var(--te)}
+  svg .c-amber rect{fill:var(--am-f);stroke:var(--am)}
+  svg .c-red rect{fill:var(--rd-f);stroke:var(--rd)}
+  svg .c-blue rect{fill:var(--bl-f);stroke:var(--bl)}
+  .chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
+  .chip{background:var(--card);border:1px solid #C9D0CC;border-radius:20px;padding:5px 14px;font-size:13px}
+  .card{background:var(--card);border:1px solid #D8DDD9;border-radius:10px;margin:16px 0;overflow:hidden}
+  .card .head{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid #E4E8E5;flex-wrap:wrap}
+  .card .num{font-family:ui-monospace,monospace;font-weight:700;font-size:14px;
+    min-width:42px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+    border:2px solid var(--line);padding:0 6px}
+  .card h3{font-size:16px;font-weight:600;flex:1;min-width:220px}
+  .tag{font-family:ui-monospace,monospace;font-size:11px;border-radius:5px;padding:3px 8px;white-space:nowrap}
+  .tag.pu{background:var(--pu-f);color:var(--pu);border:1px solid var(--pu)}
+  .tag.te{background:var(--te-f);color:var(--te);border:1px solid var(--te)}
+  .tag.gr{background:var(--gr-f);color:#3E4650;border:1px solid var(--gr)}
+  .tag.bl{background:var(--bl-f);color:var(--bl);border:1px solid var(--bl)}
+  .tag.ph{background:#F1F3EF;color:var(--mut);border:1px solid #C9D0CC}
+  .card.pu{border-left:5px solid var(--pu)}
+  .card.te{border-left:5px solid var(--te)}
+  .card.gr{border-left:5px solid var(--gr)}
+  .card.am{border-left:5px solid var(--am)}
+  .card.rd{border-left:5px solid var(--rd)}
+  .card.bl{border-left:5px solid var(--bl)}
+  .rows{padding:6px 18px 12px}
+  .row{display:grid;grid-template-columns:118px 1fr;gap:10px;padding:7px 0;border-bottom:1px dashed #E4E8E5}
+  .row:last-child{border-bottom:none}
+  .row .k{font-family:ui-monospace,monospace;font-size:11.5px;color:var(--mut);letter-spacing:.03em;padding-top:2px}
+  .row .v{font-size:14px}
+  .tweak{background:#F4F6F3;border-top:1px solid #E4E8E5;padding:10px 18px;font-size:13.5px}
+  .tweak .k{font-family:ui-monospace,monospace;font-size:11.5px;color:var(--mut);letter-spacing:.03em;display:block;margin-bottom:4px}
+  code{font-family:ui-monospace,"SF Mono",Consolas,monospace;font-size:12.5px;background:#EFF2EF;
+    border:1px solid #DDE2DE;border-radius:4px;padding:1px 5px}
+  .frame{background:#232B28;color:#EAF0EC;border-radius:8px;padding:12px 16px;
+    font-family:ui-monospace,monospace;font-size:12.5px;line-height:1.7;overflow-x:auto;margin:10px 0}
+  footer{max-width:1120px;margin:48px auto 0;padding:14px 24px 0;color:var(--mut);
+    font-family:ui-monospace,monospace;font-size:11.5px;border-top:1px solid #C9D0CC}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="docid">cwf-ir-pathb-hybrid-logic-v1 · rev 1 · 2026-07-19 · companions: cwf-ir-sequence-logic-v1.html (Path A) · cwf-ir-architecture-roadmap-v1.md (IR-4)</div>
+  <h1>IR + Hybrid Retrieval (Path B) — Sequence Logic Reference</h1>
+  <p class="sub">IR omurgasının üzerine BM25+vektör hybrid retrieval bindiğinde sistemin alacağı şekil:
+  federated araç uzayları (SAP BAPI'leri, IoT-Ignite cihaz yetenekleri, 1000+ tool) için ikinci çözümleme yolu.
+  Değişmeyen ilke: retrieval <b>ham dili asla görmez</b> — yalnız normalizer'ın kanonik frame'iyle arar.
+  BM25/hybrid, IR'ın rakibi değil, IR'ın arkasına monte edilen ikinci stratejidir.</p>
+  <div class="status">STATUS: IR-4 FUTURE-STATE CONTRACT — federated backend gerçek olduğunda aktive olur; build order değildir</div>
+</header>
+
+<main>
+
+<!-- ══════════════════ §1 · RUNTIME SEQUENCE ══════════════════ -->
+<section>
+<h2><span class="sn">§1</span>Runtime Sequence — Federated Sorgu Örneği</h2>
+
+<div class="diagwrap">
+<svg width="100%" viewBox="0 0 1120 1330" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>Path B runtime sequence diagram</title>
+<desc>Federated bir sorgunun IR frame üzerinden Qdrant hybrid index ve OPA policy katmanlarına akışı.</desc>
+<defs><marker id="arw" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+
+<!-- Lane headers -->
+<g class="c-gray"><rect x="12" y="28" width="86" height="58" rx="8" stroke-width="1"/>
+<text class="th" x="55" y="57" text-anchor="middle" dominant-baseline="central">Kullanıcı</text></g>
+<g class="c-gray"><rect x="112" y="28" width="116" height="58" rx="8" stroke-width="1"/>
+<text class="th" x="170" y="49" text-anchor="middle" dominant-baseline="central">Turn Pipeline</text>
+<text class="ts" x="170" y="69" text-anchor="middle" dominant-baseline="central">stage 00–14</text></g>
+<g class="c-purple"><rect x="238" y="28" width="118" height="58" rx="8" stroke-width="1"/>
+<text class="th" x="297" y="49" text-anchor="middle" dominant-baseline="central">Normalizer</text>
+<text class="ts" x="297" y="69" text-anchor="middle" dominant-baseline="central">LLM Gateway ᴸ</text></g>
+<g class="c-teal"><rect x="366" y="28" width="122" height="58" rx="8" stroke-width="1"/>
+<text class="th" x="427" y="49" text-anchor="middle" dominant-baseline="central">Zırh + Çözücüler</text>
+<text class="ts" x="427" y="69" text-anchor="middle" dominant-baseline="central">Path A ile aynı</text></g>
+<g class="c-teal"><rect x="498" y="28" width="120" height="58" rx="8" stroke-width="1"/>
+<text class="th" x="558" y="49" text-anchor="middle" dominant-baseline="central">Resolver Router</text>
+<text class="ts" x="558" y="69" text-anchor="middle" dominant-baseline="central">Yol A/B kararı</text></g>
+<g class="c-blue"><rect x="630" y="28" width="122" height="58" rx="8" stroke-width="1"/>
+<text class="th" x="691" y="49" text-anchor="middle" dominant-baseline="central">Qdrant Hybrid</text>
+<text class="ts" x="691" y="69" text-anchor="middle" dominant-baseline="central">dense+sparse+RRF</text></g>
+<g class="c-blue"><rect x="764" y="28" width="110" height="58" rx="8" stroke-width="1"/>
+<text class="th" x="819" y="49" text-anchor="middle" dominant-baseline="central">OPA Policy</text>
+<text class="ts" x="819" y="69" text-anchor="middle" dominant-baseline="central">zincir + scope</text></g>
+<g class="c-purple"><rect x="898" y="28" width="120" height="58" rx="8" stroke-width="1"/>
+<text class="th" x="958" y="49" text-anchor="middle" dominant-baseline="central">Ana LLM</text>
+<text class="ts" x="958" y="69" text-anchor="middle" dominant-baseline="central">+ SAP MCP ᴸ</text></g>
+
+<!-- Lifelines -->
+<g stroke="#2A3330" stroke-width="0.6" stroke-dasharray="4 4" opacity="0.45">
+<line x1="55" y1="86" x2="55" y2="1050"/><line x1="170" y1="86" x2="170" y2="1050"/>
+<line x1="297" y1="86" x2="297" y2="1050"/><line x1="427" y1="86" x2="427" y2="1050"/>
+<line x1="558" y1="86" x2="558" y2="1050"/><line x1="691" y1="86" x2="691" y2="1050"/>
+<line x1="819" y1="86" x2="819" y2="1050"/><line x1="958" y1="86" x2="958" y2="1050"/></g>
+
+<!-- 1 -->
+<text class="ts" x="112" y="112" text-anchor="middle">"SAP'de açık üretim</text>
+<text class="ts" x="112" y="126" text-anchor="middle">emirlerini göster"</text>
+<line x1="55" y1="138" x2="164" y2="138" class="arr" marker-end="url(#arw)"/>
+<circle cx="67" cy="138" r="9" fill="#FFF" stroke="#2A3330" stroke-width="1"/><text class="ts" x="67" y="139" text-anchor="middle" dominant-baseline="central">1</text>
+
+<!-- 2 -->
+<text class="ts" x="233" y="176" text-anchor="middle">paket (Path A §② ile aynı)</text>
+<line x1="170" y1="188" x2="291" y2="188" class="arr" marker-end="url(#arw)"/>
+<circle cx="182" cy="188" r="9" fill="#FFF" stroke="#2A3330" stroke-width="1"/><text class="ts" x="182" y="189" text-anchor="middle" dominant-baseline="central">2</text>
+
+<!-- 3 -->
+<text class="ts" x="362" y="226" text-anchor="middle">ham frame</text>
+<line x1="297" y1="238" x2="421" y2="238" class="arr" marker-end="url(#arw)"/>
+<circle cx="309" cy="238" r="9" fill="#FFF" stroke="#2A3330" stroke-width="1"/><text class="ts" x="309" y="239" text-anchor="middle" dominant-baseline="central">3</text>
+
+<!-- ZC note -->
+<g class="c-teal"><rect x="340" y="258" width="300" height="34" rx="6" stroke-width="1" opacity="0.95"/>
+<text class="ts" x="490" y="275" text-anchor="middle" dominant-baseline="central">doğrula (Zod+enum) · slotları çöz — Path A §④⑤ birebir</text></g>
+
+<!-- 4 -->
+<text class="ts" x="493" y="315" text-anchor="middle">QUERY_STATUS × PRODUCTION_ORDER</text>
+<line x1="427" y1="327" x2="552" y2="327" class="arr" marker-end="url(#arw)"/>
+<circle cx="439" cy="327" r="9" fill="#FFF" stroke="#2A3330" stroke-width="1"/><text class="ts" x="439" y="328" text-anchor="middle" dominant-baseline="central">4</text>
+
+<!-- RR note: MISS -->
+<g class="c-teal"><rect x="470" y="347" width="330" height="50" rx="6" stroke-width="1" opacity="0.95"/>
+<text class="ts" x="635" y="363" text-anchor="middle" dominant-baseline="central">core tablo bakışı → MISS (çekirdek intent değil)</text>
+<text class="ts" x="635" y="381" text-anchor="middle" dominant-baseline="central">Yol B kararı — DETERMİNİSTİK, LLM backend seçmez</text></g>
+
+<!-- 5 -->
+<text class="ts" x="624" y="420" text-anchor="middle">kanonik sorgu: frame terimleri</text>
+<line x1="558" y1="432" x2="685" y2="432" class="arr" marker-end="url(#arw)"/>
+<circle cx="570" cy="432" r="9" fill="#FFF" stroke="#2A3330" stroke-width="1"/><text class="ts" x="570" y="433" text-anchor="middle" dominant-baseline="central">5</text>
+
+<!-- Q note -->
+<g class="c-blue"><rect x="600" y="452" width="330" height="66" rx="6" stroke-width="1" opacity="0.95"/>
+<text class="ts" x="765" y="468" text-anchor="middle" dominant-baseline="central">bge-m3 encode: dense + sparse (BM25-eşdeğeri) ᴱ</text>
+<text class="ts" x="765" y="485" text-anchor="middle" dominant-baseline="central">tenant koleksiyonunda paralel arama → RRF füzyonu</text>
+<text class="ts" x="765" y="502" text-anchor="middle" dominant-baseline="central">skor eşiği (retrieval.scoreThreshold) → top-k=5</text></g>
+
+<!-- 6 -->
+<text class="ts" x="624" y="541" text-anchor="middle">top-k aday + skorlar</text>
+<line x1="691" y1="553" x2="564" y2="553" class="arr" marker-end="url(#arw)" stroke-dasharray="5 3"/>
+<circle cx="679" cy="553" r="9" fill="#FFF" stroke="#2A3330" stroke-width="1"/><text class="ts" x="679" y="554" text-anchor="middle" dominant-baseline="central">6</text>
+
+<!-- 7 -->
+<text class="ts" x="688" y="591" text-anchor="middle">aday set + tenant + rol + frame</text>
+<line x1="558" y1="603" x2="813" y2="603" class="arr" marker-end="url(#arw)"/>
+<circle cx="570" cy="603" r="9" fill="#FFF" stroke="#2A3330" stroke-width="1"/><text class="ts" x="570" y="604" text-anchor="middle" dominant-baseline="central">7</text>
+
+<!-- OPA note -->
+<g class="c-blue"><rect x="700" y="623" width="300" height="66" rx="6" stroke-width="1" opacity="0.95"/>
+<text class="ts" x="850" y="639" text-anchor="middle" dominant-baseline="central">exposure: read|write (write → audited allowWrite)</text>
+<text class="ts" x="850" y="656" text-anchor="middle" dominant-baseline="central">zincir kuralı: veri-çeken → dış-kanal YASAK</text>
+<text class="ts" x="850" y="673" text-anchor="middle" dominant-baseline="central">tenant scope + rol → fail-closed filtre</text></g>
+
+<!-- 8 -->
+<text class="ts" x="497" y="712" text-anchor="middle">onaylı aday set ∪ ALWAYS_INCLUDE + slotlar</text>
+<line x1="819" y1="724" x2="176" y2="724" class="arr" marker-end="url(#arw)" stroke-dasharray="5 3"/>
+<circle cx="807" cy="724" r="9" fill="#FFF" stroke="#2A3330" stroke-width="1"/><text class="ts" x="807" y="725" text-anchor="middle" dominant-baseline="central">8</text>
+
+<!-- 9 -->
+<text class="ts" x="565" y="762" text-anchor="middle">stage-09 prompt (aday set + slotlar + bilgi)</text>
+<line x1="170" y1="774" x2="952" y2="774" class="arr" marker-end="url(#arw)"/>
+<circle cx="182" cy="774" r="9" fill="#FFF" stroke="#2A3330" stroke-width="1"/><text class="ts" x="182" y="775" text-anchor="middle" dominant-baseline="central">9</text>
+
+<!-- L note -->
+<g class="c-purple"><rect x="760" y="794" width="290" height="34" rx="6" stroke-width="1" opacity="0.95"/>
+<text class="ts" x="905" y="811" text-anchor="middle" dominant-baseline="central">SAP MCP: listProductionOrders(status=OPEN)</text></g>
+
+<!-- 10 -->
+<text class="ts" x="565" y="850" text-anchor="middle">cevap + raw_tool_results</text>
+<line x1="958" y1="862" x2="176" y2="862" class="arr" marker-end="url(#arw)" stroke-dasharray="5 3"/>
+<circle cx="946" cy="862" r="9" fill="#FFF" stroke="#2A3330" stroke-width="1"/><text class="ts" x="946" y="863" text-anchor="middle" dominant-baseline="central">10</text>
+
+<!-- P note -->
+<g class="c-gray"><rect x="95" y="882" width="300" height="34" rx="6" stroke-width="1" opacity="0.95"/>
+<text class="ts" x="245" y="899" text-anchor="middle" dominant-baseline="central">stage 12 grounding · stage 13 render — Path A ile aynı</text></g>
+
+<!-- 11 -->
+<text class="ts" x="112" y="938" text-anchor="middle">yanıt</text>
+<line x1="170" y1="950" x2="61" y2="950" class="arr" marker-end="url(#arw)"/>
+<circle cx="158" cy="950" r="9" fill="#FFF" stroke="#2A3330" stroke-width="1"/><text class="ts" x="158" y="951" text-anchor="middle" dominant-baseline="central">11</text>
+
+<!-- observability strip -->
+<g class="c-gray"><rect x="20" y="985" width="1080" height="40" rx="8" stroke-width="1" fill-opacity="0.55"/>
+<text class="ts" x="560" y="1005" text-anchor="middle" dominant-baseline="central">ᴸ = LLM Gateway üzerinden (LiteLLM / provider registry) · ᴱ = Embedding Service (bge-m3, self-hosted deterministik encoder) · TÜM adımlar OTel span → Langfuse: cwf.retrieval.* (sorgu, top-k, skorlar, eşik kararı)</text></g>
+
+<!-- ALT C -->
+<g class="c-amber"><rect x="20" y="1045" width="1080" height="82" rx="8" stroke-width="1" fill-opacity="0.35"/>
+<text class="th" x="36" y="1066">ALT-C — Retrieval boş / eşik altı</text></g>
+<text class="ts" x="560" y="1090" text-anchor="middle">0 hit ≠ hata (empty≠zero retrieval'a da uygulanır) · düşük skorlu tahmin ASLA sunulmaz</text>
+<text class="ts" x="560" y="1108" text-anchor="middle">→ dürüst cevap: "bu istek için bağlı sistemlerde araç bulunamadı" veya ALT-A netleştirme sorusu</text>
+
+<!-- ALT B ladder note -->
+<g class="c-red"><rect x="20" y="1140" width="1080" height="60" rx="8" stroke-width="1" fill-opacity="0.30"/>
+<text class="th" x="36" y="1161">ALT-B — Floor merdiveni (Path A ile aynı, sökülmedi)</text>
+<text class="ts" x="36" y="1183">Normalizer arızası → SR1 → keyword floor; Qdrant/OPA outage → Yol B devre dışı, Yol A + core tablo yaşamaya devam eder — federated uzay kaybolur, çekirdek fabrika yetenekleri ASLA kaybolmaz.</text></g>
+
+<!-- legend -->
+<g class="c-purple"><rect x="20" y="1225" width="14" height="14" rx="3"/></g>
+<text class="ts" x="42" y="1232" dominant-baseline="central">LLM (2 dar görev — değişmedi)</text>
+<g class="c-teal"><rect x="270" y="1225" width="14" height="14" rx="3"/></g>
+<text class="ts" x="292" y="1232" dominant-baseline="central">Deterministik IR çekirdeği (Path A'dan aynen)</text>
+<g class="c-blue"><rect x="620" y="1225" width="14" height="14" rx="3"/></g>
+<text class="ts" x="642" y="1232" dominant-baseline="central">YENİ — Path B bileşenleri (Qdrant, OPA, Embedding)</text>
+<text class="ts" x="20" y="1262">Kesikli oklar = dönüş akışı · LangGraph bu diyagramda YOK: çok-adımlı cross-backend planlar gerektiğinde stage-04'e opsiyonel planner olarak girer (§3'te kontratı var, bilinçli ertelendi).</text>
+</svg>
+</div>
+
+<div class="note"><b>Tek cümlelik özet:</b> 4 numaralı adımda Resolver Router core tabloda MISS görür ve Yol B'ye
+deterministik olarak döner — LLM hangi backend'e gidileceğini <b>seçmez</b>. Retrieval sorgusu ham cümle değil,
+frame'in kanonik terimleridir; SAP BAPI açıklamalarındaki İngilizce teknik terimlerle arası bir çeviri mesafesi kadar kısadır.
+Morfoloji problemi retrieval'a hiç ulaşmaz — Path A'da çözülmüş olarak gelir.</div>
+</section>
+
+<!-- ══════════════════ §2 · INGESTION ══════════════════ -->
+<section>
+<h2><span class="sn">§2</span>Ingestion Pipeline — Federated Korpus Nasıl Doğar (offline yol)</h2>
+<div class="diagwrap">
+<svg width="100%" viewBox="0 0 1080 300" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>Ingestion pipeline</title>
+<desc>Backend bağlanınca araç kataloğunun mirror, zenginleştirme, encode ve Qdrant indeksleme adımları.</desc>
+<defs><marker id="arw2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+
+<g class="c-gray"><rect x="15" y="40" width="185" height="70" rx="8" stroke-width="1"/>
+<text class="th" x="107" y="63" text-anchor="middle" dominant-baseline="central">I1 · Backend connect</text>
+<text class="ts" x="107" y="83" text-anchor="middle" dominant-baseline="central">SAP / IoT-Ignite MCP</text>
+<text class="ts" x="107" y="99" text-anchor="middle" dominant-baseline="central">listTools → katalog</text></g>
+<line x1="200" y1="75" x2="238" y2="75" class="arr" marker-end="url(#arw2)"/>
+
+<g class="c-teal"><rect x="242" y="40" width="195" height="70" rx="8" stroke-width="1"/>
+<text class="th" x="339" y="63" text-anchor="middle" dominant-baseline="central">I2 · Mirror (Supabase)</text>
+<text class="ts" x="339" y="83" text-anchor="middle" dominant-baseline="central">backend_tools tablosu</text>
+<text class="ts" x="339" y="99" text-anchor="middle" dominant-baseline="central">missing ≠ deleted</text></g>
+<line x1="437" y1="75" x2="475" y2="75" class="arr" marker-end="url(#arw2)"/>
+
+<g class="c-teal"><rect x="479" y="40" width="200" height="70" rx="8" stroke-width="1"/>
+<text class="th" x="579" y="63" text-anchor="middle" dominant-baseline="central">I3 · Kanonik zenginleştirme</text>
+<text class="ts" x="579" y="83" text-anchor="middle" dominant-baseline="central">taxonomy tag (action/object)</text>
+<text class="ts" x="579" y="99" text-anchor="middle" dominant-baseline="central">+ exposure read|write</text></g>
+<line x1="679" y1="75" x2="717" y2="75" class="arr" marker-end="url(#arw2)"/>
+
+<g class="c-blue"><rect x="721" y="40" width="160" height="70" rx="8" stroke-width="1"/>
+<text class="th" x="801" y="63" text-anchor="middle" dominant-baseline="central">I4 · Encode</text>
+<text class="ts" x="801" y="83" text-anchor="middle" dominant-baseline="central">bge-m3: dense + sparse</text>
+<text class="ts" x="801" y="99" text-anchor="middle" dominant-baseline="central">deterministik encoder</text></g>
+<line x1="881" y1="75" x2="919" y2="75" class="arr" marker-end="url(#arw2)"/>
+
+<g class="c-blue"><rect x="923" y="40" width="145" height="70" rx="8" stroke-width="1"/>
+<text class="th" x="995" y="63" text-anchor="middle" dominant-baseline="central">I5 · Qdrant upsert</text>
+<text class="ts" x="995" y="83" text-anchor="middle" dominant-baseline="central">tenant koleksiyonu</text>
+<text class="ts" x="995" y="99" text-anchor="middle" dominant-baseline="central">idempotent</text></g>
+
+<g class="c-amber"><rect x="15" y="150" width="1053" height="60" rx="8" stroke-width="1" fill-opacity="0.35"/>
+<text class="th" x="31" y="172">PLATINUM: tetik = on-connect otomatik + panelde tek "Sync" butonu (ROUTE-GOV-1 mirror deseni)</text>
+<text class="ts" x="31" y="194">I3'te insan İSTEĞE BAĞLI küratördür (write-exposure onayı gibi kararlar); hiçbir adım manuel montaj gerektirmez. İndeks yeniden inşası makinenin işidir.</text></g>
+
+<g class="c-gray"><rect x="15" y="228" width="1053" height="48" rx="8" stroke-width="1" fill-opacity="0.55"/>
+<text class="ts" x="31" y="248">Fail-closed: I3'te taxonomy tag'i veya exposure'ı OLMAYAN tool Qdrant'a girse bile OPA katmanında düşer (ROUTE-GOV-1 F80 ilkesi:</text>
+<text class="ts" x="31" y="266">sınıflandırılmamış tool aday sete giremez) · Mirror'da missing ≠ deleted — backend geçici olarak tool bildirmezse kayıt silinmez, işaretlenir.</text></g>
+</svg>
+</div>
+</section>
+
+<!-- ══════════════════ §3 · KOMPONENT HARİTASI ══════════════════ -->
+<section>
+<h2><span class="sn">§3</span>EAIP Komponent Haritası — Kim Ne İş Yapar, Nereye Bağlanır</h2>
+
+<div class="card bl">
+  <div class="head"><div class="num">C1</div><h3>Qdrant — Hybrid Tool Index</h3><span class="tag bl">YENİ · Path B çekirdeği</span></div>
+  <div class="rows">
+    <div class="row"><div class="k">ROL</div><div class="v">Federated tool korpusunun tek arama motoru: dense (anlamsal) + sparse (BM25-eşdeğeri lexical) vektörler AYNI koleksiyonda; RRF füzyonu server-side. İki ayrı motor (ayrı BM25 servisi + ayrı vektör DB) bakımlamak yerine tek bileşen — committed tercih.</div></div>
+    <div class="row"><div class="k">BAĞLANTI</div><div class="v">Girdi: I4 encode çıktısı (upsert) + §1 adım 5 kanonik sorgu. Çıktı: top-k tool referansı → Resolver Router. Tenant izolasyonu: koleksiyon-per-tenant.</div></div>
+    <div class="row"><div class="k">CWF-BUGÜN</div><div class="v">Yok — Path B ile doğar. Governed DB'deki <code>backend_tools</code> mirror'ı source-of-truth kalır; Qdrant her zaman yeniden inşa edilebilir TÜREV indekstir (kaybı = re-sync, veri kaybı değil).</div></div>
+  </div>
+  <div class="tweak"><span class="k">TWEAK</span>🗄️ <code>retrieval.topK</code> · 🗄️ <code>retrieval.scoreThreshold</code> · 🗄️ füzyon ağırlıkları — governed param, insan · 🤖 indeks inşası/yenilenmesi tamamen makine.</div>
+</div>
+
+<div class="card bl">
+  <div class="head"><div class="num">C2</div><h3>Embedding Service — bge-m3 (self-hosted)</h3><span class="tag bl">YENİ</span></div>
+  <div class="rows">
+    <div class="row"><div class="k">ROL</div><div class="v">Deterministik encoder — LLM DEĞİL. Tek modelden hem dense hem sparse (lexical ağırlık) çıktısı üretir; çok dilli (TR dahil). Aynı girdi = aynı vektör: test edilebilir, model-agnostiklik hedefini bozmaz.</div></div>
+    <div class="row"><div class="k">BAĞLANTI</div><div class="v">I4 (korpus encode) + §1 adım 5 (sorgu encode). Kanonik frame terimleri encode ettiği için sorgu uzayı küçük ve kararlıdır.</div></div>
+    <div class="row"><div class="k">CWF-BUGÜN</div><div class="v">Yok. On-prem/savunma hattında da aynı bileşen (500MB sınıfı, GPU şart değil) — CWF-OnPrem uyumlu.</div></div>
+  </div>
+  <div class="tweak"><span class="k">TWEAK</span>🧱 model versiyonu (değişirse TÜM korpus re-encode — makine yapar, insan versiyon kararını verir).</div>
+</div>
+
+<div class="card bl">
+  <div class="head"><div class="num">C3</div><h3>OPA — Tool-Chain Policy Engine</h3><span class="tag bl">YENİ · governance</span></div>
+  <div class="rows">
+    <div class="row"><div class="k">ROL</div><div class="v">Retrieval "alakalı mı" sorusuna cevap verir; OPA "izinli mi" sorusuna. Exposure (read|write, write → audited <code>allowWrite</code>), araç-zinciri kuralları ("fabrika verisi çeken tool → dış kanal tool'u YASAK"), tenant scope, rol. Fail-closed: policy'si olmayan tool düşer.</div></div>
+    <div class="row"><div class="k">BAĞLANTI</div><div class="v">§1 adım 7 — Resolver Router'dan aday set alır, filtrelenmiş set döner. Policy verisi governed DB'den derlenir (tool_annotation overlay → Rego kuralları).</div></div>
+    <div class="row"><div class="k">CWF-BUGÜN</div><div class="v">ROUTE-GOV-1'in <code>tool_annotation</code> overlay'i (exposure + F80 fail-closed) aynı sözleşmenin CWF-native hali. Path B'de bu sözleşme OPA'ya taşınır/aynalanır — davranış kontratı değişmez, ölçek büyür.</div></div>
+  </div>
+  <div class="tweak"><span class="k">TWEAK</span>🗄️ policy kuralları — SADECE insan, eval-gate'li publish. 🤖 asla policy yazmaz; ihlal denemeleri born-loud loglanır (S41-1).</div>
+</div>
+
+<div class="card gr">
+  <div class="head"><div class="num">C4</div><h3>LLM Gateway — LiteLLM / Provider Registry</h3><span class="tag gr">mevcut sözleşme</span></div>
+  <div class="rows">
+    <div class="row"><div class="k">ROL</div><div class="v">Model-agnostik LLM kapısı: Normalizer (③) ve Ana LLM (⑧) çağrıları buradan geçer. Model değişimi = konfigürasyon; mimariye dokunmaz. Path B hiçbir yeni LLM çağrısı EKLEMEZ — retrieval LLM'siz çalışır.</div></div>
+    <div class="row"><div class="k">BAĞLANTI</div><div class="v">Normalizer + Ana LLM. Embedding Service'e BAĞLANMAZ (o ayrı, deterministik hat).</div></div>
+    <div class="row"><div class="k">CWF-BUGÜN</div><div class="v">Repo'da <code>llmProviderRegistry</code>; EAIP hedef mimaride LiteLLM gateway. İkisi aynı sözleşmeyi taşır — geçiş bir adapter işidir, bu dokümandaki akışları değiştirmez.</div></div>
+  </div>
+  <div class="tweak"><span class="k">TWEAK</span>🗄️ model/route seçimi, timeout, maliyet tavanları — insan.</div>
+</div>
+
+<div class="card gr">
+  <div class="head"><div class="num">C5</div><h3>LangGraph — Stage-04 Planner</h3><span class="tag ph">ERTELENMİŞ · bilinçli</span></div>
+  <div class="rows">
+    <div class="row"><div class="k">ROL</div><div class="v">Çok-adımlı, cross-backend planlar için opsiyonel orkestratör ("SAP'deki açık emri ARMES'teki gerçekleşen üretimle karşılaştır" sınıfı). Tek-frame sorgular için GEREKSİZ — bugünkü ReAct + IR yeter.</div></div>
+    <div class="row"><div class="k">BAĞLANTI</div><div class="v">Girerse stage-04'e girer; her plan adımı yine IR frame üretir ve AYNI Resolver→OPA hattından geçer — planner, governance'ı baypas edemez.</div></div>
+    <div class="row"><div class="k">KONTRAT</div><div class="v">Locked karar: planner şablonları doğduğu gün code-ref + DB-version + sandbox'lı doğar. Devreye alma tetiği: gerçek cross-backend talep sıklığı — spekülatif kurulmaz.</div></div>
+  </div>
+  <div class="tweak"><span class="k">TWEAK</span>🗄️ plan şablonları (insan, versiyonlu) — makine plan şablonu yazmaz.</div>
+</div>
+
+<div class="card gr">
+  <div class="head"><div class="num">C6</div><h3>Supabase Governed DB + Langfuse + MCP Konektörleri</h3><span class="tag gr">mevcut · rol genişler</span></div>
+  <div class="rows">
+    <div class="row"><div class="k">ROL</div><div class="v"><b>Supabase:</b> source-of-truth büyür — <code>backend_tools</code> mirror (I2), taxonomy tag'leri (I3), retrieval.* paramları, alias/enum tabloları. Qdrant bunların türevi. <b>Langfuse:</b> yeni span ailesi <code>cwf.retrieval.*</code> (sorgu, top-k, skorlar, eşik kararı) — SET-CONTEXT stage-07 kartı Yol B'de bu span'i gösterir. <b>MCP:</b> SAP ve IoT-Ignite birer MCP backend olarak girer (Kale-RAG ilkesiyle aynı: asla side-channel).</div></div>
+  </div>
+  <div class="tweak"><span class="k">TWEAK</span>Mevcut governance düzeni aynen — yeni yüzeyler aynı eval-gate'ten geçer.</div>
+</div>
+</section>
+
+<!-- ══════════════════ §4 · DEĞİŞEN/YENİ ADIMLAR ══════════════════ -->
+<section>
+<h2><span class="sn">§4</span>Değişen ve Yeni Adımların Logic Kartları</h2>
+<div class="note">①–⑤, ⑦–⑨ ve ALT-A/ALT-B <b>Path A dokümanından (cwf-ir-sequence-logic-v1) birebir geçerlidir</b> — burada tekrarlanmaz.
+Değişen tek adım ⑥'dır (üçe ayrılır) ve bir yeni ALT doğar.</div>
+
+<div class="card te">
+  <div class="head"><div class="num">⑥a</div><h3>Resolver Router · Yol kararı</h3><span class="tag te">deterministik</span><span class="tag ph">IR-4</span></div>
+  <div class="rows">
+    <div class="row"><div class="k">GÖREV</div><div class="v">Frame'i doğru çözümleme stratejisine yönlendir.</div></div>
+    <div class="row"><div class="k">GİRDİ</div><div class="v">Doğrulanmış frame.</div></div>
+    <div class="row"><div class="k">ÇIKTI</div><div class="v">Yol A (core tablo hit) veya Yol B (MISS → retrieval) kararı.</div></div>
+    <div class="row"><div class="k">MEKANİZMA</div><div class="v">Önce tablo bakışı — hit varsa Yol A biter (Path A ⑥ aynen). MISS → Yol B. Karar %100 deterministik; <b>LLM backend seçmez, frame'in tabloda evi olup olmadığı seçer.</b></div></div>
+  </div>
+  <div class="tweak"><span class="k">TWEAK</span>🗄️ core tablo satırları (insan) — bir intent'i "core'a alma" kararı = Yol B'den Yol A'ya terfi, ürün kararıdır.</div>
+</div>
+
+<div class="card bl">
+  <div class="head"><div class="num">⑥b</div><h3>Hybrid Retrieval · Qdrant</h3><span class="tag bl">YENİ · deterministik servis</span><span class="tag ph">IR-4</span></div>
+  <div class="rows">
+    <div class="row"><div class="k">GÖREV</div><div class="v">Kanonik frame terimleriyle federated korpusta en alakalı araçları bul.</div></div>
+    <div class="row"><div class="k">GİRDİ</div><div class="v">Kanonik sorgu (frame action+object+metrics terimleri — HAM CÜMLE ASLA).</div></div>
+    <div class="row"><div class="k">ÇIKTI</div><div class="v">Top-k tool referansı + skorlar; eşik altındaysa dürüst boş sonuç.</div></div>
+    <div class="row"><div class="k">MEKANİZMA</div><div class="v">bge-m3 encode → tenant koleksiyonunda dense+sparse paralel arama → RRF füzyonu (server-side) → <code>scoreThreshold</code> → top-k. LLM yok, rastgelelik yok: aynı frame = aynı sonuç (indeks versiyonu sabitken).</div></div>
+  </div>
+  <div class="tweak"><span class="k">TWEAK</span>🗄️ topK / scoreThreshold / füzyon ağırlıkları (insan) · 🤖 <b>retrieval-miss ledger'ı:</b> eşik altı kalan frame'ler sayılır → "şu action×object 9 kez arandı, korpusta karşılığı zayıf" önerisi → insan I3 zenginleştirmesiyle veya core tabloya satırla cevap verir. Dördüncü öneri ledger'ı budur.</div>
+</div>
+
+<div class="card bl">
+  <div class="head"><div class="num">⑥c</div><h3>OPA Policy Filtresi</h3><span class="tag bl">YENİ · fail-closed</span><span class="tag ph">IR-4</span></div>
+  <div class="rows">
+    <div class="row"><div class="k">GÖREV</div><div class="v">Alakalı olanın İZİNLİ olanını süz.</div></div>
+    <div class="row"><div class="k">GİRDİ</div><div class="v">Top-k aday + tenant + rol + frame.</div></div>
+    <div class="row"><div class="k">ÇIKTI</div><div class="v">Onaylı aday set ∪ ALWAYS_INCLUDE.</div></div>
+    <div class="row"><div class="k">MEKANİZMA</div><div class="v">Rego kuralları: exposure (read|write), araç-zinciri yasakları, tenant scope. Sınıflandırılmamış tool düşer (F80). Her düşürme born-loud loglanır (S41-1) — sessiz filtre yok.</div></div>
+  </div>
+  <div class="tweak"><span class="k">TWEAK</span>🗄️ policy kuralları — yalnız insan + eval-gate. Self-learning YASAK (⑨ validator'larıyla aynı gerekçe: güvenlik katmanı veriden beslenmez).</div>
+</div>
+
+<div class="card am">
+  <div class="head"><div class="num">C</div><h3>ALT-C · Retrieval boş / eşik altı</h3><span class="tag gr">tetik: deterministik</span><span class="tag ph">IR-4</span></div>
+  <div class="rows">
+    <div class="row"><div class="k">GİRDİ</div><div class="v">⑥b'den 0 hit veya tüm skorlar eşik altı.</div></div>
+    <div class="row"><div class="k">ÇIKTI</div><div class="v">Dürüst "bağlı sistemlerde bu istek için araç bulunamadı" cevabı VEYA ALT-A netleştirme sorusu. Düşük skorlu tahmin asla sunulmaz.</div></div>
+    <div class="row"><div class="k">MEKANİZMA</div><div class="v">Empty≠zero ilkesinin retrieval'a uygulanması: 0 sonuç bir VERİDİR (korpus boşluğu), hata değildir; öyle de raporlanır.</div></div>
+  </div>
+  <div class="tweak"><span class="k">TWEAK</span>🤖 her ALT-C olayı retrieval-miss ledger'ını besler — korpus boşluklarının haritası kendiliğinden çıkar, kalem insanda kalır.</div>
+</div>
+</section>
+
+<!-- ══════════════════ §5 · KORUNAN INVARIANT'LAR ══════════════════ -->
+<section>
+<h2><span class="sn">§5</span>Path B'de Korunan Invariant'lar</h2>
+<div class="note">
+<b>(1) Retrieval ham dili görmez</b> — morfoloji Path A'da ölür; sorgu uzayı kanonik ve küçüktür.
+<b>(2) LLM sayısı artmaz</b> — Path B sıfır yeni LLM çağrısı ekler; belirsizlik noktaları hâlâ ③ ve ⑧'dir.
+<b>(3) Availability floor kutsaldır</b> — ALWAYS_INCLUDE her yolda union'lanır; Qdrant/OPA outage'ı yalnız federated uzayı düşürür, çekirdek fabrika yetenekleri yaşar.
+<b>(4) Fail-closed governance</b> — sınıflandırılmamış/policy'siz tool aday sete giremez; write, audited onay ister.
+<b>(5) Kaynak-türev ayrımı</b> — Supabase source-of-truth, Qdrant yeniden inşa edilebilir türevdir; indeks kaybı veri kaybı değildir.
+<b>(6) Governed self-improvement deseni genişler ama değişmez</b> — dördüncü ledger (retrieval-miss) da aynı akışı izler: 🤖 önerir → 🗄️ insan + eval-gate → sistem akıllanır.
+<b>(7) Gözlemlenebilirlik</b> — <code>cwf.retrieval.*</code> span'leri olmadan hiçbir Yol B kararı görünmez sayılır; SET-CONTEXT stage-07 kartı Yol B'de sorgu/top-k/skor/eşik dörtlüsünü gösterir.
+</div>
+</section>
+
+</main>
+
+<footer>
+END · cwf-ir-pathb-hybrid-logic-v1 · rev 1 · 2026-07-19 · companions: cwf-ir-sequence-logic-v1.html · cwf-ir-architecture-roadmap-v1.md ·
+amendments mint v1_2 / rev 1.2 — never in-place
+</footer>
+
+</body>
+</html>

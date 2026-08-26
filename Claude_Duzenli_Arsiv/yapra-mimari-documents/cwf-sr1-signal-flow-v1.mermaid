@@ -1,0 +1,56 @@
+%% cwf-sr1-signal-flow-v1 · rev 1 · 2026-07-16 · companion to cwf-sr1-semantic-routing-design-v1
+flowchart TB
+
+subgraph TURN["TURN PATH — every user query"]
+    Q["User query<br/><i>'Can you bring the list of active alarms…'</i>"]
+    CAT[("Category CATALOG<br/>armes.tool_category kind<br/>DB-first · code floor<br/>12 rows: name+keywords+description")]
+    RT{{"SEMANTIC ROUTER<br/>gemini-flash-lite<br/>input: catalog + query<br/>output: strict JSON"}}
+    ARM["DETERMINISTIC ARMOR<br/>JSON parse → Zod schema<br/>matched ⊆ catalog · dedupe<br/>cap ≤ router.maxCategories"]
+    KW["FLOOR: keyword + learned map<br/>exact-token match<br/>+ stopword guard (F123)<br/>= today's path, byte-identical"]
+    CS["Candidate tool set<br/>categories → tools<br/>+ ALWAYS_INCLUDE floor"]
+    DSF["Deterministic rails (unchanged)<br/>backend-aware filter → scope authority<br/>→ health withholding (MCP-WARM-1)"]
+    LLM["Main LLM (chat)<br/>sees ONLY the offered tools<br/>finds, not knows"]
+    GR["Grounding + empty≠zero<br/>deterministic trust (ADR-001)"]
+    A["Answer to user"]
+
+    Q --> RT
+    CAT -->|"catalog lines<br/>(NO tool names)"| RT
+    RT -->|"{matched, proposals}"| ARM
+    ARM -->|"PASS: matched categories"| CS
+    ARM -.->|"FAIL / timeout / disabled<br/>router.enabled=false"| KW
+    Q -.-> KW
+    KW -.->|"floor categories"| CS
+    CS --> DSF --> LLM --> GR --> A
+end
+
+subgraph LEARN["GOVERNED LEARNING LOOP — never touches the live turn"]
+    PR["proposals channel<br/>{keyword, category?}"]
+    DR[("DRAFT rows<br/>L4 routing-drafts pattern<br/>evidence: query · count · seen")]
+    UI["Admin panel · Araç Eşleme<br/>proposal list + evidence"]
+    OW{"OWNER decision<br/>accept + bind tools<br/>(S41-2: no toolless keyword)"}
+    EG["EVAL-GATE publish<br/>schema → referential → behavioral"]
+
+    PR --> DR --> UI --> OW
+    OW -->|"accept"| EG
+    OW -.->|"reject"| DR
+    EG -->|"new catalog row"| CAT
+end
+
+RT -->|"side channel"| PR
+
+subgraph OBS["OBSERVABILITY"]
+    LOG["[Route] path=semantic|floor<br/>latency_ms · matched · proposals=N"]
+    LENS["REPLAY-A2 routing lens<br/>floor vs router A/B on specimens<br/>= enable evidence (no golden run)"]
+end
+
+ARM -.-> LOG
+KW -.-> LOG
+LENS -.->|"lens verdict gates"| EN["router.enabled publish<br/>(dark launch → live)"]
+EN -.-> RT
+
+style RT fill:#1a3a5c,stroke:#4a9eda,color:#e8f2fa
+style ARM fill:#3a2a1a,stroke:#d09a4a,color:#faf2e8
+style KW fill:#2a2a2a,stroke:#8a8a8a,color:#e8e8e8
+style CAT fill:#1a3a2a,stroke:#4ada8a,color:#e8faf0
+style EG fill:#3a1a2a,stroke:#da4a8a,color:#fae8f0
+style OW fill:#3a3a1a,stroke:#dada4a,color:#fafae8
