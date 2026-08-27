@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ADF · Agent-based Development Factory · Mimari · v2 (S122)</title>
+<style>
+  :root{
+    --paper:#FBFAF7; --ink:#232321; --ink-2:#5F5E5A; --ink-3:#888780; --rule:#D3D1C7;
+    --purple-50:#EEEDFE; --purple-600:#534AB7; --purple-800:#3C3489;
+    --teal-50:#E1F5EE; --teal-600:#0F6E56; --teal-800:#085041;
+    --gray-50:#F1EFE8; --gray-600:#5F5E5A; --gray-800:#444441;
+    --coral-50:#FAECE7; --coral-600:#993C1D; --coral-800:#712B13;
+    --amber-50:#FBF1DC; --amber-600:#8A6212; --amber-800:#684A0C;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+    --sans:"Inter","Segoe UI",system-ui,-apple-system,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.65}
+  body{margin:0;max-width:920px;padding:48px 28px 96px;margin-inline:auto}
+  h1{font-size:30px;font-weight:500;letter-spacing:-.01em;margin:0 0 6px}
+  h2{font-size:20px;font-weight:500;margin:56px 0 14px;padding-top:18px;border-top:1px solid var(--rule)}
+  h3{font-size:16px;font-weight:500;margin:26px 0 8px}
+  p{margin:0 0 12px}
+  code,kbd{font-family:var(--mono);font-size:.9em;background:var(--gray-50);padding:1px 5px;border-radius:4px}
+  pre{font-family:var(--mono);font-size:13px;background:var(--gray-50);padding:14px 16px;border-radius:8px;overflow:auto;line-height:1.5}
+  table{border-collapse:collapse;width:100%;margin:10px 0 18px;font-size:14.5px}
+  th,td{text-align:left;vertical-align:top;padding:8px 10px;border-bottom:1px solid var(--rule)}
+  th{font-weight:500;color:var(--ink-2)}
+  .seal{border:1px solid var(--purple-600);border-radius:12px;padding:18px 22px;margin:22px 0 8px;background:#fff}
+  .seal dl{display:grid;grid-template-columns:180px 1fr;gap:6px 14px;margin:0;font-size:14.5px}
+  .seal dt{color:var(--ink-2)} .seal dd{margin:0;font-family:var(--mono);font-size:13.5px}
+  .eyebrow{font-family:var(--mono);font-size:12.5px;color:var(--ink-3);letter-spacing:.04em;text-transform:uppercase}
+  .tag{display:inline-block;font-family:var(--mono);font-size:12px;padding:1px 7px;border-radius:10px;margin-right:4px}
+  .t-m{background:var(--teal-50);color:var(--teal-800)} .t-d{background:var(--purple-50);color:var(--purple-800)} .t-u{background:var(--coral-50);color:var(--coral-800)} .t-b{background:var(--gray-50);color:var(--gray-800)} .t-n{background:var(--amber-50);color:var(--amber-800)}
+  .law{border-left:3px solid var(--purple-600);padding:6px 14px;margin:14px 0;background:#fff}
+  .new{border-left:3px solid var(--amber-600);padding:6px 14px;margin:14px 0;background:#fff}
+  figure{margin:18px 0 6px;background:#fff;border:1px solid var(--rule);border-radius:12px;padding:14px}
+  figcaption{font-size:13.5px;color:var(--ink-2);margin-top:8px}
+  svg{width:100%;height:auto;display:block}
+  svg text{font-family:var(--sans)}
+  .th{font-size:14px;font-weight:500;fill:var(--ink)} .ts{font-size:12px;fill:var(--ink-2)}
+  .c-purple rect{fill:var(--purple-50);stroke:var(--purple-600)} .c-purple .th{fill:var(--purple-800)} .c-purple .ts{fill:var(--purple-600)}
+  .c-teal rect{fill:var(--teal-50);stroke:var(--teal-600)} .c-teal .th{fill:var(--teal-800)} .c-teal .ts{fill:var(--teal-600)}
+  .c-gray rect{fill:var(--gray-50);stroke:var(--gray-600)} .c-gray .th{fill:var(--gray-800)} .c-gray .ts{fill:var(--gray-600)}
+  .c-coral rect{fill:var(--coral-50);stroke:var(--coral-600)} .c-coral .th{fill:var(--coral-800)} .c-coral .ts{fill:var(--coral-600)}
+  .c-amber rect{fill:var(--amber-50);stroke:var(--amber-600)} .c-amber .th{fill:var(--amber-800)} .c-amber .ts{fill:var(--amber-600)}
+  .arr{stroke:var(--ink-2);stroke-width:1.2;fill:none}
+  .life{stroke:var(--ink-3);stroke-width:.6;stroke-dasharray:4 3}
+  .fence{fill:none;stroke:var(--ink-3);stroke-width:.7;stroke-dasharray:4 3}
+  ul{padding-left:22px} li{margin:3px 0}
+  .muted{color:var(--ink-2)}
+  .ok{color:var(--teal-800);font-weight:500}
+  .part{color:var(--amber-800);font-weight:500}
+  .open{color:var(--coral-800);font-weight:500}
+  @media print{body{padding:0} h2{break-after:avoid} figure{break-inside:avoid}}
+</style>
+</head>
+<body>
+
+<div class="eyebrow">ADF · agent-based development factory · yönetişim artefaktı</div>
+<h1>ADF Mimarisi — Agent-based Development Factory</h1>
+<p class="muted">Altı şeritli, mekanizma-öncelikli, ürün-bağımsız geliştirme fabrikası. Bu belge mühürlendiğinde ana mimari budur; fabrikanın her kartı, her boot'u ve her inişi buna izlenir. CWF, bu fabrikanın bugün ürettiği üründür — fabrikanın kendisi değil.</p>
+
+<div class="seal">
+  <dl>
+    <dt>Artefakt</dt><dd>ADF-ARCHITECTURE-v2</dd>
+    <dt>Oturum · tarih</dt><dd>S122 · 2026-08-28</dd>
+    <dt>Zemin (ölçüldü)</dt><dd>cwf_yaprak master @ 2e1d193b5bf809228821d1934caa5bce474f3959 · 59 kural + 16 anayasa maddesi · 27 ADVISORY</dd>
+    <dt>Geçersiz kıldığı</dt><dd>ADF-ARCHITECTURE-v1 (S113, md5 75ebbb8cbbfefe673ca0b31a59eeaa26, docs/design/ altında inmiş) — SUPERSEDED-BY. v1 SİLİNMEZ.</dd>
+    <dt>Kanonik ev</dt><dd>cwf_yaprak/docs/design/ADF-ARCHITECTURE-v2.html — ADF'nin kendi evi §12'de ufuk kararı</dd>
+    <dt>Mühür</dt><dd>md5 oturum kaydında; bu dosya S37-1 uyarınca DEĞİŞMEZ, düzeltme = v2_1</dd>
+  </dl>
+</div>
+
+<p><span class="tag t-m">MEASURED</span> taze klondan ya da canlı DB'den ölçüldü, S122 · <span class="tag t-d">DECIDED</span> sahip kararı · <span class="tag t-u">UNMEASURED</span> öncül değil · <span class="tag t-b">BINDING</span> ürüne özgü, §12'de · <span class="tag t-n">YENİ</span> v1'den sonra doğdu</p>
+
+<h2>0 · v1'den bu yana ne değişti — ölçülmüş fark</h2>
+<p>v1 S113'te (2026-08-22) mühürlendi. Aradan beş oturum geçti. <b>Mimarinin gövdesi ayakta:</b> aktörler, dört düzlem, iniş protokolünün şekli ve ölçek analizi doğrulandı. Değişen üç şey var ve üçü de bu sürümün varlık sebebi.</p>
+<table>
+<tr><th>Ne</th><th>v1 (S113)</th><th>Ölçüm (S122)</th></tr>
+<tr><td>ADVISORY kural sayısı</td><td>39</td><td><b>27</b> — on iki kural gerçek bir yaptırıma kavuştu <span class="ok">↓</span></td></tr>
+<tr><td>Kanıt düzlemi</td><td>195 <code>.md</code> / 1 <code>.json</code></td><td><b>302 .md / 28 .json</b>; <code>report-schema.yml</code> indi (2026-08-22)</td></tr>
+<tr><td>Teslimat makbuzu (H5)</td><td>yok</td><td><b>indi</b> — <code>relay_mark_consumed(card_id, addr, nonce)</code>; bu oturumda ölçüldü: kart 136 saniyede tüketildi</td></tr>
+<tr><td>Merge yetkisi (H8)</td><td>ADVISORY</td><td><b>script</b> — <code>npm run land</code>, rol kapısı <code>ADF_LANE_ROLE</code>, yazarlık kapısı</td></tr>
+<tr><td>Şerit gözlemi (H10)</td><td>yok, hedef <code>lane_events</code></td><td><b>kısmen</b> — <code>factory_events</code> var (73 satır, 5 şerit) ama <i>durum geçişi</i> loglar, claim/poll/push/PR/land değil. <code>lane_events</code> YOK.</td></tr>
+<tr><td>Arşive Architect erişimi</td><td>"erişemez (ölçüldü)"</td><td><b>ARTIK ERİŞİYOR</b> — cihaz köprüsü üzerinden okur ve commit eder. Planlanandan farklı bir mekanizmayla kapandı.</td></tr>
+<tr><td>Kart dilbilgisi</td><td>yok</td><td><b>CP-1…CP-11 + 19 rapor kuralı</b>, iki script, ~135 KB yaptırım kodu</td></tr>
+<tr><td>İnceleme katmanı</td><td>yok</td><td><b>Scout penceresi</b> — sahip hükmü, üç bağımsız pencere. Repoda hiçbir yeri yok.</td></tr>
+</table>
+<div class="new"><b>v2'nin tezi.</b> v1 fabrikayı <i>kurdu</i>; S113–S122 arasında fabrika <b>kendi kendini denetleyen</b> bir şeye dönüştü — kart dilbilgisi, rapor şeması, korpus kapısı, scout penceresi. Bu sürümün işi o denetim katmanını mimariye yazmak, çünkü bugün <b>yaptırım kodu prose yasadan daha büyük</b> ve büyük kısmının yazılı evi yok.</div>
+
+<h2>1 · ADF nedir, CWF nedir</h2>
+<p><b>ADF</b> (Agent-based Development Factory), birden fazla otonom kodlama ajanının tek bir yazılım ürününü <i>yönetişim altında</i> paralel geliştirdiği fabrikadır. <b>CWF</b> (Chat With your Factory) ve <b>Yaprak</b>, ADF'nin bugün ürettiği ürünlerdir. Fabrika ile ürün aynı depoda yaşıyor olsa da kavram olarak ayrıdır: fabrikanın yasaları, şeritleri, bus'ı ve iniş protokolü ürün değiştiğinde değişmez; değişen yalnız §12'deki bağlamadır.</p>
+<div class="law"><b>Tez.</b> CWF tek bir ajanla da geliştirilebilirdi. ADF, paralelliği <i>yönetişimle</i> almak için yapılmış bir seçimdir: N ajan, tek doğruluk düzlemi, tek merge yetkisi, insan eli olmadan dönen döngü. Bu yönetişimin ölçüsü sıfır merge-mess'tir; fabrika onu bir kuralla değil bir scriptle (§6) sağlar.</div>
+<div class="law"><b>Konfigürasyonla öğretilir, kodu çatallanmaz.</b> ADF'nin ürüne göre değişen her şeyi bir <i>bağlama</i>dır (repo, DB projesi, ürün kapıları, arşiv adı). Bağlama bir tabloda yaşar; fabrikanın gövdesine ürün adı sızmaz.</div>
+
+<h2>2 · İlkeler — değişmeyenler</h2>
+<div class="law"><b>Sahip-eli yasası (S102-YASA-1).</b> Sahibin tek yüzeyi rıza ve gerçek-dünya tanıklığıdır. Bu mimaride sahibin iki tetiğinden biri (<code>posta</code>) makineye geçti; diğeri (<code>bak</code>) kalır ama PR başına değil dalga başına.</div>
+<div class="law"><b>Dört düzlem korunur.</b> KOMUT = relay bus (<code>relay_inbox</code>) · KANIT = git deposu (dal + rapor + PR) · TETİK = sahip (<code>bak</code>) + Ustabaşı zamanlayıcısı · DB-YAZIM = Operator. Bus asla kanıt değildir; git tek doğruluk düzlemidir.</div>
+<div class="law"><b>Yasa sayısı mekanizma sayısından hızlı büyüyemez.</b> <span class="tag t-m">MEASURED</span> Bu ilke çalıştı: ADVISORY 39'dan <b>27</b>'ye indi, kural sayısı 59'da sabit kaldı. Yani beş oturumda yeni yasa değil, yeni <i>kapı</i> üretildi. Merge için kural mutlaktır: merge bir beceri değil, bir scripttir.</div>
+<div class="law"><b>Türev kaynak yerine geçmez (S102).</b> Ustabaşı'nın raporu Architect için kanıt değildir; Architect taze klondan örneklem ölçer. Rapor <code>MEASURED</code>-only JSON'dur, düzyazı isteğe bağlı ektir.</div>
+<div class="new"><b>Ölçüm türetmeyi yener — ve bu artefaktın kendisine de uygulanır.</b> <span class="tag t-n">YENİ</span> S122'de programın kurucu direktifi, bir gün önce onarılmış bir kusuru açık sanarak bir onarım emretti; emir uygulansaydı her üretici şeridin ilk kutu okuması kırılacaktı. Bir bulgunun bir gövdeden diğerine <i>yeniden ölçülmeden</i> taşınması, bu fabrikanın ölçülmüş baskın hata sınıfıdır. <b>P-9:</b> bir önceki oturumun ölçümlerine güvenilir, çıkarımlarına güvenilmez.</div>
+
+<h2>3 · Aktörler ve karar hakları</h2>
+<table>
+<tr><th>Aktör</th><th>Yüzey</th><th>Hükmeder</th><th>Yükseltir / yapamaz</th></tr>
+<tr><td><b>Sahip</b></td><td>Sohbet (Architect ile)</td><td>Rıza tokeni <code>onay [kapsam]</code> · gerçek-dünya tanıklığı · tasarım kararları · <code>bak</code> (dalga)</td><td>Hiçbir operasyon adımı sahibe taşınmaz</td></tr>
+<tr><td><b>Architect</b> (Claude, sohbet)</td><td>Bus MCP (kart INSERT) · taze klon · Vercel/Supabase MCP · <b>cihaz köprüsü (arşiv)</b></td><td>Yasa yorumu · tasarım · kart içeriği · iniş <b>sırası</b> · hüküm</td><td>Repo yazmaz · merge etmez · <code>gh</code> yok · <b>Qdrant'a yüzeyi yok</b> (ölçüldü)</td></tr>
+<tr><td><b>Ustabaşı</b> — <code>foreman</code> (AG-5)</td><td>Ayrı boot + <code>.claude/settings.foreman.json</code> (ölçüldü, indi)</td><td>Kutuyu yoklar · dürtme kartı basar · <code>npm run land</code> koşar · standing ölçümler · arşive commit</td><td>Kart içeriği yazmaz · sırayı değiştirmez · kod üretmez · kırmızıda karar vermez</td></tr>
+<tr><td><b>Üreticiler</b> — <code>AG-1..AG-4</code></td><td>Dar allow-list · kendi token + worktree</td><td>Tüm repo yazımı · dal · JSON rapor · PR</td><td><b>Hiç merge etmez</b> (guard <code>exit 2</code>)</td></tr>
+<tr><td><b>Operator</b> — <code>operator</code> (Gemini + DB MCP)</td><td>BOOT ile, çitli (tek DB projesi)</td><td><code>db push</code> · şema okuma · canlı doğrulama · tek <code>from_lane</code> yazıcı</td><td>Repo yazmaz (ADR-006) · BOOT'suz posta almaz</td></tr>
+<tr><td><b>Scout pencereleri</b> <span class="tag t-n">YENİ</span></td><td>Salt-okuma; taze klon + kartın baytları</td><td><b>Hiçbir şeye hükmetmez.</b> Bağımsız ikinci mercek: kart üreticiye ulaşmadan önce R1…R6</td><td>Kart yazmaz · dal açmaz · <b>sorumluluğu devralmaz</b> — Architect sorumlu kalır</td></tr>
+</table>
+<p><span class="tag t-d">DECIDED</span> 4 üretici + 1 Operator + 1 Ustabaşı = altı şerit; artı scout pencereleri, ki bunlar şerit değil <i>mercek</i>tir — adresleri yok, bus'ta yuvaları yok, iş üretmezler.</p>
+
+<div class="new"><b>Scout penceresi neden bir aktör oldu.</b> <span class="tag t-m">MEASURED</span> S122'de iki kart, tüm mekanik kapılardan (CP-1…CP-11 <b>ve</b> rapor dilbilgisi) GREEN geçti ve üç scout penceresi tarafından <b>sekiz kez</b> reddedildi. Bulunanlar mekanik kapıların göremeyeceği sınıftaydı: stdout'taki bir makine sözleşmesini bir "mesaj iyileştirmesi" sanıp kırmak; altıncı bir ret yüzeyini çitin dışında bırakmak; hiçbir aletin kanıtlayamayacağı bir "her girdide" niceleyicisi; ve bir kartın <i>zaten var olan</i> bir yazılı evi yok sayması. <b>Hepsi gövdeler-arası (cross-body) kusurdur</b> ve mekanik kapılar gövdeler arasını hiç göremez. Scout penceresi bugün fabrikada bu sınıfı bir şerit bedelini ödemeden yakalayan tek alettir.</div>
+<div class="new"><b>Ve bir maliyeti var, saklanmıyor.</b> Aynı oturumda scout turları iki kartı v1'den v4'e ve v1'den v3'e taşıdı. Bu ucuz değildir. Kapanmamış tasarım sorusu: scout penceresi <i>her</i> karta mı uygulanır, yoksa paylaşılan yüzeye dokunan kartlara mı — §9'da sahip kararında.</div>
+
+<h2>4 · Düzlemler ve organlar — ölçülmüş durum</h2>
+<table>
+<tr><th>Organ</th><th>Bugün (S122, ölçüldü)</th><th>Kalan hedef</th><th>Delik</th></tr>
+<tr><td>Relay bus (<code>relay_inbox</code>)</td><td><b>Makbuz indi:</b> <code>relay_mark_consumed(card_id,addr,nonce)</code>; canlı şeritler <code>consumed_at</code> damgalıyor (ölçüm: 136 sn)</td><td>Tek <code>artifact_name</code> iki belgeye ait olabiliyor — okuma belirsiz</td><td>H5 <span class="ok">kapandı</span></td></tr>
+<tr><td>Git deposu (kanıt)</td><td>302 <code>.md</code> / <b>28 <code>.json</code></b>; <code>report-schema.yml</code> kapı olarak koşuyor</td><td>Düzyazı rapor hâlâ baskın; JSON'a geçiş tamamlanmadı</td><td>H3 <span class="part">kısmî</span></td></tr>
+<tr><td>Kart dilbilgisi <span class="tag t-n">YENİ</span></td><td><code>cardPreflight</code> CP-1…CP-11 + <code>relayAudit</code> 19 kural; korpus kapısı <code>relay-corpus.yml</code> (2026-08-26)</td><td><b>Teslim kapısı SİLAHSIZ:</b> <code>CARD_GATE='REPORT'</code> — reddi bildirir, durdurmaz</td><td>H11 <span class="open">yeni</span></td></tr>
+<tr><td>CI kapıları</td><td>8 workflow; <code>eval-canary</code> sahip hükmüyle <b>donduruldu</b> (<code>if:false</code>, <code>docs/ops/CANARY-FROZEN.md</code>)</td><td><code>budget-fence</code> beş gündür her zamanlanmış koşuda kırmızı, <b>sahipsiz</b></td><td>H4 <span class="part">kısmî</span></td></tr>
+<tr><td>Şerit yetkisi</td><td>Ayrı boot + settings; <b>CODEOWNERS YOK</b> (ölçüldü)</td><td>Şerit başına token, push ruleset, CODEOWNERS</td><td>H6 <span class="open">açık</span></td></tr>
+<tr><td>Bağlam organı (vektör)</td><td>Korpus <b>hâlâ yalnız araç açıklamaları + governed.knowledge</b>; tek yasa, ADR, tasarım ya da arşiv yok</td><td>Yasa+ADR+arşiv indeksi; <code>ALLOWED_CORPORA</code> kapalı liste — girmek yasa değişikliğidir</td><td>H2 <span class="open">açık</span></td></tr>
+<tr><td>Arşiv deposu (özel)</td><td><b>Architect artık erişiyor</b> — cihaz köprüsü ile okur ve commit eder; oturum çıktıları <code>S&lt;n&gt;/</code> altına iniyor</td><td>Push kimlik bilgisi köprüde yok — son adım sahibin elinde; gece indeksi yok</td><td>H2 <span class="part">kısmî</span></td></tr>
+<tr><td>Deploy doğrulama</td><td>"Merge kanıt değil" (S63-1); webhook yok</td><td>Deployment webhook → smoke → hüküm satırı</td><td>H9 <span class="open">açık</span></td></tr>
+<tr><td>Gözlem</td><td><code>factory_state</code> + <code>factory_events</code> (73 satır, 5 şerit, 2026-08-24'ten beri) — <b>durum geçişi</b> loglar</td><td><code>lane_events</code> (claim/poll/push/PR/land) YOK; pano yok</td><td>H10 <span class="part">kısmî</span></td></tr>
+<tr><td>Tetik</td><td>Ustabaşı zamanlayıcısı çalışıyor; şeritler kendi poll görevlerini kuruyor</td><td>Poll görevini <i>kuran</i> komut hiçbir boot'ta yazılı değil — her şerit yeniden keşfediyor</td><td>H1 <span class="part">kısmî</span></td></tr>
+</table>
+
+<div class="new"><b>H11 · Teslim kapısı silahsız.</b> <span class="tag t-m">MEASURED</span> <code>CARD_GATE='REPORT'</code>: bir kart teslim anında kart dilbilgisinden geçirilir, ret <i>bildirilir</i> ve şerit karta devam eder. Yani "dağıtım sonrası doğrulayıcı reddi sıfır" ölçümü, hiçbir şeyi durduramayan bir kapıya karşı ölçülür — sıfır, Architect'in dağıtım-öncesi disiplininin kanıtıdır, makinenin dayattığının değil. Silahlandırma kararı ölçülmüş bir istikrar penceresinden sonraya bırakıldı (§9).</div>
+
+<h2>5 · Canlılık ölçüsü — v1'in söylemediği</h2>
+<div class="new"><b>Nabız üretimle TERS korelasyonlu.</b> <span class="tag t-m">MEASURED</span> S122'de iki gösterge birlikte okundu:
+<ul>
+<li><code>factory_state.state</code> bir <b>fosil</b>: satırlar bir soğuk-restart sırasında <i>elle</i> yazıldı ve 6–9 saattir değişmedi. <code>WORKING</code> bir ölçüm değil.</li>
+<li><code>heartbeat_at</code> poll döngüsünü ölçer, işi değil — ve döngü tam iş başlarken susar. Ölçülen: bir şerit kartı tükettiği an nabzı 39 saniye önce susmuştu ve 15 dakika sessiz kaldı; aynı anda boştaki şeritler 6–8 saniyede bir atıyordu.</li>
+</ul>
+Sonuç: panele bakan biri <b>boştaki şeritleri sağlıklı, çalışan şeridi ölü</b> görür. Bu yüzden yasa tek yönlüdür: <b>canlılık yalnız POZİTİF kanıtlanır — çıktıyı ölç, nabzı değil.</b> Çıktı = dalın telde görünmesi, commit, rapor dosyası. Bir nabzın yokluğu hiçbir şey kanıtlamaz; bir dalın varlığı her şeyi kanıtlar.</div>
+
+<h2>6 · Fonksiyonel blok diyagramı</h2>
+<figure>
+<svg viewBox="0 0 680 700" role="img" xmlns="http://www.w3.org/2000/svg"><title>ADF altı şeritli mimari, S122</title>
+<defs><marker id="a1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#5F5E5A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+<g class="c-purple"><rect x="240" y="30" width="200" height="52" rx="8" stroke-width="0.6"/><text class="th" x="340" y="47" text-anchor="middle" dominant-baseline="central">Sahip</text><text class="ts" x="340" y="66" text-anchor="middle" dominant-baseline="central">rıza · tanıklık · bak (dalga)</text></g>
+<line x1="340" y1="82" x2="340" y2="120" class="arr" marker-end="url(#a1)"/>
+<g class="c-teal"><rect x="30" y="120" width="176" height="52" rx="8" stroke-width="0.6"/><text class="th" x="118" y="137" text-anchor="middle" dominant-baseline="central">Bağlam organı (vektör)</text><text class="ts" x="118" y="156" text-anchor="middle" dominant-baseline="central">yalnız araç açıklaması (H2)</text></g>
+<line x1="206" y1="146" x2="250" y2="146" class="arr" marker-end="url(#a1)"/>
+<g class="c-purple"><rect x="250" y="120" width="180" height="52" rx="8" stroke-width="0.6"/><text class="th" x="340" y="137" text-anchor="middle" dominant-baseline="central">Architect (Claude)</text><text class="ts" x="340" y="156" text-anchor="middle" dominant-baseline="central">yasa · tasarım · kart · sıra</text></g>
+<line x1="430" y1="146" x2="474" y2="146" class="arr" marker-end="url(#a1)"/>
+<g class="c-teal"><rect x="474" y="120" width="176" height="52" rx="8" stroke-width="0.6"/><text class="th" x="562" y="137" text-anchor="middle" dominant-baseline="central">Arşiv deposu (özel)</text><text class="ts" x="562" y="156" text-anchor="middle" dominant-baseline="central">Architect artık yazıyor</text></g>
+<line x1="340" y1="172" x2="340" y2="196" class="arr" marker-end="url(#a1)"/>
+<g class="c-amber"><rect x="230" y="196" width="220" height="52" rx="8" stroke-width="0.6"/><text class="th" x="340" y="213" text-anchor="middle" dominant-baseline="central">Scout pencereleri ×3 · YENİ</text><text class="ts" x="340" y="232" text-anchor="middle" dominant-baseline="central">R1…R6 · hükmetmez, mercek</text></g>
+<line x1="340" y1="248" x2="340" y2="272" class="arr" marker-end="url(#a1)"/>
+<text class="ts" x="470" y="222" dominant-baseline="central">GREEN olmadan kart</text>
+<text class="ts" x="470" y="238" dominant-baseline="central">üreticiye gitmez</text>
+<g class="c-teal"><rect x="30" y="272" width="176" height="52" rx="8" stroke-width="0.6"/><text class="th" x="118" y="289" text-anchor="middle" dominant-baseline="central">Relay bus (komut)</text><text class="ts" x="118" y="308" text-anchor="middle" dominant-baseline="central">kart + makbuz (H5 kapandı)</text></g>
+<line x1="206" y1="298" x2="250" y2="298" class="arr" marker-end="url(#a1)"/>
+<g class="c-purple"><rect x="250" y="272" width="180" height="52" rx="8" stroke-width="0.6"/><text class="th" x="340" y="289" text-anchor="middle" dominant-baseline="central">Ustabaşı (AG-5)</text><text class="ts" x="340" y="308" text-anchor="middle" dominant-baseline="central">yokla · dürt · land · ölç</text></g>
+<line x1="430" y1="298" x2="474" y2="298" class="arr" marker-end="url(#a1)"/>
+<g class="c-teal"><rect x="474" y="272" width="176" height="52" rx="8" stroke-width="0.6"/><text class="th" x="562" y="289" text-anchor="middle" dominant-baseline="central">Git deposu (kanıt)</text><text class="ts" x="562" y="308" text-anchor="middle" dominant-baseline="central">302 md · 28 json · PR</text></g>
+<line x1="118" y1="324" x2="118" y2="366" class="arr" marker-end="url(#a1)"/>
+<line x1="566" y1="366" x2="566" y2="324" class="arr" marker-end="url(#a1)"/>
+<rect x="46" y="352" width="596" height="100" rx="12" class="fence"/>
+<g class="c-purple"><rect x="56" y="366" width="134" height="52" rx="8" stroke-width="0.6"/><text class="th" x="123" y="383" text-anchor="middle" dominant-baseline="central">AG-1</text><text class="ts" x="123" y="402" text-anchor="middle" dominant-baseline="central">üretici</text></g>
+<g class="c-purple"><rect x="200" y="366" width="134" height="52" rx="8" stroke-width="0.6"/><text class="th" x="267" y="383" text-anchor="middle" dominant-baseline="central">AG-2</text><text class="ts" x="267" y="402" text-anchor="middle" dominant-baseline="central">üretici</text></g>
+<g class="c-purple"><rect x="344" y="366" width="134" height="52" rx="8" stroke-width="0.6"/><text class="th" x="411" y="383" text-anchor="middle" dominant-baseline="central">AG-3</text><text class="ts" x="411" y="402" text-anchor="middle" dominant-baseline="central">üretici</text></g>
+<g class="c-purple"><rect x="488" y="366" width="134" height="52" rx="8" stroke-width="0.6"/><text class="th" x="555" y="383" text-anchor="middle" dominant-baseline="central">AG-4</text><text class="ts" x="555" y="402" text-anchor="middle" dominant-baseline="central">üretici</text></g>
+<text class="ts" x="58" y="436" dominant-baseline="central">dört üretici · dar allow-list · hiç merge etmez (H6: CODEOWNERS hâlâ yok)</text>
+<line x1="46" y1="298" x2="30" y2="298" class="arr"/>
+<path d="M30 298 L18 298 L18 478 L36 478" class="arr" marker-end="url(#a1)"/>
+<g class="c-purple"><rect x="36" y="452" width="170" height="52" rx="8" stroke-width="0.6"/><text class="th" x="121" y="469" text-anchor="middle" dominant-baseline="central">Operator (Gemini)</text><text class="ts" x="121" y="488" text-anchor="middle" dominant-baseline="central">db push · tek from_lane</text></g>
+<line x1="206" y1="478" x2="250" y2="478" class="arr" marker-end="url(#a1)"/>
+<g class="c-gray"><rect x="250" y="452" width="180" height="52" rx="8" stroke-width="0.6"/><text class="th" x="340" y="469" text-anchor="middle" dominant-baseline="central">Fabrika DB'si</text><text class="ts" x="340" y="488" text-anchor="middle" dominant-baseline="central">bus · factory_state/events</text></g>
+<g class="c-gray"><rect x="474" y="452" width="176" height="52" rx="8" stroke-width="0.6"/><text class="th" x="562" y="469" text-anchor="middle" dominant-baseline="central">CI kapıları</text><text class="ts" x="562" y="488" text-anchor="middle" dominant-baseline="central">8 workflow · canary donuk</text></g>
+<path d="M562 504 L562 524 L235 524 L235 546" class="arr" marker-end="url(#a1)"/>
+<g class="c-coral"><rect x="145" y="546" width="180" height="52" rx="8" stroke-width="0.6"/><text class="th" x="235" y="563" text-anchor="middle" dominant-baseline="central">Deploy doğrulama</text><text class="ts" x="235" y="582" text-anchor="middle" dominant-baseline="central">webhook YOK (H9)</text></g>
+<g class="c-amber"><rect x="355" y="546" width="180" height="52" rx="8" stroke-width="0.6"/><text class="th" x="445" y="563" text-anchor="middle" dominant-baseline="central">Gözlem</text><text class="ts" x="445" y="582" text-anchor="middle" dominant-baseline="central">durum geçişi var, olay yok</text></g>
+<g class="c-purple"><rect x="30" y="646" width="14" height="14" rx="3" stroke-width="0.6"/></g><text class="ts" x="52" y="653" dominant-baseline="central">aktör</text>
+<g class="c-teal"><rect x="120" y="646" width="14" height="14" rx="3" stroke-width="0.6"/></g><text class="ts" x="142" y="653" dominant-baseline="central">düzlem</text>
+<g class="c-gray"><rect x="215" y="646" width="14" height="14" rx="3" stroke-width="0.6"/></g><text class="ts" x="237" y="653" dominant-baseline="central">mekanizma</text>
+<g class="c-amber"><rect x="330" y="646" width="14" height="14" rx="3" stroke-width="0.6"/></g><text class="ts" x="352" y="653" dominant-baseline="central">v1'den sonra doğdu / kısmî</text>
+<g class="c-coral"><rect x="530" y="646" width="14" height="14" rx="3" stroke-width="0.6"/></g><text class="ts" x="552" y="653" dominant-baseline="central">açık delik</text>
+</svg>
+<figcaption>v1'e göre iki yapısal değişiklik: <b>scout pencereleri</b> Architect ile bus arasına girdi — kart, üç bağımsız mercek GREEN demeden üreticiye ulaşmaz; ve <b>arşiv oku</b> çift yönlü oldu, Architect artık arşive yazıyor. Renk artık durum taşıyor: kehribar kısmî ya da yeni, mercan açık delik.</figcaption>
+</figure>
+
+<h2>7 · Bir isteğin yaşam döngüsü</h2>
+<p>v1'in yirmi iki adımı geçerlidir. Değişen tek şey, 5. adımın <b>ikiye ayrılmasıdır</b>: kart yazıldıktan sonra, bus'a girmeden önce scout penceresinden geçer.</p>
+<pre>1  sahip → Architect : istek
+2  Architect         : bağlam organı + taze klon ölçümü
+3  Architect → sahip : tek yol (menü değil)
+4  sahip → Architect : onay [kapsam]
+5a Architect         : kart yazılır + YEREL ÖN UÇUŞ (cardPreflight + relayAudit)   ← T1-5
+5b Architect → scout : üç bağımsız pencere, R1…R6                                  ← YENİ
+5c scout → Architect : GREEN ya da REFUSE (+ neyin değişmesi gerektiği)
+6  Architect → bus   : kart INSERT (yalnız GREEN'den sonra)
+7  Ustabaşı          : poll (timer) → dürtme kartı
+8  AG-N              : poll + makbuz (consumed_at damgalanır)
+9  AG-N              : claim · dal · iş · push · JSON rapor · PR
+10 CI                : kapılar + heartbeat
+11 Ustabaşı          : npm run land -- &lt;pr&gt;  (yedi adım, §8)
+12 Ustabaşı → arşiv  : dalga çıktısı
+13 sahip → Architect : bak (dalga)
+14 Architect         : taze klon + örneklem ölçüm
+15 Architect → arşiv : kapanış belgeleri (cihaz köprüsü ile doğrudan)              ← YENİ
+16 Architect → sahip : kapanış + aksiyon maddeleri</pre>
+<p class="muted">Operator bu akışta yer almaz; kart DB değişikliği emrediyorsa 9 ile 10 arasında Operator'a BOOT'lu ikinci bir kart kesilir. Sahibin tek tetiği 13. adımdır. 15. adım v1'de Ustabaşı üzerindendi; artık Architect'in kendi köprüsü var — ama <b>push kimlik bilgisi köprüde yok</b>, son adım sahibin elinde kalıyor.</p>
+
+<h2>8 · İniş protokolü — <code>npm run land -- &lt;pr&gt;</code></h2>
+<p>Merge bir beceri değil, bir scripttir. Ustabaşı adım seçmez, sırayı değiştirmez, kırmızıda yeniden denemez. v1'in yedi adımı ölçülerek doğrulandı ve <b>üç kapı eklendi</b>.</p>
+<table>
+<tr><th>Adım</th><th>Ne yapar</th><th>v1'den fark</th></tr>
+<tr><td><b>0</b> <span class="tag t-n">YENİ</span></td><td>Fabrika modunu okur; fetch başarısızsa körlüğü <i>bildirir</i>, sessizce devam etmez</td><td>v1'de yoktu</td></tr>
+<tr><td>1</td><td>Kilit al — <code>refs/landing/lock</code>, boş lease, tek iniş</td><td>—</td></tr>
+<tr><td>2</td><td>PR head 40-hex · güncel mi? değilse merge master + reseal + push</td><td>—</td></tr>
+<tr><td>3</td><td>CI @ head: yalnız <code>success</code>; <code>cancelled</code>/<code>skipped</code>/0 koşu = kırmızı. <b>İki yüzey ayrı okunur:</b> check-runs ve commit status</td><td>iki-yüzey ayrımı eklendi</td></tr>
+<tr><td>4</td><td><code>merge-tree</code> provası; çakışma = kırmızı; beklenen ağaç sha kaydedilir</td><td>—</td></tr>
+<tr><td><b>4b</b> <span class="tag t-n">YENİ</span></td><td><b>Yazarlık kapısı:</b> inen, kendi işini indiremez. Şerit <i>adresleri</i> karşılaştırılır, commit yazarı değil</td><td>v1'de "ruleset'e bağlı" idi; artık scriptte</td></tr>
+<tr><td><b>4c</b> <span class="tag t-n">YENİ</span></td><td><b>Rol kapısı:</b> <code>ADF_LANE_ROLE=AG-5</code> her çağrıda; yoksa merge anahtarı null ve merge reddedilir</td><td>v1'de yoktu</td></tr>
+<tr><td>5</td><td>Merge, tek meşru biçimde; <code>--squash</code>/<code>--admin</code> guard ile <code>exit 2</code></td><td>—</td></tr>
+<tr><td>6</td><td>master ağacı == beklenen ağaç? bayt-aynı değilse PLATINUM-BREACH</td><td>—</td></tr>
+<tr><td>7</td><td>Kilidi bırak · olay yaz · sıradaki</td><td>—</td></tr>
+</table>
+<figure>
+<svg viewBox="0 0 680 600" role="img" xmlns="http://www.w3.org/2000/svg"><title>İniş protokolü, S122</title>
+<defs><marker id="a3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#5F5E5A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+<g class="c-amber"><rect x="150" y="16" width="320" height="44" rx="8" stroke-width="0.6"/><text class="th" x="310" y="31" text-anchor="middle" dominant-baseline="central">0 · Fabrika modu · YENİ</text><text class="ts" x="310" y="48" text-anchor="middle" dominant-baseline="central">fetch başarısızsa körlüğü BİLDİRİR</text></g>
+<line x1="310" y1="60" x2="310" y2="76" class="arr" marker-end="url(#a3)"/>
+<g class="c-gray"><rect x="150" y="76" width="320" height="44" rx="8" stroke-width="0.6"/><text class="th" x="310" y="91" text-anchor="middle" dominant-baseline="central">1 · Kilit al</text><text class="ts" x="310" y="108" text-anchor="middle" dominant-baseline="central">refs/landing/lock · boş lease · tek iniş</text></g>
+<line x1="310" y1="120" x2="310" y2="136" class="arr" marker-end="url(#a3)"/>
+<g class="c-gray"><rect x="150" y="136" width="320" height="44" rx="8" stroke-width="0.6"/><text class="th" x="310" y="151" text-anchor="middle" dominant-baseline="central">2 · PR head 40-hex · güncel mi?</text><text class="ts" x="310" y="168" text-anchor="middle" dominant-baseline="central">değilse merge master + reseal + push</text></g>
+<line x1="310" y1="180" x2="310" y2="196" class="arr" marker-end="url(#a3)"/><line x1="470" y1="158" x2="516" y2="158" class="arr" marker-end="url(#a3)"/>
+<g class="c-gray"><rect x="150" y="196" width="320" height="44" rx="8" stroke-width="0.6"/><text class="th" x="310" y="211" text-anchor="middle" dominant-baseline="central">3 · CI @ head: yalnız success</text><text class="ts" x="310" y="228" text-anchor="middle" dominant-baseline="central">check-runs VE commit status ayrı okunur</text></g>
+<line x1="310" y1="240" x2="310" y2="256" class="arr" marker-end="url(#a3)"/><line x1="470" y1="218" x2="516" y2="218" class="arr" marker-end="url(#a3)"/>
+<g class="c-gray"><rect x="150" y="256" width="320" height="44" rx="8" stroke-width="0.6"/><text class="th" x="310" y="271" text-anchor="middle" dominant-baseline="central">4 · merge-tree provası</text><text class="ts" x="310" y="288" text-anchor="middle" dominant-baseline="central">çakışma = kırmızı · beklenen ağaç kaydedilir</text></g>
+<line x1="310" y1="300" x2="310" y2="316" class="arr" marker-end="url(#a3)"/><line x1="470" y1="278" x2="516" y2="278" class="arr" marker-end="url(#a3)"/>
+<g class="c-amber"><rect x="150" y="316" width="320" height="44" rx="8" stroke-width="0.6"/><text class="th" x="310" y="331" text-anchor="middle" dominant-baseline="central">4b · Yazarlık · 4c · Rol · YENİ</text><text class="ts" x="310" y="348" text-anchor="middle" dominant-baseline="central">kendi işini indiremez · ADF_LANE_ROLE yoksa anahtar null</text></g>
+<line x1="310" y1="360" x2="310" y2="376" class="arr" marker-end="url(#a3)"/><line x1="470" y1="338" x2="516" y2="338" class="arr" marker-end="url(#a3)"/>
+<g class="c-gray"><rect x="150" y="376" width="320" height="44" rx="8" stroke-width="0.6"/><text class="th" x="310" y="391" text-anchor="middle" dominant-baseline="central">5 · Merge — tek meşru biçim</text><text class="ts" x="310" y="408" text-anchor="middle" dominant-baseline="central">--squash / --admin guard ile exit 2</text></g>
+<line x1="310" y1="420" x2="310" y2="436" class="arr" marker-end="url(#a3)"/>
+<g class="c-gray"><rect x="150" y="436" width="320" height="44" rx="8" stroke-width="0.6"/><text class="th" x="310" y="451" text-anchor="middle" dominant-baseline="central">6 · master ağacı == beklenen ağaç?</text><text class="ts" x="310" y="468" text-anchor="middle" dominant-baseline="central">bayt-aynı değil = PLATINUM-BREACH</text></g>
+<line x1="310" y1="480" x2="310" y2="496" class="arr" marker-end="url(#a3)"/><line x1="470" y1="458" x2="516" y2="458" class="arr" marker-end="url(#a3)"/>
+<g class="c-gray"><rect x="150" y="496" width="320" height="44" rx="8" stroke-width="0.6"/><text class="th" x="310" y="511" text-anchor="middle" dominant-baseline="central">7 · Kilidi bırak · olay yaz · sıradaki</text><text class="ts" x="310" y="528" text-anchor="middle" dominant-baseline="central">sıra Architect kartından, asla yeniden dizilmez</text></g>
+<g class="c-coral"><rect x="516" y="136" width="128" height="322" rx="8" stroke-width="0.6"/><text class="th" x="580" y="230" text-anchor="middle" dominant-baseline="central">Kırmızı</text><text class="ts" x="580" y="256" text-anchor="middle" dominant-baseline="central">dur</text><text class="ts" x="580" y="274" text-anchor="middle" dominant-baseline="central">baytı bas</text><text class="ts" x="580" y="292" text-anchor="middle" dominant-baseline="central">kilidi bırak</text><text class="ts" x="580" y="310" text-anchor="middle" dominant-baseline="central">raporla</text><text class="ts" x="580" y="330" text-anchor="middle" dominant-baseline="central">bağımsızsa</text><text class="ts" x="580" y="348" text-anchor="middle" dominant-baseline="central">sıradakine geç</text><text class="ts" x="580" y="368" text-anchor="middle" dominant-baseline="central">bağımlıysa bekle</text><text class="ts" x="580" y="386" text-anchor="middle" dominant-baseline="central">Architect hükmü</text></g>
+</svg>
+<figcaption>Adım 4 ve 6 çifti asıl kapıdır: merge'den önce beklenen sonuç ağacı hesaplanır, merge'den sonra master ağacı onunla bayt-aynı olmak zorundadır (S102-YASA-3'ün merge'e izdüşümü). Kehribar kutular v1'den sonra eklendi.</figcaption>
+</figure>
+
+<h3>Yaşanmış hata sınıfları ve karşılık gelen kapı</h3>
+<p>v1'in dokuz sınıfı geçerlidir ve <b>dördü eklendi</b>. Her satır bir kez gerçekten oldu; kapı o yüzden var.</p>
+<table>
+<tr><th>Yaşanan (ölçülmüş)</th><th>Kapı</th></tr>
+<tr><td>Şerit kendi işini merge etti</td><td>Tek merge yetkisi Ustabaşı; üreticinin allow-list'inde merge yok; <b>artık scriptte de yazarlık kapısı (4b)</b></td></tr>
+<tr><td>Kısa sha → <code>total_count=0</code> → "CI hiç koşmadı"</td><td>Script yalnız 40-hex sorar</td></tr>
+<tr><td><code>cancelled</code>/<code>skipped</code> yeşile katlandı</td><td>Yalnız <code>success</code> geçer</td></tr>
+<tr><td>Bayat dal + strict → güncelleme döngüleri</td><td>Adım 2: merge master, gerekirse reseal, adlandırılmış bekleme</td></tr>
+<tr><td>Seal çakışmasında elle hunk seçimi</td><td>Tek çare reseal; script başka yol bilmez</td></tr>
+<tr><td>İki-nokta diff sahte silme olarak okundu</td><td>Adım 4: <code>merge-tree</code>, ancestry değil</td></tr>
+<tr><td>"Merge oldu" sanıldı, içerik yoktu (RULE-49)</td><td>Adım 6: ağaç sha eşitliği, bayt-aynı</td></tr>
+<tr><td>Hüküm ağacın içine yazıldı</td><td>Tek meşru merge biçimi; guard <code>exit 2</code></td></tr>
+<tr><td>Paralel iniş yarışı</td><td>Adım 1: <code>refs/landing/lock</code>, boş lease</td></tr>
+<tr><td><b>Rol taşımayan çağrı merge anahtarını null bıraktı</b> <span class="tag t-n">YENİ</span></td><td>Adım 4c: <code>ADF_LANE_ROLE</code> her çağrıda; yoksa merge reddedilir</td></tr>
+<tr><td><b>İki dal aynı ÜRETİLMİŞ dosyayı yeniden üretti</b> <span class="tag t-n">YENİ</span></td><td>Kaynaklar temiz birleşir, üretilmiş sayfa çakışır. Çare elle çözmek değil: master'ı birleştir, üreticiyi yeniden koştur</td></tr>
+<tr><td><b>Fence CLEAN dedi, kuyruk gelene kadar CONFLICTING oldu</b> <span class="tag t-n">YENİ</span></td><td>Kuyruğu bitiren çürümedir, kırmızı değil. Öncül her inişte bozulur; kart bunu kendi SELF-INVALIDATION satırında söyler</td></tr>
+<tr><td><b>İmaj koşturulmadan gönderildi</b> <span class="tag t-n">YENİ</span></td><td>S102: kart artık yerelde kanıt ister — health, iki yarım, üç kez bayt-aynılık</td></tr>
+</table>
+
+<h3>Scriptin yetki alma şartları</h3>
+<ul>
+<li><b>Kapı öz-testi (D-5):</b> yukarıdaki her sınıf sahte bir PR'da bilerek üretilir ve scriptin o adımda durduğu ölçülür. Kapı, koruduğu şeye arıza ekleyerek kanıtlanır. <span class="tag t-m">MEASURED</span> Aynı disiplin kart dilbilgisinde de koşuyor: <code>--self-test</code> hem kırmızıyı hem yeşili kanıtlar (<code>red=proven green=proven</code>), ve hiç kırmızı görülmemiş bir kapı kanıt sayılmaz.</li>
+<li><b>Yazan ile koşan ayrı:</b> scripti bir üretici şerit yazar, CI'da test koşar, Ustabaşı koşar.</li>
+<li><b>İlk gerçek iniş tanıklı:</b> Architect ağaç sha'larını taze klondan bağımsız okur; o ölçüm defterde yoksa Ustabaşı'nın iniş yetkisi <code>RELAYED</code>'dir.</li>
+<li><b>Yeni hata sınıfı = yeni adım, aynı oturum:</b> bug bucket'a A-REC olarak değil <code>LAND-GATE-n</code> olarak yazılır (S61-2).</li>
+<li><b>Maliyet notu:</b> seri iniş = iniş başına bir ürün kapısı koşusu. <span class="tag t-m">MEASURED</span> Bu artık teorik değil: yeniden-sertifikasyon vergisi 1:1 ölçüldü ve üretim tavanı oldu (H12).</li>
+</ul>
+
+<div class="new"><b>Ölçülmüş tavan: yeniden-sertifikasyon vergisi 1:1.</b> <span class="tag t-m">MEASURED</span> Strict kapı altında <i>her iniş diğer her dalı bayatlatır</i>. Sekiz inişlik bir oturumda kuyruğu bitiren şey bir kırmızı değil, <b>çürüme</b> oldu: fence'in CLEAN dediği iki istek, kuyruk onlara gelene kadar CONFLICTING'e döndü. CI hesaplama maliyeti darboğaz değil; <b>güncelle-push-bekle-merge döngüsü</b> darboğazdır. Çare merge queue'dur ve merge queue <b>KULLANILAMIYOR</b>: depo kullanıcı hesabında, kuyruk bir organizasyon istiyor. Workflow yarısı yazıldı ve bekliyor. Bu, mimarinin bugünkü <b>gerçek üretim tavanıdır</b> ve tek çözümü sahip kararıdır (§9).</div>
+
+<h2>9 · Delik haritası — H1..H11, ölçülmüş</h2>
+<table>
+<tr><th>#</th><th>Delik</th><th>Durum (S122)</th><th>Kalan</th></tr>
+<tr><td>H1</td><td>Tetik insan</td><td class="part">kısmî</td><td>Ustabaşı zamanlayıcısı çalışıyor; ama poll görevini <i>kuran</i> komut hiçbir boot'ta yazılı değil — her şerit yeniden keşfediyor</td></tr>
+<tr><td>H2</td><td>Architect durumu oturumla ölüyor</td><td class="part">kısmî</td><td>Arşiv erişimi <b>açıldı</b> (cihaz köprüsü). Vektör korpusu hâlâ yalnız araç açıklaması; yasa/ADR/arşiv indekslenmedi. <code>PHASE-CONTEXT-RETRIEVAL-1</code>'in hâlâ <b>belgesi yok</b></td></tr>
+<tr><td>H3</td><td>Kanıt düzyazı</td><td class="part">kısmî</td><td>28 JSON rapor + şema kapısı indi; 302 <code>.md</code> hâlâ baskın</td></tr>
+<tr><td>H4</td><td>Kapılar yasada var ölçümde yok</td><td class="part">kısmî</td><td><code>eval-canary</code> sahip hükmüyle donduruldu (meşru); <code>budget-fence</code> beş gündür kırmızı ve <b>sahipsiz</b></td></tr>
+<tr><td>H5</td><td>Teslimat ack'sız</td><td class="ok">KAPANDI</td><td><code>relay_mark_consumed</code> indi; canlı ölçüldü</td></tr>
+<tr><td>H6</td><td>Yetki istemci tarafında</td><td class="open">AÇIK</td><td>CODEOWNERS yok; şerit başına token yok. "Farklı aktörden onay" hâlâ script disiplinine bağlı</td></tr>
+<tr><td>H7</td><td>Operator bir ajan</td><td class="ok">karara bağlandı</td><td>Operator kalır (sahip kararı, v1)</td></tr>
+<tr><td>H8</td><td>Merge yetkisi ADVISORY</td><td class="ok">KAPANDI</td><td><code>npm run land</code> + rol kapısı + yazarlık kapısı</td></tr>
+<tr><td>H9</td><td>Deploy doğrulama döngüde değil</td><td class="open">AÇIK</td><td>Webhook yok; değişmedi</td></tr>
+<tr><td>H10</td><td>Şerit gözlemi yok</td><td class="part">kısmî</td><td><code>factory_events</code> durum geçişini loglar; claim/poll/push/PR/land olayları ve pano yok</td></tr>
+<tr><td><b>H11</b> <span class="tag t-n">YENİ</span></td><td>Kart kapısı silahsız</td><td class="open">AÇIK</td><td><code>CARD_GATE='REPORT'</code> — reddi bildirir, durdurmaz. Silahlandırma ölçülmüş istikrardan sonra</td></tr>
+<tr><td><b>H12</b> <span class="tag t-n">YENİ</span></td><td>Üretim tavanı: yeniden-sertifikasyon vergisi</td><td class="open">AÇIK</td><td>Merge queue kullanılamıyor (org gerekli). Bugünkü gerçek tavan</td></tr>
+<tr><td><b>H13</b> <span class="tag t-n">YENİ</span></td><td>Yaptırım kodunun yazılı evi yok</td><td class="part">kısmî</td><td>CP-1…CP-11 için <code>docs/ground/CARD-PREFLIGHT-v1.md</code> <b>var ve koddan üretiliyor</b>; rapor kuralları için grammar v2 var; <b>hook çitlerinin hiçbir evi yok</b></td></tr>
+</table>
+
+<h2>10 · Sahip kararında kalanlar</h2>
+<ul>
+<li><b>Depoyu bir organizasyona taşımak.</b> Merge queue'nun ön koşulu ve H12'nin tek çaresi. Workflow yarısı hazır bekliyor.</li>
+<li><b>Kural korpusu.</b> Sahip incelemesi altında; hiçbir kural, yasa, boot, hook ya da check onun sözü olmadan değişmez.</li>
+<li><b>Scout penceresinin kapsamı:</b> her kart mı, yalnız paylaşılan yüzeye dokunan kart mı? Ölçülmüş fayda yüksek, ölçülmüş maliyet de öyle.</li>
+<li><b><code>CARD_GATE</code>'i silahlandırmak</b> (REPORT → REFUSE): ölçülmüş bir istikrar penceresinden sonra.</li>
+<li><code>budget-fence</code> sahipliği — beş gündür kırmızı, kimse sahiplenmedi.</li>
+<li>Architect'i sohbetten çıkarmak (<code>bak</code>'ı da makineye vermek): ayrı ve daha büyük karar.</li>
+<li>ADF'nin kendi evi (§13 ufuk): ayrı depo + Claude Code eklentisi olarak dağıtım.</li>
+</ul>
+
+<h2>11 · Ölçülmemiş öncüller</h2>
+<ul>
+<li>Şeritlerin git kimliği: tek hesap mı, ayrı mı? ("farklı aktör" ruleset'i buna bağlı — H6.)</li>
+<li>Ruleset içeriği (Architect kabından <code>gh</code> 403) ve ürün kapısı secret'larının varlığı.</li>
+<li>Kota ve rate limit tavanları — ölçek kartının PREMISE'ine girer.</li>
+<li><code>relay_inbox</code>'ta tek <code>artifact_name</code>'in iki belgeye ait olabilmesinin ölçülmüş sıklığı.</li>
+</ul>
+
+<h2>12 · Ölçek — 4 şeritten 10 şeride</h2>
+<p><span class="tag t-d">DECIDED</span> Mimaride yapısal bir şerit sınırı yoktur. v1'in dört darboğazı geçerlidir; <b>#1 artık ölçülmüş ve adı kondu</b>.</p>
+<table>
+<tr><th>Katman</th><th>10 şeritte</th><th>Hüküm</th></tr>
+<tr><td>Ustabaşı + seri iniş</td><td>10 üretici, tek merger</td><td><b>Darboğaz #1 — ARTIK ÖLÇÜLDÜ (H12).</b> Vergi 1:1; kuyruğu bitiren çürümedir. Entegrasyon dalı ya da merge queue <b>önkoşul</b>; ikincisi organizasyon ister</td></tr>
+<tr><td>Architect</td><td>Kart başına yargı Architect'te</td><td><b>Darboğaz #2 — büyüdü.</b> Scout penceresi kaliteyi yükseltti ve tur sayısını da yükseltti. Çözüm ikinci Ustabaşı değil: <b>kart şablonu + dalga kartı</b></td></tr>
+<tr><td>Paylaşılan yüzeyler</td><td>reseal + üretilmiş artefakt çakışması</td><td><b>Darboğaz #3 — yeni bir şekli var:</b> iki şerit aynı <i>üretilmiş</i> dosyayı yeniden ürettiğinde kaynaklar temiz birleşir, üretilmiş sayfa çakışır. Çare elle çözmek değil, birleştirip yeniden üretmektir</td></tr>
+<tr><td>Kotalar</td><td>Ajan/CI/bulut limitleri</td><td><b>Darboğaz #4, <span class="tag t-u">UNMEASURED</span></b></td></tr>
+<tr><td>Bus roster · claim · DB · Sahip</td><td>—</td><td>Sınır değil; v1'deki hüküm geçerli. Sahip yükü şerit sayısından bağımsız — mimarinin asıl kazancı</td></tr>
+</table>
+
+<h2>13 · Ürün bağlaması — CWF <span class="tag t-b">BINDING</span></h2>
+<p>Fabrikanın gövdesinde ürün adı geçmez; ürüne özgü her şey bu tabloda yaşar.</p>
+<table>
+<tr><th>ADF kavramı</th><th>CWF'de somut karşılığı (S122'de ölçüldü)</th></tr>
+<tr><td>Ürün deposu (kanıt düzlemi)</td><td><code>github.com/maymun207/cwf_yaprak</code> · <b>kullanıcı hesabı</b> — merge queue bu yüzden yok</td></tr>
+<tr><td>Fabrika DB'si ve ürün DB'si</td><td>Aynı Supabase projesi <code>fjbrkimwvtpwoxhziidh</code>; <code>relay_inbox</code> · <code>factory_state</code> · <code>factory_events</code></td></tr>
+<tr><td>Ürün kapıları (CI)</td><td>8 workflow: <code>build-test</code> · <code>relay-corpus</code> · <code>report-schema</code> · <code>nightly-compat</code> · <code>vector-live-proof</code> · <code>budget-fence</code> (kırmızı, sahipsiz) · <code>build-encoder-image</code> · <code>deploy-langfuse</code>. <code>eval-canary</code> donduruldu</td></tr>
+<tr><td>Kart ve rapor dilbilgisi</td><td><code>scripts/cardPreflight.ts</code> (CP-1…CP-11) · <code>scripts/relayAudit.ts</code> (19 kural) · üç hook çiti · <code>docs/ground/CARD-PREFLIGHT-v1.md</code> (üretilmiş)</td></tr>
+<tr><td>Deploy hedefi</td><td>Vercel <code>prj_0fDFCY8qXj8Kr5y7n4zmyefjHY8i</code></td></tr>
+<tr><td>Bağlam organı (vektör)</td><td>Qdrant + bge-m3; valf açık (<code>vector.enabled=1</code>, <code>engine=qdrant</code>), <b>tüketici kapalı</b> (<code>toolRetrievalMode=0</code>); korpus yalnız araç açıklaması</td></tr>
+<tr><td>Arşiv deposu (özel)</td><td><code>2026-Yapra-DDocuments</code> · Architect cihaz köprüsüyle yazar, push sahibin elinde</td></tr>
+<tr><td>Üst yasa korpusu</td><td><code>docs/laws/</code> — 16 anayasa + 59 kural, <b>27'si ADVISORY</b>; sahip incelemesi altında</td></tr>
+<tr><td>Ürün kabul sözleşmesi</td><td><code>cwf-sota-definition</code> — iç 7-anahtar sayacı 6/7, <b>kabul sözleşmesi 0/16</b>; SOTA-1 yalnız ikincisini kabul eder</td></tr>
+</table>
+
+<h3>ADF'nin bugünkü evi ve ufuk</h3>
+<p><span class="tag t-m">MEASURED</span> ADF'nin mekanizmaları ürün deposunun içinde yaşar: <code>CLAUDE.md</code>, <code>.claude/</code> (settings · settings.foreman · hooks · boot ×4), <code>scripts/</code> (<code>land</code> · <code>cardPreflight</code> · <code>relayAudit</code> · <code>mail-wait</code> · <code>architectOpen</code>), relay ve factory migrasyonları, <code>docs/laws/</code>, <code>docs/ground/</code>.</p>
+<p><span class="tag t-d">DECIDED</span> Ufuk: ADF'nin kendi deposu ve bir Claude Code eklentisi olarak dağıtımı. Ürün "ADF'yi kurar", ADF'yi kopyalamaz. Bugün değil; ikinci ürün geldiğinde tetiklenir.</p>
+
+<h2>14 · Bu sürümün kendi dürüstlük notu</h2>
+<p>v2'nin her sayısı S122'de taze klondan ya da canlı DB'den ölçüldü. <b>v1'in ölçümleri doğruydu; iki çıkarımı yanlıştı</b> ve ikisi de burada düzeltildi: arşive Architect erişimi ("erişemez" → erişiyor) ve <code>lane_events</code> ("hedef" → gelmedi, yerine farklı şekilli bir organ geldi). Bu, P-9'un kendi örneğidir: bir önceki sürümün ölçümlerine güvenilir, çıkarımlarına güvenilmez.</p>
+<p><b>Bir form değişikliği, sessiz bırakılmasın diye burada:</b> v1'in §5'indeki sıra diyagramı (SVG şerit-ömrü çizimi) v2'de §7'de <b>numaralı liste</b> oldu. Sebep: akış artık düz değil — 5. adım scout penceresiyle üçe ayrılıyor ve bir dallanmayı yedi şerit-ömrü çizgisi üstünde göstermek okunaksızdı. <b>Bilgi korundu ve arttı</b> (yerel ön uçuş, scout turu ve Architect'in doğrudan arşiv yazımı listede var, çizimde yoktu). Belgenin baytı v1'e göre <b>arttı</b>, azalmadı; hiçbir v1 bölümü düşürülmedi — ölçüldü.</p>
+<p class="muted">Bu belge bütün olarak yazıldı (A-REC-S101-7); dize cerrahisiyle yamalanmaz. Repo ile çelişirse taze klon kazanır ve fark bir bug olarak kaydedilir. v1 geçersiz kılındı ama <b>silinmedi</b> — görünür halefiyet, sessiz kısaltma değil (FULLEST-ATTESTED).</p>
+
+<div class="eyebrow" style="margin-top:40px">END · ADF-ARCHITECTURE-v2</div>
+</body>
+</html>
