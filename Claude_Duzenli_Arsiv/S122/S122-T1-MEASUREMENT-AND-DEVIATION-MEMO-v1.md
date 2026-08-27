@@ -208,7 +208,7 @@ checks should be made to *agree about what they each govern*, not merged into on
 | T1-2(a) `--since` | **HELD — DO NOT EXECUTE** | prescribed replacement is refused by the tool; defect already repaired |
 | T1-2(b) poll form | **HELD with 2(a)** | same file; addition not replacement; needs a producer lane to verify |
 | T1-3 SILENT-UNTIL memo | **DELIVERED** | separate memo; schema evidence re-verified live from `pg_catalog` |
-| T1-4 self-describing refusals | **CARD DISPATCHED, GREEN** | preflighted locally; refused 3× here, 0 refusals at the producer |
+| T1-4 self-describing refusals | **CARD READY, PREFLIGHT GREEN — NOT DISPATCHED** | passing preflight is necessary, not sufficient: standing ruling ② puts a scout window between preflight and any producer, and none has run |
 | T1-5 shift-left preflight | **ADOPTED AND PROVEN** | see §6 |
 | T1-6 enforcement question | **ANSWERED** | §4; the intent half still needs his ruling |
 | T1-7 GATE-1 scorecard | **DELIVERED** | separate artifact, verdict boxes empty, dry run attached |
@@ -231,7 +231,10 @@ attempt 3  GREEN — every check passed. The card may be inserted.
 ```
 
 Three refusals that a producer lane would otherwise have met, met here instead, at no cost to
-anyone's window. **Post-dispatch validator refusals for this session: 0.**
+anyone's window. **Post-dispatch validator refusals for this session: 0 — and stated
+precisely, that is because nothing was dispatched, not because a dispatch survived.** The
+number becomes evidence for G1-a only once cards actually reach lanes; recorded that way now
+so the gate is not read as passing on an empty window.
 
 One thing that surfaced while doing it, and it is evidence for T1-4 rather than a complaint:
 `R-ANCHOR` refused with *"names anchor "guard", which resolves to no ```evidence:guard fence in

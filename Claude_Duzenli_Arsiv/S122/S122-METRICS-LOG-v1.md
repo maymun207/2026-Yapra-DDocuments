@@ -25,18 +25,20 @@ closes when that share is structurally ~0 and the repairs that remain are judgem
 | session | date | 1 · dispatches | 2 · repairs | 3 · cross-body | 3/2 | 4 · post-dispatch refusals | 5 · caught locally | notes |
 |---|---|---|---|---|---|---|---|---|
 | **BASELINE** | 2026-08-27 (S121) | **14** | **4** | **3** | **75%** | 4 | 0 — no shift-left existed | the window the program was specified from |
-| S122 | 2026-08-27 | 1 | 0 | 0 | — | **0** | **3** | T1 execution session; the single dispatch is the T1-4 card, preflighted to GREEN before it left |
+| S122 | 2026-08-27 | **0** | 0 | 0 | — | **0** | **3** | T1 execution session. NOTHING WAS DISPATCHED: one card reached preflight-GREEN and waits on the scout window that standing ruling ② puts before any producer |
 
 ## S122 ROW — how each number was obtained
 
-* **dispatches = 1** — `PHASE-SELF-DESCRIBING-REFUSALS-1-v1`. Four further cards were written
-  or specified and **HELD** pending owner rulings; a held card is not a dispatch and is not
-  counted as one.
-* **repairs = 0, cross-body = 0** — no dispatched artifact has yet required a corrective
-  follow-up. **This number is provisional until the lane reports.** It is recorded now because
-  P-6 requires the row to exist before any T1 change lands; it is re-measured at session close.
-* **post-dispatch validator refusals = 0** — the dispatched card passed all eleven checks
-  before delivery.
+* **dispatches = 0** — `PHASE-SELF-DESCRIBING-REFUSALS-1-v1` is written and preflight-GREEN but
+  did **not** reach a lane: standing ruling ② requires a scout window between preflight and any
+  producer, and none ran this session. A card that passed the mechanical gate is not a
+  dispatch. The remaining cards are **HELD** pending owner rulings; a held card is not a
+  dispatch either.
+* **repairs = 0, cross-body = 0** — trivially, since nothing was dispatched. **These are not
+  yet evidence of anything.** They are recorded because P-6 requires the row to exist before
+  any T1 change lands.
+* **post-dispatch validator refusals = 0** — for the same reason, and it must not be read as a
+  passing G1-a. A zero over an empty window measures the window, not the practice.
 * **caught locally = 3** — the T1-4 card was refused three times in the Architect container and
   repaired there:
 
