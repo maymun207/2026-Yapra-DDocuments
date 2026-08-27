@@ -25,20 +25,40 @@ closes when that share is structurally ~0 and the repairs that remain are judgem
 | session | date | 1 · dispatches | 2 · repairs | 3 · cross-body | 3/2 | 4 · post-dispatch refusals | 5 · caught locally | notes |
 |---|---|---|---|---|---|---|---|---|
 | **BASELINE** | 2026-08-27 (S121) | **14** | **4** | **3** | **75%** | 4 | 0 — no shift-left existed | the window the program was specified from |
-| S122 | 2026-08-27 | **0** | 0 | 0 | — | **0** | **3** | T1 execution session. NOTHING WAS DISPATCHED: one card reached preflight-GREEN and waits on the scout window that standing ruling ② puts before any producer |
+| S122 | 2026-08-27 | **1** | 0 | 0 | — | **0** | **5** | T1 execution session. One card dispatched to AG-3 at 21:27:41Z after three scout windows cleared it; five refusals were caught locally before it ever reached a lane |
 
 ## S122 ROW — how each number was obtained
 
-* **dispatches = 0** — `PHASE-SELF-DESCRIBING-REFUSALS-1-v1` is written and preflight-GREEN but
-  did **not** reach a lane: standing ruling ② requires a scout window between preflight and any
-  producer, and none ran this session. A card that passed the mechanical gate is not a
-  dispatch. The remaining cards are **HELD** pending owner rulings; a held card is not a
-  dispatch either.
-* **repairs = 0, cross-body = 0** — trivially, since nothing was dispatched. **These are not
-  yet evidence of anything.** They are recorded because P-6 requires the row to exist before
-  any T1 change lands.
-* **post-dispatch validator refusals = 0** — for the same reason, and it must not be read as a
-  passing G1-a. A zero over an empty window measures the window, not the practice.
+* **dispatches = 1** — `PHASE-SELF-DESCRIBING-REFUSALS-1-v4` to AG-3 at 2026-08-27T21:27:41Z,
+  after standing ruling ②'s scout window. Stored body verified byte-identical to the
+  preflighted file (same digest, 14,729 octets), so the dispatched object is the object the
+  scouts cleared. The remaining cards are **HELD** pending owner rulings; a held card is not a
+  dispatch.
+* **repairs = 0, cross-body = 0** — **provisional and not yet evidence of anything**: the lane
+  has not reported. Re-measured at session close.
+* **post-dispatch validator refusals = 0** — provisional for the same reason. It becomes
+  evidence for G1-a only when the lane's report lands.
+* **caught locally = 5** — three on v1 and two on v2, all repaired in the Architect container.
+
+## THE SCOUT WINDOW IS A SECOND, INDEPENDENT FILTER — and it earned its place on its first run
+
+Preflight-GREEN was necessary and **nowhere near sufficient.** v1 passed all eleven mechanical
+checks and was then refused by **all three** scout windows on grounds no gate can see:
+
+| window | ground for refusal |
+|---|---|
+| 1 | `[card:preflight] REFUSED-CHECKS=` on stdout is a machine contract parsed by `mail-wait.mjs` and pinned by a unit test; ORDER A would have had a lane rewrite it and break the box reader |
+| 2 | the scope fence omitted a sixth refusal emitter (`guard.sh`), and ORDER D demanded verdict preservation "on any input" — an unbounded quantifier no instrument can prove |
+| 3 | ORDER A's central premise was false for the two largest surfaces: prose homes already exist, one of them generated from the code |
+
+v2 fixed those; window 1 then refused v2 on a **factual error in the card's own prose** — it
+claimed three hook tests protect the additive rule when exactly one does. v3 fixed that, v4
+added a dispatch note window 1 supplied, and all three cleared it.
+
+**Read against the primary metric:** every one of these is a *cross-body* defect — a
+requirement living in a body other than the one being consulted. The mechanical gates cannot
+see across bodies at all. Whatever else the scout window costs, it is currently the only
+instrument in the factory that catches this class **before** a lane pays for it.
 * **caught locally = 3** — the T1-4 card was refused three times in the Architect container and
   repaired there:
 
