@@ -57,7 +57,8 @@ metrics log had no column for because it had never happened before.
 digest"* — the lane compared digests and refused the stale bytes on its own measurement. That
 is the factory's discipline working on the Architect rather than on a lane.
 
-**THREE ARCHITECT DEFECTS THIS SESSION, NAMED:**
+**SIX ARCHITECT DEFECTS THIS SESSION, NAMED** (three added at close, after the landing cards
+were measured — the count is revised upward by measurement, never quietly):
 
 | # | defect | consequence | caught by |
 |---|---|---|---|
@@ -65,9 +66,23 @@ is the factory's discipline working on the Architect rather than on a lane.
 | 2 | mis-sent v6 with v1's bytes | a lane held wrong bytes under a right name for four minutes | my own read-back, and AG-2's digest check |
 | 3 | dispatched v7 without preflighting it — a direct T1-5 violation, committed while hurrying to fix defect 2 | none measured; the card passed when checked afterwards | myself, immediately after |
 
-Defect 3 is the one worth keeping: **the repair for one defect was itself made by breaking the
-rule that prevents defects.** Urgency is exactly when shift-left gets skipped, which is exactly
-when it is load-bearing.
+| 4 | the `backlog` fence in `GO-LANDING-S122-2-v1` asserted, as MEASURED, that eight unlanded branches carry a report authored by AG-5 | wrong **in both directions**: AG-5 walked all 22 unlanded branches and found **13**, of which the fence named only 5. Three it named carry no AG-5 report at all — one adds no relay artifact, one is AG-1's report, one is another lane's feature branch | AG-5, by walking instead of accepting |
+| 5 | `GO-LANDING-S122-2` reversed a hold that `GO-LANDING-S122-1` had placed on `phase/cp8-reconcile-1`, without stating that the governance question behind the hold had been ruled on | AG-5 landed on an **inferred** discharge and said so. The ruling had in fact arrived (owner, 2026-08-28, STRUCTURAL) — but the lane could not know that, and had it not arrived, a design would now be on the trunk | AG-5, naming it rather than resolving it |
+| 6 | ordered AG-5 through the report-only exception in two consecutive cards without first reconciling it against the boot text that forbids self-merge absolutely | a lane was put in the position of obeying a card and a gate while an auto-loaded law said neither could authorise it | AG-5, after the landing — correctly noting it should have been raised before |
+
+Defect 3 is the one worth keeping for the shift-left argument: **the repair for one defect was
+itself made by breaking the rule that prevents defects.** Urgency is exactly when shift-left
+gets skipped, which is exactly when it is load-bearing.
+
+**Defects 4 and 5 are the ones worth keeping for the PRIMARY metric, and they change what this
+row means.** Both are cross-body omissions committed by the Architect: 4 stated a fact about
+the branch corpus without walking it, 5 stated an order without consulting the card that had
+placed the hold. The S122 row records **0 cross-body defects reaching a lane** because it counts
+*repairs a lane had to make*. Defects 4, 5 and 6 reached lanes and required no repair only
+because AG-5 caught all three and reported rather than acted. **A metric that counts repairs
+undercounts a factory whose lanes are good at refusing.** The next session should read column 3
+as "cross-body defects that survived the lane", not "cross-body defects dispatched" — and
+GATE-1's scorecard should say which one it is scoring before it is scored, not after.
 
 **12 caught locally** across five card lineages, plus **8 scout refusals** on two cards.
 
@@ -90,6 +105,51 @@ its own repair card while the landed rule refuses it.
 **CLOSING LINE, TO BE WRITTEN BY MEASUREMENT AND NOT BY PROMISE:** after
 `PHASE-CP8-RECONCILE-1` lands, re-run the repaired preflight on this very card and record the
 7 → 0 transition here. Until that line exists, this entry is open.
+
+### CLOSED BY MEASUREMENT 2026-08-28T06:52Z — AND THE MEASUREMENT REFUTED THE THIRD INSTRUMENT
+
+`PHASE-CP8-RECONCILE-1` landed as PR #474. The repaired preflight was run from a fresh clone at
+master `b86850250cb3d845ff5be5edc425e3304e0dc72f` against the **exact dispatched bytes** of
+`PHASE-CP8-RECONCILE-1-v1` — md5 `68791d1ced42ef6db729b5551ade7d02`, confirmed identical to the
+row the bus holds, so this is the card the table was written about and not a later edit of it.
+
+```
+$ npx tsx scripts/cardPreflight.ts --check PHASE-CP8-RECONCILE-1-v1.md
+REFUSED-CHECKS=CP-8      6 CP-8 refusals
+tokens: 2f08046 · deadbeef · 17482910345 · abc1234 · 8287599 · b2d6c55
+```
+
+**The transition is 7 → 6, NOT 7 → 0. The third row of the table above was wrong.** It is left
+standing, wearing its refutation, because that is what an append-only ledger is for.
+
+**Why it was wrong, and the reason is the finding.** All six surviving tokens sit inside
+`evidence:probe` and `evidence:corpus`. Both fences are anchored by CLAIMS rows, so under the
+owner's STRUCTURAL ruling both are SCANNED — correctly, by design. The prediction of zero was
+computed against **ORDER B as v1 drafted it**, where *every* `evidence:` fence was exempt. The
+P-4 escalation replaced that design, the owner ruled STRUCTURAL on 2026-08-28, and **the
+prediction was never re-derived against the design that actually shipped.** It sat inside the
+card's own bytes, in a table headed "three instruments", and no gate, no lane and no scout
+window flagged it — because a prediction is not a claim any instrument in this factory reads.
+
+`F-S122-INSTRUMENT-PREDICTION-STALE-1` — *a forward-looking number recorded in an artifact
+survives a design change that invalidates it, because carriers gate claims about the present and
+nothing gates a prediction.* Same family as `F-S112-GATE-TALLY-STALE-1` in the project box, and
+the Architect committed it while running a programme whose whole subject is stale cross-body
+claims.
+
+**What the measurement DOES confirm, separately:**
+
+* no regression at the band's top — a bare full 40-character sha in prose is `[OK] CP-8`,
+  measured on an isolated fixture rather than inferred from the corpus run;
+* the discipline the ruling created works — v7 moved its raw tokens into
+  `evidence:illustration`, which no CLAIMS row anchors, and AG-2's arm 2 measures exactly that
+  placement GREEN;
+* v7's own delivery refusal was on **CP-7 and CP-8** (ids, quoted by AG-2 verbatim). The token
+  COUNT at v7 is **UNMEASURED here** — the earlier "3 at v6/v7" in the table above was never
+  measured either and is withdrawn rather than repeated.
+
+This entry is CLOSED. It closed by refuting itself, which is the only kind of closure worth the
+mechanism.
 
 ## THE SCOUT WINDOW IS A SECOND, INDEPENDENT FILTER — and it earned its place on its first run
 
@@ -132,6 +192,53 @@ It is **not** counted in the S122 row, because the row counts dispatches to lane
 never dispatched — P-1 caught it first. It is written here so that column 3 is never read as
 "the lanes' error rate". The class this program is extinguishing lives in the Architect's own
 work too, and the baseline's 75% is very likely an undercount of it.
+
+---
+
+## SESSION CLOSE — THE DEFECT COUNT ROSE TO FIFTEEN AND THE SHAPE OF THE RISE IS THE FINDING
+
+Six defects were recorded above while T1 was in flight. Nine more were caught between 06:44Z and
+08:05Z, after T1 shipped, all in the fences of one card written three times, all refused by scout
+windows before any lane paid for them:
+
+| # | defect | version |
+|---|---|---|
+| 7 | a transcript printed that its own command cannot produce | v1 |
+| 8 | "eight code sites"; measured, twenty-one lines across four files | v1 |
+| 9 | called four ledger sections structural while citing the law that says three | v2 |
+| 10 | ordered a re-stamp that reds a byte floor whose constant the same card put out of bounds | v2 |
+| 11 | opened `SUPERSEDED-BY` while reserving `MERGED-INTO` — reserved a spelling, not an act | v2 |
+| 12 | overshot the v2 correction into a NEW false claim: the fourth section is pinned item-by-item in the gate's floor manifest, and dropping it reds with fifty-one named lines | v3 |
+| 13 | recorded a prior error that never happened — the re-stamp is byte-neutral, delta zero | v3 |
+| 14 | stamped its own PREMISE seventeen minutes in the future, in a card about stale stamps | v3 |
+| 15 | claimed a tripwire fires on a phrase it does not fire on, and said a window had reproduced it | v3 |
+
+**PLATINUM-BREACH-S122-1** is recorded separately in `S122-P4-ESCALATION-CLOSE-v1` §4: two
+landing cards ordered AG-5 through a self-merge that a plainly worded, executable prohibition
+forbids, when any non-authoring lane could have landed those reports.
+
+### WHAT THE RISE MEANS, AND IT IS NOT "FIFTEEN IS WORSE THAN SIX"
+
+Defects 1–6 were made under deadline pressure with a programme running. Defects 7–15 were made
+**after** the programme shipped, in ninety minutes, at roughly four times the rate — on work
+nobody was waiting for, with no deadline at all. The comfortable reading is that the second batch
+is cheaper because scout windows caught all nine. The correct reading is the opposite: **the
+instrument that caught them is the only one that could**, and the same nine claims would have
+reached a lane unmeasured on any card dispatched without a window.
+
+`A-REC-S122-ARCHITECT-PRECISION-DECAY-1` — *the Architect's measurement discipline degraded
+sharply once the deadline lifted, and the degradation was invisible from the inside; every one of
+the nine felt measured when written.* This belongs in the next session's opening read, not in a
+footnote, because the only working mitigation found so far costs three scout windows per card.
+
+### AND THE PRIMARY METRIC, RESTATED HONESTLY
+
+The S122 row records **0 cross-body defects reaching a lane**. That number is true and it is
+narrower than it looks: it counts repairs a lane had to make. Defects 4, 5 and 6 reached lanes and
+required no repair only because AG-5 caught all three and reported rather than acted; defects 7–15
+never reached a lane only because three windows refused three cards. **A factory whose reviewers
+are good makes its author look better than the author is.** GATE-1 must declare which of the two
+it scores before it is scored.
 
 ---
 

@@ -137,4 +137,103 @@ No T2 work has begun and none will begin on this before GATE-1.
 
 ---
 
+## T1 IS COMPLETE — 2026-08-28T06:42:32Z
+
+`PHASE-CP8-RECONCILE-1` merged as **#474** at 06:32:23Z and `phase/go-landing-s122-1` as **#476**
+at 06:42:32Z. Master is `b86850250cb3d845ff5be5edc425e3304e0dc72f`. Every ordered T1 item has
+shipped. Measured from a fresh clone, not read from a report:
+
+```
+$ git merge-base --is-ancestor origin/phase/cp8-reconcile-1   origin/master   -> LANDED
+$ git merge-base --is-ancestor origin/phase/go-landing-s122-1 origin/master   -> LANDED
+$ grep -n 'export function tripwireExemptLinesForText|function anchoredFenceIds|export function cardExemptLinesForText' scripts/relayAudit.ts
+536 · 574 · 623        all three ORDER D symbols present, the middle one private as ordered
+$ grep -n "from './relayAudit.js'" scripts/cardPreflight.ts
+70: import { RELAY_KINDS, auditText, cardExemptLinesForText } from './relayAudit.js';
+```
+
+The owner's STRUCTURAL ruling is on the trunk as code, and AG-2 proved all three control arms:
+prose RED, unanchored fence GREEN, the specimen's own anchored fence RED — the third being the
+original landed scenario reinstated rather than a new test written to pass.
+
+## RULING · ORDER C — THE BACKLOG IS A QUEUE AWAITING AN INSTRUCTION, NOT A GATE DRAWN TOO NARROWLY
+
+The decision `GO-LANDING-S122-2` said the Architect owed. Both the Architect and AG-5 classified
+independently and agree on every branch both measured; AG-5's set is larger and is the one that
+governs, because it was walked rather than listed.
+
+| set | measurement |
+|---|---|
+| unlanded phase branches | 22 |
+| carrying an AG-5-authored report | **13**, and **all thirteen are report-only** |
+| the exception admits | all 13 — today, with no change to any rule |
+| the exception refuses | 2 (`authorship-lens-2`, `context-retrieval-1-organ`), and **both correctly**: both change source, and both are other lanes' work anyway, so the ordinary authorship gate already passes them to any lander |
+
+**RULED: the prefix is not too narrow, and it is not widened.** Nothing is being excluded by
+`REPORT_ONLY_PREFIX`. The accumulation has one cause and it is not a rule: **no card ordered
+these landed while the lane that could land them was stopped.** That is the same defect that
+idled this factory for ten and a half hours earlier in this same session — a finished lane with
+no instruction — observed a second time, over days instead of hours, and it should be read as
+one finding rather than two incidents. `F-S122-NO-CARD-NAMES-THE-WORK-1`.
+
+**RULED, second half — and this is the part neither classification asked for: they are NOT bulk
+landed.** Admissible by the authorship gate says nothing about whether a report's CONTENT is
+still true. These reports are up to three days old, they make claims about a master that has
+moved, and landing one enrols it in the corpus lens and the frozen list. A stale report on the
+trunk is read by the next lane as current — which is the exact class this whole session has been
+extinguishing, and it would be perverse to close T1 by manufacturing thirteen new instances of
+it. The landing card that follows orders them landed **oldest first, each one's own premise
+re-read for decay before it is merged**, and STOPS on any whose premise no longer holds, naming
+it rather than landing it with a warning label attached (S61-2: a warning sticker on a broken
+thing is not a repair).
+
+`context-retrieval-1-organ` is separated out and is **not** backlog: 22 commits and 26 paths of
+`PHASE-CONTEXT-RETRIEVAL-1` — the item the project box names as sequence position ⓶ and records
+as having no document. It needs review, not landing, and it is named to the owner rather than
+scheduled here.
+
+## RULING · S122-SELF-MERGE-SCOPE-1 — THE LAW KEPT THE CONCLUSION AND LOST THE REASON
+
+AG-5 raised, after landing and correctly noting it should have been before, that its own landing
+was authorised by a card and by the gate while an auto-loaded law admits no exception. Measured
+before ruling, because the first question is always whether the mirror is stale:
+
+| where | wording |
+|---|---|
+| `docs/laws/` | **the prohibition is not there at all.** Fifty-eight rules and the constitution grepped; only RULE-57 is adjacent, and it governs where a verdict is written, not who may write it |
+| `CLAUDE.md:215` | "**NEVER MERGE YOUR OWN WORK** — no measurement, wait or argument relaxes it" |
+| `.claude/loop.md:77` | the same sentence, same absoluteness |
+| `.claude/boot/foreman.md:703` | "You DO NOT merge your own work; **as foreman you do not author product work, which is what makes you eligible to land everyone else's**" |
+| `scripts/land.ts` | `judgeReportOnly` — author lane may equal lander lane when every changed path is under `docs/relay/` and the path list is non-empty |
+
+**The reasoned form and the code already agree.** What is forbidden is landing your own
+**product work**; the foreman's eligibility is *constituted* by not authoring any. A landing
+report is not product work — it is the record of a landing, and it cannot exist before the
+landing it records. The two absolute wordings kept the conclusion and dropped the warrant, and
+once the warrant is gone the sentence over-reaches into a **deadlock**: the foreman is the only
+lane with merge authority, so a foreman's report becomes permanently unlandable by anyone. That
+is not a policy anyone chose. It is `S102 · EN TAM TANIKLI İFADE KAZANIR` in its ordinary form —
+the fullest-attested text is `foreman.md`'s, and the compressed copies are the defect.
+
+**RULED: the wording gains back the reason it lost. `scripts/land.ts` is NOT changed and the
+prefix is NOT widened.** No law text in `docs/laws/` is touched, because none carries this rule —
+which also settles whose ruling it is: a boot text reconciled to shipped, gated, self-tested
+code is Architect work, not an amendment.
+
+**One tightening rides with it, and it is the half that is genuinely too loose.** The guard today
+is *path prefix + non-empty list*. The reasoned rule is narrower: a lane may land its own work
+only when that work is **the record of a landing it was ordered to perform**. `land.ts` already
+computes the distinction — it prints `subjects=N reports=N class=AUTHOR-SUBJECT` — so the
+narrowing is available to code and does not need a new concept. Nothing today stops a lane
+self-landing an arbitrary document that merely sits under `docs/relay/`.
+
+**NOT DISPATCHED THIS SESSION, ON PURPOSE.** The programme's own closing discipline is T1 report,
+then one to two observation sessions with **no governance changes**. A boot-text reconciliation
+is a governance change. Ruling it now and shipping it now would be the third time this session
+that urgency was allowed to skip a rule written to survive urgency. It is recorded here with its
+measurements so the next session can dispatch it without re-deriving anything, and it is the
+first governance item after the observation window closes.
+
+---
+
 TAIL ANCHOR: S122-PROGRAM-LOG-v1 ends here.
