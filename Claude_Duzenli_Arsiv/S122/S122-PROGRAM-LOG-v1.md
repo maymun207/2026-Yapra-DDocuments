@@ -236,4 +236,174 @@ first governance item after the observation window closes.
 
 ---
 
+## OWNER RULING · S122 · E-1 / E-2 / PB / R-1 / WINDOW — RECEIVED 2026-08-28
+
+**E-1 · RULED OPTION A**, five riders. The exception exists by the owner's ruling and only by it.
+Scope: a lane may land **the record of a landing that was ordered to it**, mechanically the
+distinction `land.ts` already computes PLUS an artifact-type guard limiting it to landing-report
+artifacts. R-i mechanism before prose · R-ii four prose homes (foreman boot · producer boots ·
+hook text · the H13 page) · R-iii every use emits a named `factory_events` row, counted at every
+gate · R-iv PLATINUM-BREACH-S122-1 stands · R-v the #476 landing is RATIFIED, no revert. Option B
+declined, kept as the named fallback if the event count ever shows scope creep.
+
+**MY SELF-GRANTED VERSION WAS THE BREACH; THIS GRANTED VERSION IS NOT** — and the distinction is
+the whole content of `RULING-S120`. Recorded here because the retraction and the grant look
+identical in outcome and are opposite in authority.
+
+**E-2 · DEFER, a fresh session executes.** v3's read-only shape is APPROVED AND FROZEN. I do not
+cut this card again. The executing session measures each of the nine claims before sending — the
+shape was never the defect. `A-REC-S122-ARCHITECT-PRECISION-DECAY-1` acknowledged as a measured
+finding; its countermeasure is ruled MECHANICAL, not moral, and parks to GATE-1: the pre-dispatch
+preflight becomes an unskippable hook, so haste has nothing left to skip.
+
+**PB · SEEN, stands.** Two measured positives go to GATE-1 with it, and both are the review layer
+working above its design point: a scout window refused an Architect **verdict** rather than a
+card, and AG-2 rejected the mis-sent row **by digest before being told**. Governance in this
+factory now runs in both directions.
+
+**R-1 · CLOSED AS MEASURED.** 7 → 6. The six residual tokens are scanned BY DESIGN. The "nothing
+in this factory gates a prediction" lesson is a P-9 extension CANDIDATE for GATE-1 and is **not
+ruled now** — recorded so the next session does not act on it as though it were.
+
+**WINDOW · P-6 OPENS AT THE NEXT SESSION.** One to two ordinary sessions, no governance changes,
+metrics logged per session. The queue and AG-1's card supply are ordinary work inside it.
+`phase/context-retrieval-1-organ` is HELD un-reviewed and is the FIRST GATE-1 agenda item.
+
+### MEASURED AGAINST THE RULING, AND TWO ANSWERS ARE OWED BEFORE THE QUEUE MOVES
+
+Measured at master `b86850250cb3d845ff5be5edc425e3304e0dc72f`, each of the thirteen branches by
+the artifact it adds:
+
+```
+GO- prefixed        execute-landing-1 · landing-plan-1
+GO- prefixed, MIXED ruling-s120-factory-stop-1 — adds a GO- report AND a RULING- report
+landing records,    s119-landing-order-1 · -2 · -3 · -4 · trunk-green-land-1 ·
+not GO- prefixed    backlog-landing-order-1
+not landing records nightly-compat-red-1 · ref-sweep-remeasure-1 (+ a -plan.md) ·
+                    ruling-s120-spend-and-gate-consent-1 · s118-lane-sweep-2-ag5-report
+```
+
+**THE RULING SAYS THE THIRTEEN UNBLOCK; THE SCOPE IT DEFINES DOES NOT ADMIT THIRTEEN.** On the
+NAME class the queue is two branches and one mixed; on the SEMANTIC reading — the record of a
+landing ordered to the lane — it is about eight. Not thirteen either way. This is exactly what
+R-i forces into code, and how R-i is written decides the queue's size. **Owner answer owed; not
+resolved here.**
+
+Second: R-i says mechanism first, and the mechanism is a `land.ts` predicate change plus boot,
+hook and page text plus a telemetry write. **That is a governance change, and the window forbids
+governance changes.** Either R-i is exempt from the window or the queue waits for GATE-1.
+**Owner answer owed; not resolved here.**
+
+Two smaller findings, measured so the riders are costed before they are ordered:
+
+* **R-ii's H13 page has no landed home.** H13 exists only in `ADF-ARCHITECTURE-v2`, which has
+  never landed; `docs/design/ADF-ARCHITECTURE-v1.html` IS in the tree. So R-ii implies v2 lands
+  there — which answers a question parked since yesterday, by implication. Not assumed.
+* **R-iii needs no migration.** `public.factory_events` exists with `lane_addr` accepting `AG-5`
+  and `new_state` free text, and its `factory_events_subject` CHECK is satisfied by a lane-addressed
+  row. The cost is a write path through the existing factory write channel, inside R-i's work —
+  not a schema change and not an Operator relay.
+
+---
+
+## E1-AMENDMENT-1 — OWNER ADDENDUM, LOGGED 2026-08-28
+
+**A-1 · SCOPE IS THE SEMANTIC READING.** A landing-report artifact is one documenting the
+EXECUTION of a landing ORDERED to that lane by card. `land.ts:1255/1293`'s `AUTHOR-SUBJECT`
+classification is the seam; **filename prefix is NOT the test** — the "GO-landing report path
+class" parenthetical was illustration, and where it diverges the definition sentence governs. A
+branch qualifies only if EVERY artifact it adds is in scope. The four standing-measurement
+reports are OUTSIDE, deliberately: they are AG-5's own observations, not records of ordered,
+gated acts, and the exception's rationale does not reach them. Their landing path is a NAMED
+GATE-1 design question — *the foreman standing-report path* — and is not resolved.
+
+**A-2 · R-i WAITS. THE WINDOW STAYS CLEAN.** The exception's LEGAL effect is in force now (the
+grant, R-iv, R-v). Its STEEL — the `land.ts` predicate, the boot/hook/page sentences, the
+`factory_events` write — is the FIRST work order out of the GATE-1 sitting, and the qualifying
+queue drains immediately after it lands. Nothing in ordinary window operation needs the
+exception; only records wait.
+
+**A-3 · `ADF-ARCHITECTURE-v2` LANDS AT GATE-1, alongside R-i**, and its landing card states
+explicitly that the landing IS the owner's ratification of v2. The **H2 direction — what may
+serve as the source of BINDING law, deterministic set versus vector retrieval — STAYS OPEN**, to
+be decided at the GATE-1 sitting together with the context-retrieval branch review; any resulting
+change is `v2_1` under `S37-1`. **v2 lands as the measured record of what IS**, not as a decision
+about what should be.
+
+### THE OWNER'S OWNED CORRECTION — LOGGED BECAUSE THE CLASS IS SUBSTRATE-INDEPENDENT
+
+The ruling's sentence *"the 13-branch queue unblocks"* carried an earlier count into a ruling
+without re-measuring what the queue contained. The owner named it as his own and asked that it be
+logged **so the record shows the error class is not a property of the Architect.** It is the same
+class as `F-S112-GATE-TALLY-STALE-1`, as my own stale instrument table, as my `backlog` fence
+wrong in both directions, and as nine fence claims in one card written three times.
+
+`F-S122-STALE-COUNT-CLASS-IS-SUBSTRATE-INDEPENDENT-1` — *the dominant failure mode of this
+factory is a number that travelled between carriers without being re-derived, and it is committed
+by every actor in it, owner included.* This is the single most useful thing the session produced
+about the class, because it removes the last comfortable explanation: it is not fatigue, not
+model, not lane discipline. **It is that nothing gates a number on its way into a carrier.**
+
+### THE QUALIFYING QUEUE, MEASURED ARTIFACT BY ARTIFACT — AND MY "~8" WAS WRONG TOO
+
+Measured at master `b86850250cb3d845ff5be5edc425e3304e0dc72f` by reading each report's own
+opening rather than its filename, which is what A-1 requires:
+
+```evidence:queue
+IN SCOPE, landable as they stand
+  execute-landing-1            "Eight landings, in a sitting the freeze opened"
+  backlog-landing-order-1      "ONE landed, then STOPPED at the canary"
+  trunk-green-land-1           "the trunk is GREEN, the canary fired once and passed"
+  ruling-s120-factory-stop-1   BOTH artifacts are landing-execution records — "the boot fix
+                               is on the trunk" and "the queue drained to three landings and
+                               one gate refusal". NOT MIXED. NO SPLIT NEEDED.
+
+IN SCOPE, blocked by a SECOND gate that has nothing to do with the exception
+  s119-landing-order-1 · -2 · -3 · -4
+                               all four are execution records — "eight landed", "four landed,
+                               three refused", "three landed", "THE TRUNK IS RED. NOTHING
+                               LANDED" (a refusal is an execution outcome). But none carries a
+                               relay-audit header, so governed=false, and none appears in
+                               RELAY-AUDIT-EXEMPT-HISTORY-v1.txt, whose additions are FROZEN.
+                               The corpus gate reds on any relay .md that is neither.
+
+OUT OF SCOPE — and this one is MY correction, not the owner's
+  landing-plan-1               "Twenty-two open pull requests measured with the landing
+                               script's own DRY RUN. Six are landable." No landing was
+                               executed. It is a survey, the same class as the four the owner
+                               excluded by name — and I had counted it IN when I said "about
+                               eight".
+
+OUT OF SCOPE by owner ruling
+  nightly-compat-red-1 · ref-sweep-remeasure-1 ·
+  ruling-s120-spend-and-gate-consent-1 · s118-lane-sweep-2
+```
+
+**THE QUEUE IS FOUR NOW AND FOUR MORE PENDING A REMEDY — not "~8".** Both the owner's thirteen
+and my eight were unmeasured, in opposite directions, in consecutive documents about the danger
+of unmeasured counts. Recorded exactly that way.
+
+**A SECOND GATE-1 QUESTION, NAMED NOT RESOLVED.** The four `S119` reports are in scope and cannot
+land as they stand. Adding a header to a submitted artifact runs into `S37-1` — a submitted
+artifact is immutable and a correction is a new version — and the exempt list is frozen against
+additions. That is adjacent to the foreman standing-report path question A-1 already parked, and
+it belongs beside it on the GATE-1 agenda rather than being solved by whoever notices it first.
+
+### STATE AT SESSION CLOSE
+
+```
+IN FORCE     the exception's legal effect · R-iv (the breach stands) · R-v (#476 ratified)
+WAITING      R-i steel · ADF-ARCHITECTURE-v2 landing · the qualifying queue — all GATE-1
+FROZEN       PHASE-LEDGER-DECAY-SWEEP-1-v3, read-only shape approved, executed by a fresh
+             session that measures its nine claims before sending
+HELD         phase/context-retrieval-1-organ, un-reviewed, FIRST GATE-1 agenda item
+OPEN         the H2 direction — binding law from a deterministic set or from vector
+             retrieval — decided at GATE-1 with the context-retrieval review; any change
+             is v2_1 under S37-1
+NEXT         the P-6 observation window opens at the next session. No governance changes.
+             Metrics logged per session. Next contact: the scorecard, or P-4.
+```
+
+---
+
 TAIL ANCHOR: S122-PROGRAM-LOG-v1 ends here.
