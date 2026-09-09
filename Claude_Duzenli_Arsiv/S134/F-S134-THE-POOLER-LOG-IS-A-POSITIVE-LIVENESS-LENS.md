@@ -138,3 +138,35 @@ What stands unchanged: AG-4 is not asleep in the sense of being off, it is produ
 the heartbeat proved neither. What is added: the wake was ONE, not a cadence, which is consistent
 with a host suspending and resuming — the same class as the 23:39:30 handshake that died mid-SCRAM,
 and consistent with a bridge that has now refused nine consecutive ticks. Consistent, not proven.
+
+---
+
+## THIRD READING AT 02:35Z — THE LENS HAS A BLIND SPOT AND IT MUST BE NAMED
+
+At 02:17:48Z AG-4 cut `phase/lens-measurement-repair-1-s134-1` from master, one hundred and
+fourteen seconds after the card reached the bus. Measured from the branch's own reflog, not
+inferred: `branch: Created from` the current master head, and the ref file's mtime agrees.
+
+At 02:35Z the pooler shows only SHORT `cwf_lane` episodes — about a hundred and seventy
+milliseconds each, at 02:32:35 and 02:34:30. By the reading rule written into the section above,
+that says "ticking and NOT working". **That reading would be wrong here, and the rule as published
+is too strong.**
+
+The pooler sees ONE thing: connections to Postgres. A lane cloning, reading source, editing files,
+running `tsc` or `vitest` touches no database at all. So a lane in the middle of exactly the work
+this card orders is INVISIBLE to this lens, and its silence looks identical to sleep.
+
+The corrected rule, and it is narrower than the one it replaces:
+
+- **A long episode is positive evidence of DB work.** That direction still holds and is what makes
+  the lens worth having.
+- **Short-episodes-only means only "not doing DB work".** It does NOT mean idle. Pair it with a
+  filesystem or git observation before concluding anything about the lane.
+- **No episodes at all still means the lane is not reaching the database**, which for a lane whose
+  poller ticks against Postgres does imply it is off or unreachable — but that inference belongs to
+  the poller's cadence, not to the lens alone.
+
+This is the same error the SECOND READING corrected, committed a second time in the same document:
+a rule stated more strongly than the instrument supports. It is recorded rather than edited away
+because a future Architect reading only the confident version would call a working lane asleep — and
+this house has already published one hung verdict on a working run tonight (A-REC-S134-1).
