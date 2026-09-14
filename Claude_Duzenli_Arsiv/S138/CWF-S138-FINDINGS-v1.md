@@ -134,3 +134,25 @@ it.
 Read that beside §6 before assuming the Architect is the careful one.
 
 END · CWF-S138-FINDINGS-v1
+
+## 8 · OWNER-RULING-S138-LEAN-AND-MEAN-1 — binding from 2026-09-14, in his words: "no more red tape, effective lean and mean process, pure effectiveness this is our motto"
+
+Cut after a measured day: ZERO lines of code landed, 11.2 KB of card prose written, three named
+approvals asked for decisions the owner had already made, and the only things that moved product were two
+category publishes done by hand in the panel and one lane landing. The ceremony consumed the session.
+
+1. THE ADVERSARY SEAL IS REQUIRED ONLY FOR A CARD THAT CHANGES PRODUCT BEHAVIOUR ON MASTER.
+   Measurement, sync, push, ops and read-only cards go straight to the lane, unsealed.
+   Evidence: CARD-SYNC-AND-MEASURE passed the scout unchanged — that round trip bought nothing.
+   The seal STAYS where it earned its keep: the scout's RED on the landing card caught a real defect.
+
+2. ONE AUTHORITY ENVELOPE PER SESSION, NAMED AT OPEN. The Architect does not re-ask per ref, per push or
+   per landing. Asking twice for a decision already made is the defect, not the caution.
+   See A-REC-S138-I-TURNED-A-LAW-INTO-A-DELAY-1.
+
+3. A CARD IS PREMISE + ORDERS + FALSIFIER. Nothing else. CLAIMS, DECISION RIGHTS, ON-DISAGREEMENT and
+   SHARED SURFACES are struck. Evidence: the scout's RED came out of ORDER 4; no refusal this session
+   came from any of the struck sections, and they were more than half the bytes.
+
+These three bind from this turn. They are recorded HERE and nowhere else — minting a governance carrier
+for a ruling that removes ceremony would be the ceremony it removes.
