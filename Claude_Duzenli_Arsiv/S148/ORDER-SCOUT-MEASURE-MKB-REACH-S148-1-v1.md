@@ -10,9 +10,9 @@ ON-DISAGREEMENT: if anything below reads differently at the head you measure, yo
 
 ## PREMISE
 
-MEASURED: 2026-09-20T12:25Z, Supabase messages + tool_experience: knowledge_search last positive 2026-08-20T13:11:59Z; company-report questions answered via knowledge_search on 2026-08-11/12 and 2026-08-18 12:30Z; entity-ask replies 0/day until 08-17, 14 on 08-18.
-MEASURED: 2026-09-20T12:25Z, domain_rules agent.param router.frameRouting v4 value 1 published 2026-08-18T02:04:43Z (v3 value 0 archived).
-MEASURED: 2026-09-20T12:30Z, git grep over master in the owner clone: the entity-ask text lives at api/cwf/_lib/routing/computeClarification.ts:179, HIGH trigger 1 (entity_ref non-empty, none resolved).
+MEASURED: 2026-09-20T11:15Z, Supabase messages + tool_experience: knowledge_search last positive 2026-08-20T13:11:59Z; company-report questions answered via knowledge_search on 2026-08-11/12 and 2026-08-18 12:30Z; entity-ask replies 0/day until 08-17, 14 on 08-18.
+MEASURED: 2026-09-20T11:12Z, domain_rules agent.param router.frameRouting v4 value 1 published 2026-08-18T02:04:43Z (v3 value 0 archived).
+MEASURED: 2026-09-20T12:17Z, git grep over master in the owner clone: the entity-ask text lives at api/cwf/_lib/routing/computeClarification.ts:179, HIGH trigger 1 (entity_ref non-empty, none resolved).
 UNMEASURED: whether the MKB document corpus still holds the company report (M2) and whether frameRouting alone flips the August questions from answered to asked (M3).
 SELF-INVALIDATION: dies if origin/master moves by a commit touching api/cwf/_lib/routing/ or api/cwf/_lib/toolCategories.ts or api/cwf/_lib/turn/stageClarify.ts.
 
