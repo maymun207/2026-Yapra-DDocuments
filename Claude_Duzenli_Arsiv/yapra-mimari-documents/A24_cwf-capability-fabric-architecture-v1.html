@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A24 · CWF Capability Fabric — Backend-Agnostik, Kendi Kendine Öğrenen Anlama Katmanı · v1</title>
+<!--
+  A24_cwf-capability-fabric-architecture-v1 · rev 1.0 · 2026-09-20 · Architect-authored, S148
+  anchor: origin/master 20c1651c3fb59b48490670ffefed02099d684ed9 (owner clone, lane-refreshed) ·
+          scout at 2026-09-20T12:2xZ read ls-remote 9cb7fefc947745bec1fdd97aff62d58c34c47919 (six docs/relay merges after the anchor; fence untouched)
+  SUPERSEDES nothing; SITS BESIDE A23_cwf-understanding-layer-architecture-v1_4 (LOCKED) and cwf-ir-pathb-hybrid-logic-v1_3 (IR-4 future-state).
+  Design sources, by name (S112-YASA-1): OWNER — "generic self-learning, a new backend is absorbed on connect, the understanding layer
+  uses its tools effectively" (2026-09-20 15:18 and 15:35 TSI); OWNER — "it worked when MKB was first connected" (measured TRUE);
+  SCOUT — SCOUT-STATUS-MEASURE-MKB-REACH-S148-1 (three corrections C1-C3 to the Architect's RCA, recorded in §1).
+  STATUS: TARGET-STATE DESIGN · DRAFT FOR OWNER REVIEW · no card cut from it yet.
+  Versioning rule: amendments mint v1_1 — never in-place (S37-1).
+-->
+<style>
+:root{--ink:#1C2422;--paper:#F5F6F3;--card:#FFFFFF;--line:#2A3330;--mut:#5C6662;--t:#2A3330;
+--pu:#6D4FC4;--pu-f:#EFEAFB;--te:#0E6B54;--te-f:#E3F1EB;--gr:#667080;--gr-f:#ECEFF1;--am:#A8620A;--am-f:#FBF3E4;--rd:#B3261E;--rd-f:#FBEAE8;--bl:#1D5FA8;--bl-f:#E6EFF9}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.55 "Avenir Next","Segoe UI",system-ui,sans-serif}
+header{background:var(--card);border-bottom:2px solid var(--line);padding:26px 24px}
+header .in,main{max-width:1180px;margin:0 auto}
+.docid{font:12px ui-monospace,"SF Mono","Cascadia Code",Consolas,monospace;color:var(--mut)}
+h1{font-size:26px;margin:8px 0 6px}
+h1 .v{font:600 13px ui-monospace,monospace;color:var(--mut);margin-left:10px}
+p.sub{margin:0 0 12px;max-width:960px}
+.status{display:inline-block;font:12px ui-monospace,monospace;background:var(--am-f);border:1px solid var(--am);border-radius:6px;padding:4px 10px}
+main{padding:0 24px 60px}
+section{margin-top:40px}
+h2{font-size:20px;border-left:4px solid var(--line);padding-left:12px;margin:0 0 14px}
+h2 .sn{font:600 13px ui-monospace,monospace;color:var(--mut);margin-right:8px}
+h3.sub{font-size:15.5px;margin:22px 0 8px}
+.note{background:var(--card);border:1px solid #D8DDD9;border-radius:8px;padding:12px 16px;margin:12px 0}
+.note.am{background:var(--am-f);border-color:var(--am)}.note.te{background:var(--te-f);border-color:var(--te)}.note.rd{background:var(--rd-f);border-color:var(--rd)}.note.bl{background:var(--bl-f);border-color:var(--bl)}.note.pu{background:var(--pu-f);border-color:var(--pu)}
+.tag{display:inline-block;font:11px ui-monospace,monospace;border-radius:5px;padding:1px 7px;border:1px solid;margin-right:4px}
+.tag.pu{background:var(--pu-f);border-color:var(--pu);color:var(--pu)}.tag.te{background:var(--te-f);border-color:var(--te);color:var(--te)}.tag.gr{background:var(--gr-f);border-color:var(--gr);color:var(--gr)}.tag.am{background:var(--am-f);border-color:var(--am);color:var(--am)}.tag.rd{background:var(--rd-f);border-color:var(--rd);color:var(--rd)}.tag.bl{background:var(--bl-f);border-color:var(--bl);color:var(--bl)}
+table{border-collapse:collapse;width:100%;background:var(--card);border:1px solid #D8DDD9;border-radius:10px;overflow:hidden;font-size:14px}
+th{background:#F1F3EF;text-align:left;padding:9px 12px;font-weight:600;border-bottom:1px solid #D8DDD9}
+td{padding:9px 12px;border-bottom:1px solid #E4E8E5;vertical-align:top}
+tr:last-child td{border-bottom:0}
+code,.mono{font:13px ui-monospace,"SF Mono","Cascadia Code",Consolas,monospace}
+code{background:#EEF1EE;border-radius:4px;padding:1px 5px}
+.frame{background:#232B28;color:#EAF0EC;border-radius:8px;padding:14px 16px;font:12.5px/1.5 ui-monospace,monospace;overflow-x:auto;white-space:pre}
+.frame .c{color:#8FB9A9}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 14px}
+.lg{display:inline-flex;align-items:center;gap:6px;font:12px ui-monospace,monospace;background:var(--card);border:1px solid #D8DDD9;border-radius:6px;padding:3px 8px}
+.sw{width:14px;height:14px;border-radius:3px;border:1px solid}
+.sw.pu{background:var(--pu-f);border-color:var(--pu)}.sw.te{background:var(--te-f);border-color:var(--te)}.sw.gr{background:var(--gr-f);border-color:var(--gr)}.sw.am{background:var(--am-f);border-color:var(--am)}.sw.bl{background:var(--bl-f);border-color:var(--bl)}.sw.rd{background:var(--rd-f);border-color:var(--rd)}
+.diagwrap{background:var(--card);border:1px solid #D8DDD9;border-radius:10px;padding:12px;overflow-x:auto;margin:12px 0}
+.diagwrap svg{width:100%;min-width:1040px;height:auto;display:block}
+svg text{fill:var(--ink)}
+svg .th{font:600 13px "Avenir Next","Segoe UI",sans-serif}
+svg .ts{font:11.5px "Avenir Next","Segoe UI",sans-serif}
+svg .tm{font:11px ui-monospace,"SF Mono",Consolas,monospace;fill:var(--mut)}
+svg .arr{stroke:var(--t);stroke-width:1.2;fill:none}
+svg .ret{stroke:var(--t);stroke-width:1.1;fill:none;stroke-dasharray:4 3}
+svg .life{stroke-width:1;fill:none}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.card{background:var(--card);border:1px solid #D8DDD9;border-left:5px solid var(--gr);border-radius:8px;padding:12px 14px}
+.card.pu{border-left-color:var(--pu)}.card.te{border-left-color:var(--te)}.card.am{border-left-color:var(--am)}.card.bl{border-left-color:var(--bl)}.card.rd{border-left-color:var(--rd)}
+.card h4{margin:0 0 6px;font-size:14.5px}
+.card .k{font:11px ui-monospace,monospace;color:var(--mut)}
+.kill{color:var(--rd);font-weight:600}.keep{color:var(--te);font-weight:600}
+footer{max-width:1180px;margin:40px auto 0;padding:16px 24px;border-top:1px solid #D8DDD9;font:12px ui-monospace,monospace;color:var(--mut)}
+@media (max-width:720px){.cards{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><div class="in">
+<div class="docid">A24_cwf-capability-fabric-architecture-v1 · rev 1.0 · 2026-09-20 · S148 · anchor master 20c1651c… · beside A23 v1_4 (LOCKED) · IR-4 Path B'yi canlıya taşır</div>
+<h1>CWF Capability Fabric <span class="v">v1 · DRAFT · sahip incelemesinde</span></h1>
+<p class="sub">Backend-agnostik, kendi kendine öğrenen anlama katmanı. Tek mekanizma — bağlı her backend için <b>türetilmiş bir Yetenek Kartı</b> — üç tüketiciyi besler: anlama (varlık çözümü), araç seçimi ve kapsam. "Bağlandı" demenin tek tanımı, kartın kendi ürettiği sorularla geçilen bir <b>erişilebilirlik sınavı</b>dır. Doküman, S148'de ölçülen MKB arızasının (bir ay önce çalışan bir backend'in sessizce erişilemez olması) kök nedenini düzeltilmiş hâliyle taşır; çözüm bu arızaya değil, arızanın sınıfına yazılmıştır.</p>
+<span class="status">STATUS: TARGET-STATE DESIGN · DRAFT · kart kesilmedi · kaynaklar §1 ve §10'da adıyla</span>
+</div></header>
+
+<main>
+
+<section id="s0">
+<h2><span class="sn">§0</span>Renk anahtarı ve tek cümlelik tez</h2>
+<div class="legend">
+<span class="lg"><span class="sw pu"></span>LLM · olasılıksal</span>
+<span class="lg"><span class="sw te"></span>deterministik kod · kapılı</span>
+<span class="lg"><span class="sw gr"></span>pipeline omurgası · değişmeyen</span>
+<span class="lg"><span class="sw am"></span>türetilmiş veri · her sync'te yeniden üretilir</span>
+<span class="lg"><span class="sw bl"></span>kullanıcı / sahip kararı</span>
+<span class="lg"><span class="sw rd"></span>bugünkü defekt · kaldırılan</span>
+</div>
+<div class="note te"><b>Tez.</b> Bugün anlama, araç seçimi ve kapsam <b>tek backend'in dünyasına</b> (ARMES fabrika grafı + elle yazılmış satırlar) kurulu. Yeni yapıda üçü de, bağlı her backend'den <b>makinenin türettiği</b> tek bir nesneyi — Yetenek Kartı'nı — okur. Yeni backend = yeni kart; kod değişmez, satır elle yazılmaz (PLATINUM). Kart, kendi ürettiği sorularla sınava girmeden kullanıcıya açılmaz; sınav her sürümde tekrar koşar. Öğrenme yalnız kartın <i>bulunma</i> yüzeyini iyileştirir, asla <i>ne bildiğini</i> (§8 tuzağı korunur).</div>
+</section>
+
+<section id="s1">
+<h2><span class="sn">§1</span>Ölçülmüş durum ve RCA düzeltmeleri (S148)</h2>
+<p>Bu bölüm CWF-S148-RCA-MKB-UNREACHABLE-v1'in üstüne, scout'un SCOUT-STATUS-MEASURE-MKB-REACH-S148-1 ölçümüyle yazılmıştır. Scout'un üç düzeltmesi Architect'in kör noktalarıdır ve adıyla kayda geçer (12.14).</p>
+<table>
+<tr><th style="width:26%">İddia</th><th>Ölçüm</th><th style="width:18%">Durum</th></tr>
+<tr><td>MKB bir ay önce çalışıyordu (sahip)</td><td><code>tool_experience</code>: knowledge_search son pozitif 2026-08-20T13:11Z; 08-11/12'de Faaliyet Raporu soruları doküman aramasıyla cevaplandı; 08-18 12:30Z sermaye tavanı TL tutarlarıyla cevaplandı.</td><td><span class="tag te">DOĞRU</span></td></tr>
+<tr><td>Kırılma anahtarı = frameRouting 0→1, 18 Ağustos (Architect RCA v1)</td><td><b>C1 (scout):</b> v1 value 1 (07-25), v2 value 1, v3 value 0 ve v4 value 1 aynı saniyede, 129 ms arayla (08-18 02:04:43Z). Parametre üç hafta iki yanda da 1'di.</td><td><span class="tag rd">YANLIŞTI — A-REC-S148-1</span></td></tr>
+<tr><td>17-18 Ağustos'ta değişen tek yönetimli şey</td><td><b>C2 (scout):</b> 08-17 18:02Z <code>vector.engine</code> incumbent→qdrant ve <code>vector.enabled</code> 0→1; sıçramadan ~8 saat önce; stage 05 (retrieval), stage 07 değil.</td><td><span class="tag am">ADAY — ölçülmedi</span></td></tr>
+<tr><td>Yönetim Kurulu sorusu varlık-sorusu aldı</td><td><b>C3 (scout):</b> Hayır — kapsam reddi aldı (safety.b1_scope v3, 08-01 yayını). Aynı ret 08-11 ve 08-12'de de var; 08-18'den bağımsız. Varlık-sorusunu 08-18'de yalnız personel sayısı sorusu aldı. İki ayrı mekanizma.</td><td><span class="tag te">DÜZELTİLDİ</span></td></tr>
+<tr><td>MKB korpusu bugün raporu tutuyor mu (M2)</td><td>Scout penceresinde SUPABASE_URL/SECRET yok; dotenv yolu GS-2 çitine takılı. probe exit 3 = CANNOT-READ, "korpus boş" değil.</td><td><span class="tag am">UNMEASURED</span></td></tr>
+<tr><td>Yapısal kök neden</td><td>Üç kapı — anlama (computeClarification.ts:179 HIGH-1: entity_ref var, fabrika kayıtlarında yok → sor), araç seçimi (elle kategori satırı + kodda iki ARMES aracı), kapsam (tek şirketi anan sabit metin) — bağlı backend'lerden türetilmiş hiçbir şey okumaz.</td><td><span class="tag te">AYAKTA</span></td></tr>
+</table>
+<div class="note rd"><b>A-REC-S148-1 · Architect'in kör noktası.</b> Bir parametre geçmişinin son iki satırını (v3=0, v4=1) "flip" diye okudum; dört satırın tamamını ve zaman damgalarını okusaydım 129 ms'lik yok-işlem görünürdü. Kural (mekanik): bir yönetimli parametre nedensel öncül olarak yazılmadan önce <b>bütün sürüm satırları</b> ve etkin değerin zaman aralığı basılır. Scout'un lensi bunu yaptı, benimki yapmadı.</div>
+<div class="note am"><b>Kalan iki ölçüm, tasarımdan bağımsız açık kalemler:</b> (M2) MKB envanteri — kimlik bilgisi olan bir şeritten (AG-4) veya sahibin tanıklığıyla; (M3′) qdrant açılışının varlık çözümünü nasıl etkilediği — stage 03'ün 08-17/18 turlarını yeniden oynatan bir lens (DB + LLM gerektirir). İkisi de §9'un P0 adımıdır.</div>
+</section>
+
+<section id="s2">
+<h2><span class="sn">§2</span>Endüstri durumu (Eylül 2026) ve buradan alınan tasarım kararları</h2>
+<p>Araştırma bu oturumda web'den yapıldı; her satırın kaynağı §10'da. Bir bulgu bu tasarımda bir karara dönüşmüyorsa buraya alınmadı.</p>
+<table>
+<tr><th style="width:34%">Ölçülmüş bulgu</th><th>Bu tasarımdaki karar</th></tr>
+<tr><td>Araç seçimi ~30–50 yüklü aracın üstünde bozulur; ilgisiz sunucu eklemek doğruluğu yarıya indirir (MCP-Universe, Anthropic tool-search dokümanı, MSR "tool-space interference").</td><td><b>K1 · Her turda modele küçük, kilitli bir set sunulur;</b> tam katalog asla. Geri kalan araçlar <i>ertelenmiş</i> (deferred) durur ve modelin çağırabildiği bir <code>tool_search</code> aracıyla bulunur (Anthropic deseni). Bugünkü "offered-set kilidi" (7e) korunur.</td></tr>
+<tr><td>Sunucu-önce hiyerarşik yönlendirme (MCP-Zero) ince sinyali kaybeder; araç seviyesinde indeksleyip sunucuya toplamak (Tool-to-Agent Retrieval) LiveMCPBench'te en iyi Recall@5'i verir.</td><td><b>K2 · İndeks aracı, kart backend'i özetler:</b> retrieval araç granülaritesinde koşar (BM25 + yoğun vektör + RRF — item 5), skorlar backend'e toplanır, aday backend kümesi buradan çıkar. Ayrıca her aktif backend'in <b>kısa kart özeti</b> her turda bağlamdadır (Tool-to-Agent'ın "server summary pool" önerisi).</td></tr>
+<tr><td>Genel embedding modelleri araç aramasında zayıf (ToolRet); darboğaz encoder değil <b>doküman</b> — genişletilmiş araç profili (ne zaman kullan / kullanma / örnek) 0.6B retriever'a 8B'yi geçirtir (Tool-DE); DRAFT ve Trace-Free+ açıklamaları çalıştırma sonuçlarından yeniden yazar; MCP açıklamalarının %97'si "kokulu", genişletme +5.85 puan ama %16.7 regresyon → kapı şart.</td><td><b>K3 · Kartın araç profili LLM ile genişletilir, hash ile sabitlenir, eval kapısından geçer.</b> Ham sunucu açıklaması asla tek başına indekslenmez; profil = ham + türetilmiş (when-to-use / not-for / örnek sorular). Her profil yeniden yazımı bir <i>öneri</i>dir; sınav (§7) geçmeden yayınlanmaz.</td></tr>
+<tr><td>Modeller belirsizliği tanır ama <b>sormaz</b> (<%5); üretimde asıl arıza "hiç araç çağırmamak" (MCP-Atlas %36). Sorma kararı için en iyi kural bilgi-teorik: beklenen bilgi kazancı > yük maliyeti (SAGE-Agent), fazlalık cezasıyla (Noisy ToolBench A1 0.52→0.90).</td><td><b>K4 · Sorma kararı araç şemasından türetilir, küresel varsayımdan değil.</b> Yalnız seçilen adayın <i>zorunlu</i> yuvası çözülemiyorsa ve o yuvayı istemeyen eşdeğer aday yoksa sorulur; aynı yuva bir sohbette ikinci kez sorulmaz. Varsayılan davranış <b>eylem</b>dir, çünkü ölçülen büyük arıza az-eylem.</td></tr>
+<tr><td>MCP'de "sunucu neyi bilir" için normatif alan yok: tools/list + initialize <code>instructions</code> + resources; annotations güvenilmez sayılmalı; A2A Agent Card skills/examples taşır ama embedding yok; Registry preview ve özel sunucu almıyor.</td><td><b>K5 · Kart istemci tarafında türetilir.</b> Protokolün verdiği her şey (instructions, tools/list, resources/list, prompts/list, annotations) girdi; korpus envanteri backend'in kendi listeleme aracından sınırlı, salt-okuma bir sondayla çıkarılır. Annotation'lar <i>iddia</i> olarak etiketlenir.</td></tr>
+<tr><td>Araç adı çakışması yaygın (775 çakışma / 1470 sunucu); tool-poisoning ve "rug pull" (yayın sonrası açıklama değişimi) gerçek CVE'ler üretti.</td><td><b>K6 · Ad alanı ve hash sabitleme.</b> Araç kimliği <code>backend.tool</code>; her araç açıklamasının hash'i kartta durur; hash değişince araç otomatik olarak "yeniden inceleme" durumuna düşer ve sınav tekrar koşar. Açıklama metni prompt'a girmeden enjeksiyon lensinden geçer.</td></tr>
+<tr><td>Sentetik soru üretimi (şemadan) eğitim ve değerlendirmenin standart alt katmanı (ToolRet, Tool-DE, Trace-Free+); "sürekli eval kapısı" adlandırılmış tek bir yayın yok, tekrarlayan pratik: şema değişti → soruları yeniden üret → retrieval@k → regresyonda blokla.</td><td><b>K7 · Erişilebilirlik sınavı (§7) kartın parçasıdır.</b> Sorular karttan üretilir, sınav bağlantıda, her sync'te, her master derlemesinde ve gece üretim gölgesinde koşar. Sınav yeşil olmadan backend PUBLISHED olmaz — evin "bağlandı" tanımı budur.</td></tr>
+</table>
+</section>
+
+<section id="s3">
+<h2><span class="sn">§3</span>Yetenek Kartı — tek nesne</h2>
+<p>Kart bir tablo değil, birbirine bağlı satırların adı: <code>backends</code> (kimlik, bugünkü satır), <code>backend_tools</code> (ayna, bugün var), <code>backend_tool_profiles</code> (yeni: türetilmiş profil + hash), <code>backend_slots</code> (yeni: şemadan çıkarılmış zorunlu yuvalar), <code>backend_corpus</code> (yeni: envanter satırları), <code>graph_kb</code> kenarları (<i>backend —covers→ subject</i>, <i>tool —requires→ slot</i>, <i>slot —resolvesVia→ vocabulary</i>), vektör indeksi (Qdrant, yeniden inşa edilebilir türev; Supabase kaynak doğrusu). Elle yazılan alan yoktur; insan yalnız <i>küratör</i> olarak bir öneriyi onaylar ya da reddeder.</p>
+<div class="cards">
+<div class="card am"><h4>Kimlik</h4><div class="k">backends</div>backend_id · MCP uç noktası · initialize.instructions (ham, iddia) · protokol sürümü · durum makinesi: <code>DRAFT → CARDED → EXAM-GREEN → PUBLISHED</code> (geri: <code>EXAM-RED</code>, <code>DEGRADED</code>). PUBLISHED olmayan backend kullanıcıya görünmez.</div>
+<div class="card am"><h4>Araç envanteri</h4><div class="k">backend_tools (ayna; missing ≠ deleted)</div>tools/list bayt-birebir · <code>backend.tool</code> ad alanı · inputSchema / outputSchema · annotations (iddia) · açıklama sha256 (poison/rug-pull tespiti).</div>
+<div class="card pu"><h4>Araç profili</h4><div class="k">backend_tool_profiles · LLM türetimli · kapılı</div>when-to-use · not-for · 5–10 örnek soru (TR+EN) · çıktı şekli özeti. Ham açıklama + şema + (varsa) 3 gerçek çağrı örneğinden üretilir (DRAFT deseni). Sınav geçmeden yayınlanmaz; hash sabit.</div>
+<div class="card te"><h4>Yuvalar (slots)</h4><div class="k">backend_slots · deterministik</div>Her aracın <code>required</code> argümanları → yuva tipi: <i>entity-ref</i> (hangi katman: factory/line/…), <i>time-range</i>, <i>free-text</i>, <i>enum</i>. Tip, şemadan ve backend_entity_layers'tan türetilir. Sorma kararının tek girdisi budur (§5, K4).</div>
+<div class="card am"><h4>Korpus envanteri</h4><div class="k">backend_corpus · sınırlı sonda</div>Backend'in listeleme aracı varsa (knowledge_list, getFactoryList…) salt-okuma, sayfalı, üst sınırlı çağrılır; başlıklar/adlar ve sayıları kart satırı olur. Anlama katmanı bir adı <b>bu sözlüğe karşı</b> da çözer (§5). "Kaleseramik Faaliyet Raporu" bir korpus adıdır, kayıp bir fabrika değil.</div>
+<div class="card te"><h4>Giriş aracı (entry point)</h4><div class="k">türetilmiş; ALWAYS_INCLUDE'un yerine</div>Her backend için yuva sayısı en az olan listeleme/arama aracı. Her turda sunulan tabana <b>bütün PUBLISHED backend'lerin</b> giriş araçları girer. Kodda backend adı kalmaz (<span class="kill">getFactoryList/getFactoryLines sabiti silinir</span>).</div>
+<div class="card pu"><h4>Kart özeti</h4><div class="k">≤ 60 token / backend · her turda bağlamda</div>"armes: MES canlı üretim verisi — OEE, duruş, fire, vardiya; fabrika/hat/ekipman varlıkları." Modelin <code>tool_search</code>'ü ne zaman çağıracağını bilmesi için yeterli, katalogu taşımayacak kadar küçük.</div>
+<div class="card bl"><h4>Kalibrasyon</h4><div class="k">sınavdan türetilir</div>τ_scope (backend kabul eşiği), τ_ask (sorma marjı), Recall@k tabanları — her backend için ayrı, sınav çıktısından hesaplanır, elle girilmez. A23 §9'un τ/β kuralı aynen: önce ilan, sonra kalibrasyon.</div>
+</div>
+</section>
+
+<section id="s4">
+<h2><span class="sn">§4</span>Sequence A — yeni bir backend bağlandığında</h2>
+<p>Tetik: sahip admin panelinden bir <code>backends</code> satırı ekler ya da mevcut bir sunucudan <code>notifications/tools/list_changed</code> gelir. Bundan sonrası tek tıkla, insansız. Her ok bir kayıt bırakır (FULL-TRACE); hiçbir adım "sessizce" geçmez.</p>
+<div class="diagwrap">
+<svg viewBox="0 0 1100 1180" role="img" aria-label="Backend bağlanma sequence diyagramı">
+<defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+<g>
+<rect x="20" y="20" width="120" height="46" rx="7" fill="var(--bl-f)" stroke="var(--bl)" stroke-width="0.6"/><text class="th" x="80" y="42" text-anchor="middle">Sahip / Panel</text><text class="tm" x="80" y="57" text-anchor="middle">backends satırı</text>
+<rect x="190" y="20" width="160" height="46" rx="7" fill="var(--te-f)" stroke="var(--te)" stroke-width="0.6"/><text class="th" x="270" y="42" text-anchor="middle">Sync Orkestratörü</text><text class="tm" x="270" y="57" text-anchor="middle">deterministik · idempotent</text>
+<rect x="400" y="20" width="140" height="46" rx="7" fill="var(--gr-f)" stroke="var(--gr)" stroke-width="0.6"/><text class="th" x="470" y="42" text-anchor="middle">MCP Sunucu</text><text class="tm" x="470" y="57" text-anchor="middle">yeni backend</text>
+<rect x="590" y="20" width="130" height="46" rx="7" fill="var(--pu-f)" stroke="var(--pu)" stroke-width="0.6"/><text class="th" x="655" y="42" text-anchor="middle">Profilleyici LLM</text><text class="tm" x="655" y="57" text-anchor="middle">ucuz model · temp 0</text>
+<rect x="770" y="20" width="150" height="46" rx="7" fill="var(--am-f)" stroke="var(--am)" stroke-width="0.6"/><text class="th" x="845" y="42" text-anchor="middle">Kart Deposu</text><text class="tm" x="845" y="57" text-anchor="middle">Supabase (doğru) · Qdrant (türev)</text>
+<rect x="960" y="20" width="120" height="46" rx="7" fill="var(--te-f)" stroke="var(--te)" stroke-width="0.6"/><text class="th" x="1020" y="42" text-anchor="middle">Sınav</text><text class="tm" x="1020" y="57" text-anchor="middle">offline replay</text>
+</g>
+<line class="life" x1="80" y1="66" x2="80" y2="1140" stroke="var(--bl)"/>
+<line class="life" x1="270" y1="66" x2="270" y2="1140" stroke="var(--te)"/>
+<line class="life" x1="470" y1="66" x2="470" y2="1140" stroke="var(--gr)"/>
+<line class="life" x1="655" y1="66" x2="655" y2="1140" stroke="var(--pu)"/>
+<line class="life" x1="845" y1="66" x2="845" y2="1140" stroke="var(--am)"/>
+<line class="life" x1="1020" y1="66" x2="1020" y2="1140" stroke="var(--te)"/>
+
+<text class="ts" x="175" y="94" text-anchor="middle">① backend satırı: id + uç nokta + kimlik (env-only)</text>
+<line class="arr" x1="80" y1="102" x2="268" y2="102" marker-end="url(#ah)"/>
+<rect x="262" y="102" width="16" height="1000" rx="3" fill="var(--te-f)" stroke="var(--te)" stroke-width="0.6"/>
+<text class="tm" x="285" y="124">durum := DRAFT · sync_id = trace id · kullanıcıya GÖRÜNMEZ</text>
+
+<text class="ts" x="370" y="150" text-anchor="middle">② initialize → instructions, capabilities</text>
+<line class="arr" x1="278" y1="158" x2="468" y2="158" marker-end="url(#ah)"/>
+<line class="ret" x1="468" y1="178" x2="280" y2="178" marker-end="url(#ah)"/>
+<text class="ts" x="370" y="204" text-anchor="middle">③ tools/list (sayfalı) · resources/list · prompts/list</text>
+<line class="arr" x1="278" y1="212" x2="468" y2="212" marker-end="url(#ah)"/>
+<line class="ret" x1="468" y1="232" x2="280" y2="232" marker-end="url(#ah)"/>
+<text class="tm" x="285" y="256">④ ayna: backend_tools upsert · missing≠deleted · sha256(açıklama) · ad alanı backend.tool</text>
+<text class="tm" x="285" y="272">   enjeksiyon lensi: açıklamada talimat kalıbı → araç QUARANTINE, sync devam</text>
+<line class="arr" x1="278" y1="284" x2="843" y2="284" marker-end="url(#ah)"/>
+
+<text class="tm" x="285" y="312">⑤ yuva çıkarımı (deterministik): required args → {entity-ref@layer | time-range | free-text | enum}</text>
+<line class="arr" x1="278" y1="322" x2="843" y2="322" marker-end="url(#ah)"/>
+
+<text class="ts" x="370" y="352" text-anchor="middle">⑥ korpus sondası: listeleme araçları, salt-okuma, sayfalı, üst sınır N</text>
+<line class="arr" x1="278" y1="360" x2="468" y2="360" marker-end="url(#ah)"/>
+<line class="ret" x1="468" y1="380" x2="280" y2="380" marker-end="url(#ah)"/>
+<text class="tm" x="285" y="402">   partial≠complete: "M'nin ilk N'i" olarak yazılır · backend_corpus + graph_kb: backend —covers→ subject</text>
+<line class="arr" x1="278" y1="412" x2="843" y2="412" marker-end="url(#ah)"/>
+
+<text class="ts" x="462" y="446" text-anchor="middle">⑦ profil isteği: ham açıklama + şema + korpus örnekleri (araç başına, TR+EN)</text>
+<line class="arr" x1="278" y1="454" x2="653" y2="454" marker-end="url(#ah)"/>
+<rect x="647" y="454" width="16" height="70" rx="3" fill="var(--pu-f)" stroke="var(--pu)" stroke-width="0.6"/>
+<text class="tm" x="670" y="478">when-to-use · not-for · 5–10 örnek soru</text>
+<text class="tm" x="670" y="494">JSON şema ile kısıtlı çıktı · çıktı bir İDDİA</text>
+<line class="ret" x1="647" y1="524" x2="280" y2="524" marker-end="url(#ah)"/>
+<text class="tm" x="285" y="548">⑧ profil = PROPOSED (yayınlanmadı) · hash · provenance=DERIVED</text>
+<line class="arr" x1="278" y1="558" x2="843" y2="558" marker-end="url(#ah)"/>
+
+<text class="tm" x="285" y="588">⑨ kodlama: bge-m3 dense+sparse (profil + şema + örnekler) → Qdrant upsert (koleksiyon = backend)</text>
+<line class="arr" x1="278" y1="598" x2="843" y2="598" marker-end="url(#ah)"/>
+<text class="tm" x="285" y="622">   giriş aracı seçimi: min(yuva sayısı) listeleme/arama aracı · kart özeti ≤60 token</text>
+<line class="arr" x1="278" y1="632" x2="843" y2="632" marker-end="url(#ah)"/>
+<text class="tm" x="850" y="652">durum := CARDED</text>
+
+<text class="ts" x="645" y="686" text-anchor="middle">⑩ sınav emri: kart id · sentetik sorular (profil örnekleri + şema-türevi + karşı-örnekler)</text>
+<line class="arr" x1="278" y1="694" x2="1018" y2="694" marker-end="url(#ah)"/>
+<rect x="1012" y="694" width="16" height="200" rx="3" fill="var(--te-f)" stroke="var(--te)" stroke-width="0.6"/>
+<text class="tm" x="700" y="722">⑪ her soru: Sequence B'nin 02→07 kısmı, offline, üretim yazmadan (C1 LAW)</text>
+<text class="tm" x="700" y="738">   ölçülen: backend Recall@1 · araç Recall@3 · yanlış-sorma oranı · yanlış-kapsam oranı</text>
+<text class="tm" x="700" y="754">   karşı-örnekler: DİĞER backend'lerin soruları bu backend'e GİTMEMELİ (interference)</text>
+<text class="tm" x="700" y="770">   regresyon: mevcut PUBLISHED backend'lerin skorları düşmemeli (bu, yeni kartın bedeli)</text>
+<text class="tm" x="700" y="800">⑫ kalibrasyon: τ_scope, τ_ask backend için sınav dağılımından</text>
+<line class="arr" x1="1012" y1="812" x2="847" y2="812" marker-end="url(#ah)"/>
+<text class="tm" x="700" y="846">⑬ hüküm + rapor (her soru için: beklenen / bulunan / neden)</text>
+<line class="ret" x1="1012" y1="856" x2="280" y2="856" marker-end="url(#ah)"/>
+
+<rect x="200" y="880" width="880" height="118" rx="8" fill="none" stroke="var(--te)" stroke-width="0.6" stroke-dasharray="5 4"/>
+<text class="th" x="212" y="900">⑭ hüküm dalı</text>
+<text class="tm" x="212" y="920">GREEN → profil PROPOSED→PUBLISHED (eval kapısı, aynı bayt) · durum := EXAM-GREEN → PUBLISHED · kart özeti bağlama girer · kullanıcıya AÇILIR</text>
+<text class="tm" x="212" y="938">RED → durum := EXAM-RED · rapor sahibe (hangi soru, hangi backend'e gitti, neden) · backend GÖRÜNMEZ kalır · hiçbir şey sessizce açılmaz</text>
+<text class="tm" x="212" y="956">tools/list_changed veya açıklama hash değişimi → ④'ten yeniden · PUBLISHED backend DEGRADED'a düşer, eski kart servis eder, yeni kart sınava girer</text>
+<text class="tm" x="212" y="974">gece: PUBLISHED her backend için ⑩–⑬ üretim gölgesinde tekrar koşar; düşüş → DEGRADED + rapor (MKB'nin 18 Ağustos sessizliği burada AYNI GÜN yakalanırdı)</text>
+
+<text class="ts" x="175" y="1026" text-anchor="middle">⑮ tek satır: "armes-new PUBLISHED · Recall@1 0.96 · 3 soru RED (listede)"</text>
+<line class="ret" x1="262" y1="1034" x2="82" y2="1034" marker-end="url(#ah)"/>
+<text class="tm" x="90" y="1064">sahibin tek eli: EXAM-RED raporunu okumak; profil önerisini onaylamak İSTEĞE BAĞLI (küratör), zorunlu değil</text>
+<text class="tm" x="90" y="1082">bir şey manuel gerekiyorsa tasarım yanlıştır (PLATINUM) — bu diyagramda insan oku yalnız ① ve ⑮'tir</text>
+</svg>
+</div>
+<div class="note"><b>Neden korpus sondası (⑥) sınırlı ve salt-okuma?</b> Çünkü bir backend'in "neyi bildiğini" öğrenmenin protokolde alanı yok (K5). Sonda, backend'in kendi listeleme aracını N sayfaya kadar çağırır ve <i>partial≠complete</i> yasasıyla yazar. MKB için bu, doküman başlıklarının kart satırı olması demek: "Kaleseramik Faaliyet Raporu 2025" artık anlama katmanının sözlüğünde bir addır.</div>
+</section>
+
+<section id="s5">
+<h2><span class="sn">§5</span>Sequence B — bir kullanıcı sorusundan sonra</h2>
+<p>A23'ün stage numaraları korunur; değişen üç yer <b>stage 03</b> (çözüm artık aday backend'in sözlüğünde), <b>stage 07</b> (aday küme karttan) ve <b>kapsam kararı</b>nın prompt'tan stage 07'ye taşınmasıdır. Diyagram, S148'de ölçülen soruyla ("Yönetim Kurulu'na sağlanan fayda, 2025 dokuz aylık") yürütülmüştür.</p>
+<div class="diagwrap">
+<svg viewBox="0 0 1120 1260" role="img" aria-label="Kullanıcı sorusu sequence diyagramı">
+<g>
+<rect x="15" y="20" width="110" height="46" rx="7" fill="var(--bl-f)" stroke="var(--bl)" stroke-width="0.6"/><text class="th" x="70" y="42" text-anchor="middle">Kullanıcı</text><text class="tm" x="70" y="57" text-anchor="middle">chat</text>
+<rect x="165" y="20" width="140" height="46" rx="7" fill="var(--gr-f)" stroke="var(--gr)" stroke-width="0.6"/><text class="th" x="235" y="42" text-anchor="middle">Turn Pipeline</text><text class="tm" x="235" y="57" text-anchor="middle">st 01–14 · değişmez</text>
+<rect x="345" y="20" width="120" height="46" rx="7" fill="var(--pu-f)" stroke="var(--pu)" stroke-width="0.6"/><text class="th" x="405" y="42" text-anchor="middle">IR Router</text><text class="tm" x="405" y="57" text-anchor="middle">st02 · ucuz LLM</text>
+<rect x="505" y="20" width="150" height="46" rx="7" fill="var(--te-f)" stroke="var(--te)" stroke-width="0.6"/><text class="th" x="580" y="42" text-anchor="middle">Capability Retriever</text><text class="tm" x="580" y="57" text-anchor="middle">st07a · BM25+dense+RRF</text>
+<rect x="695" y="20" width="130" height="46" rx="7" fill="var(--te-f)" stroke="var(--te)" stroke-width="0.6"/><text class="th" x="760" y="42" text-anchor="middle">Slot Resolver</text><text class="tm" x="760" y="57" text-anchor="middle">st03′ · deterministik</text>
+<rect x="865" y="20" width="110" height="46" rx="7" fill="var(--pu-f)" stroke="var(--pu)" stroke-width="0.6"/><text class="th" x="920" y="42" text-anchor="middle">Ana LLM</text><text class="tm" x="920" y="57" text-anchor="middle">st10 · streamText</text>
+<rect x="1005" y="20" width="100" height="46" rx="7" fill="var(--gr-f)" stroke="var(--gr)" stroke-width="0.6"/><text class="th" x="1055" y="42" text-anchor="middle">Backend'ler</text><text class="tm" x="1055" y="57" text-anchor="middle">MCP</text>
+</g>
+<line class="life" x1="70" y1="66" x2="70" y2="1220" stroke="var(--bl)"/>
+<line class="life" x1="235" y1="66" x2="235" y2="1220" stroke="var(--gr)"/>
+<line class="life" x1="405" y1="66" x2="405" y2="1220" stroke="var(--pu)"/>
+<line class="life" x1="580" y1="66" x2="580" y2="1220" stroke="var(--te)"/>
+<line class="life" x1="760" y1="66" x2="760" y2="1220" stroke="var(--te)"/>
+<line class="life" x1="920" y1="66" x2="920" y2="1220" stroke="var(--pu)"/>
+<line class="life" x1="1055" y1="66" x2="1055" y2="1220" stroke="var(--gr)"/>
+
+<text class="ts" x="152" y="92" text-anchor="middle">① "Yönetim Kurulu'na 2025 dokuz aylık dönemde sağlanan toplam fayda kaç TL?"</text>
+<line class="arr" x1="70" y1="100" x2="233" y2="100" marker-end="url(#ah)"/>
+<rect x="227" y="100" width="16" height="1060" rx="3" fill="var(--gr-f)" stroke="var(--gr)" stroke-width="0.6"/>
+<text class="tm" x="250" y="122">st01–02: kota · telemetri · kalıcılık (değişmez)</text>
+
+<text class="ts" x="320" y="150" text-anchor="middle">② frame isteği (mesaj + 2 ctx turu)</text>
+<line class="arr" x1="243" y1="158" x2="403" y2="158" marker-end="url(#ah)"/>
+<rect x="397" y="158" width="16" height="60" rx="3" fill="var(--pu-f)" stroke="var(--pu)" stroke-width="0.6"/>
+<text class="tm" x="420" y="182">yüzeyi YAKALAR, yorumlamaz (A23 ②)</text>
+<text class="tm" x="420" y="198">action=QUERY_METRIC object=? entity_ref=["Yönetim Kurulu"] time="2025 dokuz aylık" conf=HIGH</text>
+<line class="ret" x1="397" y1="218" x2="245" y2="218" marker-end="url(#ah)"/>
+<text class="tm" x="250" y="240">frame'de object çözülemedi → boş bırakılır, uydurulmaz (empty≠zero)</text>
+
+<text class="ts" x="410" y="270" text-anchor="middle">③ aday isteği: sorgu = ham metin + frame terimleri</text>
+<line class="arr" x1="243" y1="278" x2="578" y2="278" marker-end="url(#ah)"/>
+<rect x="572" y="278" width="16" height="170" rx="3" fill="var(--te-f)" stroke="var(--te)" stroke-width="0.6"/>
+<text class="tm" x="595" y="300">③a araç granülaritesinde hibrit arama: BM25(profil+örnekler) ⊕ dense(bge-m3) → RRF</text>
+<text class="tm" x="595" y="316">③b skorları backend'e topla (Tool-to-Agent): mkb 0.81 · armes 0.22 · superset 0.19</text>
+<text class="tm" x="595" y="332">③c kapsam: max ≥ τ_scope(mkb)? EVET → devam · HAYIR → deterministik "araç bulunamadı" (ALT-C), LLM yok</text>
+<text class="tm" x="595" y="348">③d aday küme: {mkb: knowledge_search, knowledge_list} + giriş araçları(her PUBLISHED backend) + tool_search</text>
+<text class="tm" x="595" y="364">③e katman merdiveni (her biri LOG'lanır): dense → BM25 → sembolik action×object tablosu (ARMES) → taban</text>
+<text class="tm" x="595" y="380">    qdrant erişilemezse ③e bir basamak düşer ve ADIYLA yazar; asla sessiz boş küme (07:30'daki 502 dersi)</text>
+<text class="tm" x="595" y="404">③f offered-set KİLİDİ (7e) — bu turda başka araç girmez; tool_search ertelenmişleri açar</text>
+<line class="ret" x1="572" y1="448" x2="245" y2="448" marker-end="url(#ah)"/>
+<text class="tm" x="250" y="470">adaylar + skorlar + katman + kapsam hükmü → trace (FULL-TRACE)</text>
+
+<text class="ts" x="500" y="500" text-anchor="middle">④ yuva çözümü: aday araçların ZORUNLU yuvaları × frame</text>
+<line class="arr" x1="243" y1="508" x2="758" y2="508" marker-end="url(#ah)"/>
+<rect x="752" y="508" width="16" height="200" rx="3" fill="var(--te-f)" stroke="var(--te)" stroke-width="0.6"/>
+<text class="tm" x="775" y="530">knowledge_search.required = {query: free-text} → dolu (ham metin)</text>
+<text class="tm" x="775" y="546">entity_ref "Yönetim Kurulu" → mkb sözlüğünde (korpus başlıkları) arama: eşleşme yok</text>
+<text class="tm" x="775" y="562">    AMA hiçbir aday aracın entity-ref yuvası yok → çözülmemiş ref bir SORU DEĞİL, bir NOT</text>
+<text class="tm" x="775" y="578">time "2025 dokuz aylık" → resolve_time_range → aralık (deterministik, bugünkü kod)</text>
+<text class="tm" x="775" y="602">SORMA KARARI (K4): sor ⇔ ∃ seçilen aday t: t.required ∋ yuva s, s çözülmemiş,</text>
+<text class="tm" x="775" y="618">    ve s'yi istemeyen eşdeğer-skorlu aday yok (marj τ_ask), ve s bu sohbette daha önce sorulmadı</text>
+<text class="tm" x="775" y="634">    → burada HAYIR. Karşı-örnek: "KB7 hatlarının OEE'si" → getOeeValuesForZones.required ∋ zoneIds</text>
+<text class="tm" x="775" y="650">      zoneIds ← KB7'nin çocuk katmanı (F-S117 onarımı) çözülür → yine sorulmaz; çözülmezse tek soru, adaylı</text>
+<text class="tm" x="775" y="674">A23 ⑤/⑥ korunur: NIL/AMBIGUOUS teşhisi aynen; yalnız "sor" tetiği küresel değil, ŞEMADAN</text>
+<line class="ret" x1="752" y1="708" x2="245" y2="708" marker-end="url(#ah)"/>
+
+<text class="tm" x="250" y="736">st09: prompt = çekirdek güvenlik (b1 domain cümlesi YOK) + yalnız aday backend'lerin paketleri + kart özetleri</text>
+<text class="tm" x="250" y="752">    araç şemaları: yalnız kilitli set (K1) — katalog değil</text>
+
+<text class="ts" x="580" y="782" text-anchor="middle">⑤ streamText(araçlar = kilitli set)</text>
+<line class="arr" x1="243" y1="790" x2="918" y2="790" marker-end="url(#ah)"/>
+<rect x="912" y="790" width="16" height="230" rx="3" fill="var(--pu-f)" stroke="var(--pu)" stroke-width="0.6"/>
+<text class="ts" x="988" y="822" text-anchor="middle">⑥ mkb.knowledge_search(query, top_k)</text>
+<line class="arr" x1="928" y1="830" x2="1053" y2="830" marker-end="url(#ah)"/>
+<line class="ret" x1="1053" y1="856" x2="930" y2="856" marker-end="url(#ah)"/>
+<text class="tm" x="935" y="876">pasaj + kaynak (doküman/bölüm)</text>
+<text class="tm" x="935" y="900">isEmpty=false → cevap; isEmpty=true →</text>
+<text class="tm" x="935" y="916">"bağlı dokümanlarda bulunamadı" (uydurma yok)</text>
+<text class="tm" x="935" y="940">gerekirse tool_search("...") → ertelenmiş</text>
+<text class="tm" x="935" y="956">araç açılır (K1), kilit kuralı içinde</text>
+<line class="ret" x1="912" y1="1020" x2="245" y2="1020" marker-end="url(#ah)"/>
+
+<text class="tm" x="250" y="1046">st12–13: grounding (kaynak atfı zorunlu) · render · flush</text>
+<text class="tm" x="250" y="1064">SONUÇ DEFTERİ: (soru, aday küme, seçilen araç, sonuç sınıfı: answered/empty/retracted/user-corrected) → öğrenme girdisi (§6)</text>
+
+<text class="ts" x="152" y="1096" text-anchor="middle">⑦ cevap + kaynak: "Faaliyet Raporu 2025, s.NN: … TL"</text>
+<line class="ret" x1="227" y1="1104" x2="72" y2="1104" marker-end="url(#ah)"/>
+
+<rect x="160" y="1124" width="940" height="70" rx="8" fill="none" stroke="var(--rd)" stroke-width="0.6" stroke-dasharray="5 4"/>
+<text class="th" x="172" y="1144" style="fill:var(--rd)">Bugünkü akışta aynı soru nerede düşüyordu (ölçüldü, S148)</text>
+<text class="tm" x="172" y="1162">st07: kategori kelime listesi "Yönetim Kurulu"yu tanımadı → knowledge_search sunulmadı · st09: b1_scope "SADECE Kale Seramik ve seramik üretimi" → model araç elindeyken bile reddetti</text>
+<text class="tm" x="172" y="1180">st03 (kardeş soru, 08-18): entity_ref fabrika kayıtlarında yok → "hangi hat?" — üç kapı, üçü de tek backend'in dünyasında</text>
+</svg>
+</div>
+<div class="note bl"><b>Kapsam kararı neden prompt'tan çıkıp stage 07'ye giriyor?</b> Bugün kapsam bir <i>model yargısı</i>: sabit bir cümleye bakıp reddediyor ve bu yargı deterministik değil (aynı soru 08-18'de cevaplandı, 09-20'de reddedildi). Yeni yapıda kapsam bir <i>ölçüm</i>: hiçbir kart soruyu τ_scope üstünde karşılamıyorsa ret deterministik ve gerekçelidir ("bağlı sistemlerde bu soru için araç yok"), karşılıyorsa model reddedemez çünkü prompt'ta reddedeceği bir alan cümlesi yoktur. Güvenlik kuralları (PII, sızıntı, enjeksiyon, genel kültür) <b>aynen kalır</b>; kaldırılan yalnız şirket/alan adı anan cümledir.</div>
+</section>
+
+<section id="s6">
+<h2><span class="sn">§6</span>Kendi kendine öğrenme — sınırı çizilmiş döngü</h2>
+<table>
+<tr><th style="width:22%">Sinyal</th><th>Ne öğrenilir</th><th style="width:30%">Kapı</th></tr>
+<tr><td>Cevaplanan tur (araç çağrıldı, sonuç boş değil, geri alınmadı)</td><td>Sorunun paraphrase'i o aracın profil örneklerine <b>öneri</b> olarak eklenir; backend kart özetine yeni konu kelimesi önerisi.</td><td>Sınav (§7) yeniden koşar; PUBLISHED backend'lerin Recall'u düşerse öneri reddedilir. Yayın = eval kapısı, bayt-aynı.</td></tr>
+<tr><td>Kullanıcı düzeltmesi («hayır, KB7» — A23 D-N7)</td><td>Takma ad önerisi (mention → entity) ilgili backend'in sözlüğüne; ASLA başka backend'e.</td><td>Aynı; ayrıca çakışma kontrolü (aynı ad iki varlığa gidemez).</td></tr>
+<tr><td>Boş sonuç / retracted / "araç bulunamadı"</td><td>Negatif örnek: bu soru bu araca gitmemeli. Sık tekrar eden negatif → profil yeniden yazımı (DRAFT deseni).</td><td>Yeniden yazım = yeni hash = yeniden inceleme + sınav. Regresyon oranı (%16.7 literatür) bu kapının varlık sebebi.</td></tr>
+<tr><td>tool_search çağrıları</td><td>Modelin kilitli sette bulamayıp aradığı araçlar → o aracın taban sete girmesi önerisi (kullanım yoğunluğuna göre, Anthropic "3–5 en sık" kuralı).</td><td>Sınav + bağlam bütçesi tavanı (K1).</td></tr>
+</table>
+<div class="note am"><b>Kırmızı çizgi (§8 tuzağı):</b> öğrenme, aracın <i>bulunmasını</i> iyileştirir — örnekler, takma adlar, açıklama ifadesi. Aracın <i>ne yaptığını</i> (şema, yuvalar, kaynak atfı kuralı) asla değiştirmez; onlar şemadan türetilir ve yalnız sunucu değiştirince değişir. Öğrenilen her satır <code>provenance=LEARNED</code> taşır ve tek tıkla geri alınabilir.</div>
+</section>
+
+<section id="s7">
+<h2><span class="sn">§7</span>Erişilebilirlik sınavı — "bağlandı"nın tek tanımı</h2>
+<div class="frame"><span class="c"># reach-exam · her backend için · offline · üretim yazmaz (C1 LAW) · her sorunun izi FULL-TRACE</span>
+girdi   : kart(B) · sorular Q(B) = profil örnekleri ∪ şema-türevi sorular ∪ paraphrase'ler(TR/EN) · karşı-örnekler Q(¬B) = diğer PUBLISHED kartların soruları
+koş     : ∀q ∈ Q(B) ∪ Q(¬B): Sequence B ②→④ (frame · retrieval · yuva · sorma kararı) — ana LLM ÇAĞRILMAZ
+ölç     : backend Recall@1(B) · araç Recall@3 · ask-rate(B) · false-scope-rate(B) · interference(¬B→B)
+        : regresyon: ∀B′ ≠ B PUBLISHED: Recall@1(B′) düşmedi
+hüküm   : GREEN ⇔ Recall@1 ≥ r₁(B) ∧ Recall@3 ≥ r₃(B) ∧ ask-rate ≤ a(B) ∧ false-scope ≤ f(B) ∧ interference ≤ i ∧ regresyon yok
+        : eşikler kalibrasyondan (ilk kart: literatür tabanı; sonra kendi dağılımı) — asla kodda sabit
+ne zaman: bağlantıda · her sync'te · her açıklama-hash değişiminde · her master derlemesinde (CI kapısı) · gece üretim gölgesinde
+çıktı   : rapor (soru · beklenen · bulunan · katman · neden) · τ_scope, τ_ask güncellemesi · durum geçişi
+<span class="c"># RED asla sessiz değil: backend görünmez kalır (yeni) ya da DEGRADED olur (mevcut) ve sahibe bir satır düşer</span></div>
+<div class="note te"><b>Bu sınav MKB olayını nasıl yakalardı:</b> 18 Ağustos gecesi gölge sınav "mkb Recall@1 0.9 → 0.1" yazardı; sabah sahip bir satır okurdu, bir ay sonra bir soruyla keşfetmezdi. Sınav, sistemin kendi hatasını kendinin bulmasıdır — SOTA-1'in "kriter yalnız kanıtla emekli olur" kuralının anlama katmanındaki karşılığı.</div>
+</section>
+
+<section id="s8">
+<h2><span class="sn">§8</span>Tuzaklar ve yanılgılar — her biri bir mekanizmaya bağlı</h2>
+<table>
+<tr><th style="width:28%">Tuzak</th><th>Nasıl görünür</th><th style="width:34%">Bu tasarımdaki karşılığı</th></tr>
+<tr><td>Bağlam şişmesi</td><td>Katalog büyüdükçe doğruluk düşer, maliyet artar (%40–60 şema tokeni).</td><td>K1: kilitli küçük set + ertelenmiş araçlar + tool_search; kart özeti ≤60 token.</td></tr>
+<tr><td>Kelime listesi yönlendiricisi</td><td>Paraphrase'de kör (bugünkü MKB kategorisi). Sahip: "sistem o toolu da etkin kullanmalı".</td><td>Kelime listesi <span class="kill">kaldırılır</span>; yerine profil + örnek sorular üstünde hibrit retrieval; eski keyword haritası yalnız merdivenin taban basamağı (A23 A-4).</td></tr>
+<tr><td>Kodda backend adı</td><td>ALWAYS_INCLUDE = iki ARMES aracı; yeni backend tabana giremez.</td><td>Giriş aracı karttan türetilir (§3); kodda backend literali kalmaz (AGNOSTIC-1 / A-9).</td></tr>
+<tr><td>Küresel varlık varsayımı</td><td>"Kaleseramik" → "hangi hat?" (computeClarification HIGH-1).</td><td>Çözüm aday backend'in sözlüğünde; sorma tetiği aracın <i>zorunlu</i> yuvasından (K4).</td></tr>
+<tr><td>Fazla sorma / hiç sormama</td><td>Literatür: modeller sormaz; kural tabanlı sistemler fazla sorar.</td><td>Marj + fazlalık cezası; aynı yuva sohbette bir kez; varsayılan eylem; ask-rate sınavda ölçülür.</td></tr>
+<tr><td>Kapsam yanlış pozitifi</td><td>Model, araç elindeyken sabit cümleyle reddeder (09-20 ölçüldü).</td><td>Kapsam = kart eşleşmesi (deterministik); prompt'ta alan cümlesi yok; ret gerekçeli ve loglu.</td></tr>
+<tr><td>Vektör motoru kesintisi</td><td>07:30Z 502'leri; sessiz boş küme = "araç yok" gibi görünür.</td><td>Katman merdiveni ③e; her basamak adıyla loglanır; boş küme ancak taban da boşsa ve o zaman "UNMEASURED" değil "yok" yazar.</td></tr>
+<tr><td>Genel embedding modeli</td><td>Araç aramasında zayıf (ToolRet).</td><td>bge-m3 dense+sparse (zaten IR-4 seçimi) + profil genişletmesi (Tool-DE: doküman darboğağı) + BM25; gerekirse araç-eğitimli reranker sonraki sürüm.</td></tr>
+<tr><td>Açıklama zehirlenmesi / rug pull</td><td>Sunucu açıklamayı yayın sonrası değiştirir; talimat enjekte eder.</td><td>Hash sabitleme + değişimde yeniden inceleme + enjeksiyon lensi + annotations=iddia (K6).</td></tr>
+<tr><td>Ad çakışması</td><td>İki sunucuda <code>search</code>.</td><td><code>backend.tool</code> ad alanı, her yerde.</td></tr>
+<tr><td>Öğrenme döngüsü zehirlenmesi</td><td>Yanlış cevaplardan öğrenip yanlışı pekiştirme.</td><td>Yalnız öneri; sınav kapısı; provenance=LEARNED; geri alınabilir; "ne bildiğini" asla değiştirmez.</td></tr>
+<tr><td>Soğuk başlangıç</td><td>Yeni backend'in gerçek sorusu yok.</td><td>Sentetik sorular şemadan + profilden (K7); ilk eşikler literatür tabanı, sonra kendi dağılımı.</td></tr>
+<tr><td>Kısmi okuma</td><td>Envanter ilk N sayfa ile "tam" sanılır.</td><td>partial≠complete: envanter satırı "M'nin ilk N'i" taşır; sözlük eksikliği "yok" değil "bakılmadı".</td></tr>
+<tr><td>Çok dillilik</td><td>TR soru, EN şema.</td><td>bge-m3 çok dilli; profil örnekleri TR+EN; BM25 iki dilde.</td></tr>
+<tr><td>Determinizm / eşzamanlılık bedeli (§8 altyapı kardeşi)</td><td>Tek işçili sınav CI'yı tıkar.</td><td>Sınav sorgu başına bağımsız; paralellik çağrılan motorun işçi modeline göre; süre bütçesi sınav raporunda.</td></tr>
+<tr><td>Ölçmeden anahtarı suçlamak (A-REC-S148-1)</td><td>frameRouting "flip"i.</td><td>Bir parametre nedensel öncül olmadan önce bütün sürüm satırları basılır; sınav zaman serisi, tahmini gereksiz kılar.</td></tr>
+</table>
+</section>
+
+<section id="s9">
+<h2><span class="sn">§9</span>Geçiş planı — önce ölç, önce sınav, sonra düzelt; her adım tek başına iniş</h2>
+<table>
+<tr><th style="width:8%">Faz</th><th style="width:30%">İş</th><th>Kanıt / çıkış kriteri</th><th style="width:18%">Kaldırılan</th></tr>
+<tr><td>P0</td><td>M2 (MKB envanteri, kimlik bilgisi olan şeritten) · M3′ (qdrant açılışının stage 03'e etkisi, replay lensi)</td><td>İki ölçüm raporu; §1'in iki UNMEASURED satırı kapanır.</td><td>—</td></tr>
+<tr><td>P1</td><td><b>Sınav iskeleti + kart türetimi (mevcut veriden):</b> backend_tools + şemalar → yuvalar, giriş aracı, kart özeti; profil YOK henüz; reach-exam offline koşar, sonuç yalnız rapor.</td><td>Beş PUBLISHED backend için ilk sınav raporu; MKB'nin bugünkü Recall@1'i sayıyla (beklenen: çok düşük — bu, tasarımın kanıtıdır).</td><td>—</td></tr>
+<tr><td>P2</td><td><b>Retrieval gölgede:</b> stage 07'de kart-tabanlı hibrit retrieval canlı turda hesaplanır, LOG'lanır, kararı vermez (F161 gölge deseni). Item 5 (BM25+RRF) burada iner.</td><td>N gün gölge: kart yolu vs canlı yol, tur başına hangisi doğru aracı bulurdu; item 36 paritesi bu ölçümle güncellenir.</td><td>—</td></tr>
+<tr><td>P3</td><td><b>Profil + kapsam + sorma, bayrak arkasında:</b> LLM profilleme (kapılı), τ_scope/τ_ask kalibrasyonu, şema-türevi sorma kararı; <code>router.capabilityFabric=1</code> yalnız gölge sınav GREEN olan backend'ler için.</td><td>Sınav GREEN; üretim tanığı: Yönetim Kurulu sorusu knowledge_search ile cevaplanır ve kaynak gösterir; KB7 OEE sorusu değişmez (regresyon yok).</td><td>b1_scope'tan alan cümlesi (yeni segment sürümü, eval kapısı)</td></tr>
+<tr><td>P4</td><td><b>Flip ve söküm:</b> kart yolu birincil; keyword kategorileri taban basamağına iner; ALWAYS_INCLUDE sabiti silinir; tool_search ertelenmiş araçlar için açılır.</td><td>Master derlemesinde sınav CI kapısı; gece gölge sınav çalışıyor; bir hafta DEGRADED yok.</td><td><span class="kill">ALWAYS_INCLUDE</span> · <span class="kill">elle kategori satırları</span> (arşive)</td></tr>
+<tr><td>P5</td><td><b>Öğrenme döngüsü:</b> sonuç defteri → öneriler → sınav → yayın.</td><td>İlk öğrenilmiş öneri sınavdan geçip yayınlanır ve geri alınabilir olduğu gösterilir.</td><td>—</td></tr>
+</table>
+<div class="note"><b>Her faz kendi kartı, kendi scout incelemesi, kendi inişi.</b> P1 kod olarak küçüktür ve tek başına değerlidir: MKB'nin bugün ne kadar erişilmez olduğunu <i>sayıyla</i> söyler. Hiçbir faz "büyük patlama" değildir; P4'e kadar bugünkü yol dokunulmadan çalışır (S102-YASA-3: yerine-koyma yalnız adlandırılmış onayla).</div>
+</section>
+
+<section id="s10">
+<h2><span class="sn">§10</span>Kaynaklar, katkılar ve açık sorular</h2>
+<h3 class="sub">Tasarım katkıları (S112-YASA-1, adıyla)</h3>
+<ul>
+<li><b>Sahip:</b> hedef tanımı — jenerik, kendi kendine öğrenen; yeni backend bağlanınca sisteme dahil olur; anlama katmanı aracı etkin kullanır (2026-09-20 15:18 ve 15:35 TSİ). "MKB ilk bağlandığında çalışıyordu" hatırası: ölçüldü, doğru. "Çözüm asla yama olmayacak" hükmü: §9'un neden P1'den başladığının sebebi.</li>
+<li><b>Scout:</b> C1–C3 düzeltmeleri ve M2/M3'ün dürüst UNMEASURED'ı (SCOUT-STATUS-MEASURE-MKB-REACH-S148-1).</li>
+<li><b>Architect:</b> kart/iki-seviye/şema-türevi-sorma/sınav birleşimi; A-REC-S148-1 kör noktası §1'de.</li>
+<li><b>Önceki tasarım:</b> A23 v1_4 (②–⑥ korunur), IR-4 Path B (I1–I5 boru hattı burada canlıya alınır), ALT-B katman merdiveni, ALT-C dürüst ret.</li>
+</ul>
+<h3 class="sub">Açık sorular (sahip kararı ya da ölçüm)</h3>
+<ol>
+<li>Profilleyici LLM: bugünkü ucuz model (router ile aynı) mi, yoksa profil kalitesi için bir üst model mi? Karar sınav sonuçlarıyla verilmeli (P3'te A/B).</li>
+<li>tool_search'ün üretici tarafı: Anthropic sağlayıcısında yerleşik; Gemini/OpenAI için CWF kendi arama aracını sunar (aynı indeks). Sağlayıcı-agnostik kalmak için ikincisi varsayılan.</li>
+<li>Sınav eşiklerinin ilk değerleri: literatür tabanı (LiveMCPBench Recall@5 ≈ 0.83 en iyi) mi, yoksa P1'in kendi ölçümü mü? Öneri: P1 ölçümü taban, iyileşme hedefi literatür.</li>
+</ol>
+<h3 class="sub">Web kaynakları (Eylül 2026'da okundu)</h3>
+<ul class="mono" style="font-size:12px;line-height:1.7">
+<li>Anthropic tool search / programmatic tool calling — platform.claude.com/docs/en/agents-and-tools/tool-use/tool-search-tool · anthropic.com/engineering/advanced-tool-use</li>
+<li>MCP-Atlas (2026) arxiv.org/html/2602.00933v1 · LiveMCPBench arxiv.org/pdf/2508.01780v1 · MCP-Universe arxiv.org/pdf/2508.14704 · MCP-Bench github.com/Accenture/mcp-bench</li>
+<li>MCP-Zero arxiv.org/html/2506.01056v3 · Tool-to-Agent Retrieval arxiv.org/html/2511.01854v1</li>
+<li>ToolRet arxiv.org/abs/2503.01763 · Tool-DE arxiv.org/html/2510.22670v1 · ToolDreamer arxiv.org/abs/2510.19791 · Tool Attention arxiv.org/html/2604.21816v1</li>
+<li>DRAFT arxiv.org/abs/2410.08197 · Trace-Free+ arxiv.org/html/2602.20426v2 · MCP description smells arxiv.org/html/2602.14878v1 · DeepAgent arxiv.org/html/2510.21618v1</li>
+<li>Clarification: arxiv.org/html/2605.25284v1 · Noisy ToolBench arxiv.org/html/2409.00557v4 · SAGE-Agent arxiv.org/html/2511.08798v2</li>
+<li>MCP spec tools (2025-06-18) · changelog 2025-11-25 · registry/about · A2A agent-discovery.md</li>
+<li>MSR tool-space interference · Invariant tool poisoning · OWASP MCP Tool Poisoning · CSA note 2026-07-01</li>
+</ul>
+</section>
+
+</main>
+<footer>END · A24_cwf-capability-fabric-architecture-v1 · rev 1.0 · 2026-09-20 · S148 · anchor master 20c1651c3fb59b48490670ffefed02099d684ed9 · DRAFT · beside A23 v1_4 (LOCKED) · sources: CWF-S148-RCA-MKB-UNREACHABLE-v1 · SCOUT-STATUS-MEASURE-MKB-REACH-S148-1 · owner rulings 2026-09-20 15:18/15:35 TSI · amendments mint v1_1 — never in-place</footer>
+</body>
+</html>
