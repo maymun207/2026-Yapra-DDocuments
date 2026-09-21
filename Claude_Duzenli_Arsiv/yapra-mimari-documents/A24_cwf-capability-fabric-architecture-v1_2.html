@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A24 · CWF Capability Fabric — Backend-Agnostik, Kendi Kendine Öğrenen Anlama Katmanı · v1_2</title>
+<!--
+  A24_cwf-capability-fabric-architecture-v1_2 · rev 1.2 · 2026-09-21 · Architect-authored, S149 (archive numbering; the owner calls this chat "session 146/147")
+  SUPERSEDES A24 v1 (rev 1.0, S148). RECORDS as INPUT (not canonical): Grok's "A24 v1.1" PDF (2026-09-21, grok-sandbox render), and the three external
+  reviews (Gemini · OpenAI · Grok) in Proposed_Architecture_review_by_other_AI_agents.docx. Decision ledger: A24-REVIEW-VERDICT-S149-1-v1 (owner-ruled
+  OWNER-RULING-S149-LEDGER-1, 2026-09-21 07:56 TSI: "defteri onayiyorum ama R-07 itiraz: planner istiyorum + K14 onay · E2E N=10 onay").
+  Amendments folded in: A24-Q3Q4-TRACE-ANALYSIS-S149-1-v1 (R-16 ACCEPT, R-19..R-23) and CWF-S149-Q3Q4-WITNESS-v1 (production measurement of the two golden questions).
+  Anchor: owner clone master 7572c3bbfeed23656fcf8a55f6e64d93ed240c14 (lane-refreshed; a claim — the bridge cannot ls-remote). Vercel admin footer shows 20c1651c… (production build older than the clone head; UNMEASURED which is deployed at read time).
+  Design sources, BY NAME (S112-YASA-1): OWNER — target ("jenerik, kendi kendine öğrenen; yeni backend bağlanınca dahil olur; aracı etkin kullanır", S148), the two golden questions Q3/Q4 (07:22 TSI), the PLANNER ruling (07:56 TSI), "web valve is opened from the UI" (08:47 TSI). GEMINI — ontology≠dynamic data; federated resolution. OPENAI — operating threshold≠acceptance bar; acceptable-set labels; authorization layer; scaling contradiction; versioned bundle; source-correction table; two-sided ask metric. GROK — two exams; conformal scope; K12; state machine; trace schema; TR analyzer; WRITE-GATED as PLATINUM read correctly; the v1.1 consolidation. SCOUT — C1–C3 (S148). PRODUCTION SYSTEM — the Q3/Q4 answers themselves (S149 witness).
+  STATUS: TARGET-STATE DESIGN · OWNER-RULED LEDGER · kart kesilmedi · amendments mint v1_3 — never in-place (S37-1).
+-->
+<style>
+:root{--ink:#1C2422;--paper:#F5F6F3;--card:#FFFFFF;--line:#2A3330;--mut:#5C6662;--t:#2A3330;
+--pu:#6D4FC4;--pu-f:#EFEAFB;--te:#0E6B54;--te-f:#E3F1EB;--gr:#667080;--gr-f:#ECEFF1;--am:#A8620A;--am-f:#FBF3E4;--rd:#B3261E;--rd-f:#FBEAE8;--bl:#1D5FA8;--bl-f:#E6EFF9}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.55 "Avenir Next","Segoe UI",system-ui,sans-serif}
+header{background:var(--card);border-bottom:2px solid var(--line);padding:26px 24px}
+header .in,main{max-width:1180px;margin:0 auto}
+.docid{font:12px ui-monospace,"SF Mono","Cascadia Code",Consolas,monospace;color:var(--mut)}
+h1{font-size:26px;margin:8px 0 6px}
+h1 .v{font:600 13px ui-monospace,monospace;color:var(--mut);margin-left:10px}
+p.sub{margin:0 0 12px;max-width:960px}
+.status{display:inline-block;font:12px ui-monospace,monospace;background:var(--te-f);border:1px solid var(--te);border-radius:6px;padding:4px 10px}
+main{padding:0 24px 60px}
+section{margin-top:40px}
+h2{font-size:20px;border-left:4px solid var(--line);padding-left:12px;margin:0 0 14px}
+h2 .sn{font:600 13px ui-monospace,monospace;color:var(--mut);margin-right:8px}
+h3.sub{font-size:15.5px;margin:22px 0 8px}
+.note{background:var(--card);border:1px solid #D8DDD9;border-radius:8px;padding:12px 16px;margin:12px 0}
+.note.am{background:var(--am-f);border-color:var(--am)}.note.te{background:var(--te-f);border-color:var(--te)}.note.rd{background:var(--rd-f);border-color:var(--rd)}.note.bl{background:var(--bl-f);border-color:var(--bl)}.note.pu{background:var(--pu-f);border-color:var(--pu)}
+.tag{display:inline-block;font:11px ui-monospace,monospace;border-radius:5px;padding:1px 7px;border:1px solid;margin-right:4px;white-space:nowrap}
+.tag.pu{background:var(--pu-f);border-color:var(--pu);color:var(--pu)}.tag.te{background:var(--te-f);border-color:var(--te);color:var(--te)}.tag.gr{background:var(--gr-f);border-color:var(--gr);color:var(--gr)}.tag.am{background:var(--am-f);border-color:var(--am);color:var(--am)}.tag.rd{background:var(--rd-f);border-color:var(--rd);color:var(--rd)}.tag.bl{background:var(--bl-f);border-color:var(--bl);color:var(--bl)}
+table{border-collapse:collapse;width:100%;background:var(--card);border:1px solid #D8DDD9;border-radius:10px;overflow:hidden;font-size:13.5px}
+th{background:#F1F3EF;text-align:left;padding:8px 11px;font-weight:600;border-bottom:1px solid #D8DDD9;vertical-align:top}
+td{padding:8px 11px;border-bottom:1px solid #E4E8E5;vertical-align:top}
+tr:last-child td{border-bottom:0}
+code,.mono{font:12.5px ui-monospace,"SF Mono","Cascadia Code",Consolas,monospace}
+code{background:#EEF1EE;border-radius:4px;padding:1px 5px}
+.frame{background:#232B28;color:#EAF0EC;border-radius:8px;padding:14px 16px;font:12.5px/1.5 ui-monospace,monospace;overflow-x:auto;white-space:pre}
+.frame .c{color:#8FB9A9}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 14px}
+.lg{display:inline-flex;align-items:center;gap:6px;font:12px ui-monospace,monospace;background:var(--card);border:1px solid #D8DDD9;border-radius:6px;padding:3px 8px}
+.sw{width:14px;height:14px;border-radius:3px;border:1px solid}
+.sw.pu{background:var(--pu-f);border-color:var(--pu)}.sw.te{background:var(--te-f);border-color:var(--te)}.sw.gr{background:var(--gr-f);border-color:var(--gr)}.sw.am{background:var(--am-f);border-color:var(--am)}.sw.bl{background:var(--bl-f);border-color:var(--bl)}.sw.rd{background:var(--rd-f);border-color:var(--rd)}
+.diagwrap{background:var(--card);border:1px solid #D8DDD9;border-radius:10px;padding:12px;overflow-x:auto;margin:12px 0}
+.diagwrap svg{width:100%;min-width:900px;height:auto;display:block}
+svg text{fill:var(--ink)}
+svg .th{font:600 12.5px "Avenir Next","Segoe UI",sans-serif}
+svg .ts{font:11px "Avenir Next","Segoe UI",sans-serif}
+svg .tm{font:10.5px ui-monospace,"SF Mono",Consolas,monospace;fill:var(--mut)}
+svg .arr{stroke:var(--t);stroke-width:1.2;fill:none}
+svg .ret{stroke:var(--t);stroke-width:1.1;fill:none;stroke-dasharray:4 3}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.card{background:var(--card);border:1px solid #D8DDD9;border-left:5px solid var(--gr);border-radius:8px;padding:12px 14px}
+.card.pu{border-left-color:var(--pu)}.card.te{border-left-color:var(--te)}.card.am{border-left-color:var(--am)}.card.bl{border-left-color:var(--bl)}.card.rd{border-left-color:var(--rd)}
+.card h4{margin:0 0 6px;font-size:14.5px}
+.card .k{font:11px ui-monospace,monospace;color:var(--mut)}
+.kill{color:var(--rd);font-weight:600}.keep{color:var(--te);font-weight:600}.new{color:var(--bl);font-weight:600}
+footer{max-width:1180px;margin:40px auto 0;padding:16px 24px;border-top:1px solid #D8DDD9;font:12px ui-monospace,monospace;color:var(--mut)}
+@media (max-width:720px){.cards{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><div class="in">
+<div class="docid">A24_cwf-capability-fabric-architecture-v1_2 · rev 1.2 · 2026-09-21 · S149 · SUPERSEDES v1 rev 1.0 · anchor master 7572c3bb… (iddia) · beside A23 v1_4 (LOCKED) · IR-4 Path B'yi canlıya taşır</div>
+<h1>CWF Capability Fabric <span class="v">v1_2 · sahip hükümlü defter işlendi · kart kesilmedi</span></h1>
+<p class="sub">Backend-agnostik, kendi kendine öğrenen anlama katmanı. Tek nesne — bağlı her backend için <b>türetilmiş bir Yetenek Kartı</b> — üç tüketiciyi besler: anlama, araç seçimi, kapsam. "Bağlandı" demenin tanımı artık <b>iki sınavın konjonksiyonudur</b>: yönlendirme sınavı (offline) ∧ canlı erişim sondası. Bileşik görevler bir <b>planlayıcı</b> (sahip hükmü) ve <b>deterministik bir yürütücü</b> ile koşar; sayılar araç baytından gelir, modelden değil. Öğrenme yalnız <i>bulunma</i> yüzeyini iyileştirir ve <b>boş sonuçtan asla öğrenmez</b>.</p>
+<span class="status">STATUS: TARGET-STATE DESIGN · OWNER-RULING-S149-LEDGER-1 işlendi · Q3/Q4 üretim tanıklığı işlendi · kaynaklar §Δ ve §10'da adıyla</span>
+</div></header>
+
+<main>
+
+<section id="sd">
+<h2><span class="sn">§Δ</span>v1 → v1_2 değişiklik kaydı (tam ifşa)</h2>
+<p>Bu sürüm v1'i yerinde değiştirmez (S37-1). Her satır: v1'de ne vardı → v1_2'de ne var → kaynağı adıyla. Grok'un "v1.1" belgesi girdi olarak okundu; kanonik çizgi v1 → v1_2'dir. Sahip defteri satır satır onayladı; tek itirazı (R-07) bu belgeye <b>planlayıcı</b> olarak indi.</p>
+<table>
+<tr><th style="width:15%">Madde</th><th style="width:28%">v1</th><th>v1_2</th><th style="width:16%">Kaynak</th></tr>
+<tr><td>Sınav</td><td>Tek "erişilebilirlik sınavı"; Sequence B ②→④; tools/call yok; "18 Ağustos'u yakalardı"</td><td><b>Üç katman:</b> routing exam (offline) ∧ reach exam (canlı salt-okuma canary) = "bağlandı"; ayrıca E2E görev sınavı, altın küme N=10/backend, gece, harcaması ilan (OWNER-APPROVAL E2E N=10). "18 Ağustos" cümlesi P0 kapanmadan hiçbir belgeye girmez.</td><td>Gemini · OpenAI #1 · Grok #1 · A-REC-S149-1</td></tr>
+<tr><td>Sınav soruları</td><td>Profil örnekleri ∪ şema-türevi ∪ paraphrase (kapalı devre)</td><td>Held-out gerçek turlar (kaynak: <b>messages/turn deposu + Langfuse</b> — <code>tool_experience</code> bir SAYAÇTIR, soru tutmaz; A-REC-S149-6) + çapraz-üretici paraphrase + hard negative; şema-türevi AYRI (duman). Etiket = kabul edilebilir küme. Soğuk başlangıçta <code>exam_basis=synthetic</code> damgası.</td><td>OpenAI #2 · Grok #3 · S149 ölçümü</td></tr>
+<tr><td>Kapsam</td><td>max RRF skoru ≥ τ_scope, dağılımdan eşik</td><td><b>Conformal set</b> (ilan edilmiş α), backend başına kalibrasyon; <b>kalibrasyon n &lt; n_min iken ret kapısı SİLAHLANMAZ</b> (offer). Beş karar sınıfı. Kabul barajı ölçmeden ÖNCE ilan; τ veriden.</td><td>Grok #2 · OpenAI #2/#4 · Architect eki</td></tr>
+<tr><td>Öğrenme</td><td>Boş sonuç → negatif örnek</td><td>Boş / 502 / timeout / UNREACHABLE → <b>öğrenme yok</b>. Negatif yalnız doğrulanmış yanlış-eşleme veya kullanıcı düzeltmesi. Pozitif süzgeç K23. Takma ad tenant/tesis/bağlam kapsamlı.</td><td>Gemini · OpenAI #3 · Grok #4 · A-REC-S149-2</td></tr>
+<tr><td>Bileşik görev</td><td>ReAct, tek backend'e toplama; planlayıcı yok; toplama nerede — sorulmamış</td><td><b>Planlayıcı</b> (LLM, plan = JSON DAG, iz nesnesi) + <b>deterministik yürütücü</b> (paralel salt-okuma fan-out, kodda toplama, partial≠complete damgası) — sahip hükmü OWNER-RULING-S149-R07-PLANNER-1. Join kuralı: set ≥2 backend; yazma seri + WRITE-GATED; çelişen olgular sentezlenmez.</td><td>SAHİP · Grok K13 · Q3/Q4 tanıklığı (sayı sızması)</td></tr>
+<tr><td>Giriş aracı</td><td>min(yuva) listeleme; örnek literal; her PUBLISHED backend'in giriş aracı her turda</td><td>Sınıflayıcı ∩ readOnly iddiası ∩ <b>sahibin statik sonda allowlist'i</b>; canary ile doğrulanır; ping/health/deleteAll dışarı; kodda literal yok. Taban set BÜTÇELİ: tool_search + kullanım-sıklığına göre N; özetler yalnız top-k backend.</td><td>Grok #5 · OpenAI #8 (v1.1 almamıştı)</td></tr>
+<tr><td>Yetki</td><td>Yok</td><td><b>Yetki katmanı karttan ayrı ve bağlayıcı</b>: türetme kimliği kartta; kullanıcı kapsam süzgeci model görmeden; tools/call'da yeniden kontrol; yetki değişince indeks/önbellek/LEARNED geçersiz. ÖLÇÜLDÜ: CWF'de RBAC (user/power_user/super_admin) + kullanıcı başına backend kapsamları (armes, superset, system, machine-knowledge-base, honestbench, mount-probe) VAR — kanca mevcut, kart özetine uygulanıp uygulanmadığı UNMEASURED.</td><td>OpenAI #6 · Grok #10 · S149 admin okuması</td></tr>
+<tr><td>Sürümleme</td><td>Açıklama hash'i</td><td><code>card_version</code> = sha256(araç sözleşmesi + şemalar + instructions + profil + index_build_id + yetki kapsamı + sınav hüküm id'leri + model/prompt/embedding sürümü); atomik aktif-işaretçi; durum makinesi: DRAFT→CARDED→ROUTING-GREEN→REACH-GREEN→PUBLISHED; EXAM-RED · UNREACHABLE · DEGRADED · QUARANTINE · DISABLED; CANDIDATE ∥ PUBLISHED; WRITE-GATED.</td><td>OpenAI #7 · Grok #9</td></tr>
+<tr><td>Kartın evi</td><td>Yeni tablolar (profiles, slots, corpus)</td><td><b>Kart = mevcut yönetişim kind'ları + türetilmiş yeni kind'lar.</b> ÖLÇÜLDÜ (admin, System/ARMES): <code>entity_alias</code> (kb7, glazur3, firinalt, ikincilalt…), <code>glossary_term</code>, <code>metric_definition</code>, <code>metric_registry</code>, <code>tool_annotation</code> (160), <code>routing_hint</code>, <code>blind_spot</code>, <code>persona_fragment</code>, <code>gateway_tool_policy</code>, <code>agent.param</code> — hepsi eval-kapılı config. v1_2 bunların YANINA ikinci bir mekanizma kurmaz (12.6); yeni türetilmiş kind'lar aynı yönetişim yoluna girer: <code>tool_profile</code> · <code>slot</code> · <code>corpus_entry</code> · <code>calendar</code> · <code>output_contract</code> · <code>web_card</code>.</td><td>S149 admin ölçümü · 12.5/12.6</td></tr>
+<tr><td>Web valfi</td><td>Anılmıyor</td><td><b>Web bir KARTTIR</b> (when-to-use/not-for, salt-okuma, bütçe, canary, dış-kaynak damgalı çıktı, URL+tarih). ÖLÇÜLDÜ: <code>web.enabled</code> v2 PUBLISHED value 1, 2026-09-21T05:50:50Z (kapı SCHEMA·REFERENTIAL·BEHAVIORAL); sahip hükmü, arayüzden.</td><td>SAHİP · Q4 tanıklığı · Grok K20</td></tr>
+<tr><td>Çıktı</td><td>Anılmıyor</td><td><b>Çıktı sözleşmeleri</b> (A3, üretim raporu, asakai özeti) konfigürasyondur; veri bölümleri yalnız yürütücü baytından, anlatı "öneri" damgalı; frame'e <code>format</code>/<code>audience</code>.</td><td>Q3 tanıklığı (A3 üretilmedi)</td></tr>
+<tr><td>Zaman</td><td>resolve_time_range</td><td>+ <b>üretim takvimi kart verisi</b>: "bugün/bu vardiya" backend'in gün/vardiya tanımıyla çözülür ve cevap tanımı söyler. ÖLÇÜLDÜ: bugün "bugün" = İstanbul takvim günü (21:00Z–20:59Z); üretim günü tanımı UNMEASURED.</td><td>OpenAI #5 · Q4 tanıklığı</td></tr>
+<tr><td>Varlık çözümü</td><td>Aday backend sözlüğü; sorma tetiği required'dan</td><td>Aynı + <b>stage 03′ hat/bölge çözümü backend'in kendi listesine karşı, deterministik, iz'de</b> (bugün bunu ana LLM yapıyor — çalıştı, determinizmi UNMEASURED). Sözlük miss'i UNMEASURED, NIL değil. Ontoloji (layers: factory·line·workstation·equipment, ÖLÇÜLDÜ, armes) ≠ dinamik veri (parti, doküman, hata kodu → sonda).</td><td>Grok K22 · Gemini #3 · A-REC-S149-5</td></tr>
+<tr><td>Sorma</td><td>required-only; aynı yuva sohbette bir kez</td><td>required-only KALIR; + under-ask metriği (yanlış-argümanla-çağrı oranı); optional yuvaya <code>decisive</code> bayrağı yalnız ÖNERİ (profilleyici veya sahip küratör), sınav düşürdüğünü gösterirse silahlanır; "aynı görevde aynı belirsizlik için tekrar yok, tesis/dönem değişince yeniden".</td><td>Gemini #4 · OpenAI #5 · Grok #6</td></tr>
+<tr><td>Gecikme</td><td>Yok</td><td>Chat turu: retrieval+slot p95 ≤ 400 ms (İLAN; P2'de ölçülüp dondurulur). <b>Görev turu ayrı sınıf</b>: dakika ölçeği, ilerleme akışı, kısmi sonuç (okunamayan satır UNMEASURED, rapor düşmez).</td><td>Grok #13 · Q3/Q4</td></tr>
+<tr><td>Retrieval kanalları</td><td>"bge-m3 dense+sparse + BM25"</td><td>Adıyla: dense(bge-m3) + <b>BM25-TR (Lucene Turkish analyzer)</b> [+ bge-m3 sparse üçüncü kanal, P2'de ölçülür]; reranker P2 ablasyonu; küçük domain fine-tune adayı.</td><td>Grok #11/#8.2 · OpenAI kaynak tablosu</td></tr>
+<tr><td>Sayılar</td><td>30–50 eşiği · Atlas %36 · &lt;%5 sormaz · 0.83 eşik</td><td>Düştü/düzeldi (§10 "tekrar edilmeyecek iddialar"). Her sayı popülasyonuyla yazılır.</td><td>OpenAI · Grok #1–5 · A-REC-S149-3</td></tr>
+<tr><td>PLATINUM</td><td>"İnsan oku yalnız ① ve ⑮"</td><td>Değişmedi (anayasal). K14 WRITE-GATED = PLATINUM'un doğru okuması: yazma aracını açmak, kota, ilk yayın riski insan YARGISIDIR. OpenAI'nin "ilkeyi kaldırın" önerisi REDDEDİLDİ.</td><td>Grok K14 · Architect</td></tr>
+</table>
+<div class="note am"><b>Sahip hükümleri, adıyla (S112-YASA-1):</b> OWNER-RULING-S149-LEDGER-1 (defter onayı) · OWNER-RULING-S149-R07-PLANNER-1 ("planner istiyorum") · OWNER-APPROVAL-S149-K14-WRITE-GATED-1 · OWNER-APPROVAL-S149-E2E-N10-1 · OWNER-RULING-S149-WEB-VALVE-OPEN-1 ("valf'i aç", arayüzden). Architect'in R-07 REJECT'i sahibin hükmüyle kapandı; yeniden açılmaz.</div>
+</section>
+
+<section id="s0">
+<h2><span class="sn">§0</span>Renk anahtarı ve tek cümlelik tez</h2>
+<div class="legend">
+<span class="lg"><span class="sw pu"></span>LLM · olasılıksal</span>
+<span class="lg"><span class="sw te"></span>deterministik kod · kapılı</span>
+<span class="lg"><span class="sw gr"></span>pipeline omurgası · değişmeyen</span>
+<span class="lg"><span class="sw am"></span>türetilmiş veri · her sync'te yeniden üretilir</span>
+<span class="lg"><span class="sw bl"></span>kullanıcı / sahip kararı</span>
+<span class="lg"><span class="sw rd"></span>bugünkü defekt · kaldırılan</span>
+</div>
+<div class="note te"><b>Tez.</b> Bugün anlama, araç seçimi ve kapsam tek backend'in dünyasına kurulu ve üç kapıdan hiçbiri bağlı backend'den türetilmiş bir şey okumuyor. Yeni yapıda üçü de <b>Yetenek Kartı</b>'nı okur: kart, bugün zaten var olan eval-kapılı yönetişim kind'larının (takma ad, sözlük, metrik tanımı, araç annotation'ı, yönlendirme ipucu) üstüne, bağlanma anında <b>makinenin türettiği</b> yeni kind'lar (profil, yuva, korpus, takvim, çıktı sözleşmesi) eklenerek oluşur. Bir backend ancak <b>routing sınavı ∧ canlı reach sondası</b> yeşilse kullanıcıya açılır. Bileşik bir görev, planlayıcının yazdığı ve yürütücünün deterministik koştuğu bir plan olarak yürür; <b>kullanıcının gözüne giden her sayı bir araç baytıdır</b>. Öğrenme yalnız bulunmayı iyileştirir, ne bildiğini asla, boş sonuçtan hiç.</div>
+</section>
+
+<section id="s1">
+<h2><span class="sn">§1</span>Ölçülmüş durum — S148 RCA + S149 üretim tanıklığı</h2>
+<h3 class="sub">S148 · MKB erişilemezliği (scout düzeltmeleriyle, v1'den aynen)</h3>
+<table>
+<tr><th style="width:26%">İddia</th><th>Ölçüm</th><th style="width:18%">Durum</th></tr>
+<tr><td>MKB bir ay önce çalışıyordu (sahip)</td><td><code>tool_experience</code>: knowledge_search son pozitif 2026-08-20T13:11Z; 08-11/12 Faaliyet Raporu soruları doküman aramasıyla cevaplandı; 08-18 sermaye tavanı TL tutarlarıyla.</td><td><span class="tag te">DOĞRU</span></td></tr>
+<tr><td>Kırılma = frameRouting 0→1 (Architect RCA v1)</td><td>C1 (scout): v3=0 ve v4=1 aynı saniyede, 129 ms; parametre üç hafta iki yanda da 1. "129 ms yok-işlem" ifadesi de okuyucular incelenmeden nedensel değildir (OpenAI).</td><td><span class="tag rd">YANLIŞTI — A-REC-S148-1</span></td></tr>
+<tr><td>17-18 Ağustos'ta değişen tek yönetimli şey</td><td>C2: 08-17 18:02Z <code>vector.engine</code> incumbent→qdrant, <code>vector.enabled</code> 0→1; stage 05.</td><td><span class="tag am">ADAY — ölçülmedi</span></td></tr>
+<tr><td>Yönetim Kurulu sorusu varlık-sorusu aldı</td><td>C3: Hayır — kapsam reddi (safety.b1_scope v3, 08-01). İki ayrı mekanizma.</td><td><span class="tag te">DÜZELTİLDİ</span></td></tr>
+<tr><td>MKB korpusu raporu tutuyor mu (M2)</td><td>Scout penceresinde kimlik yok; exit 3 = CANNOT-READ.</td><td><span class="tag am">UNMEASURED</span></td></tr>
+<tr><td>Yapısal kök neden</td><td>Üç kapı — anlama (computeClarification HIGH-1), araç seçimi (elle kategori + kodda iki ARMES aracı), kapsam (sabit alan cümlesi) — türetilmiş hiçbir şey okumaz.</td><td><span class="tag te">AYAKTA</span></td></tr>
+</table>
+<h3 class="sub">S149 · İki altın soru üretimde (CWF-S149-Q3Q4-WITNESS-v1; Gemini Flash; okundu 05:00Z)</h3>
+<table>
+<tr><th style="width:22%">Adım</th><th>Soru 3 — son 24 saat, A3, asakai</th><th>Soru 4 — bugün, üretim raporu, literatür, yol haritası</th></tr>
+<tr><td>Soru sorma</td><td>YOK. Footer: "→ 'Kalebodur 7 Fabrikası' (prefix eşleşme)" — stage 03 yalnız fabrikayı çözdü.</td><td>YOK.</td></tr>
+<tr><td>Hat çözümü</td><td>Ana LLM getFactoryLines'ı okudu ve ÜÇ hat seçti: Glazur3, FIRINALT, IKINCILALT (zone id'leriyle). Sahibin cümlesi üç kardeş hattır, bir yol değil (A-REC-S149-5).</td><td>Aynı.</td></tr>
+<tr><td>Zaman</td><td>24 saat, UTC.</td><td>İstanbul takvim günü 21:00Z–20:59Z; üretim günü UNMEASURED.</td></tr>
+<tr><td>Araçlar</td><td>resolve_time_range · getFactoryLines · getLineStopsReportForZones · getOeeValuesForZones (4). Çok bölge TEK çağrıda.</td><td>+ getDailyManualScrapForZones (5).</td></tr>
+<tr><td>Fire</td><td><span class="tag rd">SUNULMADI</span> — "araç setimde yok" dedi; araç Q4'te kullanıldı.</td><td>Alındı.</td></tr>
+<tr><td>Toplama</td><td><span class="tag rd">SIZDI</span> — tablo: "3 satır kaynakta yok · 0 satır"; düzyazı: "%95.84 · %82.06 · %94.77".</td><td>OEE ve fire tablosu boş ("22 satır kaynakta yok"); düzyazı "215 adet KABARCIK, 90, 7".</td></tr>
+<tr><td>Format</td><td>A3 yok; genel bölümlü rapor.</td><td>Öncelik listesi var — sıra modelin yargısı, ölçülmüş etki değil.</td></tr>
+<tr><td>Literatür / yol haritası</td><td>—</td><td><span class="tag rd">RET</span> — b1_scope: "yalnızca Kale Seramik… literatür ve yol haritası yeteneklerimin dışında". Yol haritası alan içi sentezdi.</td></tr>
+<tr><td>Tavsiye etiketi</td><td>Var ("kayıtlı prosedür yok — mühendislik yargısı gerekir").</td><td>Var.</td></tr>
+</table>
+<div class="note rd"><b>Tanıklığın hükmü.</b> Bileşik zincir bugün toplama ve formata kadar YÜRÜYOR; iki canlı delik: (a) modelin hesapladığı sayılar — muhafız tabloyu boşaltıyor, düzyazıyı boşaltamıyor (F-S149-LLM-AGGREGATE-LEAKS-TO-PROSE-1); (b) kapsam cümlesi alan içi sentezi ve web'i reddediyor (F-S149-SCOPE-REFUSES-IN-DOMAIN-SYNTHESIS-1). Bu ikisi v1_2'nin ilk iki teslimatıdır: <b>yürütücü</b> (P1–P2) ve <b>kapsam cümlesinin kalkması</b> (P3). Ayrıca F-S149-SCRAP-TOOL-NOT-OFFERED-Q3-1 (aynı backend, iki soru, araç birinde sunulmadı) routing sınavının ilk altın vakasıdır.</div>
+<h3 class="sub">S149 · Envanter ölçümleri (admin paneli ve canlı DB, 05:1x–05:5xZ)</h3>
+<table>
+<tr><th style="width:26%">Nesne</th><th>Ölçüm</th><th style="width:22%">v1_2'ye etkisi</th></tr>
+<tr><td>Backend'ler</td><td>armes · armes-new · mcp-honestbench · Makine Bilgi Tabanı (MKB) · Mount Probe · Apache Superset BI (gateway) · System (agent params) — yedi giriş.</td><td>Kart sayısı; Superset gateway = farklı protokol sınıfı, kart K5 ile aynı yoldan.</td></tr>
+<tr><td>Yetki</td><td>RBAC: user · power_user · super_admin; kullanıcı başına backend kapsamı anahtarları (armes, superset, system, machine-knowledge-base, honestbench, mount-probe).</td><td>R-10 kancası VAR; kart özeti/arama sonucu süzgeci UNMEASURED.</td></tr>
+<tr><td>Yönetişim kind'ları (ARMES)</td><td>blind_spot(2) · entity_alias(8: kb7, glazur3, firinalt, ikincilalt, ikincilust, "fırın duruşu", Kale seramik, Kaleseramik) · gateway_tool_policy(0) · glossary_term(10) · metric_definition(4) · metric_registry(3) · persona_fragment(1) · routing_hint(1) · tool_annotation(160). Hepsi eval-kapılı, sürümlü, audit'li.</td><td>Kartın evi bunlardır; yeni kind'lar aynı yola girer (12.6).</td></tr>
+<tr><td>Varlık katmanları</td><td><code>backend_entity_layers</code>: armes → factory · line · workstation · equipment (4 satır). Başka backend'de satır yok.</td><td>Hat çözümü katman konfigürasyonudur; MKB'nin katmanı yok = doküman başlıkları korpus sondasından.</td></tr>
+<tr><td><code>tool_experience</code></td><td>Sütunlar: backend_id, tool_name, via_gateway, positive_count, last_positive_at, repaired_at, retracted_count, repair_note. Satır: armes 36 · armes-new 3 · MKB 2 · superset 2 · honestbench 1. <b>Soru metni yok.</b></td><td>Held-out küme buradan ÇIKMAZ; messages/turn deposu + Langfuse (A-REC-S149-6).</td></tr>
+<tr><td><code>web.enabled</code></td><td>domain_rules: v2 published value 1 (2026-09-21T05:50:50Z), v1 archived value 0. Kapı: SCHEMA · REFERENTIAL · BEHAVIORAL geçti. Sahip hükmü, arayüzden.</td><td>Web kartı (R-19) canlıda ölçülebilir; Q4 literatür adımı yeniden tanıklanır.</td></tr>
+</table>
+</section>
+
+<section id="s2">
+<h2><span class="sn">§2</span>Endüstri durumu ve kararlar — düzeltilmiş gerekçeler, sahip-hükümlü eklemeler</h2>
+<p>v1'in yedi kararı (K1–K7) durur; gerekçeleri kaynağın söylediğine indirildi. K8'den sonrası S149 defterinden (accept kümesi) ve sahip hükümlerinden gelir. Her sayı popülasyonuyla yazılır; popülasyonu yazılmayan yüzde alıntılanmaz (A-REC-S149-3).</p>
+<table>
+<tr><th style="width:24%">Karar</th><th>Norm ve gerekçe (v1_2)</th></tr>
+<tr><td><b>K1</b> · Kilitli küçük set; tool_search ertelenmişleri açar</td><td>Anthropic Tool Search (defer_loading); RAG-MCP: katalogu önden yığmak ~%13.6 vs retrieval-first ~%43.1 (kendi görev setinde); MSR tool-space interference: ilgisiz sunucu eklemek performansı düşürür. <span class="kill">"30–50 araçta bozulur" eşiği literatürde yok</span> — kendi offered-set ablasyonumuzda ölçülür. Tur başına max K araç ve max şema tokeni İLAN.</td></tr>
+<tr><td><b>K2</b> · İndeks araç granülaritesinde; skor backend'e toplanır</td><td>Tool-to-Agent Retrieval (arXiv:2511.01854): LiveMCPBench Recall@5 +%19.4 (retriever ölçümü); MCP-Zero sunucu-önce hiyerarşi ince sinyali kaybeder. <span class="kill">"bütün özetler her turda bağlamda" kaynakta yok</span> — özetler yalnız retrieval'ın top-k backend'i için, bütçeli.</td></tr>
+<tr><td><b>K3</b> · Profil LLM ile genişler, hash'lenir, kapıdan geçer</td><td>MCP description smells (arXiv:2602.14878): 856 araç / 103 sunucu, %97.1 en az bir smell; genişletme medyan +5.85 pp SR, %16.67 regresyon payı, adım sayısı medyan +%67.46 (maliyet). Tool-DE'nin kazancı <b>eğitilmiş Tool-Embed</b>'e aittir, yalnız metin genişletmeye değil. Ham açıklama tek başına indekslenmez.</td></tr>
+<tr><td><b>K4</b> · Sorma kararı şemadan; varsayılan eylem</td><td>SAGE-Agent EVPI (arXiv:2511.08798); Noisy ToolBench A1 0.52→0.90 (GPT-4o CoT). MCP-Atlas v2: <b>başarısızlıkların</b> %36.0'ı "no tools called" (görevlerin değil). <span class="kill">"modeller &lt;%5 sorar" kaynaksız, düştü.</span> İlk sürüm required-only; under-ask metriği P3.</td></tr>
+<tr><td><b>K5</b> · Kart istemci tarafında türetilir</td><td>MCP'te "sunucu ne bilir" normatif alanı yok; annotation = iddia. Superset gateway'i de aynı yoldan (gateway_tool_policy kind'ı zaten var).</td></tr>
+<tr><td><b>K6</b> · <code>backend.tool</code> ad alanı + hash pin</td><td>MSR: 1470 sunucu, 775 ad çakışması; Invariant Labs tool poisoning + rug pull. Hash şimdi <code>card_version</code> demetinin parçasıdır (K21).</td></tr>
+<tr><td><b>K7</b> · Routing sınavı kartın parçasıdır — yeterli değildir</td><td>Şema değişti → sorular yeniden → retrieval@k → regresyonda blok. Canlı erişim ayrı (K8).</td></tr>
+<tr><td><b>K8</b> · Bağlandı = Routing GREEN ∧ Reach GREEN</td><td>Reach exam: initialize handshake + doğrulanmış giriş aracıyla 1 salt-okuma canary tools/call + hata sınıfı. C1 LAW: üretim yazmaz. Biri kırmızıysa kullanıcıya "bağlı" denmez.</td></tr>
+<tr><td><b>K9</b> · Kapsam kalibre küme; ham skor karar vermez</td><td>P1 ham skorları yalnız raporlar. P3: backend başına isotonic + <b>conformal prediction set</b>, α ilan (varsayılan 0.10). Ret ⇔ set boş. <b>Kalibrasyon n &lt; n_min (ilan: 30 held-out tur) iken ret kapısı silahlanmaz.</b> İndeks rebuild kalibrasyonu geçersiz kılar. Karar sınıfları: match · ambiguous · reach_failure · unauthorized · verified_unsupported.</td></tr>
+<tr><td><b>K10</b> · Sunucu metni untrusted; yetki katmanı bağlayıcı</td><td>Ham açıklama, instructions, annotation, tools/call çıktısı prompt'a talimat olarak girmez; lens full-schema / shadowing / output / line-jumping'e de. Kart ve korpus HANGİ kimlikle türetildi kartta; kullanıcı kapsam süzgeci model görmeden; tools/call'da yeniden kontrol; kapsam eşleşmesi çağrı yetkisi vermez; yetki değişince indeks/önbellek/LEARNED geçersiz. Sonda allowlist'i sahibin statik listesidir, readOnlyHint iddiası değil.</td></tr>
+<tr><td><b>K11</b> · Sınav soruları held-out</td><td>Altın kaynak: messages/turn deposu + Langfuse izleri (08-11/12 Faaliyet Raporu, 08-18 sermaye tavanı, S149 Q3/Q4). Paraphrase üreticisi ≠ profilleyici. Şema-türevi sorular duman testidir. Etiket = kabul edilebilir küme; aynı görev ailesi aynı kümede. Üç küme: profil-geliştirme · kalibrasyon · bağımsız kabul.</td></tr>
+<tr><td><b>K12</b> · Boş sonuç LEARNED negatif değil</td><td>Boş / 502 / timeout / UNREACHABLE → öğrenme satırı yok (DEGRADED sinyali olabilir). Negatif yalnız (a) başka araç/backend doğru cevapladı, (b) kullanıcı düzeltti.</td></tr>
+<tr><td><b>K13</b> · Çok-backend join</td><td>|conformal set| ≥ 2 ise aday kümesi birleşir. Salt-okuma paralel; yazma serileştirilir ve WRITE-GATED. Çelişen olgular sentezlenmez, iki kaynak gösterilir. Yürütme K26 ile.</td></tr>
+<tr><td><b>K14</b> · Yazma araçları WRITE-GATED</td><td>PLATINUM salt-okuma türetmeye uygulanır. Destructive/write tool sınav yeşiliyle açılmaz; kota, veri yerleşimi, ilk yayın riski insan kapısıdır. Sahip onayı OWNER-APPROVAL-S149-K14-WRITE-GATED-1.</td></tr>
+<tr><td><b>K15</b> · TR BM25 analyzer zorunlu</td><td>Lucene Turkish (snowball) veya eşdeğer; çift alan (TR analyzer TR metinde, standard EN profil örneklerinde). Analyzer'sız BM25 P2 ablasyonunda taban, üretim değil. Dense düşünce merdiven BM25'e iner — taban basamağı kör kalmaz.</td></tr>
+<tr><td><b>K16</b> · Reranker P2 ölçümü</td><td>Adaylar: bge-m3 | BM25-TR | hybrid RRF | hybrid+reranker | (n yeterliyse) küçük domain fine-tune. Karar held-out Recall@1 + p95 ile; ölçülmeden "sonraki sürüm" denmez.</td></tr>
+<tr><td><b>K17</b> · Giriş aracı ve sonda literalsız</td><td>Kodda knowledge_list / getFactoryList yok, P1'de bile (AGNOSTIC-1). Aday: listeleme/arama sınıflayıcısı ∩ readOnlyHint (iddia) ∩ sahibin sonda allowlist'i; canary reach exam'de doğrulanır; ping/health/deleteAll hariç; sahip veto.</td></tr>
+<tr><td><b>K18</b> · SLO ilan edilir</td><td>Chat turu: retrieval+slot p95 ≤ 400 ms (ilan; P2'de ölçülüp dondurulur); tool_search ekstra turu ayrı satır; şema token tavanı. <b>Görev turu ayrı sınıf</b> (K27).</td></tr>
+<tr><td><b>K19</b> · Sınav dilimlenir</td><td>Tek Recall@1 kök neden değildir. Dilimler: frame (st02) / retrieval / yuva / sorma / reach — ayrı hata sayaçları.</td></tr>
+<tr><td><b>K20</b> · Büyük çıktı bağlama yığılmaz</td><td>N tokenden büyük tools/call sonucu deterministik muhafızdan geçer (kes/özetle + partial≠complete damgası). Sağlayıcı-agnostik yürütücü (K26) bunun genel hâlidir; Anthropic PTC isteğe bağlı hızlı yol.</td></tr>
+<tr><td><b>K21</b> · Dual-card ve sürümlenmiş bütün</td><td>PUBLISHED vN servis ederken CANDIDATE vN+1 sınava girer; hash/tools/list_changed DEGRADED'a düşürmez. <code>card_version</code> demeti: araç sözleşmesi + şemalar + instructions + profil + index_build_id + yetki kapsamı + sınav hüküm id'leri + model/prompt/embedding sürümü. Aktif işaretçi tek adımda değişir. Eski kart eski sunucu davranışını korumaz: uyumlu değişiklik ≠ şema kırılması ≠ yetki iptali ≠ güvenlik şüphesi (QUARANTINE).</td></tr>
+<tr><td><b>K22</b> · Kısmi korpus miss'i UNMEASURED</td><td>partial≠complete. Sözlükte yok = bakılmamış olabilir; NIL / AMBIGUOUS teşhisi A23'teki gibi; UNMEASURED ayrı sınıf. Yapısal ontoloji (layers) ≠ dinamik veri (sonda; P3+ federe mikro-sonda, bütçesi P2'de ölçülür, sayı uydurulmaz).</td></tr>
+<tr><td><b>K23</b> · LEARNED pozitif süzgeci</td><td>answered ∧ grounded(st12) ∧ atıf destekli ∧ 1 tur düzeltme yok ∧ PII yok ∧ not_empty — hepsi şart. Takma ad kaydı backend + tenant/tesis/bağlam anahtarıyla.</td></tr>
+<tr><td><b>K24</b> · İz şeması dondurulur</td><td>§7b. OpenTelemetry gen-ai semantiğine oturur. P2 gölge günleri bu şema olmadan birleştirilmez.</td></tr>
+<tr><td><b>K25</b> · Regresyon güven aralıklı; kabul barajı ayrı</td><td>"Recall düşmesin" küçük N'de sistemi dondurur. Geçiş: düşüş önceden ilan Δ ve min n içindeyse. <b>Kabul barajı ölçmeden ÖNCE ilan edilir</b> (ürün gereksinimi); τ veriden kalibre edilir; sistem kötü gidince kendi barajını düşüremez (SOTA-1 ruhu).</td></tr>
+<tr><td><b>K26</b> · <span class="new">Planlayıcı + deterministik yürütücü</span> (SAHİP HÜKMÜ)</td><td>OWNER-RULING-S149-R07-PLANNER-1. Planlayıcı: ayrı adlandırılmış LLM aşaması (st07p); girdisi frame + kilitli set + kart özetleri + çıktı sözleşmesi; çıktısı <b>JSON DAG plan</b> (çağrılar, parametreler, paralellik, toplama operatörleri, bağımlılıklar) — şema kısıtlı, iz nesnesi. Yürütücü: deterministik; paralel salt-okuma fan-out; yazma seri + WRITE-GATED; toplama (group/count/sum/avg/rank) kodda; her çağrı FULL-TRACE; partial≠complete damgaları; adım bütçesi kartta ilan. Koşan plan, okunan plandır (S102-YASA-3'ün küçük hâli). Sonuç tabloları ana LLM'e döner; <b>kullanıcıya giden her sayı yürütücü çıktısında vardır</b> — st12 grounding, araç baytında olmayan sayısal iddiayı düşürür ya da "model hesabı, kaynakta yok" damgalar (Q3/Q4 tanıklığının doğrudan karşılığı). Yapılandırılmış plan önce; serbest kod yürütme (sandbox) ikinci aşama — SOTA-1 üçlüsü: (a) F1 BrowseComp-Plus atıf doğruluğu, (b) P2 gölgesi kapanınca, (c) tools/call çıktı token p95 bağlam bütçesini aşarsa kart kesilir.</td></tr>
+<tr><td><b>K27</b> · <span class="new">Görev sınıfı tur</span></td><td>Bileşik görev kendi SLO'sunu (dakika), ilerleme akışını ("12 çağrının 4'ü…") ve kısmi-sonuç davranışını (okunamayan satır UNMEASURED, rapor düşmez) taşır; iz'de <code>turn_class=task</code>.</td></tr>
+<tr><td><b>K28</b> · <span class="new">Çıktı sözleşmeleri kart verisidir</span></td><td>A3, üretim raporu, asakai özeti = konfigürasyon (coverage-is-config). Veri bölümleri yalnız yürütücü çıktısından, atıflı; anlatı bölümleri (kök neden hipotezi, karşı önlem) LLM, "öneri" damgalı; satır satır deterministik/yumuşak işareti (§8 tuzağı). Şablon seçimi frame'in <code>format</code>/<code>audience</code> alanından. Öncelik sıralaması sayıdan (kayıp dakika × sıklık), modelin "bence" sırasından değil.</td></tr>
+<tr><td><b>K29</b> · <span class="new">Üretim takvimi kart verisidir</span></td><td>Backend'in gün/vardiya tanımı Sequence A'da (varsa vardiya aracıyla, yoksa sahip küratör girişi) karta yazılır; "bugün / bu vardiya" onunla çözülür; cevap aldığı tanımı söyler ("üretim günü 07:00–07:00 alındı"). Sorulmaz.</td></tr>
+<tr><td><b>K30</b> · <span class="new">Web bir karttır</span></td><td>when-to-use ("literatür, dış standart, tedarikçi dokümanı") · not-for ("tesis verisi, KPI") · salt-okuma · bütçe (çağrı/sayfa/token) · reach = canary fetch · çıktı DAİMA dış-kaynak damgalı, URL + erişim tarihi · grounding tesis verisiyle literatürü aynı cümlede karıştırmaz · TR→EN terim çevirisi LLM işidir ve arama sorgusu iz'de görünür. Kodda web için özel dal yok. F2 DeepScholar verifiability kriterine bağlanır.</td></tr>
+<tr><td><b>K31</b> · <span class="new">Stage 03′ hat/bölge çözümü deterministik</span></td><td>Backend'in kendi listesine (getFactoryLines sınıfı, katman konfigürasyonuyla) karşı, iz'de her düğüm adıyla; sıfır eşleşme gerçek-0 (veri), okunamama UNMEASURED. Bugün ana LLM yapıyor ve Q3/Q4'te doğru yaptı; determinizm ve iz görünürlüğü ölçülmedi. Torun-kümesi yürüyüşü yalnız çok katmanlı ifadeler için (parentsOf/containsAmong kablolanır — CALLER-ABSENT, 12.6).</td></tr>
+</table>
+<div class="note bl"><b>Bilinçli redler (yazıldı, unutulmasın).</b> Planner-Executor deseninin <i>ikinci bir ajan</i> hâli sahip hükmüyle planlayıcı olarak KABUL edildi; reddedilen yalnız sınırsız ReAct'tır. Düşük eşleşmede LLM ile yeniden ifade — RED (deterministik kapıya LLM sokar; merdiven ③e zaten kurtarma). "Deterministik CRITICAL_FOR_EXECUTION" — RED (yargıdır; öneri + sınav). PLATINUM'un kaldırılması — RED (anayasal). A2A Agent Card federasyonu bu sürümde yok. Yerleşik Anthropic tool_search spec değil, opsiyonel uygulama. Sandbox kod yürütme: SOTA-1 üçlüsüyle ertelendi (K26).</div>
+</section>
+
+<section id="s3">
+<h2><span class="sn">§3</span>Yetenek Kartı — tek nesne, mevcut yönetişimin üstünde</h2>
+<p>Kart bir tablo değil, birbirine bağlı, eval-kapılı, sürümlü kind'ların adıdır. <b>Ölçüldü:</b> bunların çoğu bugün var ve yayında (§1 envanter). v1_2'nin yaptığı, eksik kind'ları AYNI yönetişim yoluna (draft → gate → publish, audit, rollback) eklemek ve üç tüketiciyi bunları OKUYACAK şekilde kablolamaktır — yeni bir paralel depo değil (12.6).</p>
+<div class="cards">
+<div class="card am"><h4>Kimlik ve durum makinesi</h4><div class="k">backends · <span class="new">yeni alanlar</span></div>backend_id · uç nokta · protokol sınıfı (MCP / gateway) · initialize.instructions (ham, untrusted) · türetme kimliği (hangi servis hesabı) · <code>card_version</code> demeti · durum (aşağıdaki makine) · PUBLISHED olmayan backend kullanıcıya görünmez; UNREACHABLE, routing yeşilken canlı sonda kırmızısıdır — EXAM-RED ile karışmaz.</div>
+<div class="card am"><h4>Araç envanteri</h4><div class="k">backend_tools (ayna; missing ≠ deleted) · <code>tool_annotation</code> (VAR, 160)</div>tools/list bayt-birebir · <code>backend.tool</code> · inputSchema / outputSchema · annotations (iddia) · sha256(açıklama) VE sha256(şema) · yazma/destructive sınıfı → WRITE-GATED.</div>
+<div class="card pu"><h4>Araç profili</h4><div class="k"><span class="new">tool_profile</span> · LLM türetimli · kapılı</div>when-to-use · not-for · 5–10 örnek soru (TR atölye Türkçesi + EN: "duruş", "fire", "verimsizlik", "asakai", "A3", "sebep kodu") · çıktı şekli · şema-seviyesi <code>input_examples</code>. Ham + şema + (varsa) 3 gerçek çağrıdan üretilir. Profil örneği SINAV DEĞİLDİR (K11). Hash sabit.</div>
+<div class="card te"><h4>Yuvalar</h4><div class="k"><span class="new">slot</span> · deterministik</div>required args → tip: entity-ref@layer · time-range · free-text · enum · identifier · numeric-range. Katman <code>backend_entity_layers</code>'tan (ÖLÇÜLDÜ: factory · line · workstation · equipment). Optional yuvaya <code>decisive</code> yalnız öneri; sınav silahlar.</div>
+<div class="card am"><h4>Korpus envanteri</h4><div class="k"><span class="new">corpus_entry</span> · sınırlı sonda</div>K17 giriş/listeleme adayı, sahibin allowlist'i, salt-okuma canary izli, sayfalı, üst N. partial≠complete. Miss = UNMEASURED (K22). "Kaleseramik Faaliyet Raporu" bir korpus adıdır, kayıp bir fabrika değil.</div>
+<div class="card te"><h4>Takma ad · sözlük · metrik · ipucu</h4><div class="k"><code>entity_alias</code> · <code>glossary_term</code> · <code>metric_definition</code> · <code>routing_hint</code> · <code>blind_spot</code> (HEPSİ VAR)</div>Kartın bugün yayında olan yarısı. v1_2 bunlara yalnız provenance (DERIVED / LEARNED / CURATED) ve tenant/tesis/bağlam kapsamı ekler; öğrenme önerileri buraya iner ve kapıdan geçer.</div>
+<div class="card te"><h4>Giriş aracı</h4><div class="k">türetilmiş; ALWAYS_INCLUDE yerine</div>K17. Taban set bütçeli: tool_search + kullanım-sıklığına göre N giriş aracı; <span class="kill">getFactoryList / knowledge_list literali silinir — P1'de bile yazılmaz</span>.</div>
+<div class="card pu"><h4>Kart özeti</h4><div class="k">≤ 60 token / backend · yalnız top-k backend için bağlamda</div>"armes: MES canlı üretim — OEE, duruş, fire, vardiya; fabrika/hat/ekipman." Modelin tool_search'ü ne zaman çağıracağını bilmesi için yeterli.</div>
+<div class="card bl"><h4>Takvim · çıktı sözleşmeleri · web kartı</h4><div class="k"><span class="new">calendar</span> · <span class="new">output_contract</span> · <span class="new">web_card</span></div>K29 · K28 · K30. Üçü de konfigürasyon; sahip küratör olarak yazabilir (S112-YASA-1, adıyla); makine türetebildiğini türetir.</div>
+<div class="card bl"><h4>Kalibrasyon ve kabul</h4><div class="k">sınavdan türetilir · ham skor değil</div>Conformal α (ilan) · isotonic eğri · Recall@k tabanları · n_min — backend başına, sınav çıktısından. Kabul barajı AYRI ve önceden ilan (K25). Rebuild eğriyi geçersiz kılar.</div>
+</div>
+<h3 class="sub">Durum makinesi</h3>
+<div class="diagwrap">
+<svg viewBox="0 0 1000 250" role="img" aria-label="Backend durum makinesi">
+<defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#2A3330" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+<g>
+<rect x="20" y="30" width="120" height="44" rx="7" fill="#ECEFF1" stroke="#667080"/><text class="th" x="80" y="49" text-anchor="middle">DRAFT</text><text class="tm" x="80" y="64" text-anchor="middle">satır var</text>
+<rect x="180" y="30" width="120" height="44" rx="7" fill="#FBF3E4" stroke="#A8620A"/><text class="th" x="240" y="49" text-anchor="middle">CARDED</text><text class="tm" x="240" y="64" text-anchor="middle">ayna+profil+yuva</text>
+<rect x="340" y="30" width="140" height="44" rx="7" fill="#E3F1EB" stroke="#0E6B54"/><text class="th" x="410" y="49" text-anchor="middle">ROUTING-GREEN</text><text class="tm" x="410" y="64" text-anchor="middle">held-out ok</text>
+<rect x="520" y="30" width="130" height="44" rx="7" fill="#E3F1EB" stroke="#0E6B54"/><text class="th" x="585" y="49" text-anchor="middle">REACH-GREEN</text><text class="tm" x="585" y="64" text-anchor="middle">canary ok</text>
+<rect x="690" y="30" width="130" height="44" rx="7" fill="#E3F1EB" stroke="#0E6B54" stroke-width="2"/><text class="th" x="755" y="49" text-anchor="middle">PUBLISHED</text><text class="tm" x="755" y="64" text-anchor="middle">kullanıcıya açık</text>
+<rect x="860" y="30" width="120" height="44" rx="7" fill="#EFEAFB" stroke="#6D4FC4"/><text class="th" x="920" y="49" text-anchor="middle">WRITE-GATED</text><text class="tm" x="920" y="64" text-anchor="middle">yazma kapalı</text>
+<line class="arr" x1="140" y1="52" x2="178" y2="52" marker-end="url(#ah)"/><line class="arr" x1="300" y1="52" x2="338" y2="52" marker-end="url(#ah)"/><line class="arr" x1="480" y1="52" x2="518" y2="52" marker-end="url(#ah)"/><line class="arr" x1="650" y1="52" x2="688" y2="52" marker-end="url(#ah)"/>
+<rect x="340" y="120" width="140" height="44" rx="7" fill="#FBEAE8" stroke="#B3261E"/><text class="th" x="410" y="139" text-anchor="middle">EXAM-RED</text><text class="tm" x="410" y="154" text-anchor="middle">routing kaçırdı</text>
+<rect x="520" y="120" width="130" height="44" rx="7" fill="#FBF3E4" stroke="#A8620A"/><text class="th" x="585" y="139" text-anchor="middle">UNREACHABLE</text><text class="tm" x="585" y="154" text-anchor="middle">canlı düştü</text>
+<rect x="690" y="120" width="130" height="44" rx="7" fill="#E6EFF9" stroke="#1D5FA8"/><text class="th" x="755" y="139" text-anchor="middle">CANDIDATE</text><text class="tm" x="755" y="154" text-anchor="middle">vN+1 sınavda</text>
+<rect x="860" y="120" width="120" height="44" rx="7" fill="#FBEAE8" stroke="#B3261E"/><text class="th" x="920" y="139" text-anchor="middle">QUARANTINE</text><text class="tm" x="920" y="154" text-anchor="middle">zehir / şüphe</text>
+<rect x="180" y="120" width="120" height="44" rx="7" fill="#ECEFF1" stroke="#667080"/><text class="th" x="240" y="139" text-anchor="middle">DISABLED</text><text class="tm" x="240" y="154" text-anchor="middle">sahip kapattı</text>
+<line class="ret" x1="410" y1="74" x2="410" y2="118" marker-end="url(#ah)"/><line class="ret" x1="585" y1="74" x2="585" y2="118" marker-end="url(#ah)"/><line class="ret" x1="755" y1="74" x2="755" y2="118" marker-end="url(#ah)"/>
+<text class="tm" x="20" y="205">DEGRADED = PUBLISHED iken routing veya reach düşer; vN servis etmeyi bırakmaz, kullanıcıya dürüst ret düşer. Uyumlu değişiklik ≠ şema kırılması ≠ yetki iptali ≠ güvenlik şüphesi — dördü farklı davranır (K21).</text>
+<text class="tm" x="20" y="225">Bir backend'in salt-okuma yüzü PUBLISHED olabilirken yazma araçları WRITE-GATED kalır; ikisi ayrı yayındır (K14). Hiçbir geçiş sessiz değildir: her ok bir audit satırı ve sahibe bir satırdır.</text>
+</g>
+</svg>
+</div>
+</section>
+
+<section id="s4">
+<h2><span class="sn">§4</span>Sequence A — yeni bir backend bağlandığında</h2>
+<p>Tetik: sahip admin panelinden bir <code>backends</code> satırı ekler ya da <code>notifications/tools/list_changed</code> gelir. Salt-okuma yolunda insansız; yazma araçları WRITE-GATED kalır. Her ok bir kayıt bırakır (K24).</p>
+<ol>
+<li><b>Sahip satırı</b>: id + uç nokta + kimlik (env-only) + türetme servis hesabı. durum := DRAFT. Kullanıcıya görünmez.</li>
+<li><b>initialize</b> → instructions, capabilities. Instructions untrusted (K10); talimat kipi varsa QUARANTINE, sync durmaz, yayınlanmaz.</li>
+<li><b>tools/list</b> (sayfalı) · resources/list · prompts/list → ayna upsert; missing ≠ deleted; sha256(açıklama) ve sha256(şema); ad alanı <code>backend.tool</code>; yazma/destructive sınıflaması → WRITE-GATED kümesi.</li>
+<li><b>Yuva çıkarımı</b> (deterministik) · katman eşlemesi (layers config) · takvim türetimi (vardiya aracı varsa; yoksa sahip küratör satırı, K29).</li>
+<li><b>Korpus sondası</b>: K17 aday ∩ sahibin allowlist'i; salt-okuma canary izli; sayfalı, üst N; partial≠complete; sözlük satırları corpus_entry.</li>
+<li><b>Profil isteği</b> (profilleyici LLM, ucuz model, temp 0): ham + şema + korpus örnekleri → when-to-use / not-for / örnek sorular (TR+EN) / input_examples → PROPOSED, provenance=DERIVED, hash.</li>
+<li><b>Kodlama</b>: dense(bge-m3) + BM25-TR (K15) [+ sparse, P2] → Qdrant (türev; Supabase kaynak doğrusu). Giriş aracı seçimi (K17). Kart özeti ≤60 token. durum := CARDED.</li>
+<li><b>Routing exam</b> (K7·K11·K19): held-out Q ∪ karşı-örnekler; Sequence B ②→④; ana LLM yok, tools/call yok; dilimli rapor. Soğuk başlangıçta sentetik+çapraz-üretici, <code>exam_basis=synthetic</code>.</li>
+<li><b>Reach exam</b> (K8): handshake + doğrulanmış giriş aracının salt-okuma canary çağrısı; hata sınıfı ∈ {ok, empty_corpus, auth, 5xx, timeout}; empty_corpus → REACH-GREEN + corpus=UNMEASURED (yayınlanır, sözlük UNMEASURED); handshake fail / auth / 5xx → UNREACHABLE.</li>
+<li><b>Hüküm</b>: Routing GREEN ∧ Reach GREEN → profil PROPOSED→PUBLISHED (eval kapısı, aynı bayt) · durum := PUBLISHED · özet bağlama girer · yazma araçları WRITE-GATED kalır. RED / UNREACHABLE sessiz açılmaz; sahibe bir satır.</li>
+<li><b>Sonrası</b>: tools/list_changed veya hash değişimi → CANDIDATE vN+1 ③'ten yeniden; vN servis eder (K21). Gece: her PUBLISHED backend için iki sınav üretim gölgesinde; E2E altın küme N=10 (ilan edilmiş harcamayla).</li>
+</ol>
+<div class="note te"><b>Sahibin iki eli.</b> ① satır eklemek. WRITE-GATED raporunu okuyup yazma aracını açmak (isteğe bağlı, zorunlu kapı). EXAM-RED / UNREACHABLE satırını okumak. Salt-okuma yolunda başka insan oku yok — bir şey manuel gerekiyorsa tasarım yanlıştır (PLATINUM). Yazma yolunda insan yoksa tasarım yanlıştır — bu PLATINUM'a istisna değil, PLATINUM'un "insan yargısı içeriyor mu" sorusunun cevabıdır.</div>
+</section>
+
+<section id="s5">
+<h2><span class="sn">§5</span>Sequence B — bir kullanıcı sorusundan sonra (planlayıcı + yürütücü ile)</h2>
+<p>A23 stage numaraları korunur. Değişen yerler: <b>stage 03′</b> (hat/bölge çözümü backend listesine karşı; miss UNMEASURED), <b>stage 07</b> (karttan aday küme; conformal kapsam; join), <b>stage 07p</b> (<span class="new">planlayıcı</span>, sahip hükmü), <b>yürütücü</b> (deterministik; fan-out; toplama), <b>stage 09</b> (alan cümlesi yok), <b>stage 12</b> (sayısal iddia araç baytında yoksa düşer). Diyagram S149'da ölçülen Soru 3 ile yürütülmüştür.</p>
+<div class="diagwrap">
+<svg viewBox="0 0 1100 560" role="img" aria-label="Planlayıcı ve yürütücü döngüsü">
+<g>
+<rect x="20" y="20" width="150" height="46" rx="7" fill="#ECEFF1" stroke="#667080"/><text class="th" x="95" y="41" text-anchor="middle">Turn Pipeline</text><text class="tm" x="95" y="56" text-anchor="middle">st01–14 · omurga</text>
+<rect x="210" y="20" width="150" height="46" rx="7" fill="#EFEAFB" stroke="#6D4FC4"/><text class="th" x="285" y="41" text-anchor="middle">IR Router</text><text class="tm" x="285" y="56" text-anchor="middle">st02 · ucuz LLM</text>
+<rect x="400" y="20" width="170" height="46" rx="7" fill="#E3F1EB" stroke="#0E6B54"/><text class="th" x="485" y="41" text-anchor="middle">Retriever + Slot + Scope</text><text class="tm" x="485" y="56" text-anchor="middle">st03′ · st07 · deterministik</text>
+<rect x="610" y="20" width="140" height="46" rx="7" fill="#EFEAFB" stroke="#6D4FC4"/><text class="th" x="680" y="41" text-anchor="middle">Planlayıcı</text><text class="tm" x="680" y="56" text-anchor="middle">st07p · LLM · JSON DAG</text>
+<rect x="790" y="20" width="140" height="46" rx="7" fill="#E3F1EB" stroke="#0E6B54"/><text class="th" x="860" y="41" text-anchor="middle">Yürütücü</text><text class="tm" x="860" y="56" text-anchor="middle">deterministik · FULL-TRACE</text>
+<rect x="960" y="20" width="120" height="46" rx="7" fill="#ECEFF1" stroke="#667080"/><text class="th" x="1020" y="41" text-anchor="middle">Backend'ler</text><text class="tm" x="1020" y="56" text-anchor="middle">MCP · web kartı</text>
+</g>
+<line x1="95" y1="66" x2="95" y2="540" stroke="#667080" stroke-width="1"/><line x1="285" y1="66" x2="285" y2="540" stroke="#6D4FC4" stroke-width="1"/><line x1="485" y1="66" x2="485" y2="540" stroke="#0E6B54" stroke-width="1"/><line x1="680" y1="66" x2="680" y2="540" stroke="#6D4FC4" stroke-width="1"/><line x1="860" y1="66" x2="860" y2="540" stroke="#0E6B54" stroke-width="1"/><line x1="1020" y1="66" x2="1020" y2="540" stroke="#667080" stroke-width="1"/>
+<text class="ts" x="190" y="92" text-anchor="middle">① frame: action=REPORT · entity_ref=[KB7,glazur3,fırın alt,ikincil alt] · time · format=A3 · audience=asakai</text>
+<line class="arr" x1="95" y1="100" x2="283" y2="100" marker-end="url(#ah)"/><line class="ret" x1="283" y1="118" x2="97" y2="118" marker-end="url(#ah)"/>
+<text class="ts" x="290" y="146" text-anchor="middle">② aday + yuva + kapsam</text>
+<line class="arr" x1="95" y1="154" x2="483" y2="154" marker-end="url(#ah)"/>
+<text class="tm" x="495" y="176">st03′: KB7 → Glazur3 · FIRINALT · IKINCILALT (backend listesine karşı, deterministik, iz'de)</text>
+<text class="tm" x="495" y="192">st07: hibrit retrieval → conformal set {armes} (kalibre değilse: offer) · kilitli set = armes'in ilgili TÜM okuma araçları</text>
+<text class="tm" x="495" y="208">time: "son 24 saat" → aralık · "bugün" → üretim günü (K29) · kapsam: set boş değil → devam; boşsa gerekçeli ret</text>
+<line class="ret" x1="483" y1="222" x2="97" y2="222" marker-end="url(#ah)"/>
+<text class="ts" x="390" y="250" text-anchor="middle">③ plan isteği: frame + kilitli set + kart özetleri + çıktı sözleşmesi(A3)</text>
+<line class="arr" x1="95" y1="258" x2="678" y2="258" marker-end="url(#ah)"/>
+<text class="tm" x="690" y="280">plan (JSON DAG): [stops(3 zone, 24h) ∥ oee(3 zone) ∥ scrap(3 zone)]</text>
+<text class="tm" x="690" y="296">→ aggregate(by zone × loss_type: minutes, count) → rank(desc)</text>
+<text class="tm" x="690" y="312">→ fill(A3.data) · adım bütçesi ≤ 12 · yazma yok · plan iz nesnesi</text>
+<line class="ret" x1="678" y1="326" x2="97" y2="326" marker-end="url(#ah)"/>
+<text class="ts" x="480" y="354" text-anchor="middle">④ planı koş (okunan plan = koşan plan)</text>
+<line class="arr" x1="95" y1="362" x2="858" y2="362" marker-end="url(#ah)"/>
+<text class="ts" x="940" y="384" text-anchor="middle">⑤ paralel salt-okuma</text>
+<line class="arr" x1="860" y1="392" x2="1018" y2="392" marker-end="url(#ah)"/><line class="ret" x1="1018" y1="410" x2="862" y2="410" marker-end="url(#ah)"/>
+<text class="tm" x="700" y="432">toplama KODDA · partial≠complete damgası · okunamayan satır UNMEASURED</text>
+<text class="tm" x="700" y="448">web kartı gerekiyorsa (Q4 literatür): ayrı çağrı, dış-kaynak damgası, URL+tarih</text>
+<line class="ret" x1="858" y1="462" x2="97" y2="462" marker-end="url(#ah)"/>
+<text class="tm" x="105" y="486">st09: prompt = çekirdek güvenlik (alan cümlesi YOK) + aday backend paketleri + özetler · st10: ana LLM yalnız ANLATIR (kök neden hipotezi, karşı önlem, "öneri" damgalı)</text>
+<text class="tm" x="105" y="502">st12: her sayı yürütücü baytında mı? değilse düşer ya da "model hesabı, kaynakta yok" · her öneri hangi ölçülmüş kayba karşılık geliyor (atıf) · st13: A3 şablonu (K28) · sonuç defteri (K12/K23)</text>
+<text class="tm" x="105" y="526">turn_class=task · ilerleme akışı · SLO dakika ölçeği (K27) · iz: plan · her çağrı · toplama · karar sınıfı · reach sınıfı (K24)</text>
+</svg>
+</div>
+<div class="note rd"><b>Bugünkü akışta aynı soru nerede düşüyordu (S149'da ÖLÇÜLDÜ, tahmin değil).</b> Fire aracı Q3'te sunulmadı (Q4'te sunuldu) · OEE ortalamaları ve fire toplamları modelde hesaplandı, muhafız tabloyu boşalttı, düzyazı sızdırdı · A3 yok · "bugün" takvim günü · literatür ve yol haritası kapsam cümlesiyle reddedildi. Hat çözümü ve soru sormama BEKLEDİĞİMDEN İYİ çalıştı (A-REC-S149-5).</div>
+<div class="note bl"><b>Kapsam neden prompt'tan çıkıyor?</b> Bugün kapsam bir model yargısı: sabit cümleye bakıp reddediyor, deterministik değil (Q4'te alan içi bir sentezi de reddetti). Yeni yapıda kapsam bir ölçüm: conformal set boşsa ret gerekçeli ve loglu ("bağlı sistemlerde bu soru için araç yok" / "kart var, reach kırmızı" / "kart var, skor UNMEASURED"); doluysa prompt'ta reddedeceği bir alan cümlesi yoktur. Bu, adlandırılmış bir ret nedenini giderir; modelin mutlaka araç çağıracağını garanti etmez — onu E2E sınav ölçer. Güvenlik kuralları (PII, sızıntı, enjeksiyon, genel kültür) aynen kalır.</div>
+</section>
+
+<section id="s6">
+<h2><span class="sn">§6</span>Kendi kendine öğrenme — sınırı çizilmiş, boş sonuçtan beslenmeyen döngü</h2>
+<table>
+<tr><th style="width:22%">Sinyal</th><th>Ne öğrenilir</th><th style="width:32%">Kapı</th></tr>
+<tr><td>Cevaplanan tur</td><td>Sorunun paraphrase'i o aracın profil örneklerine ÖNERİ; kart özetine konu kelimesi önerisi.</td><td>K23 süzgeci (answered ∧ grounded ∧ atıf ∧ 1 tur düzeltme yok ∧ PII yok ∧ not_empty) → held-out'a girmez (bulaşma) → routing sınavı K25 aralığında düşmezse yayın. provenance=LEARNED, tek tıkla geri.</td></tr>
+<tr><td>Kullanıcı düzeltmesi («hayır, KB7»)</td><td>Takma ad önerisi → <code>entity_alias</code> (VAR) — backend + tenant/tesis/bağlam anahtarıyla; asla başka backend'e.</td><td>Aynı kapı + çakışma kontrolü kapsam içinde.</td></tr>
+<tr><td>Yanlış eşleme (başka araç doğru cevapladı) veya retract</td><td>Negatif örnek: bu soru bu araca gitmemeli; sık tekrar → profil yeniden yazımı önerisi.</td><td>Yeniden yazım = yeni hash = CANDIDATE + iki sınav. %16.67 literatür regresyonu bu kapının varlık sebebi.</td></tr>
+<tr><td>Boş sonuç / 502 / timeout / UNREACHABLE</td><td><b>Öğrenilmez.</b> DEGRADED/UNREACHABLE sinyali olabilir. Doğru araç + boş korpus = 18 Ağustos sınıfı; "dün KB7'de plansız duruş var mıydı?" → "hayır" doğru cevaptır.</td><td><span class="tag rd">K12 — LEARNED negatif yok</span></td></tr>
+<tr><td>tool_search çağrıları</td><td>Kilitli sette bulunamayıp aranan araç → taban sete girme önerisi (kullanım yoğunluğu).</td><td>Sınav + bağlam bütçesi (K1) + p95 (K18).</td></tr>
+<tr><td>Yürütücü planları</td><td>Sık tekrar eden plan şekli → çıktı sözleşmesine "varsayılan plan" önerisi (örn. asakai A3 için stops∥oee∥scrap).</td><td>Sözleşme konfigürasyondur; öneri kapıdan geçer; plan iz'de kalır.</td></tr>
+</table>
+<div class="note am"><b>Kırmızı çizgi (§8 tuzağı).</b> Öğrenme aracın <i>bulunmasını</i> iyileştirir — örnekler, takma adlar, ifade, taban set, varsayılan plan. Aracın <i>ne yaptığını</i> (şema, yuvalar, kaynak atfı) asla değiştirmez. Boş sonuçtan öğrenmek, gece sınavının yakalayacağı arızayı ertesi gün pekiştirir (A-REC-S149-2).</div>
+</section>
+
+<section id="s7">
+<h2><span class="sn">§7</span>Üç sınav — "bağlandı"nın tanımı ve kabul barajı</h2>
+<div class="frame"><span class="c"># routing-exam · offline · üretim yazmaz · tools/call YOK · C1 LAW</span>
+girdi : kart(B) · Q_heldout(B) = messages/turn deposundan gerçek turlar ∪ çapraz-üretici paraphrase
+        · Q_schema(B) = şema-türevi (DUMAN, ayrı) · Q(¬B) = diğer PUBLISHED kartların held-out'u + hard negative (TR morfoloji tuzakları)
+koş   : ∀q: Sequence B ②→④ (frame · retrieval · yuva · sorma) — ana LLM yok, tools/call yok
+ölç   : dilim dilim (K19): backend Recall@k(kabul edilebilir küme) · araç Recall@3 · unnecessary-ask · missed-ask · false-scope · interference(¬B→B)
+        frame_error / retrieval_error / slot_error / ask_error AYRI · regresyon: ∀B′: Δ Recall@1 K25 aralığında
+hüküm : GREEN ⇔ kabul barajı (ÖNCEDEN İLAN) ∧ regresyon aralıkta · eşikler kodda sabit değil, ilanda ve kalibrasyonda
+çıktı : rapor (soru · beklenen küme · bulunan · katman · dilim · neden) · kalibrasyon adayı (τ, α) · exam_basis
+ne zaman: bağlantıda · her sync · hash değişimi · master CI · gece gölge
+
+<span class="c"># reach-exam · canlı · salt-okuma · C1 LAW</span>
+girdi : kart(B) · T_entry (K17, canary-izinli, literal yok)
+koş   : initialize handshake (timeout S) · T_entry tools/call canary: sayfa 1, üst N, read-only, timeout S
+ölç   : handshake_ok · call_ok · latency · isEmpty · error_class
+hüküm : GREEN ⇔ handshake_ok ∧ call_ok ∧ error_class ∈ {ok, empty_corpus} · empty_corpus → GREEN + corpus=UNMEASURED
+        handshake fail ∨ auth ∨ 5xx → UNREACHABLE · T_entry türetilemez veya canary yazma tespit → QUARANTINE / WRITE-GATED
+not   : bu sınav 18 Ağustos SINIFINI yakalayabilir; o gecenin mekanizması P0 kapanmadan iddia edilmez
+
+<span class="c"># e2e-task-exam · canlı · gerçek prompt + ana LLM · altın küme · harcaması ilan · OWNER-APPROVAL-S149-E2E-N10-1</span>
+girdi : altın küme: backend başına N=10 gerçek soru + doğrulanmış beklenen (şirket/dönem/tutar/kaynak; Q3/Q4 ilk ikisi)
+koş   : Sequence B'nin tamamı (planlayıcı + yürütücü + ana LLM) · gece · günlük tavan ilan
+ölç   : görev başarısı (doğru değer + doğru kaynak) · sayı-sızma oranı (araç baytında olmayan sayı) · gerekli/gereksiz soru · p95 · maliyet/görev
+hüküm : kabul barajı önceden ilan; bu sınav "bağlandı"yı DEĞİL, "işe yarıyor"u ölçer — flip (P4) bu sınavın yeşiline bağlıdır</div>
+<div class="note te"><b>İki sınav MKB olayını nasıl böler:</b> routing exam, b1_scope tipi prompt retini ve keyword yönlendiricisinin knowledge_search'ü sunmamasını (Q3'teki fire aracı gibi) yakalar — yönlendirme hataları. Reach exam handshake/auth/502/boş korpusu yakalar. E2E, doğru araç sunulmuşken modelin çağırmamasını, kapsam gerekçesiyle reddetmesini, yanlış dönemi ve sayı sızmasını yakalar — v1 bunların hepsini tek skora sıkıştırıyordu (A-REC-S149-4).</div>
+<h3 class="sub">§7b · İz şeması — dondurulmuş (K24)</h3>
+<div class="frame">cwf.trace.v1
+  trace_id · ts · turn_class(chat|task) · backend_id[] · card_version[] · index_build_id · exam_id(routing|reach|e2e|null)
+  model_router · model_planner · model_main · query_raw · frame{action,object,entity_ref[],time,format,audience,conf}
+  retrieval_layer(dense|bm25|symbolic|base|unreachable) · scores[]{backend,tool,dense,bm25,rrf,calibrated_p} · conformal_set[] · alpha
+  decision(offer|reject_empty_set|unreachable|exam_red|uncalibrated_offer) · slot_resolution[]{tool,slot,value,UNMEASURED|NIL|AMBIGUOUS}
+  ask(asked|not_asked+reason) · offered_set[] · plan{dag,step_budget,hash} · exec_calls[]{tool,args,latency_ms,rows,partial,error_class}
+  aggregates[]{op,input_rows,output} · reach{handshake_ok,call_ok,error_class,latency_ms,empty}
+  result_class(verified_success|valid_zero|wrong_tool_verified|wrong_or_missing_param|unauthorized|transient_infra|unverified)
+  grounded · citation_ok · numeric_claims_unsourced(count) · latency_ms{retrieval_slot,plan,exec,main} · tool_output_tokens · notes(UNMEASURED damgaları adıyla)</div>
+</section>
+
+<section id="s8">
+<h2><span class="sn">§8</span>Tuzaklar ve yanılgılar — her biri bir mekanizmaya bağlı</h2>
+<table>
+<tr><th style="width:26%">Tuzak</th><th>Nasıl görünür</th><th style="width:36%">Bu tasarımdaki karşılığı</th></tr>
+<tr><td>Sayı sızması <span class="tag rd">S149'da ölçüldü</span></td><td>Muhafız tabloyu boşaltır ("satır kaynakta yok"), düzyazı aynı sayıyı basar.</td><td>K26 yürütücü: sayı araç baytında; st12 kaynaksız sayısal iddiayı düşürür/damgalar; iz'de numeric_claims_unsourced.</td></tr>
+<tr><td>Araç bir soruda var bir soruda yok <span class="tag rd">S149</span></td><td>Aynı backend, aynı hatlar; fire aracı Q3'te "yok", Q4'te var.</td><td>Routing sınavı altın vakası; kilitli set = aday backend'in ilgili TÜM okuma araçları; tool_search.</td></tr>
+<tr><td>Kapsam cümlesi alan içi işi reddeder <span class="tag rd">S149</span></td><td>"yalnızca Kale Seramik…" — yol haritası reddedildi.</td><td>Alan cümlesi kalkar (P3); kapsam = conformal set; ret gerekçeli.</td></tr>
+<tr><td>Routing'i reach sanmak</td><td>Recall@1 yeşil, knowledge_search 502.</td><td>K8 iki sınav; "bağlı" ikisinin konjonksiyonu.</td></tr>
+<tr><td>Ham skor eşiği</td><td>τ RRF'yi olasılık sanır; rebuild'de kayar; yanlış negatif = MKB tekrar kaybolur.</td><td>K9 conformal; kalibre değilse ret silahsız.</td></tr>
+<tr><td>Sınav bulaşması</td><td>Profil örneği hem indeks hem soru → şişmiş Recall.</td><td>K11 held-out; tool_experience sayaçtır, soru kaynağı messages/Langfuse.</td></tr>
+<tr><td>Boş-sonuç zehri</td><td>Korpus kesilince araç not-for'a düşer.</td><td>K12.</td></tr>
+<tr><td>Ölçek çelişkisi</td><td>100 backend = 100 açık araç + 6.000 token özet.</td><td>K1 bütçe; K17 taban set kullanım-sıklığına göre; özetler top-k.</td></tr>
+<tr><td>Yetki sızıntısı</td><td>Servis hesabıyla çıkan başlıklar dar yetkili kullanıcıya gider.</td><td>K10; RBAC kapsamları VAR (ölçüldü), kart özetine uygulanması P1'de ölçülür.</td></tr>
+<tr><td>Takvim günü ≠ üretim günü <span class="tag rd">S149</span></td><td>"bugün" 21:00Z–20:59Z alındı.</td><td>K29.</td></tr>
+<tr><td>Şablonsuz rapor <span class="tag rd">S149</span></td><td>A3 istendi, bölümlü metin geldi.</td><td>K28.</td></tr>
+<tr><td>Planı LLM'e bırakmak / sınırsız ReAct</td><td>Adım kaybı; "araç çağırmama" her adımda; bağlam şişmesi.</td><td>K26 planlayıcı + yürütücü; adım bütçesi; plan iz nesnesi.</td></tr>
+<tr><td>Under-ask (optional-ama-belirleyici)</td><td>zoneIds optional bir OEE aracı sessizce yanlış çağrılır.</td><td>K4 required ile başlar; P3 under-ask metriği; decisive bayrağı öneri.</td></tr>
+<tr><td>Kelime listesi yönlendiricisi</td><td>Paraphrase'de kör (MKB kategorisi).</td><td>Kaldırılır; hibrit retrieval; keyword yalnız merdiven tabanı.</td></tr>
+<tr><td>Kodda backend adı</td><td>ALWAYS_INCLUDE = iki ARMES aracı.</td><td>K17; AGNOSTIC-1.</td></tr>
+<tr><td>Vektör motoru kesintisi</td><td>07:30Z 502'leri; sessiz boş küme.</td><td>Merdiven ③e adıyla; BM25-TR analyzer'lı taban (K15).</td></tr>
+<tr><td>Açıklama zehri / rug pull</td><td>Yayın sonrası değişim; talimat enjeksiyonu.</td><td>K6 + K10 + K21 CANDIDATE + QUARANTINE.</td></tr>
+<tr><td>Öğrenme zehri</td><td>Yanlış cevaptan pekiştirme.</td><td>K23 + K12 + provenance + geri alınabilir + şemayı değiştirmez.</td></tr>
+<tr><td>Soğuk başlangıç</td><td>Yeni backend'in gerçek sorusu yok.</td><td>exam_basis=synthetic damgası; N gerçek tur birikince yeniden sınav.</td></tr>
+<tr><td>PLATINUM aşırı uygulaması</td><td>Yazma aracı sınav yeşiliyle açılır.</td><td>K14.</td></tr>
+<tr><td>İkinci mekanizma</td><td>Yönetişim kind'larının yanına paralel kart deposu.</td><td>§3: kart = mevcut kind'lar + yeni kind'lar, aynı yol (12.6).</td></tr>
+<tr><td>Ölçmeden anahtarı suçlamak (A-REC-S148-1)</td><td>frameRouting "flip"i.</td><td>Bütün sürüm satırları; K19 dilim; K24 iz.</td></tr>
+<tr><td>Cümleden hiyerarşi uydurmak (A-REC-S149-5)</td><td>"fırın alt ikincil alt hatları"nı torun yolu sanmak.</td><td>Varlık tasarımından önce backend'in kendi listesi basılır.</td></tr>
+</table>
+</section>
+
+<section id="s9">
+<h2><span class="sn">§9</span>Geçiş planı — önce ölç, önce sınav, sonra düzelt; her adım tek başına iniş</h2>
+<table>
+<tr><th style="width:7%">Faz</th><th style="width:34%">İş</th><th>Kanıt / çıkış</th><th style="width:16%">Kaldırılan</th></tr>
+<tr><td>P0</td><td>M2 (MKB envanteri, kimlikli şerit) · M3′ (qdrant → stage 03 replay) · <b>M-a</b> messages/Langfuse'tan backend başına gerçek tur sayısı, altın adaylar, bileşik soru var mı · <b>M-b</b> item 5 (channel-2) tasarımının analyzer'ı · <b>M-c</b> RBAC kapsamının kart özeti/arama sonucuna uygulanıp uygulanmadığı · <b>M-d</b> ARMES üretim günü/vardiya tanımı · <b>M-e</b> Q3/Q4 izlerinde sunulan set (fire aracı neden Q3'te yoktu) · <b>M-f</b> Q4'ün literatür adımı valf açıkken yeniden tanıklık</td><td>Ölçüm raporları; §1 UNMEASURED satırları kapanır. "18 Ağustos'u yakalardı" P0 kapanmadan hiçbir belgede.</td><td>—</td></tr>
+<tr><td>P1</td><td>Sınav iskeleti + kart türetimi mevcut veriden (yönetişim kind'ları + backend_tools + layers) · routing exam + reach canary · K17 literalsız giriş aracı · held-out küme (M-a) · iz şeması (K24) · <b>yürütücü v0: toplama + partial≠complete + st12 sayısal muhafız</b> (sayı sızmasını kapatır — K26'nın deterministik yarısı)</td><td>Beş+ PUBLISHED backend için routing Recall ve reach sınıfı ayrı sayı; MKB'nin bugünkü routing Recall'u (mevcut sorunun ÖLÇÜMÜ, tasarımın kanıtı değil); Q3/Q4 yeniden: düzyazıda kaynaksız sayı sıfır.</td><td>—</td></tr>
+<tr><td>P2</td><td>Retrieval gölgede (F161 deseni); item 5 BM25-TR + RRF; TR analyzer ablasyonu; reranker ablasyonu (K16); p95 (K18); tool_output_tokens (K26 (c)); federe mikro-sonda gecikmesi</td><td>N gün gölge: kart yolu vs canlı yol; analyzer açık/kapalı delta; p95 dondurulur; kod-yürütme kartı gerekip gerekmediği sayıyla.</td><td>—</td></tr>
+<tr><td>P3</td><td><b>Planlayıcı (st07p) + profil + conformal kapsam + şema-türevi sorma + under-ask metriği + çıktı sözleşmeleri (A3) + takvim + web kartı</b>, bayrak arkasında (<code>router.capabilityFabric=1</code>) yalnız iki sınavı GREEN backend'ler için; E2E altın küme N=10 gece; write-capable ayrı kapı</td><td>İki sınav GREEN; E2E: Yönetim Kurulu sorusu doğru kaynak+tutar; Q3 A3 formatında ve her sayı baytta; Q4 literatür atıflı; KB7 OEE regresyon yok (K25); boş sonuç LEARNED değil.</td><td>b1_scope alan cümlesi (yeni segment sürümü, eval kapısı)</td></tr>
+<tr><td>P4</td><td>Flip ve söküm: kart yolu birincil; keyword taban basamağı; ALWAYS_INCLUDE silinir; tool_search açılır; CI'da iki sınav; UNREACHABLE ≠ EXAM-RED</td><td>Master'da routing+reach CI; gece gölge; bir hafta DEGRADED yok ve reach uptime SLO; E2E kabul barajı üstünde.</td><td><span class="kill">ALWAYS_INCLUDE</span> · <span class="kill">elle kategori satırları</span> (arşive)</td></tr>
+<tr><td>P5</td><td>Öğrenme döngüsü: sonuç defteri → K23 süzgeç → öneri → iki sınav → yayın; varsayılan plan önerileri</td><td>İlk LEARNED öneri sınavdan geçip yayınlanır ve geri alınır; boş sonuçtan üretilmiş LEARNED satır yoktur.</td><td>—</td></tr>
+</table>
+<div class="note"><b>Her faz kendi kartı, kendi scout incelemesi, kendi inişi.</b> Yeni konuya kesilen her kart scout'a gider (12.1). Sahibin iki sorusu kapsamı büyütmedi, sırayı değiştirdi: yürütücünün deterministik yarısı ve sayısal muhafız P1'e çekildi; planlayıcı, kapsam ve A3 P3'te. P4'e kadar bugünkü yol dokunulmadan çalışır (S102-YASA-3).</div>
+<h3 class="sub">SOTA-1 izlenebilirliği (cwf-sota-definition-v1_5)</h3>
+<table>
+<tr><th style="width:30%">Kriter</th><th>Bu tasarımın ilerlettiği şey</th></tr>
+<tr><td>Tier B · MCP-Bench / MCP-Universe zero-code mount</td><td>Kart türetimi + AGNOSTIC-1: yeni sunucu kod değişikliği olmadan PUBLISHED olur — bu tasarımın birincil SOTA kriteri; mount'un kendisi sınavdır.</td></tr>
+<tr><td>Tier C · API-Bank (routing / Recall@k)</td><td>Routing exam'in dış karşılığı; held-out Recall aynı biçimde raporlanır.</td></tr>
+<tr><td>Tier F1 · BrowseComp-Plus (atıf doğruluğu)</td><td>K26 (sayı araç baytında) + K30 (dış kaynak damgalı) + st12 atıf; kod-yürütme kararı bu kritere bağlı ölçülür.</td></tr>
+<tr><td>Tier F2 · DeepScholar (verifiability)</td><td>Web kartı (K30): URL + tarih, tesis verisiyle karışmaz.</td></tr>
+<tr><td>Tier D · MCP-SafetyBench</td><td>K10 lens (full-schema, shadowing, output, line-jumping) + QUARANTINE + yetki katmanı.</td></tr>
+<tr><td>Tier A · Gaia2 (belirsizlik)</td><td>K4 + under-ask/over-ask iki metriği + K22 UNMEASURED sınıfı.</td></tr>
+<tr><td>§5 mcp-honestbench</td><td>Reach exam'in error_class'ı ve K12, M1–M4 modlarının (silent-zero, truncation, drift, fabrication) tasarım karşılığıdır.</td></tr>
+</table>
+</section>
+
+<section id="s10">
+<h2><span class="sn">§10</span>Kaynaklar, katkılar, açık sorular, Architect'in hataları</h2>
+<h3 class="sub">Tasarım katkıları (S112-YASA-1, adıyla)</h3>
+<ul>
+<li><b>Sahip:</b> hedef tanımı (S148); iki altın soru (Q3/Q4, 2026-09-21 07:22 TSİ) — dört tasarım boşluğunu görünür kıldı; <b>planlayıcı hükmü</b> (07:56 TSİ); "valf arayüzden açılır" (08:47 TSİ); üç dış incelemeyi toplayıp Architect'e getirmek (12.14: dış lens de bir enstrümandır).</li>
+<li><b>Gemini:</b> yapısal ontoloji ≠ dinamik veri; federe çözüm fikri.</li>
+<li><b>OpenAI:</b> çalışma eşiği ≠ kabul standardı; kabul edilebilir küme etiketi; yetki katmanı; ölçek çelişkisi; sürümlenmiş bütün; kaynak düzeltme tablosu; iki yönlü ask metriği; "P3 bayrak arkasında gerçek davranış değişikliğidir".</li>
+<li><b>Grok:</b> iki sınav; conformal kapsam; K12; durum makinesi; iz şeması; TR analyzer; WRITE-GATED = PLATINUM'un doğru okuması; v1.1 konsolidasyonu (girdi).</li>
+<li><b>Scout:</b> C1–C3 (S148).</li>
+<li><b>Üretim sistemi:</b> Q3/Q4 cevapları — hat çözümünü ve soru sormamayı Architect'in tahmininden daha iyi yaptı; sayı sızmasını ve kapsam retini ölçümle gösterdi.</li>
+<li><b>Architect:</b> kart/iki-seviye/şema-türevi-sorma birleşimi (v1); kalibre değilse ret silahsız eki; kartın mevcut yönetişim kind'larının üstüne kurulması; SOTA-1 üçlüsü.</li>
+</ul>
+<h3 class="sub">Architect'in hataları (A-REC, mekanizma olarak)</h3>
+<ul>
+<li><b>A-REC-S149-1</b> · Sınavı tools/call yapmayacak şekilde tanımlayıp tools/call arızasını yakalayacağını iddia ettim (CALLER-ABSENT, ölçüm tarafı). Kural: her sınav tanımı hangi çağrıyı yaptığını ve hangi arıza sınıfını göremeyeceğini yazar.</li>
+<li><b>A-REC-S149-2</b> · §6'da boş sonucu negatif örnek yaptım; empty≠zero öğrenme girdisine uygulanmamıştı.</li>
+<li><b>A-REC-S149-3</b> · Kendi literatür sayılarıma TOTAL-45 uygulamadım; beş sayı/atıf sıkıştırma ya da yanlış atıftı.</li>
+<li><b>A-REC-S149-4</b> · Yönlendirme sınavının yeşilini "bağlandı" saydım — alt kümenin yeşili bütünün hükmü gibi.</li>
+<li><b>A-REC-S149-5</b> · "fırın alt ikincil alt hatları"nı dört seviyeli yol sandım; üç kardeş hattı. Kural: varlık tasarımından önce backend'in kendi listesi basılır.</li>
+<li><b>A-REC-S149-6</b> · <code>tool_experience</code>'ın gerçek turları tuttuğunu varsaydım; bir sayaçtır. Held-out kaynağı messages/turn deposu + Langfuse'tur. Kural: bir tablo "kaynak" diye yazılmadan önce sütunları basılır.</li>
+</ul>
+<h3 class="sub">Açık sorular</h3>
+<ol>
+<li><b>Profilleyici model:</b> ucuz modelle başla; karar A/B değil, held-out Recall@1 ve regresyon delta'sı; üst model yalnız ucuz modelin sınavı kırmızıysa.</li>
+<li><b>tool_search üretici tarafı:</b> CWF kendi indeksi varsayılan (sağlayıcı-agnostik — gerekçe bağımsızlık, zorunluluk değil: OpenAI'de de hosted/client tool search var); Anthropic native opsiyonel hız yolu; kilidi delemez.</li>
+<li><b>İlk eşikler:</b> P1 held-out taban; kabul barajı önceden ilan; literatür yalnız yön.</li>
+<li><b>Yazma araçları varsayılan PUBLISHED mı?</b> HAYIR — kapandı (OWNER-APPROVAL-S149-K14-WRITE-GATED-1).</li>
+<li><b>Planlayıcı modeli:</b> router ile aynı ucuz model mi, ana model mi? Karar E2E altın kümede plan doğruluğu (eksik adım oranı) ile — P3'te ölçülür.</li>
+<li><b>Kod yürütme:</b> P2 çıktı-token p95 ile (K26 (c)).</li>
+</ol>
+<h3 class="sub">Tekrar edilmeyecek iddialar (v1'den düşenler)</h3>
+<div class="note rd">"Araç seçimi ~30–50 yüklü aracın üstünde bozulur" — kaynak bu eşiği vermiyor · "Modeller belirsizliği tanır ama sormaz (&lt;%5)" — kaynak basılamadı · "LiveMCPBench Recall@5 ≈ 0.83 ilk sınav eşiği" — kategori hatası (retriever skoru) · "MCP-Atlas %36 hiç araç çağırmıyor" — başarısızlıkların %36'sı · "Tool-to-Agent bütün özetleri her turda bağlama koymayı öneriyor" — kaynakta yok · "Tool-DE: genişletme 0.6B'yi 8B'nin önüne geçirir" — kazanç eğitilmiş Tool-Embed'e ait · "Gece sınavı 18 Ağustos'u yakalardı" — P0 açık ve v1 sınavı tools/call yapmıyordu · "P1'de düşük recall tasarımın kanıtıdır" — mevcut sorunun ölçümüdür · "129 ms = yok-işlem" — okuyucular incelenmeden nedensel değil.</div>
+<h3 class="sub">Web kaynakları (Eylül 2026'da okundu; sayılar §2'de popülasyonuyla)</h3>
+<ul class="mono" style="font-size:12px;line-height:1.7">
+<li>Anthropic tool search / programmatic tool calling — platform.claude.com/docs/en/agents-and-tools/tool-use/tool-search-tool · anthropic.com/engineering/advanced-tool-use</li>
+<li>MCP-Atlas arxiv.org/html/2602.00933v1 · LiveMCPBench arxiv.org/pdf/2508.01780v1 · MCP-Universe arxiv.org/pdf/2508.14704 · MCP-Bench github.com/Accenture/mcp-bench · RAG-MCP</li>
+<li>MCP-Zero arxiv.org/html/2506.01056v3 · Tool-to-Agent Retrieval arxiv.org/html/2511.01854v1</li>
+<li>ToolRet arxiv.org/abs/2503.01763 · Tool-DE arxiv.org/html/2510.22670v1 · TOOL-REX · ToolDreamer arxiv.org/abs/2510.19791 · Tool Attention arxiv.org/html/2604.21816v1</li>
+<li>DRAFT arxiv.org/abs/2410.08197 · Trace-Free+ arxiv.org/html/2602.20426v2 · MCP description smells arxiv.org/html/2602.14878v1 · DeepAgent arxiv.org/html/2510.21618v1</li>
+<li>Clarification arxiv.org/html/2605.25284v1 · Noisy ToolBench arxiv.org/html/2409.00557v4 · SAGE-Agent arxiv.org/html/2511.08798v2</li>
+<li>MCP spec tools (2025-06-18) · changelog 2025-11-25 · registry/about · A2A agent-discovery.md · MSR tool-space interference · Invariant tool poisoning · OWASP MCP Tool Poisoning</li>
+<li>Conformal prediction (Vovk et al.; Angelopoulos &amp; Bates tutorial) · Lucene TurkishAnalyzer / snowball Turkish · OpenTelemetry gen-ai semantic conventions</li>
+</ul>
+</section>
+
+</main>
+<footer>END · A24_cwf-capability-fabric-architecture-v1_2 · rev 1.2 · 2026-09-21 · S149 · SUPERSEDES v1 rev 1.0 · inputs: Grok "v1.1" (external draft), three external reviews, A24-REVIEW-VERDICT-S149-1-v1 (owner-ruled), A24-Q3Q4-TRACE-ANALYSIS-S149-1-v1, CWF-S149-Q3Q4-WITNESS-v1 · owner rulings 2026-09-21 07:56 and 08:47 TSI · anchor master 7572c3bbfeed23656fcf8a55f6e64d93ed240c14 (claim) · amendments mint v1_3 — never in-place</footer>
+</body>
+</html>
