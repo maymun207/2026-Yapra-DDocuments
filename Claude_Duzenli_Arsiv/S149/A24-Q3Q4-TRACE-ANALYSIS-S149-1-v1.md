@@ -1,0 +1,80 @@
+A24-Q3Q4-TRACE-ANALYSIS-S149-1-v1
+Sahibin iki sorusu (Soru 3 · Soru 4), A24 v1 + A24-REVIEW-VERDICT-S149-1-v1'in ACCEPT kümesi (= v1_2 tasarımı) içinden adım adım geçirildi.
+2026-09-21 · S149 (iddia) · Architect-authored · tasarım kaynağı: SAHİP — iki soru, 07:22 TSİ (S112-YASA-1, adıyla)
+STATUS: TASARIM ANALİZİ · kart kesilmedi · bu belge VERDICT defterinin R-07 ve R-16 satırlarını AMENDS eder (aşağıda adıyla; defter v1 sunulmuş artefakt olarak değişmez, S37-1)
+Köprü: bu turda da KAPALI (dört deneme). Belge yalnız proje kutusunda; arşiv ve repo YAZILMADI.
+
+## §0 · Sahibin sorduğu şey ve bu belgenin iddiası
+
+Soru 3: "KB7 glazur3 fırın alt ikincil alt hatlarında son 24 saatte yaşanan tüm duruş, fire vb. verimsizlikleri asakai toplantısında kullanmak üzere A3 olarak raporla, ek olarak bu verimsizliklere düzeltici aksiyon önerilerinde bulun."
+Soru 4: "KB7 glazur3 fırın alt ikincil alt hatlarında bugün için üretim raporu çıkar. En çok gelen hata için literatür taraması yap, muhtemel çözüm önerilerin için bana düzeltici aksiyon yol haritası çiz. Yapmam-kontrol etmem gereken iş kalemlerini öncelik sırasıyla listele."
+
+İki soru da BİLEŞİK GÖREVDİR (composite task): tek bir araç çağrısı değil, 8–15 çağrılık bir zincir; iki–üç backend (ARMES telemetri · web valfi · muhtemelen MKB dokümanları); deterministik toplama (aggregation); şablonlu çıktı (A3); sıralı bağımlılık (Soru 4'te literatür sorgusu, "en çok gelen hata" ÖLÇÜLMEDEN yazılamaz).
+
+Bu belgenin iddiası SINIRLIDIR ve dürüst yazılır: v1_2 tasarımının bu iki soruyu CEVAPLAYABİLDİĞİ ölçülmemiştir ve ancak E2E görev sınavı (R-01 üçüncü katman) bu iki soruyu altın küme olarak koşunca ölçülür. Bu belgenin gösterdiği şey, HER ADIMIN ADIYLA BİR BİLEŞENİ OLUP OLMADIĞIDIR. Bileşeni olmayan adım = tasarım boşluğu; bileşeni olan ama çağıranı olmayan adım = 12.6 (CALLER-ABSENT) ve ayrıca yazılır.
+
+## §1 · Ortak zincir — iki sorunun paylaştığı ilk beş adım
+
+| Adım | Ne gerekiyor | v1_2'de bileşen | Deterministik / LLM | Durum |
+|---|---|---|---|---|
+| A1 · Yüzey çıkarımı (st02) | action=REPORT, object={duruş, fire, verimsizlik} / {üretim, hata}, entity_ref=["KB7","glazur3","fırın","alt ikincil alt hatlar"], time="son 24 saat" / "bugün", format="A3", audience="asakai" | IR Router (ucuz LLM), A23 ②: yakalar, yorumlamaz; object çözülmezse boş (empty≠zero) | LLM | KAPSANIYOR — bir TUZAKLA: "A3" ve "asakai" entity_ref sanılabilir. v1_2'de K22 bunu SORU yapmaz (hiçbir aday aracın entity-ref yuvası bu adı istemez → NOT, UNMEASURED); ama frame'in `format`/`audience` alanı YOK — A23 frame şemasına iki alan eklenir (deterministik, opsiyonel). |
+| A2 · Hiyerarşi çözümü (st03′) | KB7 (fabrika) → glazur3 (hat) → fırın (bölge/ekipman) → "alt ikincil alt hatlar" = fırının ALT-ALT düğümleri, hepsi. Dört seviyeli yol + torun-kümesi (descendants) | `backend_entity_layers` konfigürasyonu (hiyerarşi kod değil, config — S134 ölçümü); F-S117 onarım yönü (çözülmüş ebeveyn çocuk katmanın parent_param kapsamına yükselir); `graph_kb` kenarları; `GraphKbReader.parentsOf` / `containsAmong` | Deterministik | **CALLER-ABSENT (12.6, S134 ölçümü): parentsOf/containsAmong VAR, cevap yolu ikisini de import ETMİYOR.** Torun-kümesi (descendantsOf) için okuyucu var mı → ÖLÇÜLMEDİ. Bugünkü computeClarification HIGH-1 bu ifadede büyük olasılıkla "hangi hat?" sorar (UNMEASURED — çalıştırılmadı). v1_2 için yeni satır: **R-21 · hiyerarşi yürüyüşü KABLOLANIR** — ebeveyn zinciri + torun kümesi tek deterministik fonksiyon, sonucu iz'de (`slot_resolution[]`, her düğüm adıyla), sıfır torun = "bu düğümün altında kayıtlı alt hat yok" (gerçek-0, veri) ≠ okunamadı (UNMEASURED). |
+| A3 · Zaman aralığı | "son 24 saat" → [now−24h, now] deterministik. "bugün" → ÜRETİM GÜNÜ mü, takvim günü mü? Fabrikada gün 07:00'de başlayabilir; vardiya sınırları backend'de. | resolve_time_range (bugünkü kod) | Deterministik | "son 24 saat" KAPSANIYOR. "bugün" bir OPTIONAL-AMA-BELİRLEYİCİ belirsizliktir (OpenAI #5'in tam örneği, R-06). K4 required-only sormaz; sormamalı da — cevap backend'de var. Yeni satır: **R-22 · üretim takvimi kart verisidir** — backend'in gün/vardiya tanımı Sequence A'da (varsa `getShifts` sınıfı bir araçla, yoksa sahip küratör girişi) karta yazılır; "bugün" o tanımla çözülür ve cevap "üretim günü 07:00–07:00 alındı" diye ADIYLA söyler. |
+| A4 · Aday backend ve araç kümesi (st07a) | "duruş / fire / verimsizlik / üretim raporu / hata" → ARMES'in birden çok aracı (OEE, duruş listesi, fire listesi, üretim adetleri, hata/sebep kodları); "literatür taraması" → web; "düzeltici aksiyon" → MKB dokümanları (iç prosedür, geçmiş aksiyonlar) opsiyonel | Hibrit retrieval (BM25-TR + dense) profil örnekleri üstünde; skor backend'e toplanır; conformal set ≥2 backend olabilir (R-07 join); kilitli set + tool_search | Deterministik | KAPSANIYOR — iki koşulla. (i) Profil örnekleri ATÖLYE TÜRKÇESİ taşımalı ("duruş", "fire", "verimsizlik", "asakai", "A3", "sebep kodu"); held-out küme bunları içermeli (R-02). (ii) Kilitli set "top-3 araç" değil, "aday backend'in İLGİLİ TÜM okuma araçları" olmalı; Soru 3 "vb." dediği için OEE'nin üç kaybı (kullanılabilirlik/performans/kalite) da girer. Sunulan set K1 bütçesi içinde; taşarsa tool_search. |
+| A5 · Yetki ve kapsam | Sahip bu tesisi görebilir mi; web valfi bu kullanıcıya açık mı | R-10 yetki süzgeci (model görmeden önce) + tools/call'da yeniden kontrol; kapsam = conformal set boş değil | Deterministik | KAPSANIYOR. NOT: web valfi bugün master'da `web.enabled=0` (S133 ölçümü, DOĞRULANMAMIŞ olarak taşındı). Soru 4 valf kapalıyken "literatür taraması" adımını YAPAMAZ ve bunu adıyla söylemelidir ("web erişimi kapalı, literatür adımı atlandı") — sessiz atlama yasak. Valfi açmak sahip kararıdır (harcama + risk). |
+
+## §2 · Soru 3 — asakai A3 raporu + düzeltici aksiyon önerileri
+
+| Adım | Ne gerekiyor | Bileşen | Durum |
+|---|---|---|---|
+| S3-1 | A2'nin torun kümesi: N alt hat (N ölçülmeden bilinmez) | R-21 | CALLER-ABSENT → KABLOLAMA kartı |
+| S3-2 | Her alt hat × {duruş kayıtları, fire kayıtları, OEE üç kaybı} son 24 saat → N×3 salt-okuma çağrı (fan-out). Kayıt sayısı yüzlerce olabilir; PostgREST 1000'de sinyalsiz keser (partial≠complete). | Kilitli set ReAct (ana LLM sırayla çağırır) — VEYA deterministik yürütücü | **BURADA v1'in ve VERDICT R-16'nın tavrı YETMİYOR.** N×3 çağrıyı ana LLM'e ReAct ile yaptırmak: (a) MCP-Atlas sınıfı "araç çağırmama" riski her adımda tekrarlanır, (b) her çağrının çıktısı bağlama yığılır (K20 çıktı-boyut muhafızı KESER — ve kesilmiş veriden A3 yazılamaz), (c) toplama LLM'de yapılırsa sayı İDDİADIR, ölçüm değil (TOTAL-45). Sonuç: **R-16 AMENDED — deterministik yürütücü ("compute over tool results") v1_2 KAPSAMINA GİRER, ertelenmez.** SOTA-1 (c) tetiklendi: P2 çıktı-boyut istatistiğini beklemeye gerek yok, sahibin sorusu gereksinimin kendisidir (F1 BrowseComp-Plus atıf doğruluğu + iç toplama dürüstlüğü). Şekil: sağlayıcı-agnostik CWF yürütücüsü — model bir PLAN yazar (hangi araçlar, hangi parametrelerle, hangi toplama), plan deterministik koşar (fan-out paralel salt-okuma, R-07), toplamalar kodda, her çağrı FULL-TRACE, sonuç tabloları + partial≠complete damgaları modele geri döner. Anthropic PTC bunun isteğe bağlı hızlı yoludur, spec değil (Grok K20 ile aynı). |
+| S3-3 | Toplama: alt hat × kayıp türü → dakika/adet/oran; sıralama (en büyük kayıp önce); "verimsizlik" tanımı = OEE kaybı | Yürütücüde deterministik toplama; tanım karttan (ARMES'in OEE tanımı) | KAPSANIR (S3-2 amendment ile). LLM toplamaz. |
+| S3-4 | A3 formatı: Arka plan · Mevcut durum · Hedef · Kök neden · Karşı önlemler · Plan · Takip | ŞABLON — bugün CWF'de "A3 render" yok (ÖLÇÜLMEDİ; st13 render kart/tablo basar) | **BOŞLUK → yeni satır R-20 · ÇIKTI SÖZLEŞMELERİ (output contracts) KART VERİSİDİR.** A3, üretim raporu, asakai özeti gibi şablonlar KONFİGÜRASYON (DB, coverage-is-config), kod değil. Şablonun VERİ bölümleri (mevcut durum, kayıp tablosu) yalnız yürütücü çıktısından, atıflı; ANLATI bölümleri (kök neden hipotezi, karşı önlem) LLM, "öneri" damgalı. Deterministik/yumuşak ayrımı (§8 tuzağı) şablonun içinde satır satır işaretlidir. Şablon seçimi frame'in `format` alanından (A1). |
+| S3-5 | Düzeltici aksiyon önerileri | Ana LLM; zemin: S3-3 tablosu + (varsa) MKB'de iç prosedür/geçmiş aksiyon dokümanları (join, R-07) + (valf açıksa) literatür | LLM, "öneri" damgalı | KAPSANIR. Her öneri, hangi ölçülmüş kayba karşılık geldiğini ATIFLA söyler (st12 grounding); ölçülmüş kayba bağlanmayan öneri basılmaz. Yazma aracı yok (WRITE-GATED, K14) — sistem aksiyon ÖNERİR, uygulamaz. |
+| S3-6 | Asakai bağlamı: sabah toplantısı, kısa, görsel | R-20 şablonu "asakai" varyantı; uzunluk sınırı şablonda | KAPSANIR (R-20 ile). |
+| S3-7 | Süre: N×3 çağrı + toplama + LLM → onlarca saniye | R-13 SLO'su 400 ms'lik CHAT retrieval için; bu bir GÖREV turudur | **BOŞLUK → R-23 · GÖREV SINIFI TUR.** Bileşik görev kendi SLO'sunu (dakika ölçeği), ilerleme akışını ("12 çağrının 4'ü…") ve kısmi-sonuç davranışını (bir alt hat okunamazsa rapor o satırı UNMEASURED basar, bütünü düşürmez) taşır. Chat SLO'su bu tura uygulanmaz; iz'de `turn_class=task`. |
+
+## §3 · Soru 4 — üretim raporu + en çok gelen hata + literatür + yol haritası + öncelikli iş listesi
+
+| Adım | Ne gerekiyor | Bileşen | Durum |
+|---|---|---|---|
+| S4-1 | A2 + A3 ("bugün" = üretim günü, R-22) | R-21, R-22 | KABLOLAMA + kart verisi |
+| S4-2 | Üretim raporu: alt hat × {üretim adedi, hedef, OEE, fire, duruş} bugün | Yürütücü fan-out (R-16 amended) + R-20 "üretim raporu" şablonu | KAPSANIR (amendment'larla) |
+| S4-3 | "En çok gelen hata": hata/sebep kodu kayıtları → kod bazında sayım → max. Sayım LLM'de YAPILMAZ. | Yürütücüde deterministik `group by code, count, order desc, limit 1`; eşitlik varsa iki kod da basılır; kayıt yoksa "bugün hata kaydı yok" (gerçek-0) ≠ "okunamadı" | KAPSANIR (R-16 amended). Sonuç bir ÖLÇÜMDÜR ve iz'de sayısıyla durur. |
+| S4-4 | Literatür taraması: S4-3'ün kodu (TR, ARMES'in kendi adlandırması, örn. "sır çatlağı") → İngilizce teknik terime çeviri → web arama + sayfa okuma → atıflı özet | Web valfi (web_fetch, S133'te indi, `web.enabled=0`); tool_search ile bulunur; F2 DeepScholar verifiability kriteri | **İKİ KOŞUL.** (i) Valf AÇIK olmalı — sahip kararı; kapalıysa adım ADIYLA atlanır. (ii) **Yeni satır R-19 · WEB DE BİR KARTTIR.** Web valfi Capability Fabric'te ayrı bir "backend" kartı olarak yaşar: when-to-use ("literatür, dış standart, tedarikçi dokümanı"), not-for ("tesis verisi, KPI"), salt-okuma, bütçeli (çağrı/sayfa/token tavanı kartta), reach exam = canary fetch, ÇIKTI DAİMA DIŞ KAYNAK DAMGALI — grounding, tesis verisiyle literatürü aynı cümlede karıştırmaz; her literatür cümlesi URL + erişim tarihi taşır. Bugün web_fetch bir araçtır, kart değildir → v1_2'de karta dönüşür; böylece "literatür taraması yap" retrieval'da web kartını seçer, kodda özel dal olmaz (AGNOSTIC-1). TR→EN terim çevirisi LLM işidir ve arama sorgusu iz'de görünür (FULL-TRACE) — sahip hangi terimle arandığını okur. |
+| S4-5 | Sıralı bağımlılık: S4-4, S4-3 bitmeden başlayamaz; S4-2/S4-3 paralel olabilir | Yürütücü planı DAG olarak koşar (paralel okuma, sıralı bağımlılık); R-07'nin "planner REJECT" hükmü DEĞİŞMEZ: ayrı bir LLM planlayıcı yok, ana LLM planı YAZAR (JSON, şema kısıtlı), yürütücü deterministik KOŞAR | **R-07 AMENDED (daraltma değil, netleştirme):** reddedilen şey ikinci bir LLM ajanı (Planner-Executor deseni, iki model turu); kabul edilen şey "model plan yazar → deterministik yürütücü koşar → model sonuçla devam eder". Plan bir İZ nesnesidir (S102-YASA-3'ün küçük hâli: koşan plan, okunan plandır — aynı bayt). Adım bütçesi (max çağrı/tur) kartta ilan. |
+| S4-6 | Düzeltici aksiyon yol haritası | Ana LLM; zemin: S4-3 ölçümü + S4-4 atıflı literatür + (varsa) MKB iç prosedürleri | LLM, "öneri" damgalı | KAPSANIR. Yol haritası adımları kaynak gösterir: iç veri (ARMES, sayı) · literatür (URL) · iç doküman (MKB, sayfa). Kaynağı olmayan adım "Architect'in/modelin önerisi, kaynaksız" damgası taşır — basılır ama etiketli (§8: ölçülmemiş iddia argümandır, sonuç değil). |
+| S4-7 | "Yapmam-kontrol etmem gereken iş kalemleri, öncelik sırasıyla" | Öncelik = ölçülmüş etki (kayıp dakika × sıklık) sırası — deterministik sıralama yürütücüden; LLM yalnız satırı yazar | KAPSANIR. Sıralama sayıdan gelir, modelin "bence" sırasından değil; her kalem hangi kayba dokunduğunu söyler. |
+| S4-8 | Süre ve ilerleme | R-23 | BOŞLUK (Soru 3 ile aynı) |
+
+## §4 · Bugünkü sistem bu iki soruda nerede düşer (ölçülmedi — çalıştırılmadı; her satır UNMEASURED)
+
+- st03 computeClarification HIGH-1: dört seviyeli entity yolu + torun kümesi → "hangi hat?" sorusu (F-S117 sınıfı). Olasılık yüksek, ölçüm yok.
+- st07 kelime listesi: "verimsizlik", "asakai", "A3" kategoride yok → araç sunulmaz ya da eksik sunulur.
+- st09 b1_scope: "SADECE Kale Seramik ve seramik üretimi" — KB7 kapsamda, ret beklenmez; ama "literatür taraması" alan dışı sayılıp reddedilebilir.
+- Toplama: bugün deterministik yürütücü YOK; model N×3 çağrıyı ReAct ile denerse bağlam ve adım kaybı.
+- A3 şablonu YOK.
+- Web valfi KAPALI (`web.enabled=0`).
+
+Bu altı satırın hiçbiri ölçülmedi. Ölçmenin bedeli iki chat turudur: **P0 TANIK — sahip Soru 3 ve Soru 4'ü üretimde kelimesi kelimesine sorar, Architect izleri Langfuse'tan okur.** Bu, R-01'in E2E altın kümesinin ilk iki sorusudur ve "mevcut sorunun ölçümü"dür (tasarımın kanıtı değil — R-12).
+
+## §5 · Bu analizin VERDICT defterine yaptığı değişiklikler (adıyla; defter v1 değişmez, bu belge onu AMENDS eder)
+
+| Satır | Değişiklik | Gerekçe |
+|---|---|---|
+| R-16 | PARTIAL → **ACCEPT (v1_2 kapsamı)**: sağlayıcı-agnostik deterministik yürütücü (plan koşucu + toplama) girer. SOTA-1 (c) sahibin sorusuyla tetiklendi; P2 istatistiği beklenmez. Sandbox kod-yürütme YERİNE önce yapılandırılmış plan (JSON DAG: çağrılar + toplama operatörleri) — kod çalıştırmadan aynı işi görür, güvenlik yüzeyi küçük; serbest kod ikinci aşama. | S3-2, S4-3: toplama LLM'de yapılırsa sayı iddiadır; kesilmiş veriden A3 yazılamaz. |
+| R-07 | REJECT (Planner-Executor) DURUR; netleştirme: model plan YAZAR, yürütücü KOŞAR, ikinci LLM ajanı yok; plan iz nesnesi; adım bütçesi kartta. | S4-5 sıralı bağımlılık. |
+| R-19 (yeni) | Web valfi Capability Fabric'te bir KARTTIR: when-to-use/not-for, salt-okuma, bütçe, canary reach, dış-kaynak damgalı çıktı, URL+tarih atıf. Kodda web için özel dal yok. | S4-4; AGNOSTIC-1; F2 verifiability. |
+| R-20 (yeni) | Çıktı sözleşmeleri (A3, üretim raporu, asakai özeti) kart/konfigürasyon verisidir; veri bölümleri yalnız yürütücü çıktısından ve atıflı, anlatı bölümleri "öneri" damgalı; frame'e `format` ve `audience` alanı. | S3-4, S3-6. |
+| R-21 (yeni) | Hiyerarşi yürüyüşü (ebeveyn zinciri + torun kümesi) KABLOLANIR — mekanizma var, çağıran yok (12.6). Sıfır torun gerçek-0; okunamama UNMEASURED. | A2. |
+| R-22 (yeni) | Üretim takvimi (gün başlangıcı, vardiyalar) kart verisidir; "bugün/bu vardiya" onunla çözülür ve cevap aldığı tanımı söyler. | A3; OpenAI #5'in somut hâli. |
+| R-23 (yeni) | Görev sınıfı tur: kendi SLO'su, ilerleme akışı, kısmi-sonuç davranışı (bir alt hat okunamazsa satır UNMEASURED, rapor düşmez); iz'de `turn_class`. | S3-7, S4-8. |
+
+## §6 · Dürüst özet
+
+- Her adımın v1_2'de adıyla bir bileşeni VAR — üç amendment ve beş yeni satırdan sonra. Öncesinde iki adım (fan-out/toplama ve A3 şablonu) bileşensizdi, biri (hiyerarşi yürüyüşü) çağıransızdı, biri (web) kart değildi. Sahibin iki sorusu bu dördünü görünür kıldı; v1'in ve üç dış incelemenin hiçbiri bileşik-görev zincirini uçtan uca yürütmemişti — Grok K13/K20 en yakınıydı, ama "toplama nerede yapılır" sorusunu sormamıştı.
+- İki sorunun CEVAPLANABİLDİĞİ hâlâ ÖLÇÜLMEMİŞTİR. Ölçüm: (1) P0 tanık — bugünkü sistemde iki soru, iz okunur; (2) E2E sınavda iki soru altın küme; (3) P3 sonrası aynı iki soru, karşılaştırmalı.
+- Bu sorular v1_2'nin kapsamını BÜYÜTMEZ, sırasını DEĞİŞTİRİR: yürütücü (R-16) ve hiyerarşi kablolaması (R-21) P1–P2'ye çekilir; A3 şablonu (R-20) P3'e; web kartı (R-19) valf açılınca.
+
+END · A24-Q3Q4-TRACE-ANALYSIS-S149-1-v1 · proje kutusunda · arşiv/repo: köprü kapalı, YAZILMADI
