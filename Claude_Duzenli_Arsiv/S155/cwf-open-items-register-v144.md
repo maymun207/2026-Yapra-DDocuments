@@ -1,6 +1,6 @@
 # cwf-open-items-register-v144
 
-APPEND-ONLY. Cut mid-S155, 2026-09-22 ~15:35Z (18:35 TSI), on the owner's request ("session 145'ten itibaren kontrol ederek final açık items tablosu"). Supersedes v143. THE WHOLE LIST, one row per item, no "as vN" shorthand (cure for F-S155-OPEN-LIST-TOOK-DELTA-REGISTER-ONLY-1). Items leave only by CLOSED@evidence / SUPERSEDED-BY / MERGED-INTO.
+APPEND-ONLY. Cut mid-S155, 2026-09-22T15:28Z (18:28 TSI), on the owner's request ("session 145'ten itibaren kontrol ederek final açık items tablosu"). Supersedes v143. THE WHOLE LIST, one row per item, no "as vN" shorthand (cure for F-S155-OPEN-LIST-TOOK-DELTA-REGISTER-ONLY-1). Items leave only by CLOSED@evidence / SUPERSEDED-BY / MERGED-INTO.
 METHOD: registers v134, v135, v136, v137, v138, v139, v140, v141, v142, v143 read in full; findings S145, S146, S147, S149, S151, S152, S153, S154 read in full; S148 retro close read; S150 findings read through register v139 §3 (all mapped there). Every finding not mapped to a numbered row was mapped below or given a new number.
 ANCHOR: origin/master fdb0df24d0b9dd288223fec55da4185f4ca62382 (GitHub API 15:01Z; PR 593 merged 12:46:02Z); Vercel production READY on it. Doc repo origin/main a1273232d7435f6f8f14f7332d60acdafe3cd12d (SLIP-PUSH-DOC-REPO-S155-1); later S155 commits LOCAL.
 
@@ -75,7 +75,7 @@ ANCHOR: origin/master fdb0df24d0b9dd288223fec55da4185f4ca62382 (GitHub API 15:01
 | 64 | noRuntimeApiImport misses dynamic imports | open | small card · 2026-09-23 |
 | 65 | armes-new retired but enabled | CLOSED S155 (§1) | - |
 | 66 | NEW · tsx IPC EPERM makes mail-wait preflight UNMEASURED: cards delivered UNCHECKED in sandboxed windows (scout 15:07:41Z); absorbs 19 | open | small card: every tsx entry via node --import tsx · 2026-09-23 |
-| 67 | NEW (restored) · consumed_at / reply surface: an unstarted and a working lane look identical on the bus (F-S144/F-S145-SCOUT-REPLY-INVISIBLE-UNTIL-SLIP-1); relay_mark_consumed exists but today's rows carry consumed_at null (27 of 166 rows in 3 days stamped, measured 15:2xZ); unnumbered since S145 | open | small card: lane boot stamps consumed on read · with 55 |
+| 67 | NEW (restored) · consumed_at / reply surface: an unstarted and a working lane look identical on the bus (F-S144/F-S145-SCOUT-REPLY-INVISIBLE-UNTIL-SLIP-1); relay_mark_consumed exists but today's rows carry consumed_at null (27 of 166 rows in 3 days stamped, measured 15:2xZ, before 15:28Z); unnumbered since S145 | open | small card: lane boot stamps consumed on read · with 55 |
 
 ## §3 · FINDINGS CARRIED BY NAME
 All findings S145-S154 by name, each mapped above; standing ones: F-S150-CARD-MEASURED-AT-AHEAD-OF-CLOCK-1 (recurred S155: forward timestamps in cards), F-S150-HEX-BAND-TRIPS-ON-TIMESTAMPS-1, F-S150-SCOUT-FOUND-SIX-BLOCKERS-PREFLIGHT-FOUND-NONE-1, F-S151-SCOUT-GATE-ONE-ADDRESS-1, F-S152-ANTIGRAVITY-CC-HAS-NO-SESSION-ID-ENV-1.
