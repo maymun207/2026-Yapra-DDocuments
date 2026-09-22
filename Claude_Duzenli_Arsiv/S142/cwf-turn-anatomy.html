@@ -1,0 +1,437 @@
+<title>CWF Turn Anatomy</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#f2f4f3; --paper:#ffffff; --ink:#1a1f1d; --ink-2:#4b5451; --ink-3:#7a837f;
+  --line:#d9dedb; --line-2:#c3cac6;
+  --accent:#0f6e6b; --accent-soft:#dcefed; --accent-ink:#0b4f4d;
+  --warm:#b8541f; --warm-soft:#f6e3d7;
+  --ok:#2e7d4f; --ok-soft:#dff0e4; --bad:#b3261e; --bad-soft:#f8dcd9; --dim:#8a8f8c; --dim-soft:#e9ebea;
+  --code-bg:#eef1f0;
+  --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --sans:'IBM Plex Sans',system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#131715; --paper:#1b201e; --ink:#e8ecea; --ink-2:#b9c1bd; --ink-3:#8b9490;
+    --line:#2d3532; --line-2:#3c4541;
+    --accent:#5cc4bf; --accent-soft:#163b3a; --accent-ink:#9fe0dc;
+    --warm:#e88a55; --warm-soft:#3d2416;
+    --ok:#6fcf97; --ok-soft:#173824; --bad:#f28b82; --bad-soft:#3d1a17; --dim:#8b9490; --dim-soft:#262d2a;
+    --code-bg:#232a27;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#131715; --paper:#1b201e; --ink:#e8ecea; --ink-2:#b9c1bd; --ink-3:#8b9490;
+  --line:#2d3532; --line-2:#3c4541;
+  --accent:#5cc4bf; --accent-soft:#163b3a; --accent-ink:#9fe0dc;
+  --warm:#e88a55; --warm-soft:#3d2416;
+  --ok:#6fcf97; --ok-soft:#173824; --bad:#f28b82; --bad-soft:#3d1a17; --dim:#8b9490; --dim-soft:#262d2a;
+  --code-bg:#232a27;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55;margin:0;padding-block:0 64px;padding-inline:16px}
+.wrap{max-width:1080px;margin:0 auto}
+header.top{padding-block:40px 24px;border-bottom:1px solid var(--line-2)}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin:0 0 10px}
+h1{font-size:clamp(28px,4vw,40px);line-height:1.1;margin:0 0 12px;font-weight:600;letter-spacing:-.01em;text-wrap:balance}
+.lede{max-width:70ch;color:var(--ink-2);font-size:16px;margin:0}
+h2{font-size:22px;margin:48px 0 12px;font-weight:600;letter-spacing:-.005em;text-wrap:balance}
+h3{font-size:16px;margin:24px 0 8px;font-weight:600}
+p{max-width:75ch}
+code,.mono{font-family:var(--mono);font-size:.92em}
+code{background:var(--code-bg);padding:1px 5px;border-radius:3px}
+.meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px 24px;margin-top:20px;font-size:13px}
+.meta div{border-left:2px solid var(--line-2);padding-left:10px}
+.meta b{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);font-weight:500;margin-bottom:2px}
+.note{border:1px solid var(--line);background:var(--paper);padding:14px 16px;border-radius:4px;margin:16px 0;font-size:14px}
+.note.warm{border-color:var(--warm);background:var(--warm-soft)}
+.pill{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.04em;padding:2px 8px;border-radius:999px;border:1px solid var(--line-2);color:var(--ink-2);vertical-align:middle;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok);border-color:transparent}
+.pill.bad{background:var(--bad-soft);color:var(--bad);border-color:transparent}
+.pill.dim{background:var(--dim-soft);color:var(--dim);border-color:transparent}
+.pill.acc{background:var(--accent-soft);color:var(--accent-ink);border-color:transparent}
+.pill.warm{background:var(--warm-soft);color:var(--warm);border-color:transparent}
+.diagram{background:var(--paper);border:1px solid var(--line);border-radius:4px;padding:12px;overflow-x:auto;margin:12px 0}
+pre.mermaid{margin:0;min-width:720px}
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:13px;color:var(--ink-2);margin:8px 0 0}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+.legend .k-db::before{background:var(--accent)} .legend .k-code::before{background:var(--ink-3)} .legend .k-learn::before{background:var(--warm)} .legend .k-session::before{background:var(--line-2)}
+/* stage cards */
+.stage{background:var(--paper);border:1px solid var(--line);border-radius:4px;margin:18px 0;overflow:hidden}
+.stage-h{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline;padding:14px 18px;border-bottom:1px solid var(--line)}
+.stage-h .no{font-family:var(--mono);font-size:13px;color:var(--accent);font-weight:500}
+.stage-h .t{font-size:17px;font-weight:600}
+.stage-h .spans{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);flex-basis:100%}
+.cols{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:0}
+.cols > div{padding:14px 18px;border-right:1px solid var(--line);font-size:14px}
+.cols > div:last-child{border-right:0}
+.cols h4{margin:0 0 8px;font-family:var(--mono);font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);font-weight:500}
+.cols ul{margin:0;padding-left:18px}
+.cols li{margin:0 0 6px}
+.cols p{margin:0 0 8px}
+@media (max-width:820px){.cols{grid-template-columns:1fr}.cols > div{border-right:0;border-bottom:1px solid var(--line)}.cols > div:last-child{border-bottom:0}}
+table{border-collapse:collapse;width:100%;font-size:13.5px;background:var(--paper)}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:4px;margin:12px 0}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);font-weight:500;background:var(--code-bg)}
+tr:last-child td{border-bottom:0}
+td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.ui{font-family:var(--mono);font-size:12.5px;color:var(--accent-ink);background:var(--accent-soft);padding:1px 6px;border-radius:3px;white-space:nowrap}
+.na{font-family:var(--mono);font-size:12.5px;color:var(--ink-3);background:var(--dim-soft);padding:1px 6px;border-radius:3px;white-space:nowrap}
+.learn{font-family:var(--mono);font-size:12.5px;color:var(--warm);background:var(--warm-soft);padding:1px 6px;border-radius:3px;white-space:nowrap}
+.toc{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:6px 20px;font-size:14px;margin:12px 0 0;padding:0;list-style:none}
+.toc a{color:var(--accent-ink);text-decoration:none;border-bottom:1px solid var(--line-2)}
+.toc a:hover,.toc a:focus-visible{border-color:var(--accent);outline:none}
+footer{margin-top:56px;padding-top:16px;border-top:1px solid var(--line-2);font-size:12.5px;color:var(--ink-3);font-family:var(--mono)}
+a{color:var(--accent-ink)}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="wrap">
+<header class="top">
+  <p class="eyebrow">CWF · S140 · OWNER-ORDER-S140-END-TO-END-TURN-DOCUMENT-1</p>
+  <h1>Bir sorgu uçtan uca nasıl işlenir</h1>
+  <p class="lede">Bir sorunun on dört aşamadan geçişi; her aşamada hangi kapıya çarptığı, kapının onu nasıl çözdüğü, kapının <em>nasıl inşa edildiği</em> (kod mu, yönetilen satır mı, öğrenilen satır mı) ve gerektiğinde <em>hangi yönetim sekmesinden</em> kontrol edilip değiştirildiği. Bu belge iki gerçek turun defterinden yazıldı — anlatıdan değil.</p>
+  <div class="meta">
+    <div><b>Kaynak turn A · araç yolu</b><span class="mono">7a198156dfa2743c92be866e7d66a460</span><br>2026-09-16 08:31:53Z · “1600167 numaralı iş emrinin fire ve fire sebeplerini getirir misin?”</div>
+    <div><b>Kaynak turn B · soru yolu</b><span class="mono">518d7393413c51080b2fa6377587e47f</span><br>2026-09-16 09:06:11Z · “KB7 fabrikası fırın duruşları, 15 Eylül 2026”</div>
+    <div><b>Defter</b><span class="mono">public.turn_trace_digest</span> (stages jsonb: span input/output + dbReads)<br>Okuma: 2026-09-16 09:33–09:36Z, canlı DB</div>
+    <div><b>Kapı haritasının birincil kaynağı</b><span class="mono">src/components/admin/stagesRegistry.ts</span> ve <span class="mono">adminTabs.ts</span> @ master <span class="mono">4c6df852</span></div>
+  </div>
+  <ul class="toc">
+    <li><a href="#seq">1 · Sıra diyagramı (turn A)</a></li>
+    <li><a href="#seq-b">2 · Soru yolu (turn B)</a></li>
+    <li><a href="#stages">3 · Aşama aşama kapılar</a></li>
+    <li><a href="#learn">4 · Kendi kendine öğrenen katman</a></li>
+    <li><a href="#ui">5 · Yönetim yüzeyi haritası</a></li>
+    <li><a href="#findings">6 · Bu iki turun söyledikleri</a></li>
+  </ul>
+</header>
+
+<div class="note warm"><b>Okuma yasası.</b> Bu belgedeki her sayı bir <em>iddiadır</em> (TOTAL-45): kaynağı defterdeki span adı ya da repo dosyasıdır ve yanında yazar. Defterde span'ı olmayan aşamalar (04 · 05 · 08 · 13) için “bu turda ölçülmedi” yazılır; oradaki bilgi Aşamalar sekmesinin kayıt defterinden (stagesRegistry) gelir ve öyle etiketlenir. Tanıtım metni yoktur.</div>
+
+<h2 id="seq">1 · Sıra diyagramı — turn A, araç yolu</h2>
+<p>Sorgu “1600167 numaralı iş emrinin fire ve fire sebeplerini getirir misin?”. Yeni bir konuşma (stage 02’de <code>conversations</code> okuması 0 satır döndü, sonra upsert). Ok üstündeki değerler defterden.</p>
+<div class="diagram">
+<pre class="mermaid">
+sequenceDiagram
+    autonumber
+    actor U as Kullanıcı
+    participant Q as 00 Kota Kapısı
+    participant T as 01-02 Turn kaydı
+    participant C as 03 Niyet / Clarify
+    participant K as 06 Bilgi (warm.knowledge)
+    participant R as 07 Araç Seçimi
+    participant P as 09 Prompt
+    participant L as 10 LLM (gemini)
+    participant M as 11 MCP armesMes
+    participant V as 12 Doğrulama / Trust
+    participant F as 14 Bellek Güncelleme
+
+    U->>Q: soru
+    Note over Q: reserve → clamp → settle (turn dışı, defterde satırı yok)
+    Q->>T: turn açılır
+    T->>T: telemetry_events insert · labActive=false
+    T->>T: conversations select 0 → upsert 1 · messages insert 1
+    T->>C: entityRefs ["1600167"], frameObject ORDER
+    C->>C: backend_entity_layers 4 satır · entity_registry 500×5+20 = 2520 (sayfalı, PR 570)
+    C->>M: getFactoryList (discovery, beforeAsk) — 17 fabrika, 1103 ms
+    C--xC: cwf.vector.query qdrant → VectorEngineUnreachableError
+    C->>C: ref "1600167" → verdict literal (no-layer-for-object) · ask: no-ask / all-resolved
+    C->>K: 23 kind yüklendi (armes.tool_annotation 150, metric_registry 3, entity_alias 8 …)
+    K->>R: çerçeve QUERY_METRIC × ORDER, metrics [fire], HIGH
+    R->>R: path semantic (gemini-2.5-flash-lite, 601 ms) · matched [production, quality, metrics] · stickyAdded []
+    R->>R: 48 aday → 47 kayıtlı (4 red) · web valve db=KAPALI · uncovered 8 (honestbench 4, mount-probe 4)
+    R->>P: 44 araç prompt'a
+    P->>P: 20 segment · promptRev 794fde01… · temperature 0.7, historyWindowN 6, maxToolRounds 16 (hepsi db)
+    P->>L: pencere sent 0 / windowN 6
+    L->>M: getFactoryList {} → 17 kayıt
+    L->>M: search_tools "fire ve fire sebepleri" → content [] (71 B)
+    L->>M: search_tools "getOrderScrapWithReasons" → content [] (71 B)
+    L->>M: getOrderDetails {orderId 1600167, factoryId KB7} → 24 kayıt, 5430 B
+    Note over L,M: teklif edilen getOrderScrapWithReasons ÇAĞRILMADI — model seçimi gözlemi
+    L->>V: cevap
+    V->>V: backend_authority 3 satır · armes = [oee, fire, throughput] yetkili
+    V->>V: episodes reinforce ×3 · semantic_memory dosyası 1 satır
+    V->>F: flush
+    F->>F: 13 yazım · episodes insert 1 · tool_experience upsert 3 · semantic_memory upsert 1 · 139 648 token
+    F->>U: yanıt
+</pre>
+</div>
+<p class="legend"><span class="k-db">yönetilen satır (DB, kapılı yayın)</span><span class="k-learn">öğrenilen satır (turn yazar)</span><span class="k-code">kod / mekanik kilit</span><span class="k-session">oturumluk bayrak</span></p>
+
+<h2 id="seq-b">2 · Soru yolu — turn B, belirsizlik sorusu</h2>
+<p>Sorgu “KB7 fabrikası fırın duruşları” (15 Eylül 2026). Aynı boru hattı; fark stage 03’te: bir referans çözüldü, biri iki adaya açıldı ve tur cevap yerine <em>soru</em> ile bitti. Bu, PR 572’nin (her katmanı çöz, üst katmanda sor) canlı tanığıdır: seçenekler <code>labelSource:"self"</code> ile hat katmanının kendi adlarıdır — 1000/560 ekipman adı değil.</p>
+<div class="diagram">
+<pre class="mermaid">
+sequenceDiagram
+    autonumber
+    actor U as Kullanıcı
+    participant C as 03 Clarify
+    participant R as 07 Araç Seçimi
+    participant U2 as Kullanıcı (soru ekranı)
+
+    U->>C: entityRefs ["KB7 fabrikası", "fırın"], frameObject DOWNTIME
+    C->>C: "KB7 fabrikası" → resolved · entityId KB7 · layer factory · method exact
+    C->>C: "fırın" → ambiguous · candidateCount 2 (collapse: 1000+560 ekipman → 2 hat)
+    C->>R: çerçeve QUERY_EVENTS × DOWNTIME, time "15 eylül 2026", HIGH
+    R->>R: matched [linestop] · 19 aday → 18 kayıtlı · getLineStopsReport, getLineStopReasons … teklif
+    C->>U2: ask-ambiguous · options FIRINALT / FIRINUST (labelSource self) · outcome ask
+    Note over U2: valveOpen=true → soru gerçekten soruldu (wouldHaveAsked=false)
+</pre>
+</div>
+<div class="note">Sonraki tur (kullanıcının “FIRINUST” cevabı) bu belgenin kapsamı dışında ölçüldü: cevap turunda KB7 taşınmıyor (çapraz-tur taşıyıcı yok, plan P1-4). Bu, aşağıda §6’da açık kalem olarak durur.</div>
+
+<h2 id="stages">3 · Aşama aşama: kapı · çözüm · inşa · yüzey</h2>
+<p>Her kart üç sütun: <b>Bu turda ne oldu</b> (defter), <b>Kapı nasıl inşa edilmiş</b> (kod mu, yönetilen satır mı, öğrenilen satır mı — ve kendi kendine öğrenen sistemde bu satırı kim yazar), <b>Nereden kontrol edilir</b> (yönetim sekmesi, deep-link <code>?tab=</code>). Sekme adları <code>adminTabs.ts</code>’den; kaynak satırları <code>stagesRegistry.ts</code>’den.</p>
+
+<!-- 00 -->
+<section class="stage" id="s00">
+  <div class="stage-h"><span class="no">00</span><span class="t">Kota Kapısı</span><span class="pill dim">turn dışı — defterde satırı yok</span><span class="spans">span: — (boru hattı öncesi)</span></div>
+  <div class="cols">
+    <div><h4>Bu turda</h4><p>Ölçülmedi: kapı turn’ün dışındadır, <code>turn_trace_digest</code>’e yazmaz. Turn açıldığına göre rezerv verildi; rezerv→mahsup satırları İncele sekmesindeki kota satırlarından okunur.</p></div>
+    <div><h4>Nasıl inşa edilmiş</h4><ul><li><b>Mekanik kilit (kod):</b> reserve-clamp-settle motoru. Ayar yüzeyi yok.</li><li><b>Yönetilen satır:</b> <code>quota.chat.*</code> (agent.param) — kod tabanı referans, DB override, reset var. <span class="mono">api/cwf/_lib/knowledge/reference/agentParams.ts</span></li><li><b>Veri:</b> <code>user_quotas</code> kullanıcı başına durum.</li><li>Öğrenmez. Bir oturum kendi bütçesini genişletemez (bilinçli kilit).</li></ul></div>
+    <div><h4>Nereden kontrol edilir</h4><ul><li><span class="ui">?tab=quota</span> Tekrar Oynatma Kotası — kullanıcı başına sınır</li><li><span class="ui">?tab=rules · agent.param · quota.chat*</span> politika değerleri</li><li><span class="ui">?tab=inspect</span> rezerve→mahsup izi</li></ul></div>
+  </div>
+</section>
+
+<!-- 01 -->
+<section class="stage" id="s01">
+  <div class="stage-h"><span class="no">01</span><span class="t">Kullanıcı Sorgusu</span><span class="pill ok">defterde</span><span class="spans">cwf.stage.01.telemetry-init · cwf.stage.01.lab-overlay</span></div>
+  <div class="cols">
+    <div><h4>Bu turda</h4><ul><li>telemetry-init → <code>sessionId 7a198156…</code>; <code>telemetry_events</code> insert 1.</li><li>lab-overlay → <code>labActive:false, droppedUnauthorized:false</code> — oturumluk deneme bayrağı yoktu.</li></ul></div>
+    <div><h4>Nasıl inşa edilmiş</h4><ul><li>Kalıcı ayar yok; bu aşama bayrak taşıyıcısıdır. Bayrak yalnız o oturumu etkiler (<span class="mono">api/cwf/_lib/labMode.ts</span>).</li><li>Öğrenmez; yalnız izi açar.</li></ul></div>
+    <div><h4>Nereden kontrol edilir</h4><ul><li><span class="ui">?tab=tweak</span> Sandbox Ortamı — oturumluk bayraklar</li><li><span class="ui">?tab=inspect</span> turn kaydı (salt okunur)</li></ul></div>
+  </div>
+</section>
+
+<!-- 02 -->
+<section class="stage" id="s02">
+  <div class="stage-h"><span class="no">02</span><span class="t">Konuşma / Durum</span><span class="pill ok">defterde</span><span class="spans">cwf.stage.02.persistence-init</span></div>
+  <div class="cols">
+    <div><h4>Bu turda</h4><ul><li><code>conversations</code> select (“bu konuşma çağırana ait mi”) → <b>0 satır</b>: yeni konuşma.</li><li><code>conversations</code> upsert 1 · <code>messages</code> insert 1 → <code>persisted:true</code>.</li></ul></div>
+    <div><h4>Nasıl inşa edilmiş</h4><ul><li><b>Kod:</b> capability kapıları <span class="mono">shared/permissions.ts</span> (yapı = kod).</li><li><b>Veri:</b> kime hangi kapı açık — <code>user_roles</code>, <code>user_backend_scopes</code>.</li><li>Öğrenmez.</li></ul></div>
+    <div><h4>Nereden kontrol edilir</h4><ul><li><span class="ui">?tab=users</span> Kullanıcı Yönetimi — rol, capability, backend kapsamı</li><li><span class="ui">?tab=replay</span> konuşma/mesaj geçmişi (specimen kaynağı)</li></ul></div>
+  </div>
+</section>
+
+<!-- 03 -->
+<section class="stage" id="s03">
+  <div class="stage-h"><span class="no">03</span><span class="t">Niyet / Anlama — Clarify</span><span class="pill ok">defterde</span><span class="pill warm">bugün üç iniş burada</span><span class="spans">cwf.stage.03.clarify · cwf.vector.query · cwf.mcp.attempt/tool (discovery)</span></div>
+  <div class="cols">
+    <div><h4>Bu turda (A)</h4><ul>
+      <li>Girdi: <code>entityRefs ["1600167"]</code>, <code>frameObject ORDER</code>, <code>scope layers=ALL[equipment,factory,line,workstation]</code>.</li>
+      <li>Okumalar: <code>backend_entity_layers</code> 4 · <code>entity_registry</code> 500+500+500+500+500+20 = <b>2520</b> (PR 570’in sayfalı okuması; eskiden 1000’de sessiz kesilirdi) · <code>domain_rules</code> 81/205/259.</li>
+      <li>Keşif: <code>getFactoryList</code> (armesMes, 1103 ms, 17 kayıt) <code>beforeAsk:true</code>.</li>
+      <li>Vektör: <code>cwf.vector.query</code> qdrant, koleksiyon <code>cwf__armes__governed.knowledge</code> → <b>failed · VectorEngineUnreachableError</b>.</li>
+      <li>Hüküm: “1600167” → <code>literal</code>, sebep <code>no-layer-for-object</code> (ORDER bir varlık katmanı değil). Ask: <code>no-ask / all-resolved</code>, <code>valveOpen:true</code>.</li>
+    </ul>
+    <h4>Bu turda (B)</h4><ul>
+      <li>“KB7 fabrikası” → <code>resolved</code> · KB7 · factory · exact.</li>
+      <li>“fırın” → <code>ambiguous</code> · candidateCount 2 → <code>ask-ambiguous</code>, seçenekler FIRINALT / FIRINUST, <code>labelSource:"self"</code> (PR 572 collapse).</li>
+    </ul></div>
+    <div><h4>Nasıl inşa edilmiş</h4><ul>
+      <li><b>Yönetilen valfler (agent.param):</b> <code>router.enabled</code> (semantik kademe), <code>router.frameEnabled</code> / <code>router.frameRouting</code> (çerçeve çıkarımı ve çerçevenin aday setini çevirmesi), <code>router.askOnUnresolved</code> (cevap yerine soru izni; defterde <code>valveOpen:true</code>). <span class="mono">knowledge/resolveRouterPolicy.ts · routing/askOnUnresolved.ts</span></li>
+      <li><b>Kod (mekanik):</b> <span class="mono">turn/stageClarify.ts</span> — katman seçimi, aday toplama (tüm katmanlar, PR 572), <code>collapseAmbiguityToParentLayer</code>, <code>decideAsk</code>; <span class="mono">routing/deriveCategories.ts</span> — K1 matrisi (eylem×nesne → kategori; ORDER hücresi bugün PR 571 ile <code>fire→quality</code> ipucunu okur).</li>
+      <li><b>Kendi kendini tohumlayan veri:</b> <code>entity_registry</code> backend aynası (ABSENCE-ONLY: var olan satır yeniden yazılmaz) ve <code>backend_entity_layers</code> (hiyerarşi <em>konfigürasyondur</em>, kod değil). <code>entity_topology_edges</code> (GraphKb) mevcut; bu turda okunmadı — bugün registry ebeveynliğiyle eşdeğer ölçüldü, sonra bağlanacak (P1-5).</li>
+      <li><b>Öğrenen satır:</b> <code>tool_category_cache</code> (görüntüle · Clear · taslak→yayın) — ama bu tur <code>basis:"frame"</code> ile yürüdü, öğrenilmiş eşleme değil.</li>
+      <li><b>İnşa edilmiş, bağlanmamış:</b> ⑤ <span class="mono">routing/entityDiagnosis.ts</span> ve ⑥ <span class="mono">routing/executionDecision.ts</span> (RESOLVE / OFFER_CHOICE / PROCEED_LABELLED / NOTIFY_ABSENT / DROP_VISIBLY) — canlı tüketicisi sıfır; kablolama kartı AG-4’te (CARD-WIRE-DIAGNOSIS… + AMENDMENT-1).</li>
+    </ul></div>
+    <div><h4>Nereden kontrol edilir</h4><ul>
+      <li><span class="ui">?tab=rules · agent.param · router.enabled</span></li>
+      <li><span class="ui">?tab=rules · agent.param · router.frame*</span></li>
+      <li><span class="ui">?tab=rules · agent.param · router.askOnUnresolved</span></li>
+      <li><span class="ui">?tab=routing</span> Araç Eşleme — öğrenilmiş eşlemeyi gör / Clear / yayınla</li>
+      <li><span class="ui">?tab=graph</span> Topoloji — kenar defteri + canlı hakem hükmü</li>
+      <li><span class="ui">?tab=tweak · routingBypass</span> bu katmanı oturumluk atla</li>
+      <li><span class="na">CATEGORIES statik taban — kod</span></li>
+      <li><span class="na">vektör motoru — env/deploy (panel yok)</span></li>
+    </ul></div>
+  </div>
+</section>
+
+<!-- 04 -->
+<section class="stage" id="s04">
+  <div class="stage-h"><span class="no">04</span><span class="t">Planlama / Ayrıştırma</span><span class="pill dim">bu turda span yok</span><span class="spans">span: — (kayıt defterinde spans=[])</span></div>
+  <div class="cols">
+    <div><h4>Bu turda</h4><p>Defterde bu aşamaya ait span yok; plan bloğunun prompt’a girip girmediği <code>promptRev</code> içinde erir, ayrı ölçülmez. <b>Ölçülmedi.</b></p></div>
+    <div><h4>Nasıl inşa edilmiş</h4><ul><li><b>Yönetilen:</b> <code>planner.enabled</code> (kod tabanı 1; 0 = sıfır bayt), <code>system.plan_template</code> (eylem başına adım sözleri; yayınlanmış satır yoksa kod tabanı), <code>planner.replanNudgeMax</code>.</li><li><b>Kod:</b> <code>PLAN_TEMPLATE_FLOOR</code> — planın yapısı (<span class="mono">turn/planner.ts</span>).</li><li>Öğrenmez.</li></ul></div>
+    <div><h4>Nereden kontrol edilir</h4><ul><li><span class="ui">?tab=rules · agent.param · planner.enabled</span></li><li><span class="ui">?tab=rules · system.plan_template</span></li><li><span class="ui">?tab=rules · agent.param · planner.replanNudgeMax</span></li></ul></div>
+  </div>
+</section>
+
+<!-- 05 -->
+<section class="stage" id="s05">
+  <div class="stage-h"><span class="no">05</span><span class="t">Bellek Getirme</span><span class="pill ok">izleri 09 ve 12’de</span><span class="spans">span yok; okumaları stage 09 (pencere) ve 12 (episodes · semantic_memory) altında görünür</span></div>
+  <div class="cols">
+    <div><h4>Bu turda</h4><ul><li>Pencere: <code>sent 0 / windowN 6 / count 0</code> — yeni konuşma, geçmiş yok (09 assemble-prompt).</li><li><code>episodes</code> “bu konuşmadan” 0 · “bu kullanıcıdan” <b>50</b> satır okundu; 3 bölüm <em>reinforce</em> edildi (işe yaradı diye puanı arttı).</li><li><code>semantic_memory</code> varlık dosyası (user_id, entity_key) 1 satır.</li></ul></div>
+    <div><h4>Nasıl inşa edilmiş</h4><ul><li><b>Yönetilen:</b> <code>agent.historyWindowN</code> (defterde 6, kaynak db), <code>agent.memory.retrievalTopK</code> (0 = kapalı), <code>turn.historyCharBudgetPerMessage</code>.</li><li><b>Öğrenen satırlar:</b> <code>episodes</code> (damıtılmış bölüm; reinforce ile puanlanır, <code>agent.memory.ttlDays</code> ile solar) ve <code>semantic_memory</code> (kullanıcıya özel varlık dosyası). Bu, sistemin gerçekten “kendi kendine öğrenen” kısmıdır: yazar = turn’ün kendisi (stage 14), okur = bu aşama.</li><li><b>Kod:</b> messages son-N mekanizması.</li></ul></div>
+    <div><h4>Nereden kontrol edilir</h4><ul><li><span class="ui">?tab=rules · agent.param · agent.historyWindowN</span></li><li><span class="ui">?tab=rules · agent.param · agent.memory.retrievalTopK</span></li><li><span class="ui">?tab=memory</span> Bellek — bölümler, denetimli silme</li><li><span class="ui">?tab=tweak</span> oturumluk pencere N</li><li><span class="na">semantic_memory — panel yüzeyi YOK (servis rolü)</span></li></ul></div>
+  </div>
+</section>
+
+<!-- 06 -->
+<section class="stage" id="s06">
+  <div class="stage-h"><span class="no">06</span><span class="t">Bilgi / RAG</span><span class="pill ok">defterde</span><span class="pill bad">vektör motoru erişilemez</span><span class="spans">cwf.warm.knowledge · cwf.vector.query</span></div>
+  <div class="cols">
+    <div><h4>Bu turda</h4><ul><li>23 kind yüklendi; satır sayıları: <code>armes.tool_annotation 150</code>, <code>armes.tool_category 12</code>, <code>armes.glossary_term 10</code>, <code>armes.entity_alias 8</code>, <code>armes.tool_graph_node 5</code>, <code>armes.metric_definition 4</code>, <code>armes.zone 4</code>, <code>armes.tool_format_rule 4</code>, <code>armes.metric_registry 3</code>, <code>superset.gateway_rule 18</code>, <code>superset.tool_doc 9</code> …</li><li><code>domain_rules</code> tekrar tekrar 81 / 205 / 259 satır okundu (aşama başına yeniden okuma — bir verimlilik gözlemi, hata değil).</li><li><code>cwf.vector.query</code> → <b>failed</b> (qdrant erişilemez). Tur yine cevapladı: vektör yolu bu turda <em>katkısız</em>.</li></ul></div>
+    <div><h4>Nasıl inşa edilmiş</h4><ul><li><b>Yönetilen bilgi (öğrenilmez, YAYINLANIR):</b> <code>domain_rules · rule_versions</code> — taslak → kapı (şema, tutarlılık, davranış kontrolü) → yayın → rollback. Kapı atlanamaz.</li><li><b>Yapı sözleşmesi:</b> <code>rule_kinds · kind_drafts</code>.</li><li><b>Kod:</b> referenceSchema — ilk tohum ve “referansa sıfırla” hedefi (<span class="mono">knowledge/reference/referenceData.ts</span>).</li><li><b>Vektör lane:</b> <code>cwf.vectorLane.v1</code>, motor env ile seçilir; panel yüzeyi yok.</li></ul></div>
+    <div><h4>Nereden kontrol edilir</h4><ul><li><span class="ui">?tab=rules</span> Kurallar — governed bilgi, versiyon, rollback</li><li><span class="ui">?tab=kinds</span> Türler — şema/kind sözleşmesi</li><li><span class="ui">?tab=tweak · knowledgeSource / previewDrafts</span></li><li><span class="ui">?tab=health</span> Sağlık — motor/backend canlılığı</li></ul></div>
+  </div>
+</section>
+
+<!-- 07 -->
+<section class="stage" id="s07">
+  <div class="stage-h"><span class="no">07</span><span class="t">Araç Seçimi</span><span class="pill ok">defterde</span><span class="pill acc">K1 tanığı: stickyAdded []</span><span class="spans">cwf.stage.07.resolve-mcp · resolve-backends · register-tools · cwf.mcp.discover</span></div>
+  <div class="cols">
+    <div><h4>Bu turda (A)</h4><ul>
+      <li>resolve-mcp: <code>discoveredToolCount 167</code>, 5 backend, <code>healthReadFailed:false</code>.</li>
+      <li>register-tools: <code>path semantic</code> (gemini-2.5-flash-lite, 601 ms), <code>basis frame</code>, çerçeve <code>QUERY_METRIC × ORDER · metrics [fire] · HIGH</code>.</li>
+      <li><b><code>matchedCategories [production, quality, metrics]</code>, <code>stickyAdded []</code></b> — <code>quality</code> yapışkan bağlamdan değil, K1 ORDER hücresinin ipucundan geldi (PR 571 kabul tanığı).</li>
+      <li>48 aday → 47 kayıtlı, 4 red (refusedCount), 12 sınıfsız, <code>getOrderScrapWithReasons</code> teklif listesinde <b>var</b>.</li>
+      <li><code>webOffered:false · webValveSource:db</code> — web_fetch valfi kapalı.</li>
+      <li>uncovered 8: honestbench 4, mount-probe 4 (derived pack olarak 09’a taşındı).</li>
+    </ul><h4>Bu turda (B)</h4><ul><li><code>QUERY_EVENTS × DOWNTIME</code> → <code>[linestop]</code>; 19 aday, 18 kayıtlı; <code>canonicalOeePresent:absent</code> (OEE sorusu değil, doğru).</li></ul></div>
+    <div><h4>Nasıl inşa edilmiş</h4><ul>
+      <li><b>Kod (deterministik):</b> K1 derivation matrisi <span class="mono">routing/deriveCategories.ts</span> — eylem×nesne → kategori; <code>HINT_AUGMENTED_OBJECTS = {LINE, ZONE, ORDER}</code> (bugün). Metric ipuçları <code>metric_registry</code> satırından (yönetilen: <code>fire → [quality]</code>).</li><li><b>Kod (taban):</b> <code>ALWAYS_INCLUDE</code> availability floor (<span class="mono">toolCategories.ts</span>).</li>
+      <li><b>Öğrenen:</b> <code>tool_category_cache</code> + <code>routing_cache_meta</code> (epoch; Clear = epoch bump). Bu turda çerçeve kazandı; öğrenilmiş eşleme yalnız çerçeve yoksa devreye girer.</li>
+      <li><b>Yönetilen:</b> <code>web.enabled</code> (kod tabanı 0), <code>web.timeoutMs · web.maxBytes</code>; MCP bağlantıları <code>mcp_settings · mcp_secrets · mcp_global_settings</code>; kapsam süzgeci <code>user_backend_scopes</code> (scopeTools).</li>
+    </ul></div>
+    <div><h4>Nereden kontrol edilir</h4><ul><li><span class="ui">?tab=routing</span> Araç Eşleme — sunulan set, epoch, Clear</li><li><span class="ui">?tab=mcp</span> MCP Sunucuları — backend + token (maskeli)</li><li><span class="ui">?tab=users</span> backend kapsamı</li><li><span class="ui">?tab=rules · agent.param · web.*</span></li><li><span class="ui">?tab=census</span> Araç Sayımı — araç davranış sayımı</li><li><span class="ui">?tab=tweak · routingBypass</span> tam araç seti</li><li><span class="na">K1 matrisi — kod (sahip hükmüyle değişir, kartla iner)</span></li></ul></div>
+  </div>
+</section>
+
+<!-- 08 -->
+<section class="stage" id="s08">
+  <div class="stage-h"><span class="no">08</span><span class="t">Sıkıştırma</span><span class="pill dim">bu turda tetiklenmedi</span><span class="spans">span: —</span></div>
+  <div class="cols">
+    <div><h4>Bu turda</h4><p>En büyük araç sonucu 5430 B (<code>getOrderDetails</code>); iki eşiğin ikisi de uzak. Offload olmadı. <b>Tetiklenmedi.</b></p></div>
+    <div><h4>Nasıl inşa edilmiş</h4><ul><li><b>Kod:</b> <code>MAX_TOOL_RESULT_CHARS</code> (tek çağrı ekseni, kod tabanı 40000; yalnız env ile) ve <code>resultStore</code> (tutamak + alan özeti).</li><li><b>Yönetilen:</b> <code>turn.resultCharBudget</code> (tur ekseni; dolunca tutamağa taşınır, kayıt atılmaz).</li><li>Öğrenmez.</li></ul></div>
+    <div><h4>Nereden kontrol edilir</h4><ul><li><span class="ui">?tab=rules · agent.param · turn.resultCharBudget</span></li><li><span class="na">MAX_TOOL_RESULT_CHARS — env/deploy</span></li></ul></div>
+  </div>
+</section>
+
+<!-- 09 -->
+<section class="stage" id="s09">
+  <div class="stage-h"><span class="no">09</span><span class="t">Prompt Birleştirme — kalp</span><span class="pill ok">defterde</span><span class="spans">cwf.warm.prompt · cwf.warm.params · cwf.stage.09.assemble-prompt</span></div>
+  <div class="cols">
+    <div><h4>Bu turda</h4><ul><li>20 segment çözüldü: identity, safety.core_directives, safety.b1_scope … b5_tool_injection, tone, viz, tools.header, tools.rule.1–10; <code>promptRev 794fde01…</code>, <code>degraded:false</code>.</li><li>Parametreler (hepsi <code>source:db</code>): temperature 0.7 · historyWindowN 6 · maxToolRounds 16 · maxOutputTokens 16384 · thinkingBudget 8192.</li><li>assemble: <code>toolCount 44</code>, derived pack 2223 karakter (honestbench 4/4, mount-probe 4/4; <code>censusConsulted:true</code>).</li><li>Gözlem: <code>seed_state</code> “claim this seed domain atomically” insert <b>13 kez ok:false</b>, her biri “inspect a conflicting seed claim for staleness” select ile takip edildi — beklenen çekişme yolu (başka bir turn tohumu tutuyor), hata değil; ama her turda 26 satır okuma.</li></ul></div>
+    <div><h4>Nasıl inşa edilmiş</h4><ul><li><b>Yönetilen, kapılı:</b> <code>prompt.segment</code> (20 segment, versiyonlu; yayın altın örnekler üzerinde kontrol koşusundan geçer — eval-gate atlanamaz).</li><li><b>Yönetilen:</b> <code>domain_rules</code> pack içeriği prompt’a dizilir.</li><li><b>Aşamalı yayın:</b> segment adayı %’lik dilimle (<code>rollout</code>), guardrail korur.</li><li><b>Kod:</b> dizilim motoru <span class="mono">prompt/assemble.ts</span>.</li><li>Öğrenmez.</li></ul></div>
+    <div><h4>Nereden kontrol edilir</h4><ul><li><span class="ui">?tab=rules · prompt.segment</span></li><li><span class="ui">?tab=rollout</span> Aşamalı Yayın</li><li><span class="ui">?tab=rules · agent.param · agent.*</span> parametreler</li><li><span class="ui">?tab=tweak · previewDrafts</span></li></ul></div>
+  </div>
+</section>
+
+<!-- 10 -->
+<section class="stage" id="s10">
+  <div class="stage-h"><span class="no">10</span><span class="t">LLM Çıkarımı</span><span class="pill ok">defterde</span><span class="pill warm">model seçimi gözlemi</span><span class="spans">cwf.warm.provider · cwf.stage.10.resolve-provider · ai.streamText · ai.toolCall</span></div>
+  <div class="cols">
+    <div><h4>Bu turda</h4><ul><li><code>warmedProviders [gemini, openai, anthropic]</code>; <code>provider gemini · bypass:false</code>; <code>llm_providers</code> 4 satır + kişisel override 1.</li><li>Araç turları (11 ile birlikte): getFactoryList → search_tools ×2 (boş) → getOrderDetails → cevap. 4 <code>ai.toolCall</code>, 5 <code>doStream</code>.</li><li><b>Gözlem:</b> teklif edilen 47 araç içinde <code>getOrderScrapWithReasons</code> vardı; model <code>getOrderDetails</code>’i seçti ve iki kez <code>search_tools</code> ile aradı (ikisi de <code>content []</code>). Teklif doğru, seçim eksik — tool-selection kalemi.</li></ul></div>
+    <div><h4>Nasıl inşa edilmiş</h4><ul><li><b>Kod:</b> tek gateway — <code>streamText</code> tek çağrı noktası (<span class="mono">llm/gateway.ts</span>).</li><li><b>Yönetilen:</b> <code>llm_providers</code> (+personal +secrets), <code>agent.temperature</code>.</li><li>Öğrenmez; seçim davranışı prompt segmentleri (09) ve araç dokümanları (06 tool_doc/tool_annotation) ile yönlendirilir.</li></ul></div>
+    <div><h4>Nereden kontrol edilir</h4><ul><li><span class="ui">?tab=providers</span> LLM Sağlayıcıları</li><li><span class="ui">?tab=rules · agent.param · agent.temperature</span></li><li><span class="ui">?tab=tweak · forceProvider</span></li><li><span class="ui">?tab=bench</span> Tezgâh — sentetik girdiyle organ hükmü</li></ul></div>
+  </div>
+</section>
+
+<!-- 11 -->
+<section class="stage" id="s11">
+  <div class="stage-h"><span class="no">11</span><span class="t">Araç Döngüsü</span><span class="pill ok">defterde</span><span class="spans">cwf.mcp.attempt · cwf.mcp.tool</span></div>
+  <div class="cols">
+    <div><h4>Bu turda</h4><div class="tablewrap"><table><tr><th>çağrı</th><th>sunucu</th><th>süre</th><th>sonuç</th><th>sınıf</th></tr>
+      <tr><td>getFactoryList {}</td><td>armesMes</td><td class="num">1090 ms</td><td>974 B · 17 kayıt · completeness unknown (17/?)</td><td>answered</td></tr>
+      <tr><td>search_tools “fire ve fire sebepleri”</td><td>supersetArmes</td><td class="num">1034 ms</td><td>71 B · content []</td><td>answered</td></tr>
+      <tr><td>search_tools “getOrderScrapWithReasons”</td><td>supersetArmes</td><td class="num">808 ms</td><td>71 B · content []</td><td>answered</td></tr>
+      <tr><td>getOrderDetails {orderId 1600167, factoryId KB7}</td><td>armesMes</td><td class="num">1425 ms</td><td>5430 B · 24 kayıt (components …)</td><td>answered</td></tr>
+    </table></div><p>Her çağrıda <code>mcp_secrets</code> token çözümü + <code>telemetry_events</code> insert. <code>completeness:"unknown"</code> — backend toplam sayıyı söylemiyor; “partial ≠ complete” yasası gereği <em>17/?</em> yazılır, “tam” denmez.</p></div>
+    <div><h4>Nasıl inşa edilmiş</h4><ul><li><b>Kod:</b> MCP istemcisi + tekrar denemesi (<code>attempt</code>), sonuç sınıflandırıcı (<code>toolCallClass</code>).</li><li><b>Yönetilen:</b> <code>agent.maxToolRounds</code> (16), <code>gateway.*</code> (backend başına eşzamanlılık freni — sıraya alır), <code>turn.*</code> (tur başına çağrı/jeton tavanı), <code>planner.replanNudgeMax</code>.</li><li><b>Canlı:</b> cevabın içeriği backend’den; tabloda değil.</li><li>Öğrenen: <code>tool_experience</code> (14’te yazılır, 3 satır) — araç deneyimi; <code>tool_annotation</code> ise yönetilen.</li></ul></div>
+    <div><h4>Nereden kontrol edilir</h4><ul><li><span class="ui">?tab=mcp</span> bağlantı + token</li><li><span class="ui">?tab=inspect</span> tool_call kayıtları</li><li><span class="ui">?tab=rules · agent.param · turn.* / gateway.* / agent.maxToolRounds</span></li><li><span class="ui">?tab=census</span> araç davranış sayımı</li></ul></div>
+  </div>
+</section>
+
+<!-- 12 -->
+<section class="stage" id="s12">
+  <div class="stage-h"><span class="no">12</span><span class="t">Doğrulama / Veri Otoritesi</span><span class="pill ok">defterde</span><span class="spans">cwf.warm.trust · cwf.stage.12.warm-trust · (cwf.grounding: bu turda span yok)</span></div>
+  <div class="cols">
+    <div><h4>Bu turda</h4><ul><li><code>backend_authority</code> 3 satır: armes yetkili = <code>[oee, fire, throughput]</code>; diğer dört backend için boş küme.</li><li><code>episodes</code> reinforce ×3 (işe yarayan bölümler puanlandı) — bellek geri beslemesinin yazıldığı yer.</li><li><code>cwf.grounding</code> span’ı bu turda yok → topraklama denetimi ölçülmedi.</li></ul></div>
+    <div><h4>Nasıl inşa edilmiş</h4><ul><li><b>Yönetilen:</b> <code>backends · backend_authority</code> — trust tier + metrik başına yetki (grant/revoke).</li><li><b>Kod:</b> <span class="mono">grounding/groundingCheck.ts</span> denetim motoru (mekanik kilit); <span class="mono">reference/backendTrust.ts</span> trust floor/seed/reset.</li><li><b>Öğrenen (geri besleme):</b> episode reinforce — sistemin “bu hatırlama işe yaradı” dediği tek yer.</li></ul></div>
+    <div><h4>Nereden kontrol edilir</h4><ul><li><span class="ui">?tab=trust</span> Veri Otoritesi — grant/revoke, etkisini geçmiş turlarda önizle</li><li><span class="ui">?tab=replay</span> üç lens: grounding · routing · scope</li></ul></div>
+  </div>
+</section>
+
+<!-- 13 -->
+<section class="stage" id="s13">
+  <div class="stage-h"><span class="no">13</span><span class="t">Biçim / Sunum</span><span class="pill dim">span yok</span><span class="spans">span: —</span></div>
+  <div class="cols">
+    <div><h4>Bu turda</h4><p>Defterde span yok; cevap metni <code>messages</code>’a yazıldı (14). <b>Ölçülmedi.</b></p></div>
+    <div><h4>Nasıl inşa edilmiş</h4><ul><li><b>Kod:</b> outputFormat + FROM-TOOL + empty-guard (sunum floor’u; empty ≠ zero burada da uygulanır).</li><li><b>Yönetilen:</b> guard/format metin segmentleri — kullanıcıya görünen cümle versiyonlu.</li></ul></div>
+    <div><h4>Nereden kontrol edilir</h4><ul><li><span class="ui">?tab=rules · prompt.segment</span> guard/format metinleri</li><li><span class="na">davranış — kod</span></li></ul></div>
+  </div>
+</section>
+
+<!-- 14 -->
+<section class="stage" id="s14">
+  <div class="stage-h"><span class="no">14</span><span class="t">Bellek Güncelleme</span><span class="pill ok">defterde</span><span class="pill warm">öğrenmenin yazıldığı yer</span><span class="spans">cwf.flush</span></div>
+  <div class="cols">
+    <div><h4>Bu turda</h4><ul><li><code>usage.totalTokens 139 648</code>, <code>writesFlushed 13</code>.</li><li><code>tool_experience</code> önce okundu (3) sonra upsert (3).</li><li><code>episodes</code> insert 1 (damıtılmış bölüm), <code>semantic_memory</code> upsert 1 (varlık dosyası güncellendi).</li><li><code>tool_category_cache</code> bu turda <b>yazılmadı</b> (defterde satırı yok) — çerçeve temelli tur öğrenilmiş eşlemeyi güncellemedi.</li></ul></div>
+    <div><h4>Nasıl inşa edilmiş</h4><ul><li><b>Öğrenen satırlar (turn yazar):</b> <code>tool_category_cache</code> (LEARN), <code>tool_experience</code>, <code>episodes</code>, <code>semantic_memory</code>. Damıtma deterministiktir: LLM yok, ham araç yükü yok.</li><li><b>Yönetilen:</b> <code>agent.memory.ttlDays</code> (taban 90) → <code>expires_at</code>.</li><li><b>Kod:</b> memory-forget cron (günlük 03:40Z) + <code>memory_audit</code> defteri (yapı, içerik değil).</li><li><b>C1 yasası:</b> replay/governance’tan <code>messages</code>’a sıfır yazma.</li></ul></div>
+    <div><h4>Nereden kontrol edilir</h4><ul><li><span class="ui">?tab=routing</span> öğrenileni gör / düzelt / geri al</li><li><span class="ui">?tab=memory</span> bölümler, denetimli silme, unutma tiki kaydı</li><li><span class="ui">?tab=learning</span> Öğrenme Görüntüleri — anlık görüntüler</li><li><span class="ui">?tab=inspect</span> turn_done damgası, adım/huni ölçümü</li><li><span class="ui">?tab=rules · agent.param · agent.memory.ttlDays</span></li></ul></div>
+  </div>
+</section>
+
+<h2 id="learn">4 · “Kendi kendine öğrenen” tam olarak ne öğrenir</h2>
+<p>Sistemin üç ayrı katmanı vardır ve karıştırılması eski bir hatadır (§8 determinizm/güvenlik ayrımı): <b>kod</b> tam doğru olmak zorundadır ve kartla iner; <b>yönetilen satır</b> DB’de yaşar, panelden değişir ama <em>kapıdan geçerek</em> yayınlanır; <b>öğrenilen satır</b> turn’ün kendisi tarafından yazılır ve yalnız “ajanın araçları nasıl BULDUĞUNU” iyileştirir, “ne bildiğini” asla.</p>
+<div class="tablewrap"><table>
+<tr><th>satır</th><th>kim yazar</th><th>ne zaman (bu turda)</th><th>kim okur</th><th>nasıl solar / geri alınır</th><th>yüzey</th></tr>
+<tr><td><code>tool_category_cache</code></td><td><span class="learn">turn · stage 14</span></td><td>yazılmadı (basis frame)</td><td>07 register-tools (çerçeve yoksa)</td><td>Clear = <code>routing_cache_meta</code> epoch bump; taslak→yayın</td><td><span class="ui">?tab=routing</span></td></tr>
+<tr><td><code>tool_experience</code></td><td><span class="learn">turn · stage 14</span></td><td>upsert 3</td><td>araç kayıt/teklif</td><td>—</td><td><span class="ui">?tab=learning</span> · <span class="ui">?tab=census</span></td></tr>
+<tr><td><code>episodes</code></td><td><span class="learn">turn · 14 insert, 12 reinforce</span></td><td>insert 1 · reinforce 3 · okundu 50</td><td>05 bellek getirme</td><td><code>agent.memory.ttlDays</code> + cron 03:40Z; <code>memory_audit</code></td><td><span class="ui">?tab=memory</span></td></tr>
+<tr><td><code>semantic_memory</code></td><td><span class="learn">turn · stage 14</span></td><td>upsert 1</td><td>05/12 varlık dosyası</td><td>—</td><td><span class="na">panel yok</span></td></tr>
+<tr><td><code>entity_registry</code> · <code>entity_topology_edges</code></td><td>kendi tohumlama (backend aynası, ABSENCE-ONLY)</td><td>2520 satır okundu</td><td>03 clarify</td><td>bayatlık okuma tarafında; var olan satır yeniden yazılmaz</td><td><span class="ui">?tab=graph</span> · <span class="ui">?tab=health</span></td></tr>
+<tr><td><code>domain_rules</code> (tool_annotation, metric_registry, entity_alias …)</td><td>insan/Architect → <b>kapılı yayın</b></td><td>okundu</td><td>03 · 06 · 07 · 09 · 12</td><td>rule_versions rollback; referansa sıfırla</td><td><span class="ui">?tab=rules</span> · <span class="ui">?tab=kinds</span></td></tr>
+<tr><td>K1 matrisi · CATEGORIES · ALWAYS_INCLUDE · groundingCheck</td><td>kod (kart → PR → CI → master)</td><td>—</td><td>03 · 07 · 12</td><td>git</td><td><span class="na">panel yok — bilinçli</span></td></tr>
+</table></div>
+
+<h2 id="ui">5 · Yönetim yüzeyi haritası (21 sekme)</h2>
+<p>Sekme kümesi <code>adminTabs.ts</code>’de tek gerçek kaynaktır; <code>?tab=&lt;id&gt;</code> derin bağlantısı çalışır. Varsayılan açılış <code>users</code>.</p>
+<div class="tablewrap"><table>
+<tr><th>id</th><th>ad</th><th>hangi aşamanın kapısını kontrol eder</th></tr>
+<tr><td class="num">rules</td><td>Kurallar</td><td>00 · 03 · 04 · 05 · 06 · 07 · 08 · 09 · 10 · 11 · 13 · 14 — tüm <code>agent.param</code> valfleri, <code>prompt.segment</code>, governed bilgi</td></tr>
+<tr><td class="num">kinds</td><td>Türler</td><td>06 — kind şema sözleşmesi</td></tr>
+<tr><td class="num">providers</td><td>LLM Sağlayıcıları</td><td>10</td></tr>
+<tr><td class="num">mcp</td><td>MCP Sunucuları</td><td>07 · 11</td></tr>
+<tr><td class="num">routing</td><td>Araç Eşleme</td><td>03 · 07 · 14 — öğrenilmiş eşleme, epoch, Clear</td></tr>
+<tr><td class="num">users</td><td>Kullanıcı Yönetimi</td><td>02 · 07 — rol, capability, backend kapsamı</td></tr>
+<tr><td class="num">quota</td><td>Tekrar Oynatma Kotası</td><td>00</td></tr>
+<tr><td class="num">trust</td><td>Veri Otoritesi</td><td>12</td></tr>
+<tr><td class="num">rollout</td><td>Aşamalı Yayın</td><td>09 — segment adayı dilimli yayın</td></tr>
+<tr><td class="num">synthetic</td><td>Sentetik Trafik</td><td>test trafiği üretimi (bu turda rol yok)</td></tr>
+<tr><td class="num">memory</td><td>Bellek</td><td>05 · 14</td></tr>
+<tr><td class="num">inspect</td><td>İncele</td><td>01 · 11 · 14 — turn izi (salt okunur)</td></tr>
+<tr><td class="num">tweak</td><td>Sandbox Ortamı</td><td>01 · 03 · 05 · 06 · 07 · 09 · 10 — oturumluk bayraklar</td></tr>
+<tr><td class="num">replay</td><td>Tekrar Oynat</td><td>02 · 12 · 14 — geçmiş turlarda üç lens</td></tr>
+<tr><td class="num">architecture</td><td>Mimari</td><td>yedi anlatı sekmesi (Architecture Map, Runtime Topology, Request Lifecycle, LLM Control Surface, Governance Model, Agent Control Plane, Stage Cards) — doc-drift kapısıyla kodla senkron tutulur</td></tr>
+<tr><td class="num">stages</td><td>Aşamalar</td><td>bu belgenin kart kaynağı (stagesRegistry)</td></tr>
+<tr><td class="num">health</td><td>Sağlık</td><td>06 · 07 — backend/motor canlılığı, persistence sayımı</td></tr>
+<tr><td class="num">bench</td><td>Tezgâh</td><td>sentetik girdiyle tek organın hükmü + sebebi</td></tr>
+<tr><td class="num">learning</td><td>Öğrenme Görüntüleri</td><td>14 — öğrenme anlık görüntüleri</td></tr>
+<tr><td class="num">census</td><td>Araç Sayımı</td><td>07 · 11 — araç davranış sayımı</td></tr>
+<tr><td class="num">graph</td><td>Topoloji</td><td>03 — kenar defteri + canlı hakem hükmü</td></tr>
+</table></div>
+
+<h2 id="findings">6 · Bu iki turun söyledikleri</h2>
+<div class="tablewrap"><table>
+<tr><th>gözlem</th><th>kanıt</th><th>durum</th></tr>
+<tr><td>Çerçeve her iki turda doğru (QUERY_METRIC×ORDER · QUERY_EVENTS×DOWNTIME, HIGH)</td><td>07 register-tools irFrame</td><td><span class="pill ok">geçti</span></td></tr>
+<tr><td>K1 ORDER ipucu canlı: quality yapışkan bağlamsız geldi</td><td>07: matched [production, quality, metrics], stickyAdded []</td><td><span class="pill ok">PR 571 tanığı</span></td></tr>
+<tr><td>Registry okuması 2520 satır, sayfalı</td><td>03 dbReads 500×5+20</td><td><span class="pill ok">PR 570 tanığı</span></td></tr>
+<tr><td>“fırın” iki hat seçeneğiyle soruldu, ekipman adlarıyla değil</td><td>03 (B): candidateCount 2, labelSource self</td><td><span class="pill ok">PR 572 tanığı</span></td></tr>
+<tr><td>Model, teklif edilen scrap aracını değil getOrderDetails’i çağırdı</td><td>10/11: 4 çağrı, getOrderScrapWithReasons yok</td><td><span class="pill bad">açık — tool-selection</span></td></tr>
+<tr><td>search_tools iki kez boş döndü (superset)</td><td>11: content [] ×2</td><td><span class="pill warm">gözlem</span></td></tr>
+<tr><td>Vektör motoru erişilemez; tur yine cevapladı</td><td>03: VectorEngineUnreachableError</td><td><span class="pill bad">açık — altyapı</span></td></tr>
+<tr><td>seed_state claim 13× çekişme, her turda</td><td>09 dbReads</td><td><span class="pill warm">verimlilik gözlemi</span></td></tr>
+<tr><td>domain_rules aşama başına yeniden okunuyor (81/205/259 tekrar)</td><td>03 · 07 · 09 · 12 · 14 dbReads</td><td><span class="pill warm">verimlilik gözlemi</span></td></tr>
+<tr><td>Cevap turunda KB7 taşınmıyor (çapraz-tur taşıyıcı yok)</td><td>bugünkü tanık, bu belgenin dışında</td><td><span class="pill bad">açık — P1-4</span></td></tr>
+<tr><td>⑤/⑥ tanı ve karar odaları inşa edilmiş, bağlı değil</td><td>routing/entityDiagnosis.ts · executionDecision.ts, sıfır tüketici</td><td><span class="pill warm">kablolama AG-4’te</span></td></tr>
+</table></div>
+
+<footer>CWF-END-TO-END-TURN-v1 · S140 · Architect · kaynaklar: turn_trace_digest (canlı, 2026-09-16 09:33–09:36Z) · stagesRegistry.ts · adminTabs.ts · manifest.json @ master 4c6df852f7a9b135ba92986f428387bf73458239 · Bu belge bir yönetişim artefaktıdır: düzeltme = yeni sürüm (S37-1).</footer>
+</div>
