@@ -1,6 +1,6 @@
 # cwf-open-items-register-v145 — THE WHOLE OPEN LIST (owner's copy)
 
-APPEND-ONLY. Cut mid-S155, 2026-09-22T15:40Z (18:40 TSI), on the owner's order: "GATE-1'i de ekle, tüm açık kalemleri tek liste yap, hiçbir şeyi atlama". Supersedes v144 (same session, 70 minutes earlier).
+APPEND-ONLY. Cut mid-S155, 2026-09-22T15:39Z (18:39 TSI), on the owner's order: "GATE-1'i de ekle, tüm açık kalemleri tek liste yap, hiçbir şeyi atlama". Supersedes v144 (same session, 70 minutes earlier).
 Items leave only by CLOSED@evidence / SUPERSEDED-BY / MERGED-INTO. Every row: what it is (EN), Türkçe özet, state now, next step and date.
 SOURCES READ IN FULL: registers v134-v144; findings S145, S146, S147, S149, S151, S152, S153, S154; S148 retro close; S142 plan v2 and S143 open measurement (archive); REGISTER-BUG-BUCKET v57; project instructions v5_10 section 9 (GATE-1). S150 findings through register v139 section 3.
 ANCHOR: origin/master fdb0df24d0b9dd288223fec55da4185f4ca62382 (PR 593, 12:46:02Z), Vercel production READY on it. Doc repo origin/main a1273232d7435f6f8f14f7332d60acdafe3cd12d; later S155 commits LOCAL.
