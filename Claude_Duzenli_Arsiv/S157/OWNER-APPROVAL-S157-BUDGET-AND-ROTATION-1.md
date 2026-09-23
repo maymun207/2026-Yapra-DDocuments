@@ -1,0 +1,4 @@
+OWNER-APPROVAL-S157-BUDGET-AND-ROTATION-1
+Given: 2026-09-23 07:04 TSI, S157, the owner's words verbatim: "onay bütçe 200/180 + şifre rotasyonu".
+Covers: (1) AWS budget EAIP_Budget_1: the stop action on the declared instance moves to 200 ABSOLUTE_VALUE and one subscribed warning is added at 180 ABSOLUTE_VALUE (monthly spend ceiling up to 200 USD); the card's branch-ref dispatch applies it and its PR lands the declared numbers on master (this approval names that master push). (2) cwf_lane password rotation, same procedure as CARD-LANE-PASSWORD-ROTATION-S155-1-v6, after the open landings.
+Trigger: SCOUT-STATUS-LAND-PR596-S157-1 (bus 2026-09-23T03:58:12Z): budget-fence red since 2026-09-19 (stop 160 below projected 172.45, no subscribed warning between); the scout window printed CWF_LANE_DATABASE_URL (self-reported).
