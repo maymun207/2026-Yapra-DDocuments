@@ -1,0 +1,27 @@
+<!-- relay-audit: v1 kind=notice -->
+ORDER-SCOUT-REVIEW-ROUTING-ARCHITECTURE-v2-S159-3-v1
+
+LANE: scout (scout-1 window; /clear first)
+fanout: personalized (one lane, one body)
+FROM: Architect, S159, 2026-09-26T18:30Z
+OWNER AUTHORITY: OWNER-DESIGN-S159-1 (owner, 19:26 TSI: "Bunu da Scout'la detaylı bir şekilde tartışmamız gerekiyor"). Doc-only review: NO code, NO governed data, NO card is authorised by this order.
+NO POLL OR CRON TASK. Bekleme dongusu yok. When your status is written, stop.
+WHAT: (0) archive your S159-2 full verdict through the bus; (1–5) adversary review of CWF-ROUTING-ARCHITECTURE-v2-DRAFT-S159-3 (doc v3), which claims to apply your D1–D12 in full.
+
+## PREMISE
+READ: doc repo (connected folder "2026 - Yapra - DDocuments") Claude_Duzenli_Arsiv/S159/CWF-ROUTING-ARCHITECTURE-v2-DRAFT-S159-3.md; its sha256 is in the Architect's latest commit message on the S159 folder (git log -1 -- Claude_Duzenli_Arsiv/S159). Base: Claude_Duzenli_Arsiv/S150/A24-V1_3-ARCHITECT-CAPTURE-S150-1-v1.md (218 lines; its sha256 is printed inside doc v3's MEASURED-AT line). Your own verdicts: SCOUT-STATUS-REVIEW-ROUTING-ARCHITECTURE-v2-S159-1 (16:44:11Z) and -S159-2 (17:57:15Z, COMPACT).
+READ (Architect): doc v3 §2 was assembled by a script that copies 80 lines of the A24 capture by LINE NUMBER, each prefixed `A24:L<n> · `, and re-verified every quoted line byte-for-byte against the source (80 quoted, 0 mismatch). Your S159-2 compact said the full text is 14693 chars, sha256 0bf043222706e1f20e7fdf8a834c92a613991fb26d598b42704248eea47b2a89, and that neither the bus (8192 cap) nor the doc repo (sandbox) accepted it.
+SELF-INVALIDATION: dies if master is not 2a6f6781b1a4748aac5f5bc7b1d73136863b1c35 when you read code (review on content, print "master moved"), or if doc v3's sha256 does not match the commit message (stop, print both).
+ON-DISAGREEMENT: YOUR READING WINS; print both.
+
+## STEPS
+0. ARCHIVE YOUR S159-2 FULL TEXT: post it to the bus as TWO scout_reply rows, artifact names SCOUT-STATUS-REVIEW-ROUTING-ARCHITECTURE-v2-S159-2-PART1 and -PART2, each ≤ 8000 characters, split at a line boundary, PART1's first line `PART 1/2 sha256(full)=<64-hex>` and PART2's first line `PART 2/2 sha256(full)=<64-hex>`. The Architect concatenates and verifies the hash, then archives the file into the doc repo. Do not paraphrase; the bytes are the ones behind the hash.
+1. INLINE CHECK, MECHANICAL: for every line in doc v3 §2 that starts with `A24:L<n> · `, compare the remainder byte-for-byte with line n of the A24 capture; print the count of quoted lines and the count of mismatches. Then say whether any A24 rule your S159-2 §1 marked NARROWED is NOT among the quoted lines (K1, K9, K10, K11, K12, K17, K21 + state machine, K22, K26 + §13.1, K28, K29, K31, card faces, learning §8, exams §9, P1–P5).
+2. D1–D12 CHECK: for each of your twelve delta items, name the doc v3 section that applies it and say APPLIED / PARTLY / NOT. Especially: D2 — does E-2 + §9(b) resolve the P4 contradiction (existing keyword rows = hint + ladder floor; obligations = new (condition, TOOL) kind) with BOTH defaults and your numbers? D3 — E-3 obligation on Anthropic = plan constraint + trace check, cache-prefix placement, stage-03 darkness, billed cost. D4 — §5 L1 company-layer items as E4 CODE. D5 — E-7 append-only trace + label table + K24 vocabulary + schema bump + "unbuilt" stated. D6 — E2 splits router.matrixReplace from router.frameEnabled; E3 arms replay RECORDED router output. D8 — §6 fate table. D11 — L1 base set = K17 budgeted set, coverage = K9 conformal; no "score > 0", no "rank ≤ N".
+3. CODE RE-MEASURE, two items only: (a) stageClarify.ts:2764 and :2771 — confirm stage 03 is dark on the Anthropic path and gated by frameRouting on the others (quote both lines); (b) coreSchemas.ts:136 and toolArgPolicy.ts:284-286 — quote the enum and the arg-policy requirement doc v3 names as E4 code items.
+4. DESIGN ADVERSARY, minimum four attacks on what is NEW in v3 (E-1…E-14), each with the section and the bytes: (i) E-2's "hint + ladder floor" — on the SEMANTIC path today keywords are ignored for the current message; v3 says hints are "evaluated on every path" — where in L1/L2 does a keyword hint actually change the offered set on the filtered path when the budget is full, and is that behaviour additive or does it remove today's fallback set? (ii) E-3 cache-prefix placement — can obligated tools stay inside a stable Anthropic prefix if obligations differ per turn? Say what v3 must state. (iii) E-7 — is a separate label table keyed by trace_id consistent with K24 "trace schema frozen", or does K24 need the named v1.1 bump for the label link? (iv) §7 E3 — with all arms fed by RECORDED router output, which arm measures the effect of a DIFFERENT router prompt (none?) and does v3 say so?
+5. VERDICT on doc v3: GREEN-FOR-OWNER-RULING or RED-ON-DESIGN with a COMPLETE delta. If GREEN, also list the §9 (a)–(f) decisions as you would put them to the owner, each with the one number that decides it.
+REPLY with scout_reply (NOT laneSlip) as SCOUT-STATUS-REVIEW-ROUTING-ARCHITECTURE-v2-S159-3, first line `DESIGN-VERDICT: GREEN-FOR-OWNER-RULING|RED-ON-DESIGN doc=CWF-ROUTING-ARCHITECTURE-v2-DRAFT-S159-3`. If the body exceeds 8000 characters, split into -PART1/-PART2 exactly as in step 0 (verdict line first in PART1).
+FORBIDDEN: no code edit, no push, no governed-data change, no poll task, no cron; never print an environment value.
+
+END · ORDER-SCOUT-REVIEW-ROUTING-ARCHITECTURE-v2-S159-3-v1
