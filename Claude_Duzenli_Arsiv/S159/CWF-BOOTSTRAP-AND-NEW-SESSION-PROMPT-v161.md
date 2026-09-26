@@ -15,7 +15,7 @@ Copy it from project instructions section 1 (in context before any tool call). D
    - scout-2 SCOUT-STATUS-LAND-PR622-S159-1 -> if landed: Vercel READY -> item 95 CLOSED; then NOTICE-PR623-MASTER-MERGE-S160-1 to AG-1 (merge origin/master into phase/nightly-compat-floor-22-s159-1, reseal only if the guard asks, push, NO rebase) -> ORDER-SCOUT-LAND-PR623 (item 104; branch dispatch already SUCCESS 16:46:33Z).
    - scout-1 SCOUT-STATUS-REVIEW-ROUTING-ARCHITECTURE-v2-S159-2 -> GREEN-FOR-OWNER-RULING: put OWNER-RULING-S160-ROUTING-V2-1 to the owner in ONE ⚡ message with the five decisions named (doc v2 §9 R6: K1 rollback · migration default OBLIGATION · company layer as data · provider baseline spend · ADR-008). RED-ON-DESIGN: v3 = v2 + complete delta, same session, then the ruling.
    - If either scout row is absent: the owner may not have booted the window; the ⚡ boot texts are in the S159 close message; re-issue them, do not re-post the orders.
-5. DOC REPO: 6+ local commits ahead of remote main (item 107). First AG window of S160 gets NOTICE-PUSH-DOC-REPO-S160-1 (push only; no rebase). Then project_write anything not yet in the project box.
+5. DOC REPO: 5 local commits ahead of remote main at close (measured: git rev-list --count origin/main..HEAD = 5; item 107). First AG window of S160 gets NOTICE-PUSH-DOC-REPO-S160-1 (push only; no rebase). Then project_write anything not yet in the project box.
 6. ITEM 91 (lane password rotation): NOT run in S159; sequence it AFTER both landings (scouts write the bus with the old credential): ⚡ operator text (OPERATOR-PROMPT-S158-ITEM91-ALTER-ROLE-1 re-issued as S160) + AG-4 ORDER 3.
 7. SCHEDULED WORKFLOWS: last conclusion of every scheduled workflow on master; Nightly Compatibility stays RED on master until PR 623 lands.
 
@@ -33,7 +33,7 @@ As v159 §3 (lane name first; "leave auto mode" (Shift+Tab) before an approved e
 - Every document goes to the project box AND the doc repo in the same turn; the bridge cannot push — a lane pushes.
 
 ## 5 · IN FLIGHT AT CLOSE
-PR 622 (item 95) GREEN at fa06452850d5393ce8549530de08320f585d7c80, land order at scout-2 (bus 16:50:47Z), not landed at close. PR 623 (item 104) head ba74a7d6f8c4e914c3a2e6d124495338e2a75a65, branch dispatch SUCCESS, blocked by COLLISION until 622 lands. Doc v2 at scout-1 (order on the bus at close). AG-2 idle; AG-4 idle; AG-1 on 623. master 2a6f6781b1a4748aac5f5bc7b1d73136863b1c35.
+PR 622 (item 95) GREEN at fa06452850d5393ce8549530de08320f585d7c80, land order at scout-2 (bus 16:50:47Z), not landed at close. PR 623 (item 104) head ba74a7d6f8c4e914c3a2e6d124495338e2a75a65, branch dispatch SUCCESS, blocked by COLLISION until 622 lands. Doc v2 at scout-1 (ORDER-SCOUT-REVIEW-ROUTING-ARCHITECTURE-v2-S159-2-v1 on the bus 2026-09-26T17:23:53Z). AG-2 idle; AG-4 idle; AG-1 on 623. master 2a6f6781b1a4748aac5f5bc7b1d73136863b1c35.
 
 ## 6 · THE ONE THING
 S160 opens on the ROUTING RULING: scout verdict on doc v2 -> (v3 if RED) -> OWNER-RULING-S160-ROUTING-V2-1 -> the E1 cards (evaluation ground: held-out set + acceptable-set labels + three-provider baseline; replay/exam code only). In parallel, the two landings (622, 623) and the two small cards that need no ruling: ALWAYS_INCLUDE -> tool_graph_node role=entry data (scout: fence breach now; G2c first half) and item 106 numeric formats. Then item 91 rotation. Nothing on the routing PATH is touched before the ruling (S102-YASA-3).
