@@ -1,0 +1,10 @@
+RULING-S161-F3-F6-1 — owner rulings recorded (S161, 2026-09-28 02:37 TSI)
+
+OWNER-APPROVAL-S161-PLAN-1: the owner's words "onay S161 planı" (02:37 TSI) to CWF-S161-OPEN-AND-PLAN-v1 §3 (P1–P8). Steps outside it — destructive/replacing acts, new spend, any live-routing-path change — still need a separate yes.
+
+OWNER-RULING-S161-F3-F6-1: the owner's words "F3 onay, F6 onay" (02:37 TSI) to the Architect's two recommendations in CWF-S161-OPEN-AND-PLAN-v1 §4. Recorded as ruled, with the Architect's wording corrected to the code's MEASURED names (the recommendation used 'published'/'unconfigured'; the source enum at master c58438b59cff4d1d403634b28e44af9b01db6dea is `'data' | 'absent' | 'unread'`, api/cwf/_lib/knowledge/entryFloor.ts:39 — no new enum is introduced):
+F3 · The stage-07 claim "Liste asla boş kalamaz" is RETIRED. The claim becomes: the floor's SOURCE is named in the stage-07 span every turn (entryFloorSource ∈ data · absent · unread — already recorded at api/cwf/_lib/turn/stageTools.ts:1189). Empty + 'data'/'absent' is a legal state; 'unread' is a named store outage handled fail-closed (OWNER-RULING-S156-FAIL-CLOSED-1). The Routing tab already renders the source per backend (RoutingTab.tsx:650); the Stages tab card text and the coverage claim change with CARD-ENTRY-FLOOR-REQUIRED-S161-1.
+F6 · mcp-catalog under an unreadable rule store: fail closed. The catalog does NOT compute reachability from an 'unread' floor (today it would flag every non-category tool unreachable on an outage — a silent claim); it names the state ('unread') with the error CLASS only, offers nothing from code or memory (OWNER-RULING-S153-NO-ARMES-HARDCODE-1), and the admin MCP settings catalog view shows a "kural deposu okunamadı / rule store unread" badge instead of an unreachable list. Implemented by CARD-ENTRY-FLOOR-REQUIRED-S161-1.
+Register: row 115 CLOSED@this ruling; implementation tracked under row 114.
+Architect blind spot, named (S112-YASA-1): the recommendation invented enum names instead of reading entryFloor.ts first; corrected here before any card used them.
+END · RULING-S161-F3-F6-1
