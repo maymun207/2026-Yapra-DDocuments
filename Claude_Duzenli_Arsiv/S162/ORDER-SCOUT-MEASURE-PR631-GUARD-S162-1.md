@@ -1,0 +1,22 @@
+<!-- relay-audit: v1 kind=notice -->
+ORDER-SCOUT-MEASURE-PR631-GUARD-S162-1
+
+LANE: scout (scout-1 window, in mail-wait)
+fanout: personalized (one lane, one body)
+FROM: Architect, S162, 2026-09-28T18:15Z
+OWNER APPROVAL: OWNER-APPROVAL-S162-PLAN-1 (landing chain 628 → 629 → 630); OWNER-RULING-S161-LANES-WAIT-1.
+NO CRON TASK. GRAFT: graft first. SECURITY: never print, echo, printenv or cat any environment variable.
+WHY: your first measurement (SCOUT-STATUS-MEASURE-PR629-GUARD-S162-1, bus bdc63113-1867-4a2d-8ff5-35aec42df436) named MERGE-HAND-EDIT; the remedy was executed: AG-1 opened PR 631 from a FRESH branch phase/lane-sandbox-allowances-s162-3 off master 7b54180dc68b7f4b3ca76d4cbab45d8bde5f8e26, ONE non-merge commit b2ebe011cae56130bf772339207847810725d90d carrying the same 8 fenced paths (AG-1 proof: diff --stat vs bcb0c576 over the 8 paths EMPTY); PR 629 closed as superseded. At b2ebe011 the Architect read (runs by head_sha, jobs API): Auto-merge landing · report-schema · Relay corpus success; **Build and Test FAILURE AGAIN** — job `changes` step 6 "Merge guard" failure at 18:08:06Z→18:08:08Z (2 s), build/rule26 skipped. NOTE the job STARTED 18 minutes after the PR opened; AG-1's earlier read saw the jobs "never STARTED" with the annotation "recent account payments have failed or your spending limit needs to be increased" (GitHub billing — reported to the owner). There is NO merge commit on this branch, so MERGE-HAND-EDIT cannot be the class; the Architect's hypothesis (UNMEASURED): the FENCE-GREW / first-fence rule — on 629 the guard printed "head fence is held by the first fence, at a566e53e…", a commit that does NOT exist on the fresh branch; a fresh single-commit branch may trip a "fence must exist in the first commit / fence changed" check, or the CLOSED PR 629's fence may still be counted. MEASURE, do not assume.
+WHAT: MEASURE the cause of the guard RED. Do not fix, do not re-run (S55-1), do not post a status.
+
+## STEPS
+1. `git fetch origin` · `git ls-remote origin refs/pull/631/head refs/heads/master` read twice, print both. Expected head b2ebe011cae56130bf772339207847810725d90d; if it moved, measure the CURRENT head and say so in the reply's first line.
+2. The Build and Test run at that head (`gh run list --commit <head> --workflow "Build and Test"` or the runs API by head_sha): job `changes`, step 6 log. Print EVERY line containing `[merge-guard]` VERBATIM, and the last 30 lines of the step. No paraphrase (§12.4).
+3. Name the cause CLASS from those bytes: COLLISION (with #630 — who yields); FENCE / FENCE-GREW (quote the rule in scripts/mergeGuard.mjs at the merge-base by line; say whether a fresh single-commit branch whose report carries the fence in its ONLY commit can pass it, and whether the closed PR 629 or its branch is still counted); CLEAN-MERGE (impossible here: one non-merge commit — say so if the guard claims otherwise); OTHER (print). If the class is a GUARD DEFECT for fresh branches, say so plainly and name the line — that becomes a card; if it is a PR defect, name the exact byte AG-1 must change.
+4. Fence check yourself: `git diff --name-only origin/master...<head>` vs the ```scope``` fence in docs/relay/LANE-SANDBOX-ALLOWANCES-S161-1-AG1-report.md at that head — print both sets and the difference both ways. Also `git log --format=%H --first-parent origin/master..<head>` (expected exactly one sha).
+5. (unchanged from the first order) package.json at head: `git diff origin/master -- package.json | grep -c '^-'` and `grep -c '^+'`; confirm `check:backend-names` is present exactly once and every `tsx scripts/` script line is `node --import tsx` (the union rule of the notice).
+6. REPLY with scout_reply as SCOUT-STATUS-MEASURE-PR631-GUARD-S162-1, first line `GUARD-CAUSE: COLLISION|FENCE|CLEAN-MERGE|OTHER pr=631 head=<40-hex>`, then the verbatim lines, then ONE sentence naming who must act (AG-1 on its own PR, or a guard defect for a card). If the bus write is refused, write the same bytes to "2026 - Yapra - DDocuments/Claude_Duzenli_Arsiv/S162/SCOUT-STATUS-MEASURE-PR631-GUARD-S162-1.md" and print its sha256.
+7. THEN DO NOT STOP: `node scripts/mail-wait.mjs scout --budget-min 480`; exit 0 → --read the new order, execute, reply, wait again; 3 → "NO MAIL", stop; 4 → READ FAILED with reason, stop.
+FORBIDDEN: no edit, no push, no merge, no re-run, no dispatch, no status post, no cron; never print an environment value.
+
+END · ORDER-SCOUT-MEASURE-PR631-GUARD-S162-1
