@@ -1,0 +1,6 @@
+RULING-S161-TRUSTD-NARROW-1 — owner ruling recorded (S161, 2026-09-28 03:58 TSİ)
+
+OWNER-RULING-S161-TRUSTD-NARROW-1: the owner's words "trustd dar onay" (03:58 TSİ) to the Architect's recommendation in the S161 ⚡ of 03:52 TSİ, resting on scout-2's measurement (SCOUT-STATUS-REVIEW-CARD-LANE-SANDBOX-ALLOWANCES-S161-1-v1 §1, §6): for lanes to verify TLS inside the Claude Code sandbox, ONLY the narrow key `sandbox.network.allowMachLookup: ["com.apple.trustd.agent"]` may be set (CARD-LANE-SANDBOX-ALLOWANCES-S161-1-v2 ORDER 4). The wide key `sandbox.enableWeakerNetworkIsolation` — flagged by Claude Code's own schema as "Reduces security … exfiltration vector" — is NOT enabled. If the narrow key is insufficient, gh stays OUTSIDE the sandbox as a named residual (F-S161-SANDBOX-TRUSTD-NARROW-KEY-INSUFFICIENT-1) and the wide key needs a NEW ruling; nothing in this ruling authorises it.
+Attribution (S112-YASA-1): the two-key distinction and the security reading are scout-2's measurement; the Architect's v1 card named a mechanism ("CA bundle / keychain") the installed schema does not have — Architect blind spot, corrected in v2.
+Register: row 113 carries this ruling; row 87/118 unchanged.
+END · RULING-S161-TRUSTD-NARROW-1
