@@ -6,12 +6,12 @@ fanout: personalized (one lane, one body)
 MEASURED-AT: 2026-09-28T00:55Z (bridge clock, date -u)
 SUPERSEDES: CARD-LANE-SANDBOX-ALLOWANCES-S161-1-v1 (scout-2 RED, SCOUT-STATUS-REVIEW-CARD-LANE-SANDBOX-ALLOWANCES-S161-1-v1, doc repo S161/, sha256 6221f416f822202dd74450db234613348dc00cec6f7a7bc6224da3f9e1844d64, 2026-09-28T00:25:54Z). v2 = v1 with the scout's complete delta 1–7 applied where each is named. The scout's findings are credited to scout-2 (S112-YASA-1).
 OWNER APPROVAL: OWNER-APPROVAL-S161-PLAN-1 ("onay S161 planı", 2026-09-28 02:37 TSI, plan step P5). Register rows 113 (a–d), 66, 118, 87, 17, 109 named below.
-ADVERSARY GATE: EXEMPT for this re-cut only — the loop-breaking case of 12.1: v2 repeats v1's subject and applies the scout's own complete delta and nothing else; OWNER-RULING-S133-P6-SCOPE-AND-LOOP-1.
+ADVERSARY GATE: EXEMPT for this re-cut only (REFUSAL CARRIED, 12.2: the bus gate AG009 refused the first insert because `ack` must be a bus ROW id, not a file sha; the scout status was relayed to the bus and this ack names that row) — the loop-breaking case of 12.1: v2 repeats v1's subject and applies the scout's own complete delta and nothing else; OWNER-RULING-S133-P6-SCOPE-AND-LOOP-1.
 
 ```evidence:adversary
 ADVERSARY: EXEMPT
-ack: 6221f416f822202dd74450db234613348dc00cec6f7a7bc6224da3f9e1844d64
-basis: project instruction 12.1 loop-breaking case + OWNER-RULING-S133-P6-SCOPE-AND-LOOP-1; ack = SCOUT-STATUS-REVIEW-CARD-LANE-SANDBOX-ALLOWANCES-S161-1-v1 (doc-repo file sha256; the scout cannot post through laneSlip, item 7), whose delta 1-7 this body applies
+ack: 3b53021c-8a4b-44af-9b49-997e27cd245e
+basis: project instruction 12.1 loop-breaking case + OWNER-RULING-S133-P6-SCOPE-AND-LOOP-1; ack = SCOUT-STATUS-REVIEW-CARD-LANE-SANDBOX-ALLOWANCES-S161-1-v1 (bus row 3b53021c-8a4b-44af-9b49-997e27cd245e, 2026-09-28T00:48:23Z — the scout file relayed to the bus by the Architect; file sha256 6221f416f822202dd74450db234613348dc00cec6f7a7bc6224da3f9e1844d64), whose delta 1-7 this body applies
 ```
 BRANCH: phase/lane-sandbox-allowances-s161-2 off origin/master · PUSH early · REPORT docs/relay/LANE-SANDBOX-ALLOWANCES-S161-1-AG1-report.md · PR: yes, non-draft, opened in THIS card.
 GRAFT: take context from graft first (laneWrite.resolveLaneDsn/laneExec, laneSlip.postSlip, mail-wait.mjs:1079, checkGroundTruth.ts:223, guard-secrets.py GS-3/GS-4). Slip and report carry a GRAFT line.

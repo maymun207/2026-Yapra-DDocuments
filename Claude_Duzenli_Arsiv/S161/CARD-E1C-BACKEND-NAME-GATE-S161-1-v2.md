@@ -6,12 +6,12 @@ fanout: personalized (one lane, one body)
 MEASURED-AT: 2026-09-28T01:00Z (bridge clock, date -u)
 SUPERSEDES: CARD-E1C-BACKEND-NAME-GATE-S161-1-v1 (scout-1 RED, SCOUT-STATUS-REVIEW-E1-CARDS-S161-1-v1, doc repo S161/, sha256 5a0b6330429e93a9793cf8857b226dfbdea4253caa3e0da88549ad349749ef66). v2 = v1 with the scout's complete delta C1–C8 applied where each is named; the v1 "50 files / 71 matches" premise is DROPPED (scout item 2: not reproducible in any reading). Findings credited to scout-1 (S112-YASA-1).
 OWNER APPROVAL: OWNER-APPROVAL-S161-PLAN-1 ("onay S161 planı", 2026-09-28 02:37 TSI, plan step P7, card E1-c) · OWNER-RULING-S159-A25-ADOPT-1 · OWNER-RULING-S153-NO-ARMES-HARDCODE-1 (top rule). Register rows 58 (G4), 103 E1 named below.
-ADVERSARY GATE: EXEMPT for this re-cut only — the loop-breaking case of 12.1: same subject, the scout's own complete delta and nothing else; OWNER-RULING-S133-P6-SCOPE-AND-LOOP-1.
+ADVERSARY GATE: EXEMPT for this re-cut only (REFUSAL CARRIED, 12.2: the bus gate AG009 refused the first insert because `ack` must be a bus ROW id, not a file sha; the scout status was relayed to the bus and this ack names that row) — the loop-breaking case of 12.1: same subject, the scout's own complete delta and nothing else; OWNER-RULING-S133-P6-SCOPE-AND-LOOP-1.
 
 ```evidence:adversary
 ADVERSARY: EXEMPT
-ack: 5a0b6330429e93a9793cf8857b226dfbdea4253caa3e0da88549ad349749ef66
-basis: project instruction 12.1 loop-breaking case + OWNER-RULING-S133-P6-SCOPE-AND-LOOP-1; ack = SCOUT-STATUS-REVIEW-E1-CARDS-S161-1-v1 (doc-repo file sha256), whose delta C1-C8 this body applies
+ack: 84936227-10bc-435a-863e-80f8f14ca22e
+basis: project instruction 12.1 loop-breaking case + OWNER-RULING-S133-P6-SCOPE-AND-LOOP-1; ack = SCOUT-STATUS-REVIEW-E1-CARDS-S161-1-v1 (bus row 84936227-10bc-435a-863e-80f8f14ca22e, 2026-09-28T00:49:48Z — the scout file relayed to the bus by the Architect; file sha256 5a0b6330429e93a9793cf8857b226dfbdea4253caa3e0da88549ad349749ef66), whose delta C1-C8 this body applies
 ```
 BRANCH: phase/e1c-backend-name-gate-s161-2 off origin/master · PUSH early · REPORT docs/relay/E1C-BACKEND-NAME-GATE-S161-1-AG2-report.md · PR: yes, non-draft, opened in THIS card.
 GRAFT: take context from graft first (scripts/checkTenantZero.ts + scripts/tenantZeroLens.ts as the pattern; scripts/harnessSelfTest.ts ENROLLED_INSTRUMENTS; scripts/checkGroundTruth.ts groundContract; build-test.yml changes job). Slip and report carry a GRAFT line.
