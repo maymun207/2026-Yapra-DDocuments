@@ -1,0 +1,28 @@
+diff --git a/.claude/settings.json b/.claude/settings.json
+index fcf7d0df..f3f92f56 100644
+--- a/.claude/settings.json
++++ b/.claude/settings.json
+@@ -103,7 +103,8 @@
+       "Edit(package.json)",
+       "Write(supabase/migrations/**)",
+       "Edit(supabase/migrations/**)",
+-      "Bash(graft:*)"
++      "Bash(graft:*)",
++      "WebFetch(domain:arxiv.org)"
+     ],
+     "deny": [
+       "mcp__supabase-ro__apply_migration",
+@@ -205,11 +206,9 @@
+     "type": "command",
+     "command": "node \"${CLAUDE_PROJECT_DIR:-.}/.claude/helpers/graft-statusline.cjs\""
+   },
++  "footerLinksRegexes": [],
+   "subagentStatusLine": {
+     "type": "command",
+     "command": "node \"${CLAUDE_PROJECT_DIR:-.}/.claude/helpers/graft-statusline.cjs\""
+-  },
+-  "footerLinksRegexes": [
+-    "graft/[\\w./-]+\\.md"
+-  ]
++  }
+ }
