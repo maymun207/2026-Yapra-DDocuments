@@ -1,0 +1,41 @@
+<!-- relay-audit: v1 kind=card -->
+CARD-LANE-RESILIENCE-S166-1-v2
+
+LANE: AG-1 (the AG-1 window ONLY; any other window prints "NOT MINE: AG-1 card" and stops). Thank you for SLIP-NOTICE-VECTORLANE-RESEAL-AFTER-650-S166-1.
+SUPERSEDES CARD-LANE-RESILIENCE-S166-1 (never sent to a lane; addressed to AG-4, re-addressed to AG-1 because AG-4 holds the 652 re-seal). v2 = v1 + scout-2's amendments A1–A6 and its ADVISORY from SCOUT-STATUS-PREREVIEW-LANE-RESILIENCE-S166-1 (full text sha256 d414ac7dce5bf90238f023dbf77ca38a1a1b8c2086b87d4828a2fbc6177845c4), pasted verbatim.
+fanout: personalized (one lane, one body)
+FROM: Architect, S166, 2026-09-30T19:30Z
+PRECONDITION: master = your `git ls-remote origin refs/heads/master` (d768bc2915524b7fbe5987aa86f45d8932f09508 at 19:27Z). scripts/mail-wait.mjs at that master returns EXIT_READ_FAILED on the FIRST failed read at establishment (:1512-1549), poll (:1654-1672), page (:1730-1747) and BOX-PROBE (:1772-1789) — scout-2 measured, mail-wait unchanged since fb28343ea332e98aa588bf73acc0762c84e1d9dc.
+ON-DISAGREEMENT: if those sites are not what you read, STOP and quote the lines.
+WHY: register 170 / F-S165-MAC-OFFLINE-LANES-DROP: the Mac lost network twice on 2026-09-30 (~7 h); every window's mail-wait exited 4 on the first failed read and each window needed a human re-boot. Register 178 / LANE-NO-WAIT-1 Z3: `gh pr close` is ordered by cards and is not on the allow-list, so a window waits silently for a human click.
+AUTHORITY: OWNER-APPROVAL-S166-PLAN-1 ("plani onayliyorum", 2026-09-30 21:55 TSİ), CWF-S166-PLAN-v2 items 1d and Z3 · §13.5 · PLATINUM. ADVERSARY: scout-2 pre-reviewed v1 — "with A1–A6 the card is GREEN"; v2 carries them verbatim.
+```evidence:adversary
+ADVERSARY: EXEMPT
+ack: 09a15a9c-407e-4704-96b7-90121cb9fd2f
+why: scout-2's SCOUT-STATUS-PREREVIEW-LANE-RESILIENCE-S166-1 returned A1-A6 and said the card is GREEN with them; v2 carries A1-A6 verbatim (same subject, loop-breaking, OWNER-RULING-S133-P6-SCOPE-AND-LOOP-1).
+```
+NO CRON TASK. GRAFT: graft first (graft/scripts/mail-wait.md, graft/.graph/wiring.json). SECURITY: never print, echo, printenv or cat any environment variable.
+UI/UX (§13.3): none — no data or architecture change reaches the admin UI; say so in the report.
+
+## WORK (push-first: branch + first commit + push + PR within 10 minutes; proofs after, CI is the certificate)
+R1. TRANSIENT RETRY IN mail-wait, one exported helper used at the retry sites. Every failed read is PRINTED (empty ≠ zero): a failed poll is never counted as "no mail"; on a transient failure print `[mail-wait] [READ-FAILED] <label> TRANSIENT (<reason>) — retry <k> in <s>s` and retry with backoff 15 s, 30 s, 60 s, then every 120 s until the run's deadline; if the deadline passes with only failed reads since the last good read, exit EXIT_READ_FAILED (4) with `[READ-FAILED] <n> transient failures, last: <reason>` — NEVER EXIT_NO_MAIL (3); the first good read after failures prints `[mail-wait] read path RESTORED after <n> failures (<seconds> s)`.
+A1 (replaces R1's TRANSIENT bullet): "TRANSIENT is judged on the RENDERED message, because rpc (scripts/mail-wait.mjs:313-323) throws only the envProxy CLASS and the HTTP status, never a raw error code. TRANSIENT = the classes CONNECT, ROUTED-DNS and PROXY-REFUSED from `FETCH_CLASS` (matched as `<CLASS>: fetch failed` anywhere in err.message, including behind `initialize: `), and `HTTP 408|429|500|502|503|504 from MCP`. NOT transient, exit at once exactly as today: PROXY-SET-UNUSED, DNS, FETCH-FAILED, `AUTH:` (401/403), any other HTTP status, `MCP error`, `no JSON array`, `SSE reply carried no data frame`, any JSON/parse error. Import FETCH_CLASS from ./envProxy.mjs; do not re-spell the class names."
+A2 (added to R1): "A retry re-opens the session: each retried attempt calls `connect(endpoint)` again and uses the NEW session id for the query, because after an outage the MCP server may have dropped the old session and would answer 404/400, a non-transient failure, turning every recovered link into an exit 4. `endpoint` is not re-resolved."
+A3 (added to R1): "Retry applies ONLY in main() at four sites: establishment (:1512-1549), poll (:1654-1672), page (:1730-1747) and the BOX-PROBE (:1772-1789). `rpc`, `connect` and `query` are NOT changed: factoryState.mjs, archivePush.mjs, authoritySnapshot.mjs and laneBoot.mjs import them. BOX-NON-EMPTY-BUT-READ-EMPTY (:1791-1802), --read/readCard, --table-lens and --pre-watermark keep exit-at-once."
+A4 (replaces the helper signature): "`retryTransient(fn, { deadline, now = Date.now, sleep, log, label })` — the deadline is compared with the injected `now`, and R3 drives a fake clock that its fake `sleep` advances. `const deadline` in main() moves ABOVE the establishment try (today it is set at :1551, after it), so establishment has a deadline to honour."
+A5 (PROXY-REFUSED ambiguity; added to R1): "PROXY-REFUSED is also what a permanent proxy deny prints (scripts/envProxy.mjs, measured UND_ERR_ABORTED), so it is retried only AFTER this run has completed at least one successful read. At establishment, before any read has succeeded, a transient failure retries on the same backoff but for at most 10 minutes, then exits 4 as today. The watermark read (:1570-1580) retries on the same rule before it may fall back to `watermark=UNMEASURED`, so a boot-time blip does not silently downgrade the predicate for the whole run."
+R2. ALLOW-LIST.
+A6 (R2): "Add `Bash(gh pr close:*)` after `Bash(gh pr create:*)` (.claude/settings.json:54 at master), authored on master's file in the worktree; the shared clone's staged settings.json change is not carried. Cards that order a close say `gh pr close <n>` WITHOUT `--delete-branch`; a branch is deleted only after MERGED-by-content is measured (RULE-49)."
+R3. TEST: new `api/cwf/__tests__/mailWaitTransient.test.ts` on the helper with injected now/sleep (no real waiting): (a) two transient failures then success → returns the value, prints 2 retries + RESTORED; (b) `AUTH:` → rejects at once, no retry; (c) transient until deadline → rejects as READ-FAILED, never resolves as "no mail"; (d) classification table over the rendered messages of A1 → transient true/false.
+ADVISORY (not blocking): R3 should add (e) "PROXY-REFUSED before any good read → exits 4 within the establishment cap" and (f) "a retried poll re-connects: the injected connect is called once per attempt". While a lane retries, its heartbeat also fails each tick (it opens its own connection via factoryState), so the foreman's table shows the stall. Say so in the report, as the visibility answer to "silent for hours".
+FENCE: scripts/mail-wait.mjs · api/cwf/__tests__/mailWaitTransient.test.ts · .claude/settings.json · docs/relay/LANE-RESILIENCE-S166-1-AG1-report.md · public/architecture/manifest.json (only if `npm run reseal` is required; this card is judged by the CURRENT master's guard).
+
+## STEPS
+1. `git ls-remote origin refs/heads/master` (twice). `git worktree add <scratch>/wt-lr -b phase/lane-resilience-s166-1 <master sha>`.
+2. Implement R1–R3. `npx vitest run api/cwf/__tests__/mailWaitTransient.test.ts` and the existing `api/cwf/__tests__/mailWait*.test.ts` ONCE each (proof budget, register 173).
+3. Report (one `FILE-FENCE:` line + the paths above), ONE commit (`git commit -F <file>`), `git push origin phase/lane-resilience-s166-1`. Open the PR (`gh pr create --base master`) ONLY when no other open PR fences public/architecture/manifest.json (today: #651, #652 open) — if your change does not need the manifest, leave it out of the fence and open at once; print PR number + head 40-hex.
+4. Slip SLIP-CARD-LANE-RESILIENCE-S166-1 (bus; same bytes to "2026 - Yapra - DDocuments/Claude_Duzenli_Arsiv/S166/SLIP-CARD-LANE-RESILIENCE-S166-1.md"). Remove your worktree (`git worktree remove`, `git worktree prune`). Back to `node scripts/mail-wait.mjs AG-1 --budget-min 480`.
+BUDGET: first push ≤ 10 min after taking the card; whole card ≤ 45 min. A permission you cannot pass → write it in the slip and stop — never wait silently.
+FORBIDDEN: --force; any path outside the fence; changing exit-code numbers or their meaning; `--delete-branch`; merging; migration; cron; printing an environment value.
+
+END · CARD-LANE-RESILIENCE-S166-1-v2
