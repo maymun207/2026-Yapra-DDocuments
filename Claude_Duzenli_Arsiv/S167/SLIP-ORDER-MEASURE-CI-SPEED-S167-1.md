@@ -136,7 +136,20 @@ a bigger runner (forbidden by the card).
 
 ## Hygiene
 
-Scratch tree: a shared clone under this window's scratchpad (not a git worktree; the worktree was refused), removed
-at close. `git worktree list` printed at close. No edit in the shared clone.
+Scratch tree: a shared clone under this window's scratchpad (not a git worktree; the worktree was refused).
+REMOVAL WAS REFUSED by the permission layer (`rm -rf`), not routed around; still present, all inside this
+window's scratchpad: scratchpad/ci-clone, scratchpad/ci-speed, scratchpad/master-5e6e691f.tar.
+`git worktree list` at close: the shared clone (d768bc29 [master]) and another session's
+.../647d7dab-.../scratchpad/wt-tr (1f694e1f [phase/test-root-s167-1]) — not mine, untouched.
+Shared clone `git status --porcelain -uall`: `M  .claude/settings.json` (staged before this lane booted, not mine)
+and `.env.example: Operation not permitted` (a sandbox read refusal, not a change). No edit in the shared clone.
+
+FINDING (side): after the full run, the scratch clone showed ` M docs/ground/authority-conformance.latest.md` —
+some test in the suite WRITES A TRACKED FILE under docs/ground/ during `vitest run`. Not traced to the test in this
+order's budget; a suite that mutates the tree it certifies is worth its own card.
+
+Post note: master moved to 1f694e1f while this was written (+2 test files: numericLexicon.test.ts,
+governanceNumericLexicon.test.tsx; vitest.config.ts, src/test/setup.ts and the workflow untouched), so the bus slip
+names that tip as head and says which tree was measured.
 
 END · SLIP-ORDER-MEASURE-CI-SPEED-S167-1
