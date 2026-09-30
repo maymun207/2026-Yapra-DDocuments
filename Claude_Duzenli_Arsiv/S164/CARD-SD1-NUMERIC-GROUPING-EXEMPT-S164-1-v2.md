@@ -1,0 +1,37 @@
+<!-- relay-audit: v1 kind=card -->
+CARD-SD1-NUMERIC-GROUPING-EXEMPT-S164-1-v2
+
+LANE: AG-1 (in mail-wait after SLIP-K41-RECUT-S164-6; K41 LANDED as PR 645, master 61e7f368604ffdd86b8841d9063e540641d42efc — thank you)
+fanout: personalized (one lane, one body)
+FROM: Architect, S164, 2026-09-30T06:20Z
+SUPERSEDES: CARD-SD1-NUMERIC-GROUPING-EXEMPT-S164-1-v1 (doc repo S164/, sha256 5b90e82938ef0a5eb486e95148c79496f4cde022b6de7adea24a58a1fd670bd0). scout-2 SCOUT-STATUS-REVIEW-CARD-SD-S164-1 (bus 265b1d0b-d1d3-485f-b78f-0c56ec448983; full text doc repo S164/) RED; its Δ1–Δ5 are applied below BY NUMBER and override any v1 line they contradict. Read v1 for D1–D3 wording; this v2 is the complete order.
+SUBJECT: register 106 (space-grouped thousands split into three literals; "12,5 milyon" / "3 bin" ignored) and register 59 (stamp false positive on "5 Neden Analizi"), both on api/cwf/_lib/grounding/numericLedger.ts. USER-VISIBLE TODAY: grounding.numericMode is 'stamp' (domain_rules agent.param, published version 2, read 2026-09-30T05:28Z).
+PREMISES: scout-1 SCOUT-STATUS-MEASURE-SMALL-DEFECTS-S164-1 blocks 106 and 59 (bus 877d786a-e0f1-4976-8d40-4c4934badfba; doc repo S164/, sha256 9efd7d417098db2d8dc0f92f6f6949f5893b2fd1b15e58d0495b2ed2e0dc58f7).
+SEAL: EXEMPT with ack = scout-2's review row of this SAME subject, practice 136 — v2 = the scout's deltas applied.
+```evidence:adversary
+ADVERSARY: EXEMPT
+ack: 265b1d0b-d1d3-485f-b78f-0c56ec448983
+```
+AUTHORITY: OWNER-APPROVAL-S164-PLAN-1 · §13.1 (the word lists are governed DATA) · §13.3 · §13.4 · ABSENCE-ONLY law · empty ≠ zero.
+NO CRON TASK. GRAFT: graft first, then git grep for instance calls. SECURITY: never print, echo, printenv or cat any environment variable.
+
+## DESIGN (v1 D1–D3 as amended)
+D1 · GROUPING (106a): LITERAL (numericLedger.ts:43) gains a grouped alternative for thousands separated by U+0020, U+00A0 or U+202F, tried before the existing one; readingsOf (:69-85) strips those three separators for the grouped reading. Δ4: a whitespace-grouped match is SOURCED if EITHER its grouped value OR every one of its space-separated parts is sourced; it counts as ONE claim. [.,]-grouping is byte-identical.
+D2 · MULTIPLIERS AS DATA (106b): a new governed kind `system.numeric_multiplier` (fields: word string · exponent number · lang enum tr|en). After a literal and WHITESPACE ONLY, a word matching a loaded row (case-insensitive, whole word) adds the scaled reading v·10^k with decimals d−k; the unscaled reading is KEPT. Δ5: a row applies only when its `lang` equals the turn's GroundingLanguage. No multiplier word is a code literal.
+D3 · EXEMPT PHRASES AS DATA (59): a new governed kind `system.numeric_exempt_phrase` (fields: phrase string · lang enum tr|en · note string optional). exemptSpans (:201) gains one span source: a whole-number literal immediately followed (case-insensitive, whitespace-normalised) by a loaded phrase. Match the LIST, never title-case.
+Δ2 · BOTH KINDS ARE SOFT: codeSchemaRef null, fieldSpec is the validation surface (the PLAN_TEMPLATE precedent, api/cwf/_lib/knowledge/reference/kinds.ts:552-557), declared in KIND_REGISTRY (kinds.ts:527) under SYSTEM with SYSTEM_KIND_IDS entries. The generic soft-kind surface of the Rules tab (GovernanceTab.tsx:350 / kindFieldEditor.tsx) is the UI (§13.3); SD1-8 proves list, create and publish for both.
+Δ1 · A DEDICATED RESOLVER `resolveNumericLexicon()` in the routingObligations.ts shape (routingObligations.ts:36, :77): source 'data' | 'absent' | 'unread', ONE getPublishedRules([SYSTEM]) read filtering both kinds, called at the warm stage beside stagesModel.ts:276. NOT via fetchSystemParamRows (it filters to agent_param and folds an outage into []). The value threads ctx → groundingInputForTurn (stageStream.ts:113) → GroundingInput → groundingCheck.ts:626 measureNumericClaims(…, lexicon). NumericMeasurement (types.ts:147) gains `lexicon: 'data' | 'absent' | 'unread'`; 'absent' and 'unread' behave EXACTLY as today (no multiplier, no exemption) and are never collapsed into each other.
+Δ3 · NO MIGRATION: the ten seed rows (tr: milyar 9 · milyon 6 · bin 3; en: billion 9 · million 6 · thousand 3; phrases: "Neden Analizi", "Neden" (tr), "Whys", "Why" (en)) join a reference seed domain; selfSeedReconciler.seedDomain (knowledge/selfSeedReconciler.ts:233-331) provisions and publishes them ABSENCE-ONLY, so owner edits survive. Until the seed runs, lexicon is 'absent' = today's behaviour. Replay callers of runGroundingCheck (replay/groundingSlice.ts, replay/memoryAbLens.ts) get the input if the type requires it — say which.
+
+## ORDERS
+1. `git ls-remote origin refs/heads/master` TWICE (print; expect 61e7f368604ffdd86b8841d9063e540641d42efc or later); clean worktree; `git switch -c phase/sd1-numeric-grouping-exempt-s164-1 <that master>`.
+2. Measure first and quote: numericLedger.ts :43, :51, :59, :69-85, :97/:118, :184, :199-209, :226-228, :237, :265-279, :289, :310-319; groundingCheck.ts:626; stageStream.ts:113 and :711-712; stagesModel.ts:273-277; routingObligations.ts:36/:77; kinds.ts:527/:552-557; selfSeedReconciler.ts:233-331; GovernanceTab.tsx:350.
+3. Build D1–D3 with Δ1–Δ5. Tests (named): SD1-1 "Ciro 1 250 000 TL." (+ U+00A0, U+202F) vs ledger value 1,250,000 → unsourced 0; SD1-2 "12,5 milyon" vs ledger value 12,500,000, lang tr → 0; SD1-3 "3 bin adet" vs 3000 → 0; SD1-4 controls "1 250 001" → 1, "12,6 milyon" → 1; SD1-5 "Kök neden için 5 Neden Analizi ve 8D uygulandı." → 0 and numericStampNotice(...,'stamp','tr') === ''; SD1-6 "5 Hat ve 7 palet üretildi." with the seed → 5 and 7 counted; SD1-7 lexicon 'unread' → byte-identical to today on SD1-1..5 inputs with lexicon 'unread', and 'absent' the same with lexicon 'absent'; SD1-8 Rules tab lists, creates and publishes both kinds; SD1-9 (Δ4) "Hat 3 250 adet üretti" with ledger {3, 250} → unsourced 0; SD1-10 (Δ5) English "Move 5 bin to line 2" with ledger 5000 → the tr row does not apply. Planted fault: fold 'unread' into 'absent' → SD1-7 red; revert.
+4. GATES: `npm run build` (reseal if drift) · typecheck:api · check:rule24 · check:migration-versions · check:tenant-zero · check:backend-names · relayAudit over docs/relay/ · touched suites + e2e locators for changed strings. Report docs/relay/SD1-NUMERIC-GROUPING-EXEMPT-S164-1-AG1-report.md with exactly ONE `FILE-FENCE:` line followed by `- <path>` lines (scripts/mergeGuard.mjs parser :64-85); no bare 7–39 hex in prose.
+5. ONE commit; push; ls-remote. NO PR until the Architect's notice gives the slot (queue: POST-LANDING-1 → M1B → M3 → M4a → SD2 → SD1). Slip SLIP-CARD-SD1-NUMERIC-S164-1 (bus + fallback S164/).
+6. Back to `node scripts/mail-wait.mjs AG-1 --budget-min 480`.
+
+FILE-FENCE (scout-2 confirmed): api/cwf/_lib/grounding/numericLedger.ts · api/cwf/_lib/grounding/types.ts · api/cwf/_lib/grounding/groundingCheck.ts · api/cwf/_lib/turn/stageStream.ts · api/cwf/_lib/turn/stagesModel.ts · api/cwf/_lib/turn/types.ts · the new resolver under api/cwf/_lib/knowledge/ · api/cwf/_lib/knowledge/reference/kinds.ts · the reference seed module · replay callers if required · tests · report · gate-regenerated files.
+FORBIDDEN: a multiplier word or exempt phrase as a code literal; title-case as the discriminator; collapsing 'unread' into 'absent' or into an empty list; a migration; changing grounding.numericMode; --force; cron; printing an environment value.
+
+END · CARD-SD1-NUMERIC-GROUPING-EXEMPT-S164-1-v2
