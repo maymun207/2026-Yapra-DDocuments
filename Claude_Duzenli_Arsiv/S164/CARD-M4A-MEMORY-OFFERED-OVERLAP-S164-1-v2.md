@@ -1,0 +1,43 @@
+<!-- relay-audit: v1 kind=card -->
+CARD-M4A-MEMORY-OFFERED-OVERLAP-S164-1-v2
+
+LANE: AG-4 (in mail-wait; M1B prepped)
+fanout: personalized (one lane, one body)
+FROM: Architect, S164, 2026-09-30T04:52Z
+SUPERSEDES: CARD-M4A-MEMORY-OFFERED-OVERLAP-S164-1-v1. scout-2 SCOUT-STATUS-REVIEW-CARD-M4A-S164-1 (bus 23ae74c7-03ab-42bc-985b-3ad7e3005dd8; full text doc repo S164/) RED; its Δ1–Δ6 are applied below BY NUMBER and override any v1 line they contradict.
+SUBJECT: A26 v1_2 §9 row M4, first half (M4a): make "memory offered" DURABLE with ids, and add an honest, zero-LLM OVERLAP measure (never called "used"), with a daily series and a panel. Built from scout-2's map SCOUT-STATUS-MAP-M4-S164-1 (bus b2b48d68-fc6c-44c3-a3a4-dda824178dd4; full text doc repo S164/SCOUT-STATUS-MAP-M4-S164-1.md, sha256 2a4a40ba347372c0e507aea02dc366e51561ce60322ca843a35301dbf63cb29e), whose §1, §2, §5, §6 are this card's premises by reference. M4b (shadow helped + gold/abstention scorer) is a separate, spend-gated card that waits on the owner ratifying the MEMORY-1 bar (A26 K7).
+SEAL: EXEMPT with ack = scout-2's review row of this SAME subject, practice 136 — v2 = the scout's deltas applied.
+```evidence:adversary
+ADVERSARY: EXEMPT
+ack: 23ae74c7-03ab-42bc-985b-3ad7e3005dd8
+```
+AUTHORITY: OWNER-RULING-S164-A26-V12-1 · OWNER-RULING-S160-UI-UX-WITH-EVERY-CARD-1 · §13.1 (no backend literal; thresholds are governed health.* params) · empty ≠ zero (§2).
+NO CRON TASK. GRAFT: graft first, and git grep for instance calls (graft's callers view missed them in M2). SECURITY: never print, echo, printenv or cat any environment variable.
+
+## DESIGN
+D1 · OFFERED WITH IDS (map §1): at the one stamp site memoryRetrieve.ts:620, `ctx.memoryOffered` gains `ids: string[]` (episode ids in offered order) and `blocks: {episodic: boolean, routine: boolean, dossier: boolean}`; type at turn/types.ts:720. Null = unavailable (retrieval did not run / failed, the ATTR_MEMORY_UNAVAILABLE posture); `count: 0` with `ids: []` = a real zero.
+D2 · DURABLE (map §1): the telemetry `turn_done` payload (stageStream.ts:853-861) gains `memoryOffered` {count, ids, blocks, unavailable} and `memoryOverlap` (D3). chatQuotaStream.test.ts:358's strict key pin is UPDATED by name. turn_trace_digest is NOT a source (display-only by law) and is not touched.
+D3 · OVERLAP, NOT "USED" (map §2): a pure module beside memoryRetrieve computes, per offered row, `overlap(row)` = the turn acted on something the row carried: (a) an entity id of the row is in ctx.entityResolutions canonical ids or in a called tool's args by id; (b) a tool name of the row was called this turn; (c) routine: the plan was seeded from ctx.offeredRoutine AND its first step's tool was called. Output `{rowsWithOverlap, byKind: {entity, tool, routine}}`; unknown when the evidence is unavailable (never 0 by default). The word "used" appears nowhere in code, UI or docs; the UI label says "overlap (not causation)".
+D4 · DAILY SERIES + PANEL (map §5): api/admin/health-analytics.ts gains a daily series from turn_done: turns with memory offered, mean offered count, turns with overlap, overlap rate — with "no data" (not 0) for days without memory telemetry. Rendered in MemoryTab's health block (≈:179-190) beside the existing memory band slot (memoryTick). Any warn threshold is a governed health.* param resolved like the existing ones (e.g. :496), never a literal; if no threshold is needed, none is added.
+D5 · The live chip (ChatShell.tsx:539-556, chatSurface.ts:110) is NOT changed except to keep its type compiling; no prompt text, no recall filter, no learn door is touched.
+
+## v2 DELTAS (scout-2, applied; each OVERRIDES the v1 line it names)
+Δ1 (overrides D4's "migration-free" and the FORBIDDEN "a migration" line): ONE Operator-pending migration `health_memory_daily(p_from, p_to)` — a SQL function reached by RPC in the house pattern of the four existing series (HealthAnalyticsRepository.ts:97/:114/:130/:147; the health_measurement_aggregates migration), service-role EXECUTE, same posture. HealthAnalyticsRepository.ts and the migration join the fence. OPERATOR-PENDING is named in the report and PR body (practice 148).
+Δ2 (D2, D4): `memoryOffered` {count, ids, blocks, unavailable} is ALSO put on the `clarification_asked` event (stageClarify.ts:3242); overlap on a clarification turn is `unknown` (no answer acted). D4's denominator is distinct session_id over turn_done ∪ clarification_asked — the aggregates.sql:35-44 rule — stated in the panel.
+Δ3 (D1): the SSE done frame (stageStream.ts:1140) PROJECTS memoryOffered to {count, conversationCount, userCount, routineOffered, dossierOffered}; ids and blocks go to telemetry ONLY; client types (cwfService.ts:224, cwfStore.ts:290) unchanged. State in the report: telemetry is TELEMETRY_READ tier while episodes are MEMORY_MANAGE; ids are cross-references, not content (TelemetryRepository.ts:8-9).
+Δ4 (DEPENDS): M4a is built as a PREP on top of M2 (phase/m2-honest-grading-s164-2 = 37faf47a7fcec16e299050af0d83365a162ab3a4, AG-3's re-cut, PR opening now) because M2 edits MemoryTab.tsx, memoryTab.test.tsx, adminRowDiscipline.test.tsx and the manifest. When M2 lands, re-pick your one commit onto the new master (M3 may also land first — then onto that); manifest drift only via `npm run reseal`. MemoryTab edits are serialized behind M2/M3.
+Δ5 fence: + stageClarify.ts (the :3242 field) · + the migration and HealthAnalyticsRepository.ts · + health payload fixtures that build the full response: src/components/admin/__tests__/healthTab.test.tsx, healthCoverage.test.tsx, healthBackendReason.test.tsx, obsHostBandRow.test.tsx, persistenceClassBand.test.tsx, src/dev/AdminPreview.tsx · + HealthTab.tsx only if the band renders there · + any clarification-event pin under api/cwf/__tests__/ · REMOVE cwfService.ts / cwfStore.ts (unchanged under Δ3). Tests: M4A-3 splits into 3a (turn_done) and 3b (clarification_asked); M4A-5 asserts the union denominator and a clarification-only day; ADD M4A-7: the SSE frame carries no ids.
+Δ6 (D4): NO warn threshold is added (instrument only, A26 P8). If one is ever wanted: the health.* agent params resolved by resolveHealthPolicy.ts.
+
+## ORDERS
+1. `git ls-remote origin refs/heads/master` TWICE (print); clean worktree; `git fetch origin phase/m2-honest-grading-s164-2` and `git switch -c phase/m4a-memory-offered-overlap-s164-1 37faf47a7fcec16e299050af0d83365a162ab3a4` (PREP on M2, Δ4). If M2 has already landed when you start, branch from that master instead and say so.
+2. Measure first (graft + git grep) and quote: memoryRetrieve.ts :596-671, types.ts :720, stageStream.ts :853-861 and :1140, chatQuotaStream.test.ts :358, health-analytics.ts memory lines (:195, :496, :588), MemoryTab.tsx :179-190; where ctx.entityResolutions and persistRaw args/tool names live at flush.
+3. Build D1–D5. Tests (named): M4A-1 offered ids/blocks stamped in order; M4A-2 unavailable → null, real zero → 0/[]; M4A-3 turn_done carries memoryOffered + memoryOverlap (updated pin); M4A-4 overlap truth table (entity / tool / routine / none / unavailable); M4A-5 analytics series with a no-data day; M4A-6 MemoryTab renders the series and the "overlap (not causation)" label; planted fault: stamp overlap as 0 when unavailable → M4A-4 red; revert.
+4. GATES: `npm run build` (reseal if drift) · typecheck:api · check:rule24 · check:migration-versions · check:tenant-zero · check:backend-names · relayAudit over docs/relay/ · touched suites + e2e locators for changed strings (practice 116). Report docs/relay/M4A-MEMORY-OFFERED-OVERLAP-S164-1-AG4-report.md with exactly ONE FILE-FENCE block; no bare 7–39 hex in prose.
+5. ONE commit (parent = M2's head for the prep); push; ls-remote. No PR until the Architect's notice gives the slot and says re-pick onto master. Slip SLIP-CARD-M4A-MEMORY-OFFERED-OVERLAP-S164-1 (bus + fallback S164/).
+6. Back to `node scripts/mail-wait.mjs AG-4 --budget-min 480`.
+
+FILE-FENCE (proposed; the scout confirms): memoryRetrieve.ts · turn/types.ts · stageStream.ts · the new overlap module · health-analytics.ts · src/lib/adminService.ts · src/components/admin/MemoryTab.tsx · cwfService.ts / cwfStore.ts only if the client type changes · tests (chatQuotaStream.test.ts pin + new suites + memoryTab.test.tsx) · e2e files matching changed strings · report · gate-regenerated files.
+FORBIDDEN: prompt text; recall filters; learn doors; turn_trace_digest as a source; the word "used" for overlap; a default 0 for unavailable; a threshold; a backend literal; any migration other than health_memory_daily; applying the migration (Operator only); episode ids in the SSE frame; --force; cron; printing an environment value.
+
+END · CARD-M4A-MEMORY-OFFERED-OVERLAP-S164-1-v2
