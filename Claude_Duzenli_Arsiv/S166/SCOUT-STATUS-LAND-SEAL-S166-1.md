@@ -1,0 +1,37 @@
+[scout-1]
+ADVERSARY-VERDICT: GREEN pr=654 head=d4e441ec3cf9e6238c765cdd08d3814dc0e47439 · LANDED merge=5e6e691fe9ea98b17e2a0f2e78f14802c750ae64 by=maymun207
+SCOUT-STATUS-LAND-SEAL-S166-1 · from scout-1 · reply to ORDER-SCOUT-LAND-SEAL-S166-1 (id 66ae7e3d-1d97-4772-bbcc-641d708a7d39, DIGEST-OK). Box read at 2026-09-30T20:17:35Z. Code read at the head in a detached scratch worktree (removed).
+
+1 · SHAPE. Head d4e441ec3cf9e6238c765cdd08d3814dc0e47439 = the card's head (not moved). 5 commits: c2829211 (report + full fence, parent d768bc29) · 3fcc0c8e S1–S6,S8 · d454be72 S4,S7 · ea35d70d merge of origin/master (651, 652, 653) · d4e441ec report. 16 changed paths vs master a3ce7b0c, ALL inside the first commit's 17-entry FILE-FENCE (docs/laws/index.md fenced, unchanged). Guard: "FENCE-GREW ok — head fence is held by the first fence, at c2829211".
+
+2 · REVIEW vs S1–S9 + A1–A6 — all hold.
+(a) S1: docDriftCore.ts runDocDrift: `git merge-base <BASE_SHA> HEAD`, then `git diff --name-only --no-renames -z <mb>..HEAD` (A3). Tab name exact: `tabNames.includes(tab)` after trim, case-sensitive (A4); every attest line printed COUNTED / NOT COUNTED with why; every tab printed "not touched" or "PASS via …"; failures name tab + files.
+(b) S2: empty BASE_SHA → structure only + "ATTEST NOT RUN -- no PR base (build mode)", exit 0; no git call in build mode, so a shallow clone cannot fail it. Vercel/nightly/master push set no BASE_SHA → build mode. A base given but unresolvable → "[FAIL] UNMEASURED", never a blind pass.
+(c) S3: manifest has no lastSyncedCommit / mappedContentSha; structuralProblems FAILS a tab that still carries one.
+(d) S4: reseal.ts prints "[reseal] retired by CARD-SEAL-NO-SHARED-LINES-S166-1 — attest in your report (DIAGRAM-ATTEST)" and writes nothing (exit 0).
+(e) S5 per A2: resealPaths → `{ ok: true, paths: [], manifest: rel }`; ORDER 4 reads `rs.manifest`. docDriftCore still exports ROOT + MANIFEST and imports node builtins only. MEASURED: the NEW guard's resealPaths over the NEW docDriftCore at d4e441ec (the path every PR cut after this one takes) → {"ok":true,"paths":[],"manifest":"public/architecture/manifest.json"}. mergeGuard.d.mts updated.
+(f) S6: build-test.yml, exactly 3 hunks (GUARD-SELF-EDIT, all read): two comment blocks + `env: BASE_SHA: ${{ github.event.pull_request.base.sha }}` on the Build step. No trigger, permission or `if:` change. nightly-compat.yml comment only (build mode).
+(g) S7: RULE-20 canonical amended (longer, not shortened), `amended:` cites OWNER-RULING-S166-RULE20-ATTEST-1, `history:` line keeps the old canonical verbatim; scope adds docs/relay/*report.md. AGENTS.md RULE 3 item 4 and RULE 20 lock-step both amended with the old text kept as a dated history. CLAUDE.md §5 reseal paragraph replaced whole.
+(h) index.html:293 badge now "<tab> · doc <docVersion>" (derived identity) or just the tab name; no stored per-tab commit.
+(i) docDriftAttest.test.ts: diagram in diff passes; repo-root diagram (Stage Cards); exact attest passes; misspelled tab not counted; reason < 10 not counted; neither → FAIL; attest in a report NOT in the diff does not count; rename out of a mapped area counted; untouched tab not required; unresolvable base FAILS; build mode ATTEST NOT RUN exit 0; structure fails (missing diagram, empty codeAreas, retired field); no em dash → wrong form; real script over real manifest. mergeGuard.test.ts: unfenced manifest edit → OUTSIDE-FENCE; hand-resolved manifest → MERGE-HAND-EDIT; two PRs fencing the manifest → COLLISION, higher yields; GREEN control needs no manifest. sealDerive tripwire: neither field present.
+(j) S9: this PR touches no mapped code (api/cwf/__tests__/*.test.ts matches no codeArea glob), so no attest line is needed — CI's own ATTEST RUN confirms all 7 tabs "not touched".
+RESIDUAL the report named — CLOSED by measurement: `heavy=false` (Build skipped) happens only when every changed path is under docs/, .claude/, .agents/ (or the diff is empty); no manifest codeArea glob lies under those roots (all 33 globs listed: api/, shared/, data/backends/, vercel.json). So the diet cannot skip the attest on a mapped change.
+
+3 · PLANTED FAULT (the one input): a PR that changes mapped code (e.g. api/cwf/chat.ts) and appends ANY line to an ALREADY-LANDED docs/relay/*report.md that carries an older `DIAGRAM-ATTEST: Stage Cards — …` line passes that tab with no fresh review — readAttests reads the report's whole body at HEAD (`git show HEAD:<p>`), not only the lines this PR added. This is the card's own S1(b) wording ("a report in the diff contains a line"), so it is not an implementation defect; latent today (no report on master carries an attest line yet). Follow-up, paste-ready for a later card: "S1(b) counts only DIAGRAM-ATTEST lines ADDED by this PR — read `git diff -U0 <merge-base>..HEAD -- <report>` and take `+` lines — so an attest written for an earlier PR never passes a later one; test: a changed report whose only attest line is pre-existing → the tab FAILS."
+Note (not a defect): on pull_request HEAD is GitHub's merge ref; merge-base(base.sha, HEAD) = base.sha, so the diff is exactly the PR's change.
+
+4 · CI at d4e441ec3cf9e6238c765cdd08d3814dc0e47439 (run 36770417918; check-runs read twice after completion, identical, total 8, zero failed):
+- changes success — "[merge-guard] GUARD-SELF-EDIT … the scout reads every build-test.yml hunk directly" (done, §2f) · "CLEAN-MERGE ok ea35d70d… — rehearsal conflicted; differs only in reseal paths (public/architecture/manifest.json)" (judged by the merge-base guard, which still exempts the manifest — expected) · "FENCE-GREW ok" · "timeline ok — 7 events, no reopen, no force-push" · "COLLISION: 0 other open PR(s) against master" · "[merge-guard] VERDICT GREEN".
+- build (24.x) success; CI-DIET heavy=true ui=true. The gate RAN S1 on this PR:
+  [check:doc-drift] structure ok -- 7 narrative tabs, every diagram resolves, every codeAreas non-empty.
+  [check:doc-drift] ATTEST RUN -- base a3ce7b0c…, merge-base a3ce7b0c…, 16 changed path(s)
+  [check:doc-drift] attest lines read: none (1 report(s) in the diff)
+  [check:doc-drift] tab '<each of 7>': not touched
+  [check:doc-drift] [OK] every touched tab is attested or its diagram is in the diff (mode=pr).
+  Tests: 778 files; 11787 passed | 4 expected fail | 1 skipped (11792).
+- rule26 success · relay corpus (grammar v1) success · report-schema success · arm auto-merge SUCCESS (the owner's token now reaches pull requests) · Vercel Preview Comments success · combined status Vercel success. eval-canary SKIPPED by design, named.
+
+5 · LANDING: adversary/scout success on d4e441ec at 20:28:15Z · named wait: read 1 20:28:23Z master a3ce7b0c OPEN · read 2 20:29:24Z master 5e6e691f MERGED · #654 MERGED 2026-09-30T20:29:24Z, merge 5e6e691fe9ea98b17e2a0f2e78f14802c750ae64, parents a3ce7b0c + d4e441ec · `git diff d4e441ec 5e6e691f` EMPTY (the certified tree landed) · merged_by.login = maymun207 · auto_merge.enabled_by.login = maymun207 (REST pulls/654 and gh pr view agree).
+6 · VERCEL PRODUCTION at 5e6e691f: not yet listed at 20:30Z (GitHub deployments?sha= returned none) — UNMEASURED at reply time, not a failure.
+7 · TRANSITION: at the time of review #654 was the ONLY open PR, so no open branch carries a seal edit that will now conflict; SD1 re-carries once per A1 when it is next worked.
+Forbidden kept: read-only; no edit, push, merge by hand, re-run, re-arm, dispatch, cron, migration. No environment value printed.
