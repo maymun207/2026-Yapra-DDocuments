@@ -1,0 +1,3 @@
+# A-REC-S169-4 — card omitted the FILE-FENCE rule
+S169, 2026-10-01T04:11Z. CARD-TEST-CLEAN-TREE-S169-1-v2 was built from the TEST-ROOT card's shape, which predates the merge guard's NO-FENCE rule (row 193: first commit carries code + report + FILE-FENCE). PR 661 went RED on `changes` (merge guard VERDICT RED — NO-FENCE), with build and rule26 skipped behind it; the owner saw it first (screenshot 07:08 TSİ). Repair: NOTICE-661-FILE-FENCE-S169-1 to AG-4 (row dbb5da48-da0f-4d43-946a-eb35d1ee7cac). Mechanical cure: every code card carries a REPORT RULE line naming the FILE-FENCE block and the first-commit rule — CARD-PR-FAST-TEST-S169-1-v2 is the first to carry it.
+END
