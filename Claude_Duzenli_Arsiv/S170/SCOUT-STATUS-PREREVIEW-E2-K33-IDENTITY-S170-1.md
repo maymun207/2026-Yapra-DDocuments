@@ -1,0 +1,34 @@
+[scout-1]
+ADVERSARY-VERDICT: RED card=CARD-E2-K33-TOOL-IDENTITY-S170-1-v1
+GRAFT: none run for this card. graft indexes the stale local clone, so the key-site map was built by a read-only Explore subagent with `git grep`/`git show` at master 648c61d6384942ab532444be252422ed9e37c02b. I re-verified the load-bearing lines myself (stageTools.ts:171-193, :1391-1438, :1908-1916; toolRetrieval.ts:335-351; entryFloor.ts:93-96). Live facts via scripts/roQuery.ts (read-only).
+PROMPTS: none.
+
+SCOUT-STATUS-PREREVIEW-E2-K33-IDENTITY-S170-1 · reply to ORDER-SCOUT-PREREVIEW-E2-K33-IDENTITY-S170-1 (id 475e9019-8ee5-47c5-b596-75e694709d46)
+PRECONDITION master = 648c61d6384942ab532444be252422ed9e37c02b: HOLDS.
+
+## 1 · Claims
+- HOLDS: toolRetrieval.ts:343-346 dedupes on bare `c.tool`; stageTools.ts:171-193 claimToolName is first-wins and refuses the second. Line fix: the sanitise is at :1391, not :1388 (:1401 holds).
+- EXECUTION IS CLOSURE-BOUND (decisive for the seam): ctx.vercelTools[safeName] (:1424) holds an execute closure that captured `server` from serverMap.get(toolDef.serverId) (:1381). toolToServerMap (:1406) only feeds the prompt tool list (stagesModel.ts:159). So a derived model-facing name changes the vercelTools key, the toolToServerMap key, the prompt list and the [MCP Call] log, and nothing that routes a call.
+- PERSISTED WRITES USE THE RAW name, not safeName: span ATTR_TOOL_NAME :1435, telemetry tool_name :1912, recordToolCall, toolCallsByTool, the outcome ledger. A derived name does NOT leak into stored data, so I1/I2 need NO migration.
+- PERSISTED ROWS THAT LOSE THE BACKEND (bare name, no backend_id): episodes.tools jsonb (memoryDistill.ts:531), messages.raw_tool_results jsonb (PersistRawEntry, stageTools.ts:251-256), and the routing_mismatch telemetry event (stageTools.ts:287). RECOVERABLE: tool_experience (PK backend_id, tool_name, via_gateway), telemetry tool_call payload.backendId, rule rows, and the cwf.tools.collisions span.
+- MORE IN-TURN COLLAPSES the card omits: the byName maps stageTools.ts:815/:858 (named-tool door and obligation reorder; obligation rows carry backend_id but are re-resolved by bare name at :858) and :984/:993 (Yol-B additions, last def wins); entryFloor.ts:95 flattens per-backend floors to one bare set, then toolCategories.ts:1262/:1981/:1985 `relevantToolNames.has(t.name)`. That means a floor tool of backend A also admits a same-named tool of backend B.
+- REPLAY: replay/stubTools.ts:249-299 keys stubs `toolName#argsHash` and re-sanitises the recorded raw name. It cannot reproduce a derived name and cannot tell backends apart.
+
+## 2 · T2 and live collisions (public.backend_tools, read now)
+- honestbench (4 tools) and mount-probe (4 tools) share ALL FOUR names: hb_entity_lookup, hb_grove_status, hb_grove_yield_total, hb_sensor_readings_list. A turn with both in scope offers one backend's four and refuses the other's.
+- LIVE TODAY on active backends: armes ∩ machine-knowledge-base share knowledge_count, knowledge_list, knowledge_lookup_machine, knowledge_lookup_parameter, knowledge_search; armes ∩ superset share call_tool, get_instance_info, health_check, search_tools. (armes ∩ armes-new: ~145 names, but armes-new is retired.)
+- So I2 as written RENAMES established tools in ordinary multi-backend turns, not only in a T2 corner. Every turn with armes and MKB in scope would see five tools renamed.
+- cwf.tools.collisions VALUES: UNMEASURED. The attribute lives on the Langfuse span, which this window cannot read. The code path is measured above.
+
+## 3 · The narrowest correct seam
+Keep identity = (backendId, tool) in-turn only, at: mergeByRank, the three byName maps, the entry floor (keep byBackend), claimToolName/claims, toolToServerMap and vercelTools. The FIRST claimant of a name keeps the bare name, in today's order, so no established tool is renamed. Only a LATER claimant gets a derived name. Execution needs no change. Persisted rows gain an additive `backendId` field in their jsonb entries, so replay and memory can tell backends apart from now on (no migration; readers tolerate absence).
+
+## AMENDMENTS (paste VERBATIM):
+A1. I2 NAMING RULE: the first claimant of a sanitised name keeps it byte-identical, in the registration order master uses today. Only a later claimant of the same name gets a derived name. The report prints, for every live collision (armes∩machine-knowledge-base knowledge_*, armes∩superset call_tool/get_instance_info/health_check/search_tools, honestbench∩mount-probe hb_*), which identity keeps the bare name, and it must be the one that wins on master today. A test pins that a turn with armes + machine-knowledge-base keeps armes' five knowledge_* names byte-identical.
+A2. DERIVATION: derived = `${safeName}__${sanitise(backendId)}`, where sanitise maps every char outside [a-zA-Z0-9_] to `_`. Ids contain `-`. If the result exceeds 64 chars, truncate the safeName part and append a 6-hex digest of the identity. If a derived name is itself already claimed, append `_2`, `_3` … deterministically. The derived name goes through claimToolName like any other.
+A3. I1 SCOPE (in-turn only): mergeByRank (toolRetrieval.ts:343-346), stageTools.ts byName maps :815, :858, :984, :993, entryFloor.ts:95 (keep byBackend; toolCategories.ts:1262/:1981/:1985 match on identity), claims (:171), toolToServerMap (:1406) and vercelTools (:1424). Execution stays closure-bound (:1381/:1434). No persisted key changes, and no migration.
+A4. PERSISTED, additive: PersistRawEntry (stageTools.ts:251-256 → messages.raw_tool_results), the episode tools entries (memoryDistill.ts:531 → episodes.tools) and the routing_mismatch telemetry payload (stageTools.ts:287) gain `backendId` as an additive jsonb field. Every reader tolerates its absence (old rows). replay/stubTools.ts keys stubs by (backendId ?? '', toolName) and rebuilds the model-facing name with the same derivation; a legacy row without backendId keeps today's behaviour.
+A5. Obligations and named tools: the named-tool door and the obligation reorder (stageTools.ts:858) resolve a rule's payload {tool} together with the rule's backend_id to the identity's OFFERED name (bare or derived). They never match by bare name alone.
+A6. I3/I4: cwf.tools.collisions keeps its shape and adds `derivedName` per collision. The report names every reader of the attribute. Tests: (a) the T2 shape (honestbench + mount-probe, same four names) → 8 tools offered, each call reaches its own server; (b) single-backend AND multi-backend-without-overlap turns → tool names and the prompt tool list byte-identical to master; (c) a planted fault (bare-name dedupe restored in mergeByRank) → red; (d) a replay of a legacy raw_tool_results row → unchanged.
+A7. UI (13.3): the Stages tab stage-07 card lists identity → offered name for every derived name, and nothing changes when there is none.
+END-AMENDMENTS
