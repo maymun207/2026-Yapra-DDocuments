@@ -21,3 +21,6 @@ ENV/
 
 # Logs
 *.log
+
+# Temp / Scratch
+_to_delete/
