@@ -2,16 +2,16 @@
 CARD-CI-SPEED-S167-1-v2
 
 LANE: AG-3 (the AG-3 window ONLY; any other window prints "NOT MINE: AG-3 card" and stops). First line of every message: `[AG-3]`. Built from YOUR SLIP-ORDER-MEASURE-CI-SPEED-S167-1 — your measurement, your design, carried with credit. Take NOTICE-PUSH-DOC-REPO-S168-3 first if it is still in your box, then this card.
-SUPERSEDES CARD-CI-SPEED-S167-1 (v1, never sent to a lane). v2 = v1 + scout-1's amendments A1–A6 from SCOUT-STATUS-PREREVIEW-CI-SPEED-S167-1 (verdict RED; the bus post was blocked in scout-1's window, so the source is the file Claude_Duzenli_Arsiv/S167/SCOUT-STATUS-PREREVIEW-CI-SPEED-S167-1.md in the doc repo, written 2026-10-01 03:33Z), pasted VERBATIM below; where an amendment and v1 differ, the amendment wins.
+SUPERSEDES CARD-CI-SPEED-S167-1 (v1, never sent to a lane). v2 = v1 + scout-1's amendments A1–A6 from SCOUT-STATUS-PREREVIEW-CI-SPEED-S167-1 (row 0417a10f-93ed-4df6-8648-b1c1ca16e5ee, verdict RED), pasted VERBATIM below; where an amendment and v1 differ, the amendment wins.
 fanout: personalized (one lane, one body)
-FROM: Architect, S169, 2026-10-01T03:48Z
+FROM: Architect, S169, 2026-10-01T04:03Z
 PRECONDITION: master = your `git ls-remote origin refs/heads/master` (8d452df354e8ed98c479f6f1cdecfbc61c7ed34b at 03:28:44Z, PR 660). vitest.config.ts:8 globals true · :9 environment 'jsdom' for every include · :10 setupFiles ./src/test/setup.ts · :11 include; pool/isolate/maxWorkers unset (vitest 4.1.9). CI "Run tests" = `npm run test` (build-test.yml:439). MEASURED by the Architect (gh API, runs by full head sha): master Build and Test took 18m50s at 9354882aa2f993d8285bb0cefcb9cb1f350ec118 (03:12:48Z→03:31:38Z) and 18m20s at 731c1ee412432b2c5e96f1966793c00f00ec27e2.
 ON-DISAGREEMENT: if the config lines or the defaults are not what you read, quote what is and stop.
 WHY: owner, 2026-09-30 23:59 TSİ: "18 dk cok uzun degil mi?" and again 2026-10-01 06:47 TSİ: "bu gene 16+dk run ediyor neyi run ediyor 15 dk !?". Every code PR and every master push waits ~18 min on CI. AG-3 measured that ~77% of test CPU is per-file overhead, and that 615 api/shared files run under jsdom although none touches a DOM global; api+shared under node at 3 workers: 103.9 s → 48.3 s with IDENTICAL failed sets. Plain words: most of the quarter hour is the test runner building a fake browser for tests that never use one.
 AUTHORITY: OWNER-APPROVAL-S167-CI-SPEED-1 ("onay CI-hiz", 2026-10-01 00:02 TSİ).
 ```evidence:adversary
 ADVERSARY: EXEMPT
-ack: file Claude_Duzenli_Arsiv/S167/SCOUT-STATUS-PREREVIEW-CI-SPEED-S167-1.md (scout-1, RED, A1-A6)
+ack: 0417a10f-93ed-4df6-8648-b1c1ca16e5ee
 why: same subject, v2 carries the scout's amendments verbatim (loop-breaking, OWNER-RULING-S133-P6-SCOPE-AND-LOOP-1).
 ```
 LAWS KEPT: S37-2 — one `vitest run`, one job, the full suite at the PR head; nothing selected, skipped or sharded; no assertion edited; no workflow edit; no paid runner. isolate stays true; environment for UI tests stays jsdom.
