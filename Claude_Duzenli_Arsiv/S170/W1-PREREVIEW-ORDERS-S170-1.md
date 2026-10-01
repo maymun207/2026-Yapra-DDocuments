@@ -9,3 +9,7 @@ Canonical bytes live on the bus (relay_inbox). Each order carries its v1 card ve
 Liveness: NOTICE-PING-AG3-S170-1 (f8ad319a-c424-4a86-a2dd-64f2003b37f9) consumed 06:41:43Z — AG-3 is in the loop; 4 producer lanes.
 Measured facts the cards rest on (06:3x–06:4xZ): public.backends 7 rows (6 active + armes-new retired); public.trace_label exists (M3, human-only, 0 rows); telemetry_events types tool_call/message/llm_call/error; router.* agent params exist except maxTools/maxSchemaTokens/maxFanout; derivedPack.ts:108 MAX_TOOLS=40 display cap.
 Owner away ~09:40–17:00 TSİ: every card is migration-free or absence-tolerant; operator steps queue for his return.
+
+## Ticks
+- 06:46:13Z scout-1 SCOUT-STATUS-PREREVIEW-E2-REGISTRY-S170-1 RED, A1–A7 (row 4dfce52f-6e88-41a2-b257-3dcd5501f246, md5 c9c126daf58e72ec1f191ad1799386cb). Seam: self-seed reconciler + pure genericFamilyKindDefs over live active backends; R3 defect confirmed (superset accept wrote armes.tool_category).
+- 06:48:59Z CARD-E2-REGISTRY-DATA-S170-1-v2 → AG-1 (row 94b42c7c-d1b9-47f7-b842-ac4f0ed11dbb, 9412 chars, md5 0c6ea0e2b5e78010002fcb97a70bcec3), composed by SQL (v1 from order row + amendments substring; scout row md5+sha256 preconditions held).
