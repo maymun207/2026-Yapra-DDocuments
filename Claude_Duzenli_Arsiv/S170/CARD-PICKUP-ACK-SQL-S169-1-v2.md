@@ -1,0 +1,5 @@
+CARD-PICKUP-ACK-SQL-S169-1-v2 — archive pointer (S170).
+Canonical bytes: relay_inbox row 33fbf369-30ba-4fbb-a6d1-f52434d3edd1 (to AG-4, 2026-10-01T05:43:35Z), length 7295, md5 e333e71ba51a93166fbf29e09e5e4661, sha256 45ba9caf246609c7c35bb696b893274853b3c2ed88d6a0c914afaadc69b00501.
+Composition: v1 (docs/CARD-PICKUP-ACK-SQL-S169-1-v1.md) + scout-2 amendments A1–A6, by SQL substring of row 3eddc6d5-e3ba-4c73-a30e-7a953d114f29 between the same markers (substring md5 36e743be96ded72baab6454ea1db84cf, 2752 chars). Preconditions: scout row md5 24d754430e94e2f7750e44a9c4479d59, sha256 8ccb28ad7006a28685e568415ce9e3aa5aef8a3d75ef61187c2b0efb48de6526; held (1 row written).
+Subject check: A1 keys the refusal on the ack's first line (the lane-side PICKUP pattern) instead of artifact_name — detail, same subject (row 209).
+Adversary: EXEMPT, ack 3eddc6d5-e3ba-4c73-a30e-7a953d114f29. Authority: OWNER-APPROVAL-S169-PLAN-1. After the PR lands: Gemini operator `supabase db push` (fjbrkimwvtpwoxhziidh), then one pg_proc.prosrc read + AG006 live proof.
