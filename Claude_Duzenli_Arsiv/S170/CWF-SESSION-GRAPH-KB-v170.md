@@ -1,0 +1,21 @@
+# CWF-SESSION-GRAPH-KB-v170 (edges learned in S170)
+- [S170] Mac on battery → Battery `sleep 1` + no assertion → 'Idle Sleep' in seconds → lanes AND the Architect's bridge stop → nothing lands, nothing says so.
+- [S170] mail-wait → `caffeinate -i -w <pid>` → holds PreventUserIdleSystemSleep on battery, no prompt from a lane window → dies with the pid even on SIGKILL.
+- [S170] working window (long build, full suite) → holds no assertion → all six working on battery can still sleep → needs a SessionStart hook → .claude/hooks and settings are write-denied to lanes → owner surface.
+- [S170] IDE extension crash → kills every window's running background command → windows look healthy → pooler log (cwf_lane 'Connection authenticated' per interval) is the only outside lens → owner pastes one line per window.
+- [S170] lane:boot PATH B → crashed predecessor → `--confirm-takeover <lane>:<held sha of refs/heads/lane/<lane>>` → the Architect can read the held sha from GitHub and pre-fill the owner's paste.
+- [S170] crashed window's worktree → survives on disk under /private/tmp/claude-501/…/scratchpad → replacement window commits it unchanged, then continues.
+- [S170] Claude Code permission rule → matches by command PREFIX → `env VAR=x cmd` is not stripped → asks although `Bash(cmd:*)` is allowed → any `Bash(env …)` rule is a blanket Bash → cure is a script taking the value as an ARGUMENT.
+- [S170] auto-mode classifier → refuses at once, never waits, despite a matching allow rule → different from a permission prompt, which WAITS.
+- [S170] a window → cannot observe an approved prompt → its PROMPTS line can only be `self-observed=… · approvals UNMEASURED-BY-WINDOW`.
+- [S170] data/gates/backend-names-baseline.json → absolute counts moved by nearly every PR → two PRs from one base conflict three-way → a branch commit cannot clear it → carry from fresh master, one PR open at a time.
+- [S170] merge guard COLLISION → the higher-numbered PR yields on a shared path → a carry (new, higher number) yields to every older open PR → park (close) the older one first.
+- [S170] merge guard FENCE-SYNTAX → `[` `]` are glob characters → a dynamic-route filename cannot be fenced → fence its directory prefix.
+- [S170] build job → separate steps tenant-zero and backend-name gate BEFORE `npm run build` → a lane's `npm run build` green does not cover them.
+- [S170] bus adversary gate → a `card` to AG-n needs an ```evidence:adversary``` block → after a RED pre-review: `ADVERSARY: EXEMPT` + `ack: <scout row id>`; notices and orders are exempt kinds (≤ 8192 chars).
+- [S170] v2 card → composed in SQL: header (md5+sha256 guarded) || v1 slice from 'LANE (after pre-review)' || scout row slice 'AMENDMENTS (paste VERBATIM):'…'END-AMENDMENTS' → no retyping.
+- [S170] tool_experience → both readers ask only "> 0" → a derived read over telemetry_events tool_call rows + frozen legacy table replaces the counter → the read-aggregate-upsert race ends structurally.
+- [S170] time phrases → ONE resolver (timeTools.ts) but TWO live seams (stageClarify pre-answer, the resolve_time_range tool) → a calendar must feed both or the ranges disagree.
+- [S170] publish gate Layer 2 for routing kinds (K34) → wired → inert while held-out exam sets are empty → owner labels held-out turns in the ReplayTab.
+- [S170] the Architect's container → cannot reach api.github.com (proxy 403) → GitHub is read only through the bridge (gh.sh on the Mac).
+END
